@@ -1,0 +1,38 @@
+language: python
+sudo: false
+
+python:
+  - 3.5
+  - 3.6
+
+cache:
+  directories:
+    - $HOME/.cache/pip
+
+env:
+  global:
+    - secure: "SjV3jG3DnVnC2fvu1Ie2o9ySc4ULPhd6loyi2Ximzrq9stmYVpoFaN74PHsI0iOTKeOkNr6qTlrhNOgZObqAwHFdT4tHApKul1PixS0tYFFI9t6ZVdtXgAqJprQcSpFgFsOV5KIPNnp51oBEXvUphCz+0ArfkIEU73m8r+UeiNIJJC9pfey0QCstQmcRaYvbkeckPWGb9l2L/LlVLHkHmDaGU47t527QQr6qD32lEE0NSKFB0QmEjI5wzh4/tJnkYfq54HJ4LT8YqC8bDzUan9vIepQxsP6dPgtkDy2PUVXEnTYbSUdrAfw+TVwT2tQS8aneh2Qqg4bnQ4SaD+oV1Jh6yQglKYksaViNphySvzVNtmTnleV/bzRGYLA6O8bCvrN0F7h6xUlHUrRPAvBqvLCztWm1AqSLU7TgLjjEAP211YUehra/kRtij88Od7cipq4dle5Y+2+Wr0+WprjaI2JfHf8KP1VkT/bqTIGMgbXcI1ZXgy6Hh9APzJwQikhBaxN/omJa4f1tu5DpKs6oOnBpkT9HSGA1XuGWiwqe03xqk18IDA29eQShQ3xPnco5b9nZ6mDVDGgnCrXl58jxhP8Yg6KsBNTf3GxrNm+mTlrYQSwC2cxmsVVJJvgG7OX7ihNOd+ljBd2Hts03y/z6C+sMe+QIQTbdKsgLnn8RTW0="
+  matrix:
+    - TOXENV=py34
+    - TOXENV=py35
+    - TOXENV=py36
+
+matrix:
+  exclude:
+    - python: 3.6
+      env: TOXENV=py34
+    - python: 3.6
+      env: TOXENV=py35
+    - python: 3.5
+      env: TOXENV=py36
+
+  last_finish: true
+
+install:
+  - pip install tox codacy-coverage -U pip
+
+script:
+  - tox -e $TOXENV -- --with-coverage --cover-package=pyplanet --cover-xml --cover-xml-file=coverage.xml
+
+#after_success:
+#  - python-codacy-coverage -r coverage.xml

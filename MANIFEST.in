@@ -1,0 +1,9 @@
+global-include *.py
+
+include *.txt CHANGELOG.md LICENSE README.md
+recursive-include pyplanet/tests *.txt
+
+graft examples
+
+recursive-exclude .tox *
+recursive-exclude pyplanet *.pyc
