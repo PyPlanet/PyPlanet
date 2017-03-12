@@ -1,3 +1,6 @@
+# Inherit from main.
+-r requirements.txt
+
 # Documentation Building.
 sphinx
 sphinx-autobuild
