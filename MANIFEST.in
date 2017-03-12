@@ -1,4 +1,5 @@
 global-include *.py
+global-include requirements*.txt
 include AUTHORS
 include INSTALL
 include LICENSE
