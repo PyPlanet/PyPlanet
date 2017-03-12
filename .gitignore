@@ -66,4 +66,5 @@ out
 gen
 
 ### Project specific
-
+# Configuration file.
+/app/settings.py
