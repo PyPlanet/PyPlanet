@@ -4,6 +4,7 @@ import os
 import sys
 
 from pyplanet.conf import settings
+from pyplanet.god.process import EnvironmentProcess
 
 
 class Management:
@@ -24,6 +25,15 @@ class Management:
 
 		# Start Controller.
 		print(settings.DEBUG)
+
+		# Start god.
+		processes = list()
+		for env in ['default']:
+			processes.append(EnvironmentProcess(environment_name=env))
+
+		# Starting all processes.
+		for process in processes:
+			process.process.start()
 
 
 def start(argv=None):
