@@ -1,7 +1,9 @@
 import threading
 import importlib
+from collections import OrderedDict
 
-from pyplanet.core.exceptions import InproperlyConfigured
+from pyplanet.apps.config import AppConfig
+from pyplanet.core.exceptions import ImproperlyConfigured, InvalidAppModule
 
 
 class Apps:
@@ -13,17 +15,13 @@ class Apps:
 	useful information such as description, author, version and more.
 	"""
 
-	def __init__(self, apps=list()):
+	def __init__(self):
 		"""
 		Initiate registry with pre-loaded apps.
 		:param apps: Pre-loaded apps.
 		:type apps: list
 		"""
-		if not isinstance(apps, list):
-			raise InproperlyConfigured('The setting APPS should contain a dictionary with pool names and array key with apps!')
-
-		# Set the preloaded apps.
-		self.apps = apps
+		self.apps = OrderedDict()
 
 		# Set ready states.
 		self.apps_ready = self.ready = False
@@ -31,10 +29,7 @@ class Apps:
 		# Set a lock for threading.
 		self._lock = threading.Lock()
 
-		if len(apps) > 0:
-			self.populate(apps)
-
-	def populate(self, apps):
+	def populate(self, apps, in_order=False):
 		"""
 		Loads application into the apps registry. Once you populate, the order isn't yet been decided.
 		After all imports are done you should shuffle the apps list so it's in the right order of execution!
@@ -47,5 +42,15 @@ class Apps:
 			return
 
 		# Load modules.
-		for module_name in apps:
-			pass
+		for entry in apps:
+			app = AppConfig.import_app(entry)
+
+			# Check if the app is unique.
+			if app.label in self.apps:
+				raise ImproperlyConfigured('Application labels aren\'t unique! Duplicates: {}'.format(app.label))
+
+			# Add app to list of apps.
+			app.apps = self
+			self.apps[app.label] = app
+
+			print(app)

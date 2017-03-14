@@ -1,6 +1,6 @@
 from pyplanet.apps import Apps
 from pyplanet.conf import settings
-from pyplanet.core.exceptions import InproperlyConfigured
+from pyplanet.core.exceptions import ImproperlyConfigured
 
 
 class Instance:
@@ -14,10 +14,11 @@ class Instance:
 		self.apps = Apps()
 
 		# Populate apps.
+		self.apps.populate(settings.MANDATORY_APPS, in_order=True)
 		try:
-			self.apps.populate(settings.MANDATORY_APPS + settings.APPS[self.process.pool_name])
+			self.apps.populate(settings.APPS[self.process.pool_name])
 		except KeyError as e:
-			raise InproperlyConfigured(
+			raise ImproperlyConfigured(
 				'One of the pool names doesn\'t reflect intot the APPS setting! You must '
 				'declare the apps per pool! ({})'.format(str(e))
 			)

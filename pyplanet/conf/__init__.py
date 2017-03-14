@@ -9,7 +9,7 @@ import importlib
 import os
 
 from pyplanet.conf import default_settings
-from pyplanet.core.exceptions import InproperlyConfigured
+from pyplanet.core.exceptions import ImproperlyConfigured
 from pyplanet.utils.functional import empty
 
 
@@ -25,7 +25,7 @@ class LazySettings:
 		"""Setup will create the wrapped settings and load the settings module."""
 		settings_module = os.environ.get('PYPLANET_SETTINGS_MODULE')
 		if not settings_module:
-			raise InproperlyConfigured(
+			raise ImproperlyConfigured(
 				'Settings module is not defined! Please define PYPLANET_SETTINGS_MODULE in your '
 				'environment or start script.'
 			)

@@ -115,9 +115,9 @@ APPS = {
 # The following apps are mandatory loaded, and part of the core. This apps are always loaded *BEFORE* all other
 # apps are initiated and loaded.
 MANDATORY_APPS = [
-	'pyplanet.contrib.games.maniaplanet',
-	'pyplanet.contrib.games.trackmania',
-	'pyplanet.contrib.games.shootmania',
+	'pyplanet.apps.core.maniaplanet.app.ManiaplanetConfig',
+#	'pyplanet.contrib.apps.games.trackmania.app.TrackmaniaConfig',
+#	'pyplanet.contrib.apps.games.shootmania.app.ShootmaniaConfig',
 ]
 
 ##########################################
