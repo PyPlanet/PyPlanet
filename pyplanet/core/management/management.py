@@ -2,6 +2,7 @@ import argparse
 import sys
 
 import logging.config
+import threading
 
 from pyplanet.conf import settings
 from pyplanet.utils.log import initiate_logger
@@ -27,6 +28,7 @@ class Management:
 		self.arguments = self.parser.parse_args(self.argv)
 
 		# Initiate the logger.
+		threading.current_thread().setName('Main')
 		initiate_logger()
 		self.logger = logging.getLogger(__name__)
 

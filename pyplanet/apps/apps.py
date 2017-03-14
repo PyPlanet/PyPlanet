@@ -2,6 +2,8 @@ import threading
 import importlib
 from collections import OrderedDict
 
+import logging
+
 from pyplanet.apps.config import AppConfig
 from pyplanet.core.exceptions import ImproperlyConfigured, InvalidAppModule
 from pyplanet.god.thread import AppThread
@@ -25,10 +27,9 @@ class Apps:
 		self.instance = instance
 
 		self.apps = OrderedDict()
-		self.threads = OrderedDict()
 
 		# Set ready states.
-		self.apps_ready = self.threads_ready = self.ready = False
+		self.apps_ready = self.ready = False
 
 		# Set a lock for threading.
 		self._lock = threading.Lock()
@@ -37,7 +38,6 @@ class Apps:
 		"""
 		Loads application into the apps registry. Once you populate, the order isn't yet been decided.
 		After all imports are done you should shuffle the apps list so it's in the right order of execution!
-		TODO: Make sure core apps are always loaded in given order.
 
 		:param apps: Apps list.
 		:type apps: list
@@ -48,7 +48,6 @@ class Apps:
 		# Load modules.
 		for entry in apps:
 			app = AppConfig.import_app(entry)
-			thread = AppThread.create(app=app, instance=self.instance)
 
 			# Check if the app is unique.
 			if app.label in self.apps:
@@ -57,7 +56,6 @@ class Apps:
 			# Add app to list of apps.
 			app.apps = self
 			self.apps[app.label] = app
-			self.threads[app.label] = thread
 
 	def shuffle(self):
 		# TODO
@@ -67,11 +65,7 @@ class Apps:
 	def start(self):
 		if self.apps_ready:
 			raise Exception('Apps are not yet ordered!')
-		if self.threads_ready:
-			raise Exception('Threads of the apps are already started!')
-		self.threads_ready = True
 
 		# The apps are in order, lets loop over them.
 		for label, app in self.apps.items():
-			thread = self.threads[label]
-			thread.start()
+			logging.debug('Starting {}'.format(label))
