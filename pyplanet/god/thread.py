@@ -1,6 +1,7 @@
 import threading
 
 import logging
+from time import sleep
 
 
 class AppThread(threading.Thread):
@@ -26,4 +27,5 @@ class AppThread(threading.Thread):
 		"""
 		logger = logging.getLogger(__name__)
 		logger.debug('Starting thread for app \'{}\''.format(self._kwargs['app'].name))
+		sleep(50)
 		pass
