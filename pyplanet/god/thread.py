@@ -26,6 +26,9 @@ class AppThread(threading.Thread):
 		:return:
 		"""
 		logger = logging.getLogger(__name__)
-		logger.debug('Starting thread for app \'{}\''.format(self._kwargs['app'].name))
+		logger.debug('Starting appthread for \'{}\':\'{}\'.'.format(
+			self._kwargs['instance'].process.name,
+			self._kwargs['app'].name,
+		))
 		sleep(50)
 		pass

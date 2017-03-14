@@ -18,7 +18,7 @@ class Instance:
 		# Populate apps.
 		self.apps.populate(settings.MANDATORY_APPS, in_order=True)
 		try:
-			self.apps.populate(settings.APPS[self.process.pool_name])
+			self.apps.populate(settings.APPS[self.process.name])
 		except KeyError as e:
 			raise ImproperlyConfigured(
 				'One of the pool names doesn\'t reflect intot the APPS setting! You must '

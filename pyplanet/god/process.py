@@ -12,7 +12,7 @@ class EnvironmentProcess:
 		:type environment_name: str
 		"""
 		self.queue = queue
-		self.pool_name = environment_name
+		self.name = environment_name
 
 		self.max_restarts = 1
 		self.restarts = 0
@@ -54,7 +54,7 @@ class EnvironmentProcess:
 		from pyplanet.core.instance import Instance
 		import logging
 
-		logging.getLogger(__name__).info('Starting pool process for \'{}\'...'.format(environment.pool_name))
+		logging.getLogger(__name__).info('Starting pool process for \'{}\'...'.format(environment.name))
 
 		# Start instance.
 		instance = Instance(process=environment)

@@ -116,8 +116,8 @@ APPS = {
 # apps are initiated and loaded.
 MANDATORY_APPS = [
 	'pyplanet.apps.core.maniaplanet.app.ManiaplanetConfig',
-#	'pyplanet.contrib.apps.games.trackmania.app.TrackmaniaConfig',
-#	'pyplanet.contrib.apps.games.shootmania.app.ShootmaniaConfig',
+	'pyplanet.apps.core.trackmania.app.TrackmaniaConfig',
+	'pyplanet.apps.core.shootmania.app.ShootmaniaConfig',
 ]
 
 ##########################################
