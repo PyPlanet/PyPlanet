@@ -13,15 +13,18 @@ import tempfile
 # for extra verbosity of logging/output.
 import os
 
-DEBUG = False
+import logging
 
-# Owners are logins of the server owners, the owners always get *ALL* the permissions in the system.
-OWNERS = []
+DEBUG = False
 
 # Define the temporary folder to write temporary files to, such as downloaded files that are only required once
 # or are only required parsing and can be removed.
 TMP_ROOT = tempfile.tempdir
 
+# Add your pools (the controller instances per dedicated here) or leave as it is to use a single instance only.
+POOLS = [
+	'default'
+]
 
 ##########################################
 ################## DB ####################
@@ -52,8 +55,68 @@ CACHES = {
 LOGGING_CONFIG = 'logging.config.dictConfig'
 
 # Logging configuration.
-LOGGING = {}
+LOGGING = {
+	'version': 1,
+	'disable_existing_loggers': False,
+	'filters': {
+		'require_debug_false': {
+			'()': 'pyplanet.utils.log.RequireDebugFalse',
+		},
+		'require_debug_true': {
+			'()': 'pyplanet.utils.log.RequireDebugTrue',
+		},
+	},
+	'formatters': {
+		'colored': {
+			'()': 'colorlog.ColoredFormatter',
+			'format': "%(log_color)s%(levelname)-8s%(reset)s %(yellow)s[%(threadName)s][%(name)s]%(reset)s %(blue)s%(message)s",
+		},
+		'timestamped': {
+			'format': '[%(asctime)s][%(levelname)s][%(threadName)s] %(name)s: %(message)s (%(filename)s:%(lineno)d)',
+		},
+	},
+	'handlers': {
+		'console-debug': {
+			'class': 'logging.StreamHandler',
+			'filters': ['require_debug_true'],
+			'formatter': 'colored',
+			'level': logging.DEBUG,
+		},
+		'console': {
+			'class': 'logging.StreamHandler',
+			'filters': ['require_debug_false'],
+			'formatter': 'colored',
+			'level': logging.INFO,
+		},
+	},
+	'loggers': {
+		'pyplanet': {
+			'handlers': ['console', 'console-debug'],# TODO: Other handlers.
+			'level': logging.DEBUG,
+			'propagate': False,
+		}
+	},
+	'root': {
+		'handlers': ['console', 'console-debug'],# TODO: Other handlers.
+		'level': logging.DEBUG,
+	}
+}
 
+
+##########################################
+################# APPS ###################
+##########################################
+APPS = {
+	'default': []
+}
+
+# The following apps are mandatory loaded, and part of the core. This apps are always loaded *BEFORE* all other
+# apps are initiated and loaded.
+MANDATORY_APPS = [
+	'pyplanet.contrib.games.maniaplanet',
+	'pyplanet.contrib.games.trackmania',
+	'pyplanet.contrib.games.shootmania',
+]
 
 ##########################################
 ############## DEDICATED #################
@@ -79,4 +142,9 @@ STORAGE = {
 		'PATH': False
 		# Auto-detected by communicating to the dedicated server.
 	}
+}
+
+# Owners are logins of the server owners, the owners always get *ALL* the permissions in the system.
+OWNERS = {
+	'default': []
 }

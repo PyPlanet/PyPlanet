@@ -66,5 +66,12 @@ out
 gen
 
 ### Project specific
-# Configuration file.
-/app/settings.py
+# Settings.
+settings/*.py
+!settings/*.default.py
+!settings/__init__.py
+
+# Apps.
+/apps/*
+!/apps/__init__.py
+

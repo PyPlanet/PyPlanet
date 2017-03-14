@@ -1,18 +1,19 @@
 import argparse
-import os
-
 import sys
 
+import logging.config
+
 from pyplanet.conf import settings
-from pyplanet.god.process import EnvironmentProcess
+from pyplanet.utils.log import initiate_logger
+from pyplanet.god.pool import EnvironmentPool
 
 
 class Management:
-
 	def __init__(self, argv=None):
 		self.argv = argv or sys.argv
 		self.parser = argparse.ArgumentParser(prog=self.argv.pop(0))
 		self.arguments = object()
+		self.logger = logging.getLogger(__name__)
 		self.add_arguments()
 
 	def add_arguments(self):
@@ -23,17 +24,21 @@ class Management:
 		# Parse arguments.
 		self.arguments = self.parser.parse_args(self.argv)
 
-		# Start Controller.
-		print(settings.DEBUG)
+		# Initiate the logger.
+		initiate_logger()
+		self.logger = logging.getLogger(__name__)
 
-		# Start god.
-		processes = list()
-		for env in ['default']:
-			processes.append(EnvironmentProcess(environment_name=env))
+		# Initiate the settings by accessing one.
+		self.logger.info('Initiating settings...')
+		if settings.DEBUG:
+			self.logger.debug('Running in debug mode, will not report any errors and show verbose output!')
+
+		# Start god process (the current started process).
+		pool = EnvironmentPool(settings.POOLS)
+		pool.populate()
 
 		# Starting all processes.
-		for process in processes:
-			process.process.start()
+		pool.start()
 
 
 def start(argv=None):

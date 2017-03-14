@@ -7,6 +7,8 @@ include CHANGELOG.md
 include MANIFEST.in
 include *.rst
 graft pyplanet
+graft settings
+graft apps
 graft docs
 graft scripts
 graft tests

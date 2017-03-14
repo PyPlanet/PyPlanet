@@ -1,5 +1,6 @@
 """
-This file contains the local settings and overrides the default ones.
+This file contains the basic settings and overrides the default ones that are defined in the core.
+Please copy the default file to: base.py
 """
 import os
 import tempfile
@@ -9,12 +10,25 @@ import tempfile
 # for extra verbosity of logging/output.
 DEBUG = bool(os.environ.get('PYPLANET_DEBUG', False))
 
+# Add your pools (the controller instances per dedicated here) or leave as it is to use a single instance only.
+POOLS = [
+	'default'
+]
+
 # Owners are logins of the server owners, the owners always get *ALL* the permissions in the system.
-OWNERS = []
+OWNERS = {
+	'default': [
+		'your-maniaplanet-login'
+	]
+}
 
 # Databases configuration holds an dictionary with information of the database backend.
 # Please refer to the documentation for all examples.
-DATABASES = {}
+DATABASES = {
+	'default': {
+
+	}
+}
 
 # Dedicated configuration holds the different dedicated servers that the instances will run on including the names of
 # the instances.
@@ -39,4 +53,8 @@ STORAGE = {
 }
 
 # Define any cache backends that can be used by the core and the plugins to cache data.
-CACHES = {}
+CACHES = {
+	'default': {
+
+	}
+}
