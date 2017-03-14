@@ -66,6 +66,10 @@ class Apps:
 		if self.apps_ready:
 			raise Exception('Apps are not yet ordered!')
 
+		# TODO: Fetch all apps logic.
+		# TODO: Register models some kind of shit.
+
 		# The apps are in order, lets loop over them.
 		for label, app in self.apps.items():
-			logging.debug('Starting {}'.format(label))
+			logging.debug('App is ready: {}'.format(label))
+			app.on_ready()

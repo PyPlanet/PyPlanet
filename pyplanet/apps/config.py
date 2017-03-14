@@ -49,6 +49,9 @@ class AppConfig:
 	def __repr__(self):
 		return '<%s: %s>' % (self.__class__.__name__, self.label)
 
+	def on_ready(self):
+		pass
+
 	def _path_from_module(self, module):
 		"""Attempt to determine app's filesystem path from its module."""
 		paths = list(getattr(module, '__path__', []))
