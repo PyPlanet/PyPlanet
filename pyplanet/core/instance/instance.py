@@ -11,7 +11,7 @@ class Instance:
 		:type process: pyplanet.god.process.EnvironmentProcess
 		"""
 		self.process = process
-		self.apps = Apps()
+		self.apps = Apps(instance=self)
 
 		# Populate apps.
 		self.apps.populate(settings.MANDATORY_APPS, in_order=True)
@@ -22,3 +22,6 @@ class Instance:
 				'One of the pool names doesn\'t reflect intot the APPS setting! You must '
 				'declare the apps per pool! ({})'.format(str(e))
 			)
+
+	def start(self):
+		self.apps.start()

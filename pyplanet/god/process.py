@@ -29,7 +29,9 @@ class EnvironmentProcess:
 		"""
 		from pyplanet.core.instance import Instance
 		import logging
+
 		logging.getLogger(__name__).info('Starting pool process for \'{}\'...'.format(environment.pool_name))
 
 		# Start instance.
 		instance = Instance(process=environment)
+		instance.start()
