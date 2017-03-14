@@ -14,7 +14,7 @@ class EnvironmentProcess:
 		:type environment_name: str
 		"""
 		self.queue = queue
-		self.name = environment_name
+		self.pool_name = environment_name
 
 		self.process = Process(target=self.__run, kwargs=dict(
 			environment=self,
@@ -27,7 +27,9 @@ class EnvironmentProcess:
 		:param environment: EnvironmentProcess class specific for this process.
 		:type environment: EnvironmentProcess
 		"""
-		# print('Process for environment {}'.format(environment.name))
-		# print('Having following queue: ', environment.queue.__dict__)
+		from pyplanet.core.instance import Instance
+		import logging
+		logging.getLogger(__name__).info('Starting pool process for \'{}\'...'.format(environment.pool_name))
 
-		time.sleep(5)
+		# Start instance.
+		instance = Instance(process=environment)

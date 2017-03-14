@@ -3,6 +3,8 @@ This file contains the default configuration for PyPlanet. All configuration the
 following lines declared in this file.
 """
 import tempfile
+import os
+import logging
 
 
 ##########################################
@@ -11,10 +13,6 @@ import tempfile
 
 # Enable debug mode to get verbose output, not report any errors and dynamically use the DEBUG in your code
 # for extra verbosity of logging/output.
-import os
-
-import logging
-
 DEBUG = False
 
 # Define the temporary folder to write temporary files to, such as downloaded files that are only required once
@@ -32,7 +30,11 @@ POOLS = [
 
 # Databases configuration holds an dictionary with information of the database backend.
 # Please refer to the documentation for all examples.
-DATABASES = {}
+DATABASES = {
+	'default': {
+
+	}
+}
 
 
 ##########################################
