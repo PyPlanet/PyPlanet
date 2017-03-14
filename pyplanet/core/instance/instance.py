@@ -1,3 +1,5 @@
+import time
+
 from pyplanet.apps import Apps
 from pyplanet.conf import settings
 from pyplanet.core.exceptions import ImproperlyConfigured
@@ -25,3 +27,7 @@ class Instance:
 
 	def start(self):
 		self.apps.start()
+
+		# TODO
+		while True:
+			time.sleep(1)

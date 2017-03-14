@@ -1,5 +1,3 @@
-import time
-
 from multiprocessing import Process
 
 
@@ -16,9 +14,35 @@ class EnvironmentProcess:
 		self.queue = queue
 		self.pool_name = environment_name
 
+		self.max_restarts = 1
+		self.restarts = 0
+
 		self.process = Process(target=self.__run, kwargs=dict(
 			environment=self,
 		))
+
+		self.__last_state = True
+
+
+	@property
+	def did_die(self):
+		if not self.is_alive() and self.__last_state:
+			self.__last_state = False
+			return True
+		return False
+
+	@property
+	def will_restart(self):
+		return self.restarts < self.max_restarts
+
+	def is_alive(self):
+		return self.process.is_alive()
+
+	def start(self):
+		return self.process.start()
+
+	def shutdown(self):
+		return self.process.terminate()
 
 	@staticmethod
 	def __run(environment):

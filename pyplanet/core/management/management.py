@@ -6,6 +6,7 @@ import logging.config
 from pyplanet.conf import settings
 from pyplanet.utils.log import initiate_logger
 from pyplanet.god.pool import EnvironmentPool
+from pyplanet import __version__ as version
 
 
 class Management:
@@ -18,6 +19,7 @@ class Management:
 
 	def add_arguments(self):
 		self.parser.add_argument('--settings')
+		self.parser.add_argument('--max-restarts', type=int, default=0)
 		# TODO.
 
 	def execute(self):
@@ -29,16 +31,24 @@ class Management:
 		self.logger = logging.getLogger(__name__)
 
 		# Initiate the settings by accessing one.
-		self.logger.info('Initiating settings...')
-		if settings.DEBUG:
-			self.logger.debug('Running in debug mode, will not report any errors and show verbose output!')
+		self.logger.debug('Initiated configuration and environment... (debug on, means no error reporting and verbose output')
+		if not settings.DEBUG:
+			self.logger.info('Initiated configuration and environment...')
+		self.logger.info('-------------------------------[  PyPlanet v{}  ]-------------------------------'.format(version))
 
 		# Start god process (the current started process).
-		pool = EnvironmentPool(settings.POOLS)
+		pool = EnvironmentPool(settings.POOLS, max_restarts=self.arguments.max_restarts)
 		pool.populate()
 
 		# Starting all processes.
 		pool.start()
+
+		# Start the watchdog.
+		try:
+			pool.watchdog()
+		except KeyboardInterrupt:
+			pool.shutdown()
+			exit(0)
 
 
 def start(argv=None):
