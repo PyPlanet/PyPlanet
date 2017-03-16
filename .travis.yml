@@ -26,6 +26,9 @@ matrix:
 install:
   - pip install tox codacy-coverage -U pip
 
+before_script:
+  - scripts/travis.sh
+
 script:
   - tox -e $TOXENV -- --with-coverage --cover-package=pyplanet --cover-xml --cover-xml-file=coverage.xml
 
