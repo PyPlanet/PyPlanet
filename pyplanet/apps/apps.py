@@ -85,11 +85,16 @@ class Apps:
 
 	def discover(self):
 		"""
-		The discover function will discover all models from apps in the right order and register it to the
+		The discover function will discover all models, signals and more
+		from apps in the right order.
 		:return:
 		"""
 		for label, app in self.apps.items():
+			# Discover models.
 			self.instance.db.registry.init_app(app)
+
+			# Discover signals.
+			self.instance.signal_manager.init_app(app)
 
 	def start(self):
 		if self.apps_ready:

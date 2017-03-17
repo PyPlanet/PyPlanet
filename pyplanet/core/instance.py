@@ -1,10 +1,8 @@
 import logging
-import asyncio
-import concurrent.futures
-import threading
 
 from pyplanet.apps import Apps
 from pyplanet.conf import settings
+from pyplanet.core import events
 from pyplanet.core.db.database import Database
 from pyplanet.core.gbx import GbxClient
 from pyplanet.core.exceptions import ImproperlyConfigured
@@ -19,12 +17,13 @@ class Instance:
 		:param process: EnvironmentProcess class specific for this process.
 		:type process: pyplanet.god.process.EnvironmentProcess
 		"""
-		self.process = process
-		self.loop = self.process.loop
+		self.process = 			process
+		self.loop = 			self.process.loop
 
-		self.gbx = GbxClient.create_from_settings(settings.DEDICATED[self.process.name])
-		self.db = Database.create_from_settings(settings.DATABASES[self.process.name])
-		self.apps = Apps(instance=self)
+		self.gbx = 				GbxClient.create_from_settings(settings.DEDICATED[self.process.name])
+		self.db = 				Database.create_from_settings(settings.DATABASES[self.process.name])
+		self.signal_manager = 	events.Manager
+		self.apps = 			Apps(instance=self)
 
 		# Populate apps.
 		self.apps.populate(settings.MANDATORY_APPS, in_order=True)
