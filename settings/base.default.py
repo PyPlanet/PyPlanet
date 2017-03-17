@@ -5,6 +5,15 @@ Please copy the default file to: base.py
 import os
 import tempfile
 
+# Set the root_path to the root of our project.
+ROOT_PATH = os.path.dirname(os.path.dirname(__file__))
+
+# Set the temporary location for the project.
+TMP_PATH = os.path.join(ROOT_PATH, 'tmp')
+
+# Create temporary folder if not exists.
+if not os.path.exists(TMP_PATH):
+	os.mkdir(TMP_PATH)
 
 # Enable debug mode to get verbose output, not report any errors and dynamically use the DEBUG in your code
 # for extra verbosity of logging/output.

@@ -15,9 +15,13 @@ import logging
 # for extra verbosity of logging/output.
 DEBUG = False
 
+# This should ALWAYS be overriden by the local settings.
+ROOT_PATH = None
+
 # Define the temporary folder to write temporary files to, such as downloaded files that are only required once
 # or are only required parsing and can be removed.
-TMP_ROOT = tempfile.tempdir
+# This should ALWAYS be overriden by the local settings.
+TMP_PATH = None
 
 # Add your pools (the controller instances per dedicated here) or leave as it is to use a single instance only.
 POOLS = [
@@ -32,7 +36,9 @@ POOLS = [
 # Please refer to the documentation for all examples.
 DATABASES = {
 	'default': {
-
+		'DIALECT': 'sqlite',
+		'DRIVER': '',
+		'PATH': ''
 	}
 }
 
