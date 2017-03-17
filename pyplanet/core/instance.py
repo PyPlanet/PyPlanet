@@ -1,8 +1,14 @@
-import time
+import logging
+import asyncio
+import concurrent.futures
+import threading
 
 from pyplanet.apps import Apps
 from pyplanet.conf import settings
+from pyplanet.core.gbx import GbxClient
 from pyplanet.core.exceptions import ImproperlyConfigured
+
+logger = logging.getLogger(__name__)
 
 
 class Instance:
@@ -13,6 +19,9 @@ class Instance:
 		:type process: pyplanet.god.process.EnvironmentProcess
 		"""
 		self.process = process
+		self.loop = self.process.loop
+
+		self.gbx = GbxClient.create_from_settings(settings.DEDICATED[self.process.name])
 		self.apps = Apps(instance=self)
 
 		# Populate apps.
@@ -25,9 +34,15 @@ class Instance:
 				'declare the apps per pool! ({})'.format(str(e))
 			)
 
-	def start(self):
-		self.apps.start()
+	async def start(self):
+		"""
+		The start coroutine is executed when the process is ready to create connection to the gbx protocol, database,
+		other services and finally start the apps.
+		"""
+		# Make sure we start the Gbx connection, authenticate, set api version and stuff.
+		await self.gbx.connect()
 
-		# TODO
-		while True:
-			time.sleep(1)
+		# Let the gbx.listen run in separate thread.
+		self.gbx.thread.start()
+
+		self.apps.start()

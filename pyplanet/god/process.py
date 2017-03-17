@@ -1,5 +1,7 @@
 from multiprocessing import Process
 
+import asyncio
+
 
 class EnvironmentProcess:
 
@@ -13,6 +15,7 @@ class EnvironmentProcess:
 		"""
 		self.queue = queue
 		self.name = environment_name
+		self.loop = asyncio.new_event_loop()
 
 		self.max_restarts = 1
 		self.restarts = 0
@@ -58,4 +61,5 @@ class EnvironmentProcess:
 
 		# Start instance.
 		instance = Instance(process=environment)
-		instance.start()
+		environment.loop.run_until_complete(instance.start())
+		environment.loop.run_forever()

@@ -11,3 +11,7 @@ class AppRegistryNotReady(Exception):
 
 class InvalidAppModule(Exception):
 	"""The given app string is invalid or the app itself is misconfigured!"""
+
+
+class TransportException(Exception):
+	"""The XML-RPC tunnel got a transport error."""

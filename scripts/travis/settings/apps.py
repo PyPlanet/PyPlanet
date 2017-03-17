@@ -9,5 +9,5 @@ Please copy the default file to: apps.py
 # TODO: Link to documentation.
 APPS = {
 	'default': [],
-	'test2': [],
+	#'test2': [],
 }

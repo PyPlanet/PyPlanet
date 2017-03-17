@@ -10,7 +10,7 @@ DEBUG = True # bool(os.environ.get('PYPLANET_DEBUG', False))
 # Add your pools (the controller instances per dedicated here) or leave as it is to use a single instance only.
 POOLS = [
 	'default',
-	'test2',
+	#'test2',
 ]
 
 # Owners are logins of the server owners, the owners always get *ALL* the permissions in the system.
