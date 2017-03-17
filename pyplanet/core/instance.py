@@ -53,5 +53,8 @@ class Instance:
 		# Initiate apps assets and models.
 		self.apps.discover()
 
+		# Execute migrations and initial tasks.
+		self.db.initiate()
+
 		# Start the apps, call the on_ready, resulting in apps user logic to be started.
 		self.apps.start()

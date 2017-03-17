@@ -3,12 +3,12 @@ The database class in this file holds the engine and state of the database conne
 database instance running.
 """
 import importlib
-
 import logging
 import peewee
 
 from pyplanet.core.exceptions import ImproperlyConfigured
 from .registry import Registry
+from .migrator import Migrator
 
 Proxy = peewee.Proxy()
 
@@ -16,6 +16,7 @@ Proxy = peewee.Proxy()
 class Database:
 	def __init__(self, engine_cls, *args, **kwargs):
 		self.engine = engine_cls(*args, **kwargs)
+		self.migrator = Migrator(self)
 		self.registry = Registry(self)
 		Proxy.initialize(self.engine)
 
@@ -38,3 +39,11 @@ class Database:
 	def connect(self):
 		self.engine.connect()
 		logging.info('Database connection established!')
+
+	def initiate(self):
+		# Create the migration table.
+		from .models import migration
+		migration.Migration.create_table(True)
+
+		# Migrate all models.
+		self.migrator.migrate()
