@@ -14,6 +14,37 @@ class AppConfig:
 	human_name = None
 	path = None
 
+	app_dependencies = None
+	"""
+	You can provide a list of dependencies to other apps (each entry needs to be a string of the app label!)
+	"""
+	mode_dependencies = None
+	"""
+	You can provide a list of gamemodes that are required to activate the app. Gamemodes needs to be declared as
+	script names.
+	You can override this behaviour by defining the following method in your config class
+	.. code-block :: python
+
+		def is_mode_supported(self, mode):
+			return mode.startswith('TimeAttack')
+
+	"""
+	game_dependencies = None
+	"""
+	You can provide a list of game dependencies that needs to meet when the app is started. For example you can provide:
+
+	.. code-block :: python
+
+		game_dependencies = ['trackmania']
+
+	You can override this behaviour by defining the following method in your config class
+	.. code-block :: python
+
+		def is_game_supported(self, game):
+			return game != 'questmania'
+
+	"""
+
 	def __init__(self, app_name, app_module):
 		# The full python module path. The postfix `*.app.*Config` is always the same!
 		# Example: pyplanet.contrib.apps.games.trackmania.app.TrackmaniaConfig
@@ -51,6 +82,12 @@ class AppConfig:
 
 	def on_ready(self):
 		pass
+
+	def is_mode_supported(self, mode):
+		return self.mode_dependencies or mode in self.mode_dependencies
+
+	def is_game_supported(self, game):
+		return self.game_dependencies or game in self.game_dependencies
 
 	def _path_from_module(self, module):
 		"""Attempt to determine app's filesystem path from its module."""
