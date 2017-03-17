@@ -62,6 +62,14 @@ class Apps:
 		self.ready = True
 		pass
 
+	def discover(self):
+		"""
+		The discover function will discover all models from apps in the right order and register it to the
+		:return:
+		"""
+		for label, app in self.apps.items():
+			self.instance.db.registry.init_app(app)
+
 	def start(self):
 		if self.apps_ready:
 			raise Exception('Apps are not yet ordered!')
@@ -73,3 +81,5 @@ class Apps:
 		for label, app in self.apps.items():
 			logging.debug('App is ready: {}'.format(label))
 			app.on_ready()
+
+		logging.info('Apps successfully started!')

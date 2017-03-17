@@ -67,6 +67,8 @@ gen
 
 ### Project specific
 /dedicated
+/tmp
+/*.db
 
 # Settings.
 settings/*.py

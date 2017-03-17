@@ -5,6 +5,7 @@ import threading
 
 from pyplanet.apps import Apps
 from pyplanet.conf import settings
+from pyplanet.core.db.database import Database
 from pyplanet.core.gbx import GbxClient
 from pyplanet.core.exceptions import ImproperlyConfigured
 
@@ -22,6 +23,7 @@ class Instance:
 		self.loop = self.process.loop
 
 		self.gbx = GbxClient.create_from_settings(settings.DEDICATED[self.process.name])
+		self.db = Database.create_from_settings(settings.DATABASES[self.process.name])
 		self.apps = Apps(instance=self)
 
 		# Populate apps.
@@ -45,4 +47,11 @@ class Instance:
 		# Let the gbx.listen run in separate thread.
 		self.gbx.thread.start()
 
+		# Initiate the database connection.
+		self.db.connect()
+
+		# Initiate apps assets and models.
+		self.apps.discover()
+
+		# Start the apps, call the on_ready, resulting in apps user logic to be started.
 		self.apps.start()

@@ -35,7 +35,8 @@ OWNERS = {
 # Please refer to the documentation for all examples.
 DATABASES = {
 	'default': {
-
+		'ENGINE': 'peewee.SqliteDatabase',
+		'NAME': 'database.db',
 	}
 }
 

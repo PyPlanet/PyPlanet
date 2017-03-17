@@ -36,9 +36,8 @@ POOLS = [
 # Please refer to the documentation for all examples.
 DATABASES = {
 	'default': {
-		'DIALECT': 'sqlite',
-		'DRIVER': '',
-		'PATH': ''
+		'ENGINE': 'peewee.SqliteDatabase',
+		'NAME': 'database.db',
 	}
 }
 
