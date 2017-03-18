@@ -1,5 +1,6 @@
 from .dispatcher import Signal, receiver
-from .manager import Manager, public_signal
+from .manager import Manager, public_signal, public_callback
+from .callback import Callback
 
 __all__ = [
 	'Signal',
@@ -7,4 +8,7 @@ __all__ = [
 
 	'Manager',
 	'public_signal',
+	'public_callback',
+
+	'Callback',
 ]

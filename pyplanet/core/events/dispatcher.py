@@ -6,6 +6,10 @@ The PyDispatcher is licensed under BSD.
 import threading
 import weakref
 
+import logging
+
+from pyplanet.core.events.manager import Manager
+
 
 def _make_id(target):
 	if hasattr(target, '__func__'):
@@ -158,7 +162,7 @@ class Signal:
 			source = self.process_target(source)
 
 		return [
-			(receiver, receiver(signal=self, source=source))
+			(receiver, receiver(source, signal=self))
 			for receiver in self._live_receivers()
 			]
 
@@ -188,7 +192,7 @@ class Signal:
 				if not raw:
 					source = self.process_target(source)
 
-				response = receiver(signal=self, source=source)
+				response = receiver(source, signal=self)
 			except Exception as err:
 				responses.append((receiver, err))
 			else:
@@ -221,14 +225,14 @@ class Signal:
 			# .send() prior to calling _live_receivers() due to concurrent .send() call.
 			if receivers is NO_RECEIVERS:
 				return []
+
 		if receivers is None:
 			with self.lock:
 				self._clear_dead_receivers()
-				senderkey = _make_id(sender)
+				# senderkey = _make_id(sender)
 				receivers = []
-				for (receiverkey, r_senderkey), receiver in self.receivers:
-					if r_senderkey == NONE_ID or r_senderkey == senderkey:
-						receivers.append(receiver)
+				for receiverkey, receiver in self.receivers:
+					receivers.append(receiver)
 				if self.use_caching:
 					if not receivers:
 						self.sender_receivers_cache[sender] = NO_RECEIVERS
@@ -236,6 +240,7 @@ class Signal:
 						# Note, we must cache the weakref versions.
 						self.sender_receivers_cache[sender] = receivers
 		non_weak_receivers = []
+
 		for receiver in receivers:
 			if isinstance(receiver, weakref.ReferenceType):
 				# Dereference the weak reference.
@@ -275,13 +280,16 @@ def receiver(signal, **kwargs):
 	:return:
 	"""
 	def connect(signal, func, **kwargs):
-		if type(signal) is str:
-			# Try to fetch signal from manager.
-			# TODO:
-			pass
-		elif isinstance(signal, Signal):
+		# TODO: Find some way to get the `self` instance for the receiver, so it doesn't have to be a static method!
+		if isinstance(signal, Signal):
 			signal.connect(func, **kwargs)
-		raise Exception('Signal should be a valid string or signal instance. or a tuple/list with multiple.')
+		elif isinstance(signal, str):
+			try:
+				Manager.connect(signal, func, **kwargs)
+			except Exception as e:
+				logging.debug(str(e))
+		else:
+			raise Exception('Signal should be a valid string or signal instance. or a tuple/list with multiple.')
 
 	def decorator(func):
 		if isinstance(signal, (list, tuple)):

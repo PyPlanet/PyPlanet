@@ -5,6 +5,7 @@ import socket
 import logging
 import asyncio
 import threading
+import queue
 import xml
 
 from xmlrpc.client import loads, dumps, Fault
@@ -12,6 +13,7 @@ from xmlrpc.client import loads, dumps, Fault
 import time
 
 from pyplanet.core.exceptions import TransportException
+from pyplanet.core.events import Manager
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +48,7 @@ class GbxClient:
 		self.handler_nr = 0x80000000
 
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.queue = queue.Queue()
 		self.thread = threading.Thread(target=self.listen, daemon=True, name='Gbx')
 		self.lock = threading.Lock()
 
@@ -91,6 +94,8 @@ class GbxClient:
 		await self.query('Authenticate', self.user, self.password)
 		await self.query('SetApiVersion', self.api_version)
 		await self.query('EnableCallbacks', True)
+		await self.query('ChatSend', '.. Ok ..')
+		await self.query('NextMap')
 
 		logger.debug('Dedicated authenticated, API version set and callbacks enabled!')
 
@@ -125,7 +130,9 @@ class GbxClient:
 		"""
 		Listen for socket activities and call the response handlers or the signal listeners.
 		This method should be executed inside of a separate thread!
+		.. todo :: Separate thread?
 		"""
+		self.query('ChatSend', '.. Ok ..')
 		while True:
 			try:
 				size = int.from_bytes(self.socket.recv(4), byteorder='little')
@@ -141,6 +148,10 @@ class GbxClient:
 							self.handlers[handler].set_result(data)
 						else:
 							logger.debug('XML-RPC: Received callback: {}: {}'.format(method, data))
+							signal = Manager.get_callback(method)
+							if signal:
+								res = signal.send_robust(data)
+
 				except Fault as e:
 					logger.exception(e)
 				except xml.parsers.expat.ExpatError as e:

@@ -4,7 +4,7 @@ from pyplanet.apps import Apps
 from pyplanet.conf import settings
 from pyplanet.core import events
 from pyplanet.core.db.database import Database
-from pyplanet.core.gbx import GbxClient
+from pyplanet.core.gbx import GbxClient, register_gbx_callbacks
 from pyplanet.core.exceptions import ImproperlyConfigured
 
 logger = logging.getLogger(__name__)
@@ -43,8 +43,9 @@ class Instance:
 		# Make sure we start the Gbx connection, authenticate, set api version and stuff.
 		await self.gbx.connect()
 
-		# Let the gbx.listen run in separate thread.
-		self.gbx.thread.start()
+		# Let the gbx.listen run in separate thread. TODO: Not anymore, should look into this again asap!.
+		# self.gbx.thread.start()
+		register_gbx_callbacks()
 
 		# Initiate the database connection.
 		self.db.connect()
@@ -57,3 +58,6 @@ class Instance:
 
 		# Start the apps, call the on_ready, resulting in apps user logic to be started.
 		self.apps.start()
+
+		# Start processing the gbx queue.
+		self.gbx.listen()

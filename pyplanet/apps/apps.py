@@ -96,6 +96,9 @@ class Apps:
 			# Discover signals.
 			self.instance.signal_manager.init_app(app)
 
+		# Finishing signal manager.
+		self.instance.signal_manager.finish_reservations()
+
 	def start(self):
 		if self.apps_ready:
 			raise Exception('Apps are not yet ordered!')
