@@ -1,4 +1,4 @@
-from multiprocessing import Queue, Pipe
+from multiprocessing import Queue, Pool
 import time
 import logging
 
@@ -15,6 +15,8 @@ class EnvironmentPool:
 		self.max_restarts = max_restarts
 
 		self._restarts = dict()
+
+		# super().__init__(len(pool_names))
 
 	def populate(self):
 		for name in self.names:

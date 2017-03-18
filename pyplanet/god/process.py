@@ -1,31 +1,37 @@
 from multiprocessing import Process
+import dill
 
 import asyncio
 
 
 class EnvironmentProcess:
 
-	def __init__(self, queue, environment_name='default'):
+	def __init__(self, queue, environment_name='default', pool=None):
 		"""
 		Create an environment process of the controller itself.
 		:param queue: Queue to hook on.
 		:param environment_name: Name of environment.
+		:param pool: Pool.
 		:type queue: multiprocessing.Queue
 		:type environment_name: str
+		:type pool: multiprocessing.Pool
 		"""
-		self.queue = queue
+		# self.queue = queue
 		self.name = environment_name
 		self.loop = asyncio.new_event_loop()
 
 		self.max_restarts = 1
 		self.restarts = 0
 
-		self.process = Process(target=self.__run, kwargs=dict(
-			environment=self,
+		payload = dill.dumps((
+			[],
+			dict(
+				environment=self,
+			)
 		))
+		self.process = Process(target=EnvironmentProcess.__run, args=[payload])
 
 		self.__last_state = True
-
 
 	@property
 	def did_die(self):
@@ -48,12 +54,15 @@ class EnvironmentProcess:
 		return self.process.terminate()
 
 	@staticmethod
-	def __run(environment):
+	def __run(dilled_args):
 		"""
 		The actual process that runs the separate controller instance.
-		:param environment: EnvironmentProcess class specific for this process.
-		:type environment: EnvironmentProcess
+		:param dilled_args: ::::: EnvironmentProcess class specific for this process.
+		:type dilled_args:  ::::: EnvironmentProcess
 		"""
+		args, kwargs = dill.loads(dilled_args)
+		environment = kwargs['environment']
+
 		from pyplanet.core.instance import Instance
 		import logging
 
