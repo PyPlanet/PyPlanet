@@ -1,5 +1,4 @@
 import argparse
-import sys
 
 import logging.config
 import threading
@@ -12,8 +11,7 @@ from pyplanet import __version__ as version
 
 class Management:
 	def __init__(self, argv=None):
-		self.argv = argv or sys.argv
-		self.parser = argparse.ArgumentParser(prog=self.argv.pop(0))
+		self.parser = argparse.ArgumentParser()
 		self.arguments = object()
 		self.logger = logging.getLogger(__name__)
 		self.add_arguments()
@@ -25,7 +23,7 @@ class Management:
 
 	def execute(self):
 		# Parse arguments.
-		self.arguments = self.parser.parse_args(self.argv)
+		self.arguments = self.parser.parse_args()
 
 		# Initiate the logger.
 		threading.current_thread().setName('Main')
