@@ -15,3 +15,7 @@ class InvalidAppModule(Exception):
 
 class TransportException(Exception):
 	"""The XML-RPC tunnel got a transport error."""
+
+
+class SignalException(Exception):
+	"""Signal receiver thrown an exception!"""

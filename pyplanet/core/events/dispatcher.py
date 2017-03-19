@@ -4,12 +4,12 @@ The PyDispatcher is licensed under BSD.
 """
 
 import threading
-import types
 import weakref
 
 import logging
 
 from pyplanet.core.events.manager import Manager
+from pyplanet.core.exceptions import SignalException
 
 
 def _make_id(target):
@@ -160,7 +160,7 @@ class Signal:
 
 		return disconnected
 
-	def send(self, source, raw=False):
+	async def send(self, source, raw=False):
 		"""
 		Send signal with source.
 		If any receiver raises an error, the error propagates back through send,
@@ -194,14 +194,14 @@ class Signal:
 				# Dereference the weak reference.
 				slf = slf()
 
-				response = receiver(slf, source, signal=self)
+				response = await receiver(slf, source, signal=self)
 			else:
-				response = receiver(source, signal=self)
+				response = await receiver(source, signal=self)
 
 			responses.append((receiver, response))
 		return responses
 
-	def send_robust(self, source, raw=False):
+	async def send_robust(self, source, raw=False):
 		"""
 		Send signal from sender to all connected receivers catching errors.
 		Arguments:
@@ -232,11 +232,14 @@ class Signal:
 					# Dereference the weak reference.
 					slf = slf()
 
-					response = receiver(slf, source, signal=self)
+					response = await receiver(slf, source, signal=self)
 				else:
-					response = receiver(source, signal=self)
+					response = await receiver(source, signal=self)
 			except Exception as err:
-				logger.warning(str(err))
+				logger.exception(SignalException(
+					'Signal receiver \'{}\' => {} thrown an exception!'.format(receiver.__module__, receiver.__name__)
+				))
+				logger.exception(err)
 				responses.append((receiver, err))
 			else:
 				responses.append((receiver, response))
@@ -272,7 +275,6 @@ class Signal:
 		if receivers is None:
 			with self.lock:
 				self._clear_dead_receivers()
-				# senderkey = _make_id(sender)
 				receivers = []
 				for receiverkey, receiver in self.receivers:
 					receivers.append((receiverkey, receiver))

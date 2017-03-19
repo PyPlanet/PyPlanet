@@ -12,6 +12,6 @@ class ManiaplanetConfig(AppConfig):
 		pass
 
 	@receiver('maniaplanet:player_chat')
-	def on_chat(self, chat, *args, **kwargs):
+	async def on_chat(self, chat, *args, **kwargs):
 		print('ENDING IN SIGNAL THISONE', self.label)
 		print(chat)
