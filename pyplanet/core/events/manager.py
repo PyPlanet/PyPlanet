@@ -18,6 +18,7 @@ class SignalManager:
 
 		# Reserved signal receivers, this will be filled, and copied to real signals later on.
 		self.reserved = dict()
+		self.reserved_self = dict()
 		#
 
 		self.namespaces = list()
@@ -65,6 +66,23 @@ class SignalManager:
 				self.reserved[signal] = list()
 			self.reserved[signal].append((func, kwargs))
 
+	def set_self(self, signal, func, slf):
+		"""
+		Set the self instance on a function inside of a signal.
+		:param signal: Signal name.
+		:param func: Function
+		:param slf: Self instance reference.
+		"""
+		try:
+			signal = self.get_signal(signal)
+			signal.set_self(func, slf)
+		except Exception as e:
+			logging.debug(str(e))
+
+			if signal not in self.reserved_self:
+				self.reserved_self[signal] = list()
+			self.reserved_self[signal].append((func, slf))
+
 	def get_callback(self, call_name):
 		"""
 		Get signal by XML-RPC (script) callback.
@@ -101,6 +119,14 @@ class SignalManager:
 				except Exception as e:
 					logging.debug(str(e))
 					logging.warning('Signal not found: {}'.format(sig_name))
+
+		for sig_name, recs in self.reserved_self.items():
+			for func, slf in recs:
+				try:
+					signal = self.get_signal(sig_name)
+					signal.set_self(func, slf)
+				except Exception as e:
+					logging.warning(str(e))
 
 	def init_app(self, app):
 		"""

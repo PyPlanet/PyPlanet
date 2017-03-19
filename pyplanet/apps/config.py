@@ -10,7 +10,7 @@ class AppConfig:
 	that will be executed after initiation for example.
 	"""
 	name = None
-	lable = None
+	label = None
 	human_name = None
 	path = None
 
@@ -81,6 +81,10 @@ class AppConfig:
 		return '<%s: %s>' % (self.__class__.__name__, self.label)
 
 	def on_ready(self):
+		"""
+		The on_ready call is being called after all apps has been started successfully. You should register any stuff here
+		like your `self` context for signals if they are classmethods.
+		"""
 		pass
 
 	def is_mode_supported(self, mode):

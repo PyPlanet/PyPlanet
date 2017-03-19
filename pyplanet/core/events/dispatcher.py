@@ -4,6 +4,7 @@ The PyDispatcher is licensed under BSD.
 """
 
 import threading
+import types
 import weakref
 
 import logging
@@ -20,6 +21,8 @@ def _make_id(target):
 NONE_ID = _make_id(None)
 NO_RECEIVERS = object()
 
+logger = logging.getLogger(__name__)
+
 
 class Signal:
 	def __init__(self, process_target=None, use_caching=False):
@@ -30,8 +33,8 @@ class Signal:
 			process_target = self.process
 		self.process_target = process_target
 
-		#
 		self.receivers = list()
+		self.self_refs = dict()
 		self.lock = threading.Lock()
 
 		self.use_caching = use_caching
@@ -61,6 +64,22 @@ class Signal:
 		:return:
 		"""
 		return bool(self._live_receivers())
+
+	def set_self(self, receiver, slf):
+		"""
+		Set the self instance on a receiver.
+		:param receiver: Receiver function.
+		:param slf: Self instance
+		"""
+		with self.lock:
+			lookup_key = _make_id(receiver)
+			for key, _ in self.receivers:
+				if lookup_key == key:
+					ref = weakref.ref
+					slf = ref(slf)
+					self.self_refs[lookup_key] = slf
+					return
+			raise Exception('Receiver is not yet known! You registered too early!')
 
 	def connect(self, receiver, weak=True, dispatch_uid=None):
 		"""
@@ -134,6 +153,8 @@ class Signal:
 				if rec_key == lookup_key:
 					disconnected = True
 					del self.receivers[index]
+					if rec_key in self.self_refs:
+						del self.self_refs[rec_key]
 					break
 			self.sender_receivers_cache.clear()
 
@@ -161,10 +182,24 @@ class Signal:
 		if not raw:
 			source = self.process_target(source)
 
-		return [
-			(receiver, receiver(source, signal=self))
-			for receiver in self._live_receivers()
-			]
+		# Call each receiver with whatever arguments it can accept.
+		# Return a list of tuple pairs [(receiver, response), ... ].
+		responses = []
+		for key, receiver in self._live_receivers():
+			if not raw:
+				source = self.process_target(source)
+			slf = self.self_refs.get(key, None)
+
+			if slf and isinstance(slf, weakref.ReferenceType):
+				# Dereference the weak reference.
+				slf = slf()
+
+				response = receiver(slf, source, signal=self)
+			else:
+				response = receiver(source, signal=self)
+
+			responses.append((receiver, response))
+		return responses
 
 	def send_robust(self, source, raw=False):
 		"""
@@ -187,13 +222,21 @@ class Signal:
 		# Call each receiver with whatever arguments it can accept.
 		# Return a list of tuple pairs [(receiver, response), ... ].
 		responses = []
-		for receiver in self._live_receivers():
+		for key, receiver in self._live_receivers():
 			try:
 				if not raw:
 					source = self.process_target(source)
+				slf = self.self_refs.get(key, None)
 
-				response = receiver(source, signal=self)
+				if slf and isinstance(slf, weakref.ReferenceType):
+					# Dereference the weak reference.
+					slf = slf()
+
+					response = receiver(slf, source, signal=self)
+				else:
+					response = receiver(source, signal=self)
 			except Exception as err:
+				logger.warning(str(err))
 				responses.append((receiver, err))
 			else:
 				responses.append((receiver, response))
@@ -232,7 +275,7 @@ class Signal:
 				# senderkey = _make_id(sender)
 				receivers = []
 				for receiverkey, receiver in self.receivers:
-					receivers.append(receiver)
+					receivers.append((receiverkey, receiver))
 				if self.use_caching:
 					if not receivers:
 						self.sender_receivers_cache[sender] = NO_RECEIVERS
@@ -242,13 +285,16 @@ class Signal:
 		non_weak_receivers = []
 
 		for receiver in receivers:
+			key = receiver[0]
+			receiver = receiver[1]
+
 			if isinstance(receiver, weakref.ReferenceType):
 				# Dereference the weak reference.
 				receiver = receiver()
 				if receiver is not None:
-					non_weak_receivers.append(receiver)
+					non_weak_receivers.append((key, receiver))
 			else:
-				non_weak_receivers.append(receiver)
+				non_weak_receivers.append((key, receiver))
 		return non_weak_receivers
 
 	def _remove_receiver(self):
@@ -279,24 +325,47 @@ def receiver(signal, **kwargs):
 	:param kwargs:
 	:return:
 	"""
-	def connect(signal, func, **kwargs):
-		# TODO: Find some way to get the `self` instance for the receiver, so it doesn't have to be a static method!
+	def connect(func):
 		if isinstance(signal, Signal):
 			signal.connect(func, **kwargs)
 		elif isinstance(signal, str):
 			try:
 				Manager.connect(signal, func, **kwargs)
 			except Exception as e:
-				logging.debug(str(e))
+				logger.debug(str(e))
+		else:
+			raise Exception('Signal should be a valid string or signal instance. or a tuple/list with multiple.')
+
+	def set_self(func, self):
+		if isinstance(signal, Signal):
+			signal.set_self(func, self)
+		elif isinstance(signal, str):
+			try:
+				Manager.set_self(signal, func, self)
+			except Exception as e:
+				logger.debug(str(e))
 		else:
 			raise Exception('Signal should be a valid string or signal instance. or a tuple/list with multiple.')
 
 	def decorator(func):
+		# If signal is an array of signals/strings, loop and connect. If not, just connect the single one.
 		if isinstance(signal, (list, tuple)):
 			for sig in signal:
-				connect(sig, func, **kwargs)
+				connect(func)
 		else:
-			connect(signal, func, **kwargs)
-		return func
+			connect(func)
 
+		def wrapper(*ag, **kw):
+			try:
+				# When only one argument given and it contains the __dict__ we have the registering self call.
+				# At this point, we want to set the self instance into our signal instance and pass away the call.
+				if len(ag) == 1 and hasattr(ag[0], '__dict__'):
+					set_self(func, ag[0])
+				else:
+					# Mostly we really want to call it. Throw exception for flow control.
+					raise Exception()
+			except:
+				# Call the real function.
+				return func(*ag, **kw)
+		return wrapper
 	return decorator

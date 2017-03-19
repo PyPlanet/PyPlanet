@@ -7,10 +7,11 @@ class ManiaplanetConfig(AppConfig):
 	core = True
 
 	def on_ready(self):
+		# Register receivers context, only required if you use classmethods.
+		self.on_chat()
 		pass
 
-	@staticmethod
 	@receiver('maniaplanet:player_chat')
-	def on_chat(chat, **kwargs):
-		print('ENDING IN SIGNAL THISONE')
+	def on_chat(self, chat, *args, **kwargs):
+		print('ENDING IN SIGNAL THISONE', self.label)
 		print(chat)
