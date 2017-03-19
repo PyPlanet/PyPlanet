@@ -1,4 +1,4 @@
-from multiprocessing import Queue, Pool
+from multiprocessing import Queue
 import time
 import logging
 
@@ -16,11 +16,9 @@ class EnvironmentPool:
 
 		self._restarts = dict()
 
-		# super().__init__(len(pool_names))
-
 	def populate(self):
 		for name in self.names:
-			self.pool[name] = process.EnvironmentProcess(queue=self.queue, environment_name=name)
+			self.pool[name] = process.InstanceProcess(queue=self.queue, environment_name=name)
 			self._restarts[name] = 0
 		return self
 
@@ -33,7 +31,7 @@ class EnvironmentPool:
 			proc.shutdown()
 
 	def restart(self, name):
-		self.pool[name] = process.EnvironmentProcess(queue=self.queue, environment_name=name)
+		self.pool[name] = process.InstanceProcess(queue=self.queue, environment_name=name)
 		self._restarts[name] += 1
 		self.pool[name].start()
 
