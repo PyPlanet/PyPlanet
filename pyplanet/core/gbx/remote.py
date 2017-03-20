@@ -91,6 +91,13 @@ class GbxClient:
 			self.query('ChatSendServerMessage', '$o$w$FD4Py$369Planet$g v{}'.format(version)),
 		)
 
+		# Check for scripted mode.
+		mode, = await self.query('GetGameMode')
+		settings, = await self.query('GetModeScriptSettings')
+		if mode == 0 and 'S_UseScriptCallbacks' in settings:
+			settings['S_UseScriptCallbacks'] = True
+			await self.query('SetModeScriptSettings', settings)
+
 		logger.debug('Dedicated authenticated, API version set and callbacks enabled!')
 
 	async def query(self, method, *args):
@@ -123,7 +130,7 @@ class GbxClient:
 		# Send to server.
 		self.writer.write(length_bytes + handler_bytes + request_bytes)
 
-		return future
+		return await future
 
 	async def listen(self):
 		"""
