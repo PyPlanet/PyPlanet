@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 class Signal:
-	def __init__(self, process_target=None, use_caching=False):
+	def __init__(self, code=None, namespace=None, process_target=None, use_caching=False):
 		"""
 		Create a new signal.
 		"""
@@ -36,6 +36,11 @@ class Signal:
 		self.receivers = list()
 		self.self_refs = dict()
 		self.lock = threading.Lock()
+
+		if code:
+			self.Meta.code = code
+		if namespace:
+			self.Meta.namespace = namespace
 
 		self.use_caching = use_caching
 		self.sender_receivers_cache = weakref.WeakKeyDictionary() if use_caching else {}
@@ -181,27 +186,28 @@ class Signal:
 
 		if not raw:
 			source = self.process_target(source)
+		if not isinstance(source, dict):
+			source = dict(source=source)
+		source['signal'] = self
 
 		# Call each receiver with whatever arguments it can accept.
 		# Return a list of tuple pairs [(receiver, response), ... ].
 		responses = []
 		for key, receiver in self._live_receivers():
-			if not raw:
-				source = self.process_target(source)
 			slf = self.self_refs.get(key, None)
 
 			if slf and isinstance(slf, weakref.ReferenceType):
 				# Dereference the weak reference.
 				slf = slf()
 
-				response = await receiver(slf, source, signal=self)
+				response = await receiver(slf, **source)
 			else:
-				response = await receiver(source, signal=self)
+				response = await receiver(**source)
 
 			responses.append((receiver, response))
 		return responses
 
-	async def send_robust(self, source, raw=False):
+	async def send_robust(self, source=None, raw=False):
 		"""
 		Send signal from sender to all connected receivers catching errors.
 		Arguments:
@@ -219,22 +225,25 @@ class Signal:
 		if not self.receivers:
 			return []
 
+		if not raw:
+			source = self.process_target(source)
+		if not isinstance(source, dict):
+			source = dict(source=source)
+		source['signal'] = self
+
 		# Call each receiver with whatever arguments it can accept.
 		# Return a list of tuple pairs [(receiver, response), ... ].
 		responses = []
 		for key, receiver in self._live_receivers():
 			try:
-				if not raw:
-					source = self.process_target(source)
 				slf = self.self_refs.get(key, None)
-
 				if slf and isinstance(slf, weakref.ReferenceType):
 					# Dereference the weak reference.
 					slf = slf()
 
-					response = await receiver(slf, source, signal=self)
+					response = await receiver(slf, **source)
 				else:
-					response = await receiver(source, signal=self)
+					response = await receiver(**source)
 			except Exception as err:
 				logger.exception(SignalException(
 					'Signal receiver \'{}\' => {} thrown an exception!'.format(receiver.__module__, receiver.__name__)

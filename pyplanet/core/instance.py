@@ -62,3 +62,6 @@ class Instance:
 
 		# Start the apps, call the on_ready, resulting in apps user logic to be started.
 		self.apps.start()
+
+		# Finish signalling and send finish signal.
+		await self.signal_manager.finish_start()
