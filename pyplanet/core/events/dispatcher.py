@@ -318,7 +318,7 @@ class Signal:
 		self._dead_receivers = True
 
 
-def receiver(signal, **kwargs):
+def receiver(signal, filter=None, **kwargs):
 	"""
 	Decorator for registering a receiver for a specific signal::
 
@@ -337,8 +337,8 @@ def receiver(signal, **kwargs):
 			...
 
 	:param signal: Signal string or identifier.
+	:param filter: Filter of the contents. Not yet implemented ()
 	:param kwargs:
-	:return:
 	"""
 	def connect(func):
 		if isinstance(signal, Signal):
@@ -383,4 +383,5 @@ def receiver(signal, **kwargs):
 				# Call the real function.
 				return func(*ag, **kw)
 		return wrapper
+	# TODO: Filter signal
 	return decorator
