@@ -127,6 +127,9 @@ class _SignalManager:
 				except Exception as e:
 					logging.warning(str(e))
 
+		self.reserved = dict()
+		self.reserved_self = dict()
+
 	def init_app(self, app):
 		"""
 		Initiate app, load all signal/callbacks files. (just import, they should register with decorators).
