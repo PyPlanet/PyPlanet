@@ -8,7 +8,7 @@ from xmlrpc.client import dumps, loads
 
 from pyplanet import __version__ as version
 from pyplanet.core.exceptions import TransportException
-from pyplanet.core.events.manager import Manager
+from pyplanet.core.events.manager import SignalManager
 
 logger = logging.getLogger(__name__)
 
@@ -158,6 +158,6 @@ class GbxClient:
 			handler.done()
 		else:
 			logger.debug('GBX: Received callback: {}: {}'.format(method, data))
-			signal = Manager.get_callback(method)
+			signal = SignalManager.get_callback(method)
 			if signal:
 				results = await signal.send_robust(data)

@@ -1,7 +1,7 @@
 """
 This file contains a glue between core callbacks and desired callbacks.
 """
-from pyplanet.core.events import Signal, Manager
+from pyplanet.core.events import Signal, SignalManager
 
 
 class Callback(Signal):
@@ -19,12 +19,12 @@ class Callback(Signal):
 		self.raw_signal.Meta.code = call
 		self.raw_signal.Meta.namespace = 'raw'
 		self.raw_signal.connect(self.glue, weak=False)
-		Manager.register(self.raw_signal, app=None, callback=True)
+		SignalManager.register(self.raw_signal, app=None, callback=True)
 
 		self.Meta.code = code
 		self.Meta.namespace = namespace
 		self.process_target = target
-		Manager.register(self, app=None)
+		SignalManager.register(self, app=None)
 
 	def glue(self, data, **kwargs):
 		return self.send_robust(data, raw=True)

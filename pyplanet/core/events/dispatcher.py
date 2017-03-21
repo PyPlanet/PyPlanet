@@ -8,7 +8,7 @@ import weakref
 
 import logging
 
-from pyplanet.core.events.manager import Manager
+from pyplanet.core.events.manager import SignalManager
 from pyplanet.core.exceptions import SignalException
 
 
@@ -332,7 +332,7 @@ def receiver(signal, **kwargs):
 			signal.connect(func, **kwargs)
 		elif isinstance(signal, str):
 			try:
-				Manager.connect(signal, func, **kwargs)
+				SignalManager.connect(signal, func, **kwargs)
 			except Exception as e:
 				logger.debug(str(e))
 		else:
@@ -343,7 +343,7 @@ def receiver(signal, **kwargs):
 			signal.set_self(func, self)
 		elif isinstance(signal, str):
 			try:
-				Manager.set_self(signal, func, self)
+				SignalManager.set_self(signal, func, self)
 			except Exception as e:
 				logger.debug(str(e))
 		else:

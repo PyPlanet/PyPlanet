@@ -7,11 +7,10 @@ For example you would create your own custom signal if you have a app for your o
 all the raw XML-RPC events into nice structured and maybe even including fetched data from external sources.
 """
 import importlib
-import os
 import logging
 
 
-class SignalManager:
+class _SignalManager:
 	def __init__(self):
 		self.signals = dict()
 		self.callbacks = dict()
@@ -150,14 +149,14 @@ class SignalManager:
 			pass
 
 
-Manager = SignalManager()
+SignalManager = _SignalManager()
 
 
 def public_signal(cls):
-	Manager.register(cls)
+	SignalManager.register(cls)
 	return cls
 
 
 def public_callback(cls):
-	Manager.register(cls)
+	SignalManager.register(cls)
 	return cls

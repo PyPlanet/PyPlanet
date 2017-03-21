@@ -3,7 +3,7 @@ import logging
 
 from pyplanet.apps import Apps
 from pyplanet.conf import settings
-from pyplanet.core import events
+from pyplanet.core.events import SignalManager
 from pyplanet.core.db.database import Database
 from pyplanet.core.gbx import GbxClient
 from pyplanet.core.exceptions import ImproperlyConfigured
@@ -23,7 +23,7 @@ class Instance:
 
 		self.gbx = 				GbxClient.create_from_settings(settings.DEDICATED[self.process_name])
 		self.db = 				Database.create_from_settings(settings.DATABASES[self.process_name])
-		self.signal_manager = 	events.Manager
+		self.signal_manager = 	SignalManager
 		self.apps = 			Apps(instance=self)
 
 		# Populate apps.
