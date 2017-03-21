@@ -88,8 +88,8 @@ class GbxClient:
 		await asyncio.gather(
 			self.query('SetApiVersion', self.api_version),
 			self.query('EnableCallbacks', True),
-			self.query('ChatSendServerMessage', '$o$w$FD4Py$369Planet$g v{}'.format(version)),
 		)
+		# await self.query('ChatSendServerMessage', '$o$w$FD4Py$369Planet$g v{}'.format(version)),
 
 		# Check for scripted mode.
 		mode, = await self.query('GetGameMode')

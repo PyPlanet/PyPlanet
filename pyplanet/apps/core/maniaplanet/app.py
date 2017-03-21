@@ -13,8 +13,6 @@ class ManiaplanetConfig(AppConfig):
 
 		# Register commands.
 
-
 	@receiver('maniaplanet:player_chat')
-	async def on_chat(self, chat, *args, **kwargs):
-		print('ENDING IN SIGNAL THISONE', self.label)
-		print(chat)
+	async def on_chat(self, player, text, **kwargs):
+		print('ENDING IN SIGNAL THISONE', self.label, player, text)

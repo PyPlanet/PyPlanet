@@ -12,12 +12,10 @@ class _CommandManager:
 
 	@receiver(signals.pyplanet_start)
 	async def on_start(self, **kwargs):
-		print(kwargs)
 		pass
 
 	@receiver('maniaplanet:player_chat')
-	async def on_chat(self, player, chat, **kwargs):
-		print(player, chat, kwargs)
+	async def on_chat(self, player, text, **kwargs):
 		pass
 
 

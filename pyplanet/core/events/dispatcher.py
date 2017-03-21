@@ -54,14 +54,14 @@ class Signal:
 		code = None
 		namespace = None
 
-	async def process(self, raw):
+	async def process(self, **data):
 		"""
 		This method processed data into abstract data. You can give your own function in the init of the Signal or
 		override the method.
-		:param raw: Raw data input
+		:param data: Raw data input
 		:return: Parsed data output
 		"""
-		return raw
+		return data
 
 	def has_listeners(self):
 		"""
@@ -184,10 +184,12 @@ class Signal:
 		if not self.receivers:
 			return []
 
-		if not raw:
-			source = await self.process_target(source)
 		if not isinstance(source, dict):
 			source = dict(source=source)
+
+		if not raw:
+			source = await self.process_target(**source)
+
 		source['signal'] = self
 
 		# Call each receiver with whatever arguments it can accept.
@@ -225,10 +227,12 @@ class Signal:
 		if not self.receivers:
 			return []
 
-		if not raw:
-			source = await self.process_target(source)
 		if not isinstance(source, dict):
 			source = dict(source=source)
+
+		if not raw:
+			source = await self.process_target(**source)
+
 		source['signal'] = self
 
 		# Call each receiver with whatever arguments it can accept.

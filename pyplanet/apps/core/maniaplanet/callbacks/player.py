@@ -1,12 +1,18 @@
 from pyplanet.core.events import Callback
 
 
-def handle_player_connect(data):
+async def handle_player_connect(**data):
+	print(data)
 	return data
 
 
-def handle_player_chat(data):
-	return data
+async def handle_player_chat(source, signal, **kwargs):
+	player_uid, player_login, text, cmd = source
+	# TODO: Get player.
+	# TODO: Command abstraction.
+	return dict(
+		player=player_login, text=text, cmd=cmd
+	)
 
 
 Callback(
