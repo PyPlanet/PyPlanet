@@ -89,14 +89,21 @@ class GbxClient:
 			self.query('SetApiVersion', self.api_version),
 			self.query('EnableCallbacks', True),
 		)
-		# await self.query('ChatSendServerMessage', '$o$w$FD4Py$369Planet$g v{}'.format(version)),
 
 		# Check for scripted mode.
 		mode, = await self.query('GetGameMode')
 		settings, = await self.query('GetModeScriptSettings')
-		if mode == 0 and 'S_UseScriptCallbacks' in settings:
-			settings['S_UseScriptCallbacks'] = True
-			await self.query('SetModeScriptSettings', settings)
+		if mode == 0:
+			if 'S_UseScriptCallbacks' in settings:
+				settings['S_UseScriptCallbacks'] = True
+			if 'S_UseLegacyCallback' in settings:
+				settings['S_UseLegacyCallback'] = False
+			if 'S_UseLegacyXmlRpcCallbacks' in settings:
+				settings['S_UseLegacyXmlRpcCallbacks'] = False
+			await asyncio.gather(
+				self.query('SetModeScriptSettings', settings),
+				self.query('TriggerModeScriptEventArray', 'XmlRpc.EnableCallbacks', ['true'])
+			)
 
 		logger.debug('Dedicated authenticated, API version set and callbacks enabled!')
 
