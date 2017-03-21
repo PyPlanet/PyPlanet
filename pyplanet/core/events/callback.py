@@ -26,5 +26,5 @@ class Callback(Signal):
 		self.process_target = target
 		SignalManager.register(self, app=None)
 
-	def glue(self, data, **kwargs):
-		return self.send_robust(data, raw=True)
+	async def glue(self, data, **kwargs):
+		return await self.send_robust(data, raw=True)

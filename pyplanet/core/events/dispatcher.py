@@ -185,7 +185,7 @@ class Signal:
 			return []
 
 		if not raw:
-			source = self.process_target(source)
+			source = await self.process_target(source)
 		if not isinstance(source, dict):
 			source = dict(source=source)
 		source['signal'] = self
@@ -226,7 +226,7 @@ class Signal:
 			return []
 
 		if not raw:
-			source = self.process_target(source)
+			source = await self.process_target(source)
 		if not isinstance(source, dict):
 			source = dict(source=source)
 		source['signal'] = self
