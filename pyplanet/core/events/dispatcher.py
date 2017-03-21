@@ -54,7 +54,7 @@ class Signal:
 		code = None
 		namespace = None
 
-	def process(self, raw):
+	async def process(self, raw):
 		"""
 		This method processed data into abstract data. You can give your own function in the init of the Signal or
 		override the method.
