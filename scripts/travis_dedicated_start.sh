@@ -5,7 +5,7 @@ cd ..
 cd dedicated
 
 # Start the dedicated server.
-./ManiaPlanetServer /dedicated_cfg=dedicated_cfg.txt /game_settings=MatchSettings/matchsettings_1.txt /login=${MP_USER} /password=${MP_PASS} /loadcache
+./ManiaPlanetServer /dedicated_cfg=dedicated_cfg.txt /title=TMCanyon /game_settings=MatchSettings/matchsettings_1.txt /login=${MP_USER} /password=${MP_PASS} /loadcache
 # Make sure we exit with non-zero code on error
 if [ $? -ne 0 ]; then
   echo "Starting failed!"

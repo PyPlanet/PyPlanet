@@ -12,8 +12,8 @@ mkdir -p ./dedicated
 unzip dedicated.zip -d ./dedicated
 
 # Prepare configuration files.
-cp scripts/travis/dedicated/dedicated_cfg.txt dedicated/UserData/Config/
-cp scripts/travis/dedicated/matchsettings_1.txt dedicated/UserData/Maps/MatchSettings/
+cp scripts/travis/dedicated/dedicated_cfg.txt dedicated/UserData/Config/dedicated_cfg.txt
+cp scripts/travis/dedicated/matchsettings_1.txt dedicated/UserData/Maps/MatchSettings/matchsettings_1.txt
 
 ##########
 cd $BEFORE_PWD

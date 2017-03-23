@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <playlist>
 	<gameinfos>
-		<game_mode>2</game_mode>
+		<game_mode>0</game_mode>
 		<chat_time>10000</chat_time>
 		<finishtimeout>1</finishtimeout>
 		<allwarmupduration>0</allwarmupduration>
 		<disablerespawn>0</disablerespawn>
 		<forceshowallopponents>0</forceshowallopponents>
-		<script_name></script_name>
+		<script_name>TimeAttack.Script.Txt</script_name>
 		<rounds_pointslimit>50</rounds_pointslimit>
 		<rounds_usenewrules>0</rounds_usenewrules>
 		<rounds_forcedlaps>0</rounds_forcedlaps>
