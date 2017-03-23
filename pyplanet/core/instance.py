@@ -6,6 +6,7 @@ from pyplanet.apps import Apps
 from pyplanet.conf import settings
 from pyplanet.core.events import SignalManager
 from pyplanet.core.db.database import Database
+from pyplanet.core.game import Game
 from pyplanet.core.gbx import GbxClient
 from pyplanet.core.exceptions import ImproperlyConfigured
 
@@ -21,6 +22,7 @@ class Instance:
 		"""
 		self.process_name = 	process_name
 		self.loop = 			asyncio.get_event_loop()
+		self.game =				Game
 
 		self.gbx = 				GbxClient.create_from_settings(self, settings.DEDICATED[self.process_name])
 		self.db = 				Database.create_from_settings(self, settings.DATABASES[self.process_name])
