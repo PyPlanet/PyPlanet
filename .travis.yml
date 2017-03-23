@@ -10,6 +10,8 @@ cache:
     - $HOME/.cache/pip
 
 env:
+  global:
+    - secure: YVLk1UNFWvL83kM9FzT7E2i84iHeJyVG20Fdd4B/E9sIhzq+S9K4xQZWjnTKdYOqXvPLU26cXDGZB9RmETkd32/fBPPFjYwHB4k77xLm401fI/JGWmr4NWvTPGa3ad4Nzp+kW1QPZMK4vAAom40Ok2LSoDxMCY6fl1q8lkh/DAs6s2b0yiOMQlnbf3w9HjyPKckVd1eqkoRJ5JUyVkoEwLWgdfKaITmB7SVVfgwpv6F/li48tCFOIm5hJrXQzQkww1YdmKMX3JW+yoA1GROYkrWd8u+DpJg/wxd4stkvP/D6qFgCFLuKNIWuUqUZxSSs05oSpTxtsnWXMhr/nXo1dwWz00B6zDApz10YouM4tbHQ0ROF4XAQmUDSS1ubgGqyKK20FCfqQ+2r4c7ASKufnjyf8EJrLdw036/AkYDhH/kO6zwVtj9xAEMU6aFkSMOdkagGqZIN1bwbo001gJXLMJcFm5iZSn/CrnVgTUoIg8JNM6v2dS59NdXAtSm6pihSN00vHFGsjWrHESvCXBKfICBg4x6wiyyTt9chAu2euzJiOGnAejIsMK/+7L/tEabVnfRWFPiZhkGYw/C7fUCPbYumcpjudXuAD1bbfdBi+gujlO5Tq0i0kVnCzqmwzRYL5tI9x5Dei/uZrRbJ55HnT92rYGWMVWzKuNmYo4aPE6M=
   matrix:
     - TOXENV=py35
     - TOXENV=py36
@@ -25,9 +27,11 @@ matrix:
 
 install:
   - pip install tox codacy-coverage -U pip
+  - scripts/travis_dedicated.sh
 
 before_script:
-  - scripts/travis.sh
+  - scripts/travis_config.sh
+  - scripts/travis_dedicated_start.sh
 
 script:
   - tox -e $TOXENV -- --with-coverage --cover-package=pyplanet --cover-xml --cover-xml-file=coverage.xml
