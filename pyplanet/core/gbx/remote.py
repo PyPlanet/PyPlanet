@@ -6,19 +6,18 @@ import logging
 import struct
 from xmlrpc.client import dumps, loads
 
-from pyplanet import __version__ as version
 from pyplanet.core.exceptions import TransportException
 from pyplanet.core.events.manager import SignalManager
 
 logger = logging.getLogger(__name__)
 
 
-class GbxClient:
+class GbxRemote:
 	"""
 	The GbxClient holds the connection to the dedicated server. Maintains the queries and the handlers it got.
 	"""
 
-	def __init__(self, host, port, event_pool=None, user=None, password=None, api_version='2013-04-16'):
+	def __init__(self, host, port, event_pool=None, user=None, password=None, api_version='2013-04-16', instance=None):
 		"""
 		Initiate the GbxRemote client.
 		:param host: Host of the dedicated server.
@@ -28,18 +27,21 @@ class GbxClient:
 		:param password: Password to authenticate with.
 		:param api_version: API Version to use. In most cases you won't override the default because version changes
 							should be abstracted by the other core components.
+		:param instance: Instance of the app.
 		:type host: str
 		:type port: str int
 		:type event_pool: asyncio.BaseEventPool
 		:type user: str
 		:type password: str
 		:type api_version: str
+		:type instance: pyplanet.core.instance.Instance
 		"""
 		self.host = host
 		self.port = port
 		self.user = user
 		self.password = password
 		self.api_version = api_version
+		self.instance = instance
 
 		self.event_loop = event_pool or asyncio.get_event_loop()
 
@@ -49,16 +51,18 @@ class GbxClient:
 		self.reader = None
 		self.writer = None
 
-	@staticmethod
-	def create_from_settings(conf):
+	@classmethod
+	def create_from_settings(cls, instance, conf):
 		"""
 		Create an instance from configuration given for the specific pool
+		:param instance: Instance of the app.
 		:param conf: Settings for pool.
 		:type conf: dict
 		:return: Instance of XML-RPC GbxClient.
 		:rtype: GbxClient
 		"""
-		return GbxClient(
+		return cls(
+			instance=instance,
 			host=conf['HOST'], port=conf['PORT'], user=conf['USER'], password=conf['PASSWORD']
 		)
 
@@ -115,9 +119,9 @@ class GbxClient:
 		:param method: Server method.
 		:param args: Arguments.
 		:type method: str
-		:type args: tuple
+		:type args: any
 		:return: Tuple with response data (after awaiting).
-		:rtype: tuple
+		:rtype: Future<tuple>
 		"""
 		request_bytes = dumps(args, methodname=method, allow_none=True).encode()
 		length_bytes = len(request_bytes).to_bytes(4, byteorder='little')

@@ -22,10 +22,10 @@ class Instance:
 		self.process_name = 	process_name
 		self.loop = 			asyncio.get_event_loop()
 
-		self.gbx = 				GbxClient.create_from_settings(settings.DEDICATED[self.process_name])
-		self.db = 				Database.create_from_settings(settings.DATABASES[self.process_name])
+		self.gbx = 				GbxClient.create_from_settings(self, settings.DEDICATED[self.process_name])
+		self.db = 				Database.create_from_settings(self, settings.DATABASES[self.process_name])
 		self.signal_manager = 	SignalManager
-		self.apps = 			Apps(instance=self)
+		self.apps = 			Apps(self)
 
 		# Populate apps.
 		self.apps.populate(settings.MANDATORY_APPS, in_order=True)

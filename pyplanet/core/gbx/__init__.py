@@ -1,4 +1,4 @@
-from .remote import GbxClient
+from .client import GbxClient
 
 __all__ = [
 	'GbxClient',

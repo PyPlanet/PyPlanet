@@ -14,14 +14,23 @@ Proxy = peewee.Proxy()
 
 
 class Database:
-	def __init__(self, engine_cls, *args, **kwargs):
+	def __init__(self, engine_cls, instance, *args, **kwargs):
+		"""
+		Initiate database.
+		:param engine_cls: Engine class
+		:param instance: Instance of the app.
+		:param args: *
+		:param kwargs: **
+		:type instance: pyplanet.core.instance.Instance
+		"""
 		self.engine = engine_cls(*args, **kwargs)
+		self.instance = instance
 		self.migrator = Migrator(self)
 		self.registry = Registry(self)
 		Proxy.initialize(self.engine)
 
-	@staticmethod
-	def create_from_settings(conf):
+	@classmethod
+	def create_from_settings(cls, instance, conf):
 		try:
 			engine_path, _, cls_name = conf['ENGINE'].rpartition('.')
 			db_name = conf['NAME']
@@ -34,7 +43,7 @@ class Database:
 		except Exception as e:
 			raise ImproperlyConfigured('Database configuration isn\'t complete or engine could\'t be found!')
 
-		return Database(engine, db_name, **db_options)
+		return cls(engine, instance, db_name, **db_options)
 
 	def connect(self):
 		self.engine.connect()
