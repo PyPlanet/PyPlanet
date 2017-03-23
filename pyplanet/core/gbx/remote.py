@@ -95,8 +95,8 @@ class GbxRemote:
 		)
 
 		# Check for scripted mode.
-		mode, = await self.query('GetGameMode')
-		settings, = await self.query('GetModeScriptSettings')
+		mode = await self.query('GetGameMode')
+		settings = await self.query('GetModeScriptSettings')
 		if mode == 0:
 			if 'S_UseScriptCallbacks' in settings:
 				settings['S_UseScriptCallbacks'] = True
@@ -152,6 +152,9 @@ class GbxRemote:
 			size, handle = struct.unpack_from('<LL', head)
 			body = await self.reader.readexactly(size)
 			data, method = loads(body, use_builtin_types=True)
+
+			if len(data) == 1:
+				data = data[0]
 
 			self.event_loop.create_task(self.handle_payload(handle, method, data))
 

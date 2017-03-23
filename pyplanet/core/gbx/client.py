@@ -27,7 +27,7 @@ class GbxClient(GbxRemote):
 		await self.query('SendHideManialinkPage')
 
 		# Version Information
-		version_info, = await self.query('GetVersion')
+		version_info = await self.query('GetVersion')
 		self.game._dedicated_version = version_info['Version']
 		self.game._dedicated_build = version_info['Build']
 		self.game._dedicated_api_version = version_info['ApiVersion']
