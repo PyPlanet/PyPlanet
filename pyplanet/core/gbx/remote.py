@@ -16,6 +16,8 @@ class GbxRemote:
 	"""
 	The GbxClient holds the connection to the dedicated server. Maintains the queries and the handlers it got.
 	"""
+	MAX_REQUEST_SIZE  = 2000000 # 2MB
+	MAX_RESPONSE_SIZE = 4000000 # 4MB
 
 	def __init__(self, host, port, event_pool=None, user=None, password=None, api_version='2013-04-16', instance=None):
 		"""
@@ -59,7 +61,7 @@ class GbxRemote:
 		:param conf: Settings for pool.
 		:type conf: dict
 		:return: Instance of XML-RPC GbxClient.
-		:rtype: GbxClient
+		:rtype: pyplanet.core.gbx.client.GbxClient
 		"""
 		return cls(
 			instance=instance,
@@ -88,15 +90,15 @@ class GbxRemote:
 		self.event_loop.create_task(self.listen())
 
 		# Startup tasks.
-		await self.query('Authenticate', self.user, self.password)
+		await self.execute('Authenticate', self.user, self.password)
 		await asyncio.gather(
-			self.query('SetApiVersion', self.api_version),
-			self.query('EnableCallbacks', True),
+			self.execute('SetApiVersion', self.api_version),
+			self.execute('EnableCallbacks', True),
 		)
 
 		# Check for scripted mode.
-		mode = await self.query('GetGameMode')
-		settings = await self.query('GetModeScriptSettings')
+		mode = await self.execute('GetGameMode')
+		settings = await self.execute('GetModeScriptSettings')
 		if mode == 0:
 			if 'S_UseScriptCallbacks' in settings:
 				settings['S_UseScriptCallbacks'] = True
@@ -105,13 +107,13 @@ class GbxRemote:
 			if 'S_UseLegacyXmlRpcCallbacks' in settings:
 				settings['S_UseLegacyXmlRpcCallbacks'] = False
 			await asyncio.gather(
-				self.query('SetModeScriptSettings', settings),
-				self.query('TriggerModeScriptEventArray', 'XmlRpc.EnableCallbacks', ['true'])
+				self.execute('SetModeScriptSettings', settings),
+				self.execute('TriggerModeScriptEventArray', 'XmlRpc.EnableCallbacks', ['true'])
 			)
 
 		logger.debug('Dedicated authenticated, API version set and callbacks enabled!')
 
-	async def query(self, method, *args):
+	async def execute(self, method, *args):
 		"""
 		Query the dedicated server and return the results. This method is a coroutine and should be awaited on.
 		The result you get will be a tuple with data inside (the response payload).

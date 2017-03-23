@@ -1,3 +1,6 @@
+import asyncio
+
+from pyplanet.core.gbx.query import Query
 from .remote import GbxRemote
 
 
@@ -12,6 +15,68 @@ class GbxClient(GbxRemote):
 		super().__init__(*args, **kwargs)
 		self.game = self.instance.game
 
+	def prepare(self, method, *args):
+		"""
+		Prepare an query.
+		:param method: Method name
+		:param args: Arguments...
+		:return: Prepared query.
+		:rtype: pyplanet.core.gbx.query.Query
+		"""
+		return Query(self, method, *args)
+
+	async def multicall(self, *queries):
+		"""
+		Run the queries given async. Will use one or more multicall(s), depends on content.
+		:param queries: 
+		:return: Results in tuple.
+		:rtype: tuple<any>
+		"""
+		if len(queries) == 0:
+			return tuple()
+
+		# We will try to put the maximum possible calls into one multicall, for this we need to calculate the lengths
+		# so we can stay under the maximum allowed package size.
+		current_length = 0
+
+		# Current stack holds the current multicall,
+		# will be rotated once the multicall reaches the maximum request size.
+		current_stack = list()
+
+		# We will stack calls into multicalls. Structure of this list:
+		# multicalls = list(   list()   ) = The list contains lists with calls.
+		multicalls = list()
+
+		# Create the multicall(s)
+		for query in queries:
+			query.prepare()
+			if current_length + (query.length + 8) < self.MAX_REQUEST_SIZE:
+				current_stack.append(query)
+				current_length += (query.length + 8)
+			else:
+				multicalls.append(current_stack)
+				current_length = 0
+				current_stack = list()
+
+		# Append the last stack.
+		if len(current_stack) > 0:
+			multicalls.append(current_stack)
+
+		# Create multicall queries.
+		calls = list()
+		for mc in multicalls:
+			calls.append(
+				self.execute('system.multicall', [{'methodName': c.method, 'params': c.args} for c in mc])
+			)
+
+		multi_results = await asyncio.gather(*calls)
+		results = list()
+		for res in multi_results:
+			for row in res:
+				results += row
+
+		return results
+
 	async def connect(self):
 		await super().connect()
 		await self.initialize()
@@ -24,11 +89,33 @@ class GbxClient(GbxRemote):
 		should be stable. 
 		"""
 		# Clear the previous created Manialinks.
-		await self.query('SendHideManialinkPage')
+		await self.execute('SendHideManialinkPage')
 
 		# Version Information
-		version_info = await self.query('GetVersion')
-		self.game._dedicated_version = version_info['Version']
-		self.game._dedicated_build = version_info['Build']
-		self.game._dedicated_api_version = version_info['ApiVersion']
-		print(self.game.__dict__)
+		res = await self.multicall(
+			self.prepare('GetVersion'),
+			self.prepare('GetSystemInfo'),
+			self.prepare('GameDataDirectory'),
+			self.prepare('GetMapsDirectory'),
+			self.prepare('GetSkinsDirectory'),
+		)
+		version_info = res[0]
+		self.game.dedicated_version = version_info['Version']
+		self.game.dedicated_build = version_info['Build']
+		self.game.dedicated_api_version = version_info['ApiVersion']
+
+		# System Information
+		system_info = res[1]
+		self.game.server_is_dedicated = system_info['IsDedicated']
+		self.game.server_is_server = system_info['IsServer']
+		self.game.server_ip = system_info['PublishedIp']
+		self.game.server_p2p_port = system_info['P2PPort']
+		self.game.server_port = system_info['Port']
+		self.game.server_player_login = system_info['ServerLogin']
+		self.game.server_player_id = system_info['ServerPlayerId']
+		self.game.server_download_rate = system_info['ConnectionDownloadRate']
+		self.game.server_upload_rate = system_info['ConnectionUploadRate']
+
+		self.game.server_data_dir = res[2]
+		self.game.server_map_dir = res[3]
+		self.game.server_skin_dir = res[4]
