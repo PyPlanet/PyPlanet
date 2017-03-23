@@ -7,7 +7,7 @@
 		<allwarmupduration>0</allwarmupduration>
 		<disablerespawn>0</disablerespawn>
 		<forceshowallopponents>0</forceshowallopponents>
-		<script_name>TimeAttack.Script.Txt</script_name>
+		<script_name>TimeAttack.Script.txt</script_name>
 		<rounds_pointslimit>50</rounds_pointslimit>
 		<rounds_usenewrules>0</rounds_usenewrules>
 		<rounds_forcedlaps>0</rounds_forcedlaps>
