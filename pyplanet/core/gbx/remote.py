@@ -2,6 +2,7 @@
 GBXRemote 2 client for python 3.5+ part of PyPlanet.
 """
 import asyncio
+import json
 import logging
 import struct
 from xmlrpc.client import dumps, loads
@@ -160,20 +161,46 @@ class GbxRemote:
 
 			self.event_loop.create_task(self.handle_payload(handle, method, data))
 
-	async def handle_payload(self, handler_nr, method, data):
+	async def handle_payload(self, handle_nr, method, data):
 		"""
 		Handle a callback/response payload.
-		:param handler_nr: Handler ID
+		:param handle_nr: Handler ID
 		:param method: Method name
 		:param data: Parsed payload data.
 		"""
-		if handler_nr in self.handlers:
-			logger.debug('GBX: Received response to handler {}'.format(handler_nr))
-			handler = self.handlers.pop(handler_nr)
-			handler.set_result(data)
-			handler.done()
+		if handle_nr in self.handlers:
+			await self.handle_response(handle_nr, data)
 		else:
-			logger.debug('GBX: Received callback: {}: {}'.format(method, data))
-			signal = SignalManager.get_callback(method)
-			if signal:
-				results = await signal.send_robust(data)
+			if method == 'ManiaPlanet.ModeScriptCallbackArray':
+				await self.handle_scripted(handle_nr, method, data)
+			else:
+				await self.handle_callback(handle_nr, method, data)
+
+	async def handle_response(self, handle_nr, data):
+		logger.debug('GBX: Received response to handler {}'.format(handle_nr))
+		handler = self.handlers.pop(handle_nr)
+		handler.set_result(data)
+		handler.done()
+
+	async def handle_callback(self, handle_nr, method, data):
+		logger.debug('GBX: Received callback: {}: {}'.format(method, data))
+		signal = SignalManager.get_callback(method)
+		if signal:
+			await signal.send_robust(data)
+
+	async def handle_scripted(self, handle_nr, method, data):
+		method, raw = data
+
+		if len(raw) == 1:
+			raw = raw[0]
+
+		try:
+			payload = json.loads(raw)
+		except:
+			payload = raw
+
+		logger.debug('GBX: Received scripted callback: {}: {}'.format(method, payload))
+
+		signal = SignalManager.get_callback('Script.{}'.format(method))
+		if signal:
+			await signal.send_robust(payload)
