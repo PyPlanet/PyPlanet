@@ -1,0 +1,4 @@
+
+
+class PlayerManager:
+	pass
