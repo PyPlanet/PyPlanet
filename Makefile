@@ -10,8 +10,8 @@ publish:
 run-tox:
 	@ tox
 
-run-nose:
-	@ nosetests --nocapture .
+run-tests:
+	@ pytest tests
 
 tests: run-tox clean
 tests-dev: run-nose clean
