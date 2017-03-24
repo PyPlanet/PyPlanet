@@ -10,5 +10,6 @@ pytest>=3.0.7
 pytest-cov>=2.4.0
 pytest-asyncio>=0.5.0
 pytest-sugar
+pytest-capturelog>=0.7
 coverage>=3.6
 rednose>=0.4.1
