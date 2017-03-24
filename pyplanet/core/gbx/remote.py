@@ -47,9 +47,12 @@ class GbxRemote:
 		self.instance = instance
 
 		self.event_loop = event_pool or asyncio.get_event_loop()
+		self.gbx_methods = list()
 
 		self.handlers = dict()
 		self.handler_nr = 0x80000000
+
+		self.script_handlers = dict()
 
 		self.reader = None
 		self.writer = None
@@ -68,6 +71,15 @@ class GbxRemote:
 			instance=instance,
 			host=conf['HOST'], port=conf['PORT'], user=conf['USER'], password=conf['PASSWORD']
 		)
+
+	def get_next_handler(self):
+		handler = self.handler_nr
+		if self.handler_nr == 0xffffffff:
+			logger.debug('GBX: Reached max handler numbers, RESETTING TO ZERO!')
+			self.handler_nr = 0x80000000
+		else:
+			self.handler_nr += 1
+		return handler
 
 	async def connect(self):
 		"""
@@ -96,6 +108,9 @@ class GbxRemote:
 			self.execute('SetApiVersion', self.api_version),
 			self.execute('EnableCallbacks', True),
 		)
+
+		# Fetch gbx methods.
+		self.gbx_methods = await self.execute('system.listMethods')
 
 		# Check for scripted mode.
 		mode = await self.execute('GetGameMode')
@@ -128,13 +143,7 @@ class GbxRemote:
 		"""
 		request_bytes = dumps(args, methodname=method, allow_none=True).encode()
 		length_bytes = len(request_bytes).to_bytes(4, byteorder='little')
-
-		handler = self.handler_nr
-		if self.handler_nr == 0xffffffff:
-			logger.debug('GBX: Reached max handler numbers, RESETTING TO ZERO!')
-			self.handler_nr = 0x80000000
-		else:
-			self.handler_nr += 1
+		handler = self.get_next_handler()
 
 		handler_bytes = handler.to_bytes(4, byteorder='little')
 
@@ -144,7 +153,7 @@ class GbxRemote:
 		# Send to server.
 		self.writer.write(length_bytes + handler_bytes + request_bytes)
 
-		return await future
+		return await asyncio.wait_for(future, 30.0) # Wait for maximum of 30 seconds, then force complete future.
 
 	async def listen(self):
 		"""
@@ -189,16 +198,42 @@ class GbxRemote:
 			await signal.send_robust(data)
 
 	async def handle_scripted(self, handle_nr, method, data):
+		# Unpack first.
 		method, raw = data
 
+		# Check if we only have one response array length, mostly this is the case due to the gbx handling.
+		# Only when we don't get any response we don't have this!
 		if len(raw) == 1:
 			raw = raw[0]
 
+		# Try to parse JSON, mostly the case.
 		try:
 			payload = json.loads(raw)
-		except:
+		except Exception as e:
+			logger.debug('GBX: JSON Parsing of script callback failed! {}'.format(str(e)))
 			payload = raw
 
+		# Check if payload contains a responseid, when it does, we call the scripted handler future object.
+		if type(payload) is dict and 'responseid' in payload:
+			try:
+				# Try to parse responseid to integer, can maybe fail due to script incompatibility.
+				response_id = int(payload['responseid'])
+			except:
+				logger.warning('GBX: Can\'t parse responseid in script callback into integer!')
+				return
+
+			if response_id in self.script_handlers:
+				logger.debug('GBX: Received scripted response to method: {} and responseid: {}'.format(method, response_id))
+				handler = self.script_handlers.pop(response_id)
+				handler.set_result(payload)
+				handler.done()
+				return
+			else:
+				# We don't have this handler registered, throw warning in console.
+				logger.warning('GBX: Received scripted resopnse with responseid, but no hander was registered! Payload: {}'.format(payload))
+				return
+
+		# If not, we should just throw it as an ordinary callback.
 		logger.debug('GBX: Received scripted callback: {}: {}'.format(method, payload))
 
 		signal = SignalManager.get_callback('Script.{}'.format(method))

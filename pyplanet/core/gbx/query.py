@@ -1,10 +1,12 @@
+import asyncio
+import json
 from xmlrpc.client import dumps
 
 from pyplanet.core.exceptions import TransportException
 
 
 class Query:
-	def __init__(self, client, method, *args):
+	def __init__(self, client, method, *args, **kwargs):
 		"""
 		Initiate the prepared query.
 		:param client: GbxClient to execute actions.
@@ -45,3 +47,55 @@ class Query:
 
 	async def __aexit__(self, exc_type, exc_val, exc_tb):
 		self.result = None
+
+
+class ScriptQuery(Query):
+
+	def __init__(self, client, method, *args, encode_json=True, response_id=True):
+		"""
+		Initiate a Scripted Query.
+		:param client: Client instance
+		:param method: Method name
+		:param args: Arguments
+		:param encode_json: Is body json? True by default.
+		:param response_id: Is request requiring response_id?
+		:type client: pyplanet.core.gbx.client.GbxClient
+		"""
+		# Make sure we call the script stuff with TriggerModeScriptEventArray.
+		gbx_method = 'TriggerModeScriptEventArray'
+		gbx_args = list()
+
+		# Make sure we generate a response_id.
+		if response_id is True:
+			self.response_id = id(self)
+		else:
+			self.response_id = None
+
+		# Encode to json if args are given, and encode_json is true (default).
+		if encode_json and len(args) > 0:
+			gbx_args.append(json.dumps(args[0]))
+
+		# Add the response_id to the end of the argument list.
+		if self.response_id:
+			gbx_args.append(str(self.response_id))
+
+		super().__init__(client, gbx_method, method, gbx_args)
+
+	async def execute(self):
+		"""
+		Execute call.
+		:return: Future with results.
+		:rtype: Future<any>
+		"""
+		# Create new future to be returned. This future will be the answered inside a script callback.
+		future = None
+		if self.response_id:
+			self._client.script_handlers[self.response_id] = future = asyncio.Future()
+
+		# Execute the call itself and register the callback script handler.
+		gbx_res = await self._client.execute(self.method, *self.args)
+		# TODO: Do we have to do anything with the gbx result maybe?
+
+		if self.response_id:
+			return await asyncio.wait_for(future, 15.0) # Timeout after 15 seconds!
+		return gbx_res

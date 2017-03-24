@@ -1,7 +1,11 @@
 import asyncio
 
-from pyplanet.core.gbx.query import Query
+import logging
+
+from pyplanet.core.gbx.query import Query, ScriptQuery
 from .remote import GbxRemote
+
+logger = logging.getLogger(__name__)
 
 
 class GbxClient(GbxRemote):
@@ -11,11 +15,14 @@ class GbxClient(GbxRemote):
 	most important logic `GbxRemote`.
 	"""
 
-	def __init__(self, *args, **kwargs):
+	AUTO_RESPONSE_ID = object()
+
+	def __init__(self, *args, script_api_version='2.0.0', **kwargs):
 		super().__init__(*args, **kwargs)
+		self.script_api_version = script_api_version
 		self.game = self.instance.game
 
-	def prepare(self, method, *args):
+	def prepare(self, method, *args, **kwargs):
 		"""
 		Prepare an query.
 		:param method: Method name
@@ -23,7 +30,22 @@ class GbxClient(GbxRemote):
 		:return: Prepared query.
 		:rtype: pyplanet.core.gbx.query.Query
 		"""
-		return Query(self, method, *args)
+		if method not in self.gbx_methods:
+			return ScriptQuery(self, method, *args, **kwargs)
+		return Query(self, method, *args, **kwargs)
+
+	async def script(self, method, *args, encode_json=True, response_id=True):
+		"""
+		Execute scripted call.
+		:param method: Scripted method name
+		:param args: Arguments
+		:param encode_json: Are the arguments dictionary, should it be encoded? (Then only provide the first arg).
+		:param response_id: Does the call work on response_id's? 
+							True by default, set to false to not expect response with response_id
+		:return: Future.
+		"""
+		query = ScriptQuery(self, method, *args, encode_json=encode_json, response_id=response_id)
+		return await query.execute()
 
 	async def multicall(self, *queries):
 		"""
@@ -49,6 +71,9 @@ class GbxClient(GbxRemote):
 
 		# Create the multicall(s)
 		for query in queries:
+			if not isinstance(query, Query):
+				continue
+
 			query.prepare()
 			if current_length + (query.length + 8) < self.MAX_REQUEST_SIZE:
 				current_stack.append(query)
@@ -90,6 +115,17 @@ class GbxClient(GbxRemote):
 		"""
 		# Clear the previous created Manialinks.
 		await self.execute('SendHideManialinkPage')
+
+		# Try to get the script api_versions.
+		try:
+			api_versions = await self.script('XmlRpc.GetAllApiVersions')
+			if 'versions' in api_versions and self.script_api_version in api_versions['versions']:
+				await self.script('XmlRpc.SetApiVersion', self.script_api_version, response_id=False)
+			# TODO: Activate after bug is fixed: https://forum.maniaplanet.com/viewtopic.php?f=561&p=278065
+			# self.script_api_version = await self.script('XmlRpc.GetApiVersion')
+			# print(self.script_api_version)
+		except Exception as e:
+			logger.info('Can\'t set the script API Version! {}'.format(str(e)))
 
 		# Version Information
 		res = await self.multicall(
