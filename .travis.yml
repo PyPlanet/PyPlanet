@@ -34,7 +34,7 @@ before_script:
   - scripts/travis_dedicated_start.sh
 
 script:
-  - tox -e $TOXENV -- --with-coverage --cover-package=pyplanet --cover-xml --cover-xml-file=coverage.xml
+  - tox -e $TOXENV -- --cov-report=xml --cov=pyplanet
 
 #after_success:
 #  - python-codacy-coverage -r coverage.xml
