@@ -1,7 +1,6 @@
 import asyncio
 import logging
 
-from pyplanet import __version__ as version
 from pyplanet.apps import Apps
 from pyplanet.conf import settings
 from pyplanet.core.events import SignalManager
@@ -20,6 +19,7 @@ class Instance:
 		:param process_name: EnvironmentProcess class specific for this process.
 		:type process_name: str
 		"""
+		# Initiate all the core components.
 		self.process_name = 	process_name
 		self.loop = 			asyncio.get_event_loop()
 		self.game =				Game
@@ -68,4 +68,4 @@ class Instance:
 		# await self.gbx.execute('ChatSendServerMessage', '$o$w$FD4Py$369Planet$g v{}'.format(version)),
 
 		# Finish signalling and send finish signal.
-		await self.signal_manager.finish_start()
+		await self.signal_manager.finish_start(self)

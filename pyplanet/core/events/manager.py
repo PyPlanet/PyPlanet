@@ -151,12 +151,14 @@ class _SignalManager:
 		except ImportError:
 			pass
 
-	async def finish_start(self):
+	async def finish_start(self, instance):
 		"""
 		Finish startup the core, this will copy reservations and fire an event.
+		:param instance: Instance
+		:type instance: pyplanet.core.instance.Instance
 		"""
 		self.finish_reservations()
-		await self.get_signal('pyplanet:start').send_robust()
+		await self.get_signal('pyplanet:start').send_robust(source=dict(instance=instance))
 
 SignalManager = _SignalManager()
 

@@ -5,8 +5,8 @@ The PyDispatcher is licensed under BSD.
 
 import threading
 import weakref
-
 import logging
+import asyncio
 
 from pyplanet.core.events.manager import SignalManager
 from pyplanet.core.exceptions import SignalException
@@ -202,9 +202,15 @@ class Signal:
 				# Dereference the weak reference.
 				slf = slf()
 
-				response = await receiver(slf, **source)
+				if asyncio.iscoroutinefunction(receiver):
+					response = await receiver(slf, **source)
+				else:
+					response = receiver(slf, **source)
 			else:
-				response = await receiver(**source)
+				if asyncio.iscoroutinefunction(receiver):
+					response = await receiver(**source)
+				else:
+					response = receiver(**source)
 
 			responses.append((receiver, response))
 		return responses
@@ -245,9 +251,15 @@ class Signal:
 					# Dereference the weak reference.
 					slf = slf()
 
-					response = await receiver(slf, **source)
+					if asyncio.iscoroutinefunction(receiver):
+						response = await receiver(slf, **source)
+					else:
+						response = receiver(slf, **source)
 				else:
-					response = await receiver(**source)
+					if asyncio.iscoroutinefunction(receiver):
+						response = await receiver(**source)
+					else:
+						response = receiver(**source)
 			except Exception as err:
 				logger.exception(SignalException(
 					'Signal receiver \'{}\' => {} thrown an exception!'.format(receiver.__module__, receiver.__name__)
