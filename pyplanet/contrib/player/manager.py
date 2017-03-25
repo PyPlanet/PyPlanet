@@ -58,7 +58,7 @@ class PlayerManager:
 		player.save()
 		self._online.remove(player)
 
-	def get_player(self, login=None, pk=None):
+	async def get_player(self, login=None, pk=None):
 		"""
 		Get player by login or primary key.
 		:param login: Login.
@@ -69,11 +69,15 @@ class PlayerManager:
 		try:
 			if login and login in self._cache:
 				return self._cache[login]
+
 			if pk:
-				return Player.get(pk=pk)
+				player = Player.get(pk=pk)
 			elif login:
-				return Player.get(login=login)
+				player = Player.get(login=login)
 			else:
 				raise PlayerNotFound('Player not found.')
+
+			self._cache[login] = player
+			return player
 		except DoesNotExist:
 			raise PlayerNotFound('Player not found.')

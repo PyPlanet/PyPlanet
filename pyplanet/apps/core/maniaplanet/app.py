@@ -9,10 +9,7 @@ class ManiaplanetConfig(AppConfig):
 
 	def on_ready(self):
 		# Register receivers context, only required if you use classmethods.
-		self.on_chat()
+		#
 
 		# Register commands.
-
-	@receiver('maniaplanet:player_chat')
-	async def on_chat(self, player, text, **kwargs):
-		print('ENDING IN SIGNAL THISONE', self.label, player, text)
+		pass

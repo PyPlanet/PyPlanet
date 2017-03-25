@@ -30,21 +30,21 @@ async def handle_player_chat(source, signal, **kwargs):
 	)
 
 
-Callback(
+player_connect = Callback(
 	call='ManiaPlanet.PlayerConnect',
 	namespace='maniaplanet',
 	code='player_connect',
 	target=handle_player_connect,
 )
 
-Callback(
+player_disconnect = Callback(
 	call='ManiaPlanet.PlayerDisconnect',
 	namespace='maniaplanet',
 	code='player_disconnect',
 	target=handle_player_disconnect,
 )
 
-Callback(
+player_chat = Callback(
 	call='ManiaPlanet.PlayerChat',
 	namespace='maniaplanet',
 	code='player_chat',
