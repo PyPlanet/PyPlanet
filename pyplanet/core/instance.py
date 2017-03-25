@@ -1,6 +1,8 @@
 import asyncio
 import logging
 
+from pyplanet import __version__ as version
+
 from pyplanet.apps import Apps
 from pyplanet.conf import settings
 from pyplanet.core.events import SignalManager
@@ -70,8 +72,11 @@ class _Instance:
 		self.db.initiate()
 
 		# Start the apps, call the on_ready, resulting in apps user logic to be started.
+		#await self.gbx.execute('ChatSendServerMessage', '$n$fff--------------------------------------------------------------------')
+		#await self.gbx.execute('ChatSendServerMessage', '$o$FD4Py$369Planet$z$fff Starting (v{}) ...'.format(version))
 		self.apps.start()
-		# await self.gbx.execute('ChatSendServerMessage', '$o$w$FD4Py$369Planet$g v{}'.format(version)),
+		#await self.gbx.execute('ChatSendServerMessage', '$fff    Successfully started {} apps.'.format(len(self.apps.apps)))
+		#await self.gbx.execute('ChatSendServerMessage', '$n$fff--------------------------------------------------------------------')
 
 		# Finish signalling and send finish signal.
 		await self.signal_manager.finish_start(self)

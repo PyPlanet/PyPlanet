@@ -1,8 +1,12 @@
-from multiprocessing import Queue
+import multiprocessing
+import os
 import time
 import logging
 
-from . import process
+from watchdog.observers import Observer
+
+from pyplanet.utils.livereload import LiveReload
+from pyplanet.god import process
 
 logger = logging.getLogger(__name__)
 
@@ -10,9 +14,16 @@ logger = logging.getLogger(__name__)
 class EnvironmentPool:
 	def __init__(self, pool_names, max_restarts=0):
 		self.names = pool_names
-		self.queue = Queue()
+		self.queue = multiprocessing.Queue()
 		self.pool = dict()
 		self.max_restarts = max_restarts
+
+		self.dog_path = os.curdir
+		self.dog_handler = LiveReload(self)
+		self.dog_observer = Observer()
+		self.dog_observer.schedule(self.dog_handler, self.dog_path, recursive=True)
+		# TODO: Find out how to get the watchdog + livereload working on a later moment.
+		# self.dog_observer.start()
 
 		self._restarts = dict()
 
@@ -29,11 +40,20 @@ class EnvironmentPool:
 	def shutdown(self):
 		for name, proc in self.pool.items():
 			proc.shutdown()
+		self.dog_observer.stop()
 
-	def restart(self, name):
-		self.pool[name] = process.InstanceProcess(queue=self.queue, environment_name=name)
-		self._restarts[name] += 1
-		self.pool[name].start()
+	def restart(self, name=None):
+		"""
+		Restart single process, or all if no name is given.
+		:param name: Name or none for all pools.
+		"""
+		if name:
+			self.pool[name] = process.InstanceProcess(queue=self.queue, environment_name=name)
+			self._restarts[name] += 1
+			self.pool[name].start()
+		else:
+			for name in self.pool.keys():
+				self.restart(name)
 
 	def watchdog(self):
 		logger.debug('Starting watchdog... watching {} instances'.format(len(self.pool)))
