@@ -30,3 +30,6 @@ class Player(TimedModel):
 	"""
 	When is the player last seen on the server.
 	"""
+
+	def __str__(self):
+		return self.login

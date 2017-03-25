@@ -45,11 +45,11 @@ class Database:
 
 		return cls(engine, instance, db_name, **db_options)
 
-	def connect(self):
+	async def connect(self):
 		self.engine.connect()
 		logging.info('Database connection established!')
 
-	def initiate(self):
+	async def initiate(self):
 		# Create the migration table.
 		from .models import migration
 		migration.Migration.create_table(True)

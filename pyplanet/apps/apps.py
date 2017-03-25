@@ -83,7 +83,7 @@ class Apps:
 		for label in order:
 			self.apps[label] = populated_apps[label]
 
-	def discover(self):
+	async def discover(self):
 		"""
 		The discover function will discover all models, signals and more
 		from apps in the right order.
@@ -99,7 +99,7 @@ class Apps:
 		# Finishing signal manager.
 		self.instance.signal_manager.finish_reservations()
 
-	def start(self):
+	async def start(self):
 		if self.apps_ready:
 			raise Exception('Apps are not yet ordered!')
 

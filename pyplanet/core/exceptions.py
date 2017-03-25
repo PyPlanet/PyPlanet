@@ -19,3 +19,7 @@ class TransportException(Exception):
 
 class SignalException(Exception):
 	"""Signal receiver thrown an exception!"""
+
+
+class SignalGlueStop(Exception):
+	"""Throw this exception inside of your glue method to stop executing the signal."""

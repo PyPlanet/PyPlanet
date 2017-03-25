@@ -1,41 +1,32 @@
-import datetime
-from peewee import DoesNotExist
-
-from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.core.events import Callback
+from pyplanet.core.exceptions import SignalGlueStop
 from pyplanet.core.instance import Controller
 
 
 async def handle_player_connect(source, signal, **kwargs):
-	instance = Controller.instance
-	login = str(source[0])
-	info = await instance.gbx.execute('GetDetailedPlayerInfo', login)
-	ip, _, port = info['IPAddress'].rpartition(':')
-	try:
-		player = Player.get(login=login)
-		player.last_ip = ip
-		player.last_seen = datetime.datetime.now()
-		player.save()
-	except DoesNotExist:
-		# Get details of player from dedicated.
-		player = Player.create(
-			login=login,
-			nickname=info['NickName'],
-			last_ip=ip,
-			last_seen=datetime.datetime.now()
-		)
-
+	player_login, is_spectator = source
+	player = await Controller.instance.player_manager.handle_connect(login=player_login)
 	return dict(
-		player=player, source=source, signal=signal,
+		player=player, is_spectator=is_spectator, source=source, signal=signal,
+	)
+
+
+async def handle_player_disconnect(source, signal, **kwargs):
+	player_login, reason = source
+	player = await Controller.instance.player_manager.handle_disconnect(login=player_login)
+	return dict(
+		player=player, reason=reason, source=source, signal=signal,
 	)
 
 
 async def handle_player_chat(source, signal, **kwargs):
 	player_uid, player_login, text, cmd = source
-	# TODO: Get player.
+	if Controller.instance.game.server_player_login == player_login and Controller.instance.game.server_is_dedicated:
+		raise SignalGlueStop('We won\'t inform anything about the chat we send ourself!')
+	player = await Controller.instance.player_manager.get_player(login=player_login)
 	# TODO: Command abstraction.
 	return dict(
-		player=player_login, text=text, cmd=cmd
+		player=player, text=text, cmd=cmd
 	)
 
 
@@ -44,6 +35,13 @@ Callback(
 	namespace='maniaplanet',
 	code='player_connect',
 	target=handle_player_connect,
+)
+
+Callback(
+	call='ManiaPlanet.PlayerDisconnect',
+	namespace='maniaplanet',
+	code='player_disconnect',
+	target=handle_player_disconnect,
 )
 
 Callback(

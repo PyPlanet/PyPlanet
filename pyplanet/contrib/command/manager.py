@@ -10,7 +10,7 @@ class _CommandManager:
 		self.on_start()
 		self.on_chat()
 
-	@receiver(signals.pyplanet_start)
+	@receiver(signals.pyplanet_start_after)
 	async def on_start(self, **kwargs):
 		pass
 

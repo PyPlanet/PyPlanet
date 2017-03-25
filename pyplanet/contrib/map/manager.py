@@ -7,5 +7,7 @@ class MapManager:
 		"""
 		self._instance = instance
 
+		self._matchsettings = None
 		self._maps = list()
 		self._current = None
+

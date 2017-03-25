@@ -26,6 +26,17 @@ class _SignalManager:
 		self._current_namespace = None
 
 	def register(self, signal, app=None, callback=False):
+		"""
+		Register a signal (or multiple)
+		:param signal: Signal(s)
+		:param app: App context
+		:param callback: Will a callback handle the response (mostly raw callbacks).
+		"""
+		if isinstance(signal, list):
+			for sig in signal:
+				self.register(sig)
+			return
+
 		if not getattr(signal, 'Meta', None):
 			raise Exception('Signal class should have the Meta class inside.')
 		if not getattr(signal.Meta, 'code', None):
@@ -151,14 +162,11 @@ class _SignalManager:
 		except ImportError:
 			pass
 
-	async def finish_start(self, instance):
+	async def finish_start(self, *args, **kwargs):
 		"""
-		Finish startup the core, this will copy reservations and fire an event.
-		:param instance: Instance
-		:type instance: pyplanet.core.instance.Instance
+		Finish startup the core, this will copy reservations.
 		"""
 		self.finish_reservations()
-		await self.get_signal('pyplanet:start').send_robust(source=dict(instance=instance))
 
 SignalManager = _SignalManager()
 

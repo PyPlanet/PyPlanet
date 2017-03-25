@@ -9,7 +9,7 @@ import logging
 import asyncio
 
 from pyplanet.core.events.manager import SignalManager
-from pyplanet.core.exceptions import SignalException
+from pyplanet.core.exceptions import SignalException, SignalGlueStop
 
 
 def _make_id(target):
@@ -185,7 +185,11 @@ class Signal:
 			source = dict(source=source)
 
 		if not raw:
-			source = await self.process_target(**source)
+			try:
+				source = await self.process_target(**source)
+			except SignalGlueStop:
+				# Stop calling the receivers when our glue says we should!
+				return []
 
 		if not self.receivers:
 			return []
@@ -234,7 +238,11 @@ class Signal:
 			source = dict(source=source)
 
 		if not raw:
-			source = await self.process_target(**source)
+			try:
+				source = await self.process_target(**source)
+			except SignalGlueStop:
+				# Stop calling the receivers when our glue says we should!
+				return []
 
 		if not self.receivers:
 			return []

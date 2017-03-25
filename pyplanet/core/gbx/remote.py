@@ -159,16 +159,24 @@ class GbxRemote:
 		"""
 		Listen to socket.
 		"""
-		while True:
-			head = await self.reader.readexactly(8)
-			size, handle = struct.unpack_from('<LL', head)
-			body = await self.reader.readexactly(size)
-			data, method = loads(body, use_builtin_types=True)
+		try:
+			while True:
+				head = await self.reader.readexactly(8)
+				size, handle = struct.unpack_from('<LL', head)
+				body = await self.reader.readexactly(size)
+				data, method = loads(body, use_builtin_types=True)
 
-			if len(data) == 1:
-				data = data[0]
+				if len(data) == 1:
+					data = data[0]
 
-			self.event_loop.create_task(self.handle_payload(handle, method, data))
+				self.event_loop.create_task(self.handle_payload(handle, method, data))
+		except ConnectionResetError as e:
+			logger.critical(
+				'Connection with the dedicated server has been closed, we will now close down the subprocess! {}'.format(str(e))
+			)
+			# When the connection has been reset, we will close the controller process so it can be restarted by the god
+			# process. Exit code 10 gives the information to the god process. TODO: Make nice table for exit codes.
+			exit(10)
 
 	async def handle_payload(self, handle_nr, method, data):
 		"""
