@@ -62,7 +62,7 @@ class PlayerManager:
 		"""
 		Get player by login or primary key.
 		:param login: Login.
-		:param id: Primary Key identifier.
+		:param pk: Primary Key identifier.
 		:return: Player or exception if not found
 		:rtype: pyplanet.apps.core.maniaplanet.models.Player
 		"""
