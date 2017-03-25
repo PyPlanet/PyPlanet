@@ -9,10 +9,13 @@ from pyplanet.core.game import Game
 from pyplanet.core.gbx import GbxClient
 from pyplanet.core.exceptions import ImproperlyConfigured
 
+from pyplanet.contrib.map import MapManager
+from pyplanet.contrib.player import PlayerManager
+
 logger = logging.getLogger(__name__)
 
 
-class Instance:
+class _Instance:
 	def __init__(self, process_name):
 		"""
 		The actual instance of the controller.
@@ -28,6 +31,9 @@ class Instance:
 		self.db = 				Database.create_from_settings(self, settings.DATABASES[self.process_name])
 		self.signal_manager = 	SignalManager
 		self.apps = 			Apps(self)
+
+		self.map_manager =		MapManager(self)
+		self.player_manager =	PlayerManager(self)
 
 		# Populate apps.
 		self.apps.populate(settings.MANDATORY_APPS, in_order=True)
@@ -69,3 +75,20 @@ class Instance:
 
 		# Finish signalling and send finish signal.
 		await self.signal_manager.finish_start(self)
+
+
+class _Controller:
+	def __init__(self, *args, **kwargs):
+		self.name = None
+		self.__instance = None
+
+	def prepare(self, name):
+		self.name = name
+		self.__instance = _Instance(name)
+		return self
+
+	@property
+	def instance(self):
+		return self.__instance
+
+Controller = _Controller()

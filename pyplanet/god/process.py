@@ -7,13 +7,13 @@ def _run(name, queue):
 	:param name: name of the process
 	:type name: str
 	"""
-	from pyplanet.core.instance import Instance
+	from pyplanet.core.instance import Controller
 	import logging
 
 	logging.getLogger(__name__).info('Starting pool process for \'{}\'...'.format(name))
 
 	# Start instance.
-	instance = Instance(process_name=name)
+	instance = Controller.prepare(name).instance
 	instance.start()
 
 

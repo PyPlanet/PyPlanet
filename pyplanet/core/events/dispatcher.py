@@ -181,14 +181,14 @@ class Signal:
 
 		Return a list of tuple pairs [(receiver, response), ... ].
 		"""
-		if not self.receivers:
-			return []
-
 		if not isinstance(source, dict):
 			source = dict(source=source)
 
 		if not raw:
 			source = await self.process_target(**source)
+
+		if not self.receivers:
+			return []
 
 		source['signal'] = self
 
@@ -230,14 +230,14 @@ class Signal:
 		If any receiver raises an error (specifically any subclass of
 		Exception), return the error instance as the result for that receiver.
 		"""
-		if not self.receivers:
-			return []
-
 		if not isinstance(source, dict):
 			source = dict(source=source)
 
 		if not raw:
 			source = await self.process_target(**source)
+
+		if not self.receivers:
+			return []
 
 		source['signal'] = self
 
