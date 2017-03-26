@@ -4,6 +4,7 @@ import datetime
 from peewee import DoesNotExist
 
 from pyplanet.apps.core.maniaplanet.models import Player
+from pyplanet.conf import settings
 from pyplanet.contrib.player.exceptions import PlayerNotFound
 from pyplanet.core.events import receiver
 from pyplanet.core import signals
@@ -43,10 +44,12 @@ class PlayerManager:
 		"""
 		info = await self._instance.gbx.execute('GetDetailedPlayerInfo', login)
 		ip, _, port = info['IPAddress'].rpartition(':')
+		is_owner = login in settings.OWNERS[self._instance.process_name]
 		try:
 			player = await Player.get(login=login)
 			player.last_ip = ip
 			player.last_seen = datetime.datetime.now()
+			player.level = Player.LEVEL_MASTER if is_owner else Player.LEVEL_PLAYER
 			await player.save()
 		except DoesNotExist:
 			# Get details of player from dedicated.
@@ -54,7 +57,8 @@ class PlayerManager:
 				login=login,
 				nickname=info['NickName'],
 				last_ip=ip,
-				last_seen=datetime.datetime.now()
+				last_seen=datetime.datetime.now(),
+				level=Player.LEVEL_MASTER if is_owner else Player.LEVEL_PLAYER,
 			)
 
 		self._online.add(player)
@@ -66,10 +70,10 @@ class PlayerManager:
 		:return: Database Player instance.
 		:rtype: pyplanet.apps.core.maniaplanet.models.Player 
 		"""
-		player = Player.get(login=login)
-		player.last_seen = datetime.datetime.now()
-		player.save()
+		player = await Player.get(login=login)
 		self._online.remove(player)
+		player.last_seen = datetime.datetime.now()
+		await player.save()
 
 	async def get_player(self, login=None, pk=None):
 		"""

@@ -5,7 +5,7 @@ import asyncio
 import json
 import logging
 import struct
-from xmlrpc.client import dumps, loads
+from xmlrpc.client import dumps, loads, Fault
 
 from pyplanet.core.exceptions import TransportException
 from pyplanet.core.events.manager import SignalManager
@@ -164,7 +164,12 @@ class GbxRemote:
 				head = await self.reader.readexactly(8)
 				size, handle = struct.unpack_from('<LL', head)
 				body = await self.reader.readexactly(size)
-				data, method = loads(body, use_builtin_types=True)
+
+				try:
+					data, method = loads(body, use_builtin_types=True)
+				except Fault as e:
+					# TODO: Handle some parse problems here!
+					raise e
 
 				if len(data) == 1:
 					data = data[0]
@@ -227,7 +232,14 @@ class GbxRemote:
 				# Try to parse responseid to integer, can maybe fail due to script incompatibility.
 				response_id = int(payload['responseid'])
 			except:
-				logger.warning('GBX: Can\'t parse responseid in script callback into integer!')
+				# Sometimes this is not a bug, but could be, When it's an empty string it's normal on some callbacks
+				# like Trackmania.Scores when you just get it without any request you or me did.
+				# Thats why we will show only a debug message!
+				logger.debug(
+					'GBX: Can\'t parse responseid in script callback into integer! We got \'{}\' at method {}'.format(
+						payload['responseid'],
+						method,
+					))
 				return
 
 			if response_id in self.script_handlers:

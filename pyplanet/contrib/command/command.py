@@ -111,10 +111,17 @@ class Command:
 		# Parse, validate and show errors if any.
 		self.parser.parse(paramv)
 		if not self.parser.is_valid():
-			await Controller.instance.gbx.execute(
-				'ChatSendServerMessageToLogin',
-				'$z$s >> Command operation got invalid arguments: {}'.format(', '.join(self.parser.errors)),
-				player.login
+			await Controller.instance.gbx.multicall(
+				Controller.instance.gbx.prepare(
+					'ChatSendServerMessageToLogin',
+					'$z$s >> Command operation got invalid arguments: {}'.format(', '.join(self.parser.errors)),
+					player.login
+				),
+				Controller.instance.gbx.prepare(
+					'ChatSendServerMessageToLogin',
+					'$z$s >> {}'.format(self.usage_text),
+					player.login
+				)
 			)
 			return
 
@@ -122,6 +129,23 @@ class Command:
 		if iscoroutinefunction(self.target):
 			return await self.target(player=player, data=self.parser.data, raw=argv)
 		return self.target(player=player, data=self.parser.data, raw=argv)
+
+	@property
+	def usage_text(self):
+		text = 'Usage: /{}{}{}'.format(
+			'admin' if self.admin else '',
+			self.namespace if self.namespace else '',
+			self.command
+		)
+		for param in self.parser.params:
+			text += ' {}{}:{}{}'.format(
+				'[' if not param['required'] else '',
+				param['name'],
+				getattr(param['type'], '__name__', 'any'),
+				']' if not param['required'] else '',
+			)
+
+		return text
 
 	def __str__(self):
 		return 'Command: /{} {}'.format(self.namespace or self.command, self.command if self.namespace else '')

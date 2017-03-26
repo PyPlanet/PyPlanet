@@ -2,6 +2,7 @@ from pyplanet.apps.core.maniaplanet.callbacks import player
 from pyplanet.core.events import receiver
 from pyplanet.contrib.command.command import Command
 from pyplanet.core import signals
+from pyplanet.core.instance import Controller
 
 
 class _CommandManager:
@@ -22,6 +23,11 @@ class _CommandManager:
 		pass
 
 	async def target(self, player, data, **kwargs):
+		await Controller.instance.gbx.execute(
+			'ChatSendServerMessageToLogin',
+			'$z$s >> You just did /ok. Parameters we got: {}'.format(str(data)),
+			player.login
+		)
 		print(player, data, kwargs)
 
 	@receiver(player.player_chat)

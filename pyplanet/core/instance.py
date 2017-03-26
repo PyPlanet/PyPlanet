@@ -93,15 +93,13 @@ class Instance:
 
 	async def print_header(self):
 		pass
-		# await self.gbx.execute('ChatSendServerMessage', '$n$fff--------------------------------------------------------------------')
-		# await self.gbx.execute('ChatSendServerMessage', '$o$FD4Py$369Planet$z$fff Starting (v{}) ...'.format(version))
+		await self.gbx.execute('ChatSendServerMessage', '$n$fff--------------------------------------------------------------------')
+		await self.gbx.execute('ChatSendServerMessage', '$o$FD4Py$369Planet$z$fff Starting (v{}) ...'.format(version))
 
 	async def print_footer(self):
 		pass
-		# await self.gbx.execute('ChatSendServerMessage', '$fff    Successfully started {} apps.'.format(len(self.apps.apps)))
-		# await self.gbx.execute('ChatSendServerMessage', '$n$fff--------------------------------------------------------------------')
-		# await self.map_manager.set_next_map(await self.map_manager.get_map('4MReW4Xpa73T3TzJ3gr8jwEe6bf'))
-		# await self.map_manager.set_next_map('4MReW4Xpa73T3TzJ3gr8jwEe6bf')
+		await self.gbx.execute('ChatSendServerMessage', '$fff    Successfully started {} apps.'.format(len(self.apps.apps)))
+		await self.gbx.execute('ChatSendServerMessage', '$n$fff--------------------------------------------------------------------')
 
 class _Controller:
 	def __init__(self, *args, **kwargs):
