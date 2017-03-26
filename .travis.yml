@@ -78,7 +78,7 @@ before_script:
   - tests/_scripts/travis_dedicated_start.sh
 
 script:
-  - tox -e $TOX_ENV -- --cov-report=xml --cov=pyplanet
+  - tox -e $TOXENV -- --cov-report=xml --cov=pyplanet
 
 #after_success:
 #  - python-codacy-coverage -r coverage.xml
