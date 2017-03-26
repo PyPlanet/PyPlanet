@@ -1,9 +1,7 @@
 import asyncio
-import re
 from inspect import iscoroutinefunction
 
 from pyplanet.contrib.command.params import ParameterParser
-from pyplanet.core.instance import Controller
 
 
 class Command:
@@ -43,7 +41,6 @@ class Command:
 		self.perms = perms
 		self.parser = parser or \
 					  ParameterParser('{} {}'.format(self.namespace, self.command) if self.namespace else self.command)
-		self.__regex = None
 
 	def match(self, raw):
 		"""
@@ -54,12 +51,22 @@ class Command:
 		"""
 		input = raw[:]
 
-		if self.admin and input[0] in ['/', 'admin']:
-			input.pop(0)
+		if len(input) == 0:
+			return False
+
+		if self.admin:
+			if input[0][0:1] == '/':
+				input[0] = input[0][1:]
+			elif input[0] == 'admin':
+				input.pop(0)
+			else:
+				return False
+
 		if len(input) > 0 and self.namespace and input[0] == self.namespace:
 			input.pop(0)
 		elif self.namespace:
 			return False
+
 		if not len(input):
 			return False
 
@@ -77,7 +84,10 @@ class Command:
 		:rtype: list
 		"""
 		if self.admin:
-			input.pop(0)
+			if input[0][0:1] == '/':
+				input[0] = input[0][1:]
+			elif input[0] == 'admin':
+				input.pop(0)
 		if self.namespace:
 			input.pop(0)
 		input.pop(0)
@@ -109,7 +119,7 @@ class Command:
 		)
 		return self
 
-	async def handle(self, player, argv):
+	async def handle(self, instance, player, argv):
 		"""
 		Handle command parsing and execution.
 		:param player: Player object.
@@ -121,10 +131,10 @@ class Command:
 		if self.perms and len(self.perms) > 0:
 			# All the given perms need to be matching!
 			is_allowed = await asyncio.gather(*[
-				Controller.instance.permission_manager.has_permission(player, perm) for perm in self.perms
+				instance.permission_manager.has_permission(player, perm) for perm in self.perms
 			])
 			if not all(allowed is True for allowed in is_allowed):
-				await Controller.instance.gbx.execute(
+				await instance.gbx.execute(
 					'ChatSendServerMessageToLogin',
 					'$z$s >> You are not authorized to use this command!',
 					player.login
@@ -137,13 +147,13 @@ class Command:
 		# Parse, validate and show errors if any.
 		self.parser.parse(paramv)
 		if not self.parser.is_valid():
-			await Controller.instance.gbx.multicall(
-				Controller.instance.gbx.prepare(
+			await instance.gbx.multicall(
+				instance.gbx.prepare(
 					'ChatSendServerMessageToLogin',
 					'$z$s >> Command operation got invalid arguments: {}'.format(', '.join(self.parser.errors)),
 					player.login
 				),
-				Controller.instance.gbx.prepare(
+				instance.gbx.prepare(
 					'ChatSendServerMessageToLogin',
 					'$z$s >> {}'.format(self.usage_text),
 					player.login
@@ -174,4 +184,8 @@ class Command:
 		return text
 
 	def __str__(self):
-		return 'Command: /{} {}'.format(self.namespace or self.command, self.command if self.namespace else '')
+		return 'Command: /{}{} {}'.format(
+			'/' if self.admin else '',
+			self.namespace or self.command,
+			self.command if self.namespace else '',
+		)

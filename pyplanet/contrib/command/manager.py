@@ -1,12 +1,12 @@
-from pyplanet.apps.core.maniaplanet.callbacks import player
 from pyplanet.core.events import receiver
 from pyplanet.contrib.command.command import Command
 from pyplanet.core import signals
-from pyplanet.core.instance import Controller
 
 
-class _CommandManager:
-	def __init__(self):
+class CommandManager:
+	def __init__(self, instance):
+		self._instance = instance
+
 		self.commands = list()
 
 		self.on_start()
@@ -20,17 +20,15 @@ class _CommandManager:
 		self.commands.extend([
 			tst_cmd
 		])
-		pass
 
 	async def target(self, player, data, **kwargs):
-		await Controller.instance.gbx.execute(
+		await self._instance.gbx.execute(
 			'ChatSendServerMessageToLogin',
 			'$z$s >> You just did /ok. Parameters we got: {}'.format(str(data)),
 			player.login
 		)
-		print(player, data, kwargs)
 
-	@receiver(player.player_chat)
+	@receiver('maniaplanet:player_chat')
 	async def on_chat(self, player, text, cmd, **kwargs):
 		# Only take action if the chat entry is a command.
 		if not cmd:
@@ -53,7 +51,4 @@ class _CommandManager:
 
 		# Let the command handle the logic it needs.
 		if command:
-			await command.handle(player, argv)
-
-
-CommandManager = _CommandManager()
+			await command.handle(self._instance, player, argv)

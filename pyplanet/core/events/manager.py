@@ -37,17 +37,13 @@ class _SignalManager:
 				self.register(sig)
 			return
 
-		if not getattr(signal, 'Meta', None):
-			raise Exception('Signal class should have the Meta class inside.')
-		if not getattr(signal.Meta, 'code', None):
-			raise Exception('Signal Meta class has no code defined!')
-		if not getattr(signal.Meta, 'namespace', None) and self._current_namespace:
+		if not signal.code:
+			raise Exception('Signal code is not valid!')
+		if not signal.namespace and self._current_namespace:
 			namespace = self._current_namespace
-		elif getattr(signal.Meta, 'namespace', None):
-			namespace = signal.Meta.namespace
 		else:
-			namespace = None  # TODO: How to handle this, will we go for the exception?
-		code = signal.Meta.code
+			namespace = signal.namespace
+		code = signal.code
 
 		if not hasattr(signal, 'receivers'):
 			instance = signal()

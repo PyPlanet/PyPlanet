@@ -14,17 +14,16 @@ class Callback(Signal):
 		:param code:
 		:param target:
 		"""
-		super().__init__()
-		self.raw_signal = Signal()
-		self.raw_signal.Meta.code = call
-		self.raw_signal.Meta.namespace = 'raw'
-		self.raw_signal.connect(self.glue, weak=False)
-		SignalManager.register(self.raw_signal, app=None, callback=True)
+		# Initiate destination signal (ourself).
+		super().__init__(code=code, namespace=namespace, process_target=target)
 
-		self.Meta.code = code
-		self.Meta.namespace = namespace
-		self.process_target = target
+		# Initiate raw signal, the raw gbx/script callback.
+		self.raw_signal = Signal(code=call, namespace='raw')
+		self.raw_signal.connect(self.glue, weak=False)
+
+		SignalManager.register(self.raw_signal, app=None, callback=True)
 		SignalManager.register(self, app=None)
 
 	async def glue(self, signal, source, **kwargs):
 		return await self.send_robust(source)
+

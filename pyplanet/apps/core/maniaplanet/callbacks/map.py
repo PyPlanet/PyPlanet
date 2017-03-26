@@ -1,5 +1,4 @@
 from pyplanet.core.events import Callback
-from pyplanet.core.exceptions import SignalGlueStop
 from pyplanet.core.instance import Controller
 
 

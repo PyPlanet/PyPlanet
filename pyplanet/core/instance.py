@@ -5,6 +5,7 @@ from pyplanet import __version__ as version
 
 from pyplanet.apps import Apps
 from pyplanet.conf import settings
+from pyplanet.contrib.command import CommandManager
 from pyplanet.contrib.permission import PermissionManager
 from pyplanet.core import signals
 from pyplanet.core.events import SignalManager
@@ -40,6 +41,7 @@ class Instance:
 		self.map_manager =			MapManager(self)
 		self.player_manager =		PlayerManager(self)
 		self.permission_manager =	PermissionManager(self)
+		self.command_manager =		CommandManager(self)
 
 		# Populate apps.
 		self.apps.populate(settings.MANDATORY_APPS, in_order=True)

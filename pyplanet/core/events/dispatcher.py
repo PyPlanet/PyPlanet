@@ -38,9 +38,14 @@ class Signal:
 		self.lock = threading.Lock()
 
 		if code:
-			self.Meta.code = code
+			self.code = code
+		else:
+			self.code = self.Meta.code
+
 		if namespace:
-			self.Meta.namespace = namespace
+			self.namespace = namespace
+		else:
+			self.namespace = self.Meta.namespace
 
 		self.use_caching = use_caching
 		self.sender_receivers_cache = weakref.WeakKeyDictionary() if use_caching else {}
@@ -354,7 +359,7 @@ def receiver(signal, filter=None, **kwargs):
 	:param filter: Filter of the contents. Not yet implemented ()
 	:param kwargs:
 	"""
-	def connect(func):
+	def connect(signal, func):
 		if isinstance(signal, Signal):
 			signal.connect(func, **kwargs)
 		elif isinstance(signal, str):
@@ -365,7 +370,7 @@ def receiver(signal, filter=None, **kwargs):
 		else:
 			raise Exception('Signal should be a valid string or signal instance. or a tuple/list with multiple.')
 
-	def set_self(func, self):
+	def set_self(signal, func, self):
 		if isinstance(signal, Signal):
 			signal.set_self(func, self)
 		elif isinstance(signal, str):
@@ -380,16 +385,16 @@ def receiver(signal, filter=None, **kwargs):
 		# If signal is an array of signals/strings, loop and connect. If not, just connect the single one.
 		if isinstance(signal, (list, tuple)):
 			for sig in signal:
-				connect(func)
+				connect(signal, func)
 		else:
-			connect(func)
+			connect(signal, func)
 
 		def wrapper(*ag, **kw):
 			try:
 				# When only one argument given and it contains the __dict__ we have the registering self call.
 				# At this point, we want to set the self instance into our signal instance and pass away the call.
 				if len(ag) == 1 and hasattr(ag[0], '__dict__'):
-					set_self(func, ag[0])
+					set_self(signal, func, ag[0])
 				else:
 					# Mostly we really want to call it. Throw exception for flow control.
 					raise Exception()
