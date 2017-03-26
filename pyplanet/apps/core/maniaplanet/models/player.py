@@ -54,11 +54,18 @@ class Player(TimedModel):
 		return self.login
 
 	def __init__(self, *args, **kwargs):
+		self.__flow = PlayerFlow()
 		super().__init__(*args, **kwargs)
+
+	@property
+	def flow(self):
+		return self.__flow
 
 	async def save(self, *args, **kwargs):
 		await super().save(*args, **kwargs)
-		self.CACHE[self.login] = self
+		if self.login in self.CACHE and id(self) != id(self.CACHE[self.login]):
+			self.__flow = self.CACHE[self.login].flow
+			self.CACHE[self.login] = self
 
 	@classmethod
 	async def get_by_login(cls, login):
@@ -70,10 +77,32 @@ class Player(TimedModel):
 		"""
 		if login in cls.CACHE:
 			return cls.CACHE[login]
-		return await cls.get(login=login)
+		cls.CACHE[login] = player = await cls.get(login=login)
+		return player
 
 	def get_level_string(self):
 		for level_nr, level_name in self.LEVEL_CHOICES:
 			if self.level == level_nr:
 				return level_name
 		return None
+
+
+class PlayerFlow:
+	def __init__(self):
+		self.in_run = False
+		self.run_cps = list()
+		self.run_time = None
+
+	def start_run(self):
+		self.in_run = True
+		self.run_cps = list()
+		self.run_time = None
+
+	def end_run(self, time=None):
+		if self.in_run:
+			self.run_time = time
+			self.in_run = False
+
+	def add_waypoint(self, time):
+		if self.in_run:
+			self.run_cps.append(time)
