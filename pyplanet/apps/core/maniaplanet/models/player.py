@@ -54,15 +54,14 @@ class Player(TimedModel):
 		return self.login
 
 	def __init__(self, *args, **kwargs):
-		self.__data = dict()
 		super().__init__(*args, **kwargs)
 
-	def save(self, *args, **kwargs):
-		super().save(*args, **kwargs)
+	async def save(self, *args, **kwargs):
+		await super().save(*args, **kwargs)
 		self.CACHE[self.login] = self
 
 	@classmethod
-	def get_by_login(cls, login):
+	async def get_by_login(cls, login):
 		"""
 		Get player by login.
 		:param login: Login.
@@ -71,10 +70,7 @@ class Player(TimedModel):
 		"""
 		if login in cls.CACHE:
 			return cls.CACHE[login]
-		return cls.get(login=login)
-
-	def data(self):
-		return self.__data
+		return await cls.get(login=login)
 
 	def get_level_string(self):
 		for level_nr, level_name in self.LEVEL_CHOICES:

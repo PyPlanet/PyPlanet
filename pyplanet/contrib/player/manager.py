@@ -44,13 +44,13 @@ class PlayerManager:
 		info = await self._instance.gbx.execute('GetDetailedPlayerInfo', login)
 		ip, _, port = info['IPAddress'].rpartition(':')
 		try:
-			player = Player.get(login=login)
+			player = await Player.get(login=login)
 			player.last_ip = ip
 			player.last_seen = datetime.datetime.now()
-			player.save()
+			await player.save()
 		except DoesNotExist:
 			# Get details of player from dedicated.
-			player = Player.create(
+			player = await Player.create(
 				login=login,
 				nickname=info['NickName'],
 				last_ip=ip,
@@ -81,14 +81,10 @@ class PlayerManager:
 		"""
 		try:
 			if login:
-				return Player.get_by_login(login)
-
-			if pk:
-				player = Player.get(pk=pk)
-			elif login:
-				player = Player.get(login=login)
+				return await Player.get_by_login(login)
+			elif pk:
+				return await Player.get(pk=pk)
 			else:
 				raise PlayerNotFound('Player not found.')
-			return player
 		except DoesNotExist:
 			raise PlayerNotFound('Player not found.')

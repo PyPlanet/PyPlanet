@@ -35,8 +35,14 @@ OWNERS = {
 # Please refer to the documentation for all examples.
 DATABASES = {
 	'default': {
-		'ENGINE': 'peewee.SqliteDatabase',
-		'NAME': 'database.db',
+		'ENGINE': 'peewee_async.MySQLDatabase',
+		'NAME': 'pyplanet',
+		'OPTIONS': {
+			'host': 'localhost',
+			'user': 'root',
+			'password': '',
+			'charset': 'utf8',
+		}
 	}
 }
 

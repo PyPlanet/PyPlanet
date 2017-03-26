@@ -1,7 +1,6 @@
 """
 Maniaplanet Core Models. This models are used in several apps and should be considered as very stable.
 """
-from cached_property import cached_property
 from peewee import *
 from pyplanet.core.db import TimedModel
 
@@ -85,12 +84,19 @@ class Map(TimedModel):
 	def __str__(self):
 		return '\'{}\' by {} ({})'.format(self.name, self.author_login, self.uid)
 
-	def save(self, *args, **kwargs):
-		super().save(*args, **kwargs)
+	async def save(self, *args, **kwargs):
+		await super().save(*args, **kwargs)
 		self.CACHE[self.uid] = self
 
+	async def get_author(self):
+		from .player import Player
+
+		if self.author_login:
+			await Player.get(login=self.author_login)
+		return None
+
 	@classmethod
-	def get_by_uid(cls, uid):
+	async def get_by_uid(cls, uid):
 		"""
 		Get map by UID.
 		:param uid: UId.
@@ -99,18 +105,10 @@ class Map(TimedModel):
 		"""
 		if uid in cls.CACHE:
 			return cls.CACHE[uid]
-		return cls.get(uid=uid)
-
-	@cached_property
-	def author(self):
-		from .player import Player
-
-		if self.author_login:
-			Player.get(login=self.author_login)
-		return None
+		return await cls.get(uid=uid)
 
 	@classmethod
-	def get_or_create_from_info(cls, uid, file, name, author_login, **kwargs):
+	async def get_or_create_from_info(cls, uid, file, name, author_login, **kwargs):
 		"""
 		This method will be called from the core, getting or creating a map instance from the information we got from
 		the dedicated server.
@@ -124,7 +122,7 @@ class Map(TimedModel):
 		"""
 		needs_save = False
 		try:
-			map = cls.get_by_uid(uid)
+			map = await cls.get_by_uid(uid)
 			if map.file != file or map.name != name:
 				map.file = file
 				map.name = name
@@ -140,6 +138,6 @@ class Map(TimedModel):
 				needs_save = True
 
 		if needs_save:
-			map.save()
+			await map.save()
 
 		return map

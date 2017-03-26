@@ -38,7 +38,7 @@ class MapManager:
 
 		# We will initiate the maps in the database (or update).
 		for details in raw_list:
-			map = Map.get_or_create_from_info(
+			map = await Map.get_or_create_from_info(
 				details['UId'], details['FileName'], details['Name'], details['Author'],
 				environment=details['Environnement'], time_gold=details['GoldTime'],
 				price=details['CopperPrice'], map_type=details['MapType'], map_style=details['MapStyle']
@@ -59,7 +59,7 @@ class MapManager:
 		:return: Map instance.
 		:rtype: pyplanet.apps.core.maniaplanet.models.map.Map
 		"""
-		return Map.get_or_create_from_info(
+		return await Map.get_or_create_from_info(
 			uid=info['UId'], name=info['Name'], author_login=info['Author'], file=info['FileName'],
 			environment=info['Environnement'], map_type=info['MapType'], map_style=info['MapStyle'],
 			num_laps=info['NbLaps'], num_checkpoints=info['NbCheckpoints'], time_author=info['AuthorTime'],
@@ -74,7 +74,7 @@ class MapManager:
 		:return: Player or exception if not found
 		"""
 		try:
-			return Map.get_by_uid(uid)
+			return await Map.get_by_uid(uid)
 		except DoesNotExist:
 			raise MapNotFound('Map not found.')
 

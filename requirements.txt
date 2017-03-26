@@ -7,6 +7,9 @@ Jinja2==2.9.5
 
 # Database + ORM + Migration
 peewee==2.9.1
+peewee-async==0.5.7
+aiopg==0.13.0
+aiomysql==0.0.9
 pymysql==0.7.10
 
 # Utils

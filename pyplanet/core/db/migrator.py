@@ -30,7 +30,7 @@ class Migrator:
 			return PostgresqlMigrator(self.db.engine)
 		raise ImproperlyConfigured('Database engine doesn\'t support Migrations!')
 
-	def migrate(self):
+	async def migrate(self):
 		"""
 		Migrate all models.
 		:return:

@@ -5,6 +5,7 @@ database instance running.
 import importlib
 import logging
 import peewee
+import peewee_async
 
 from pyplanet.core.exceptions import ImproperlyConfigured
 from .registry import Registry
@@ -27,6 +28,12 @@ class Database:
 		self.instance = instance
 		self.migrator = Migrator(self)
 		self.registry = Registry(self)
+		self.objects = peewee_async.Manager(self.engine, loop=self.instance.loop)
+
+		# Don't allow any sync code.
+		if hasattr(self.engine, 'allow_sync'):
+			self.engine.allow_sync = False #logging.ERROR
+
 		Proxy.initialize(self.engine)
 
 	@classmethod
@@ -52,7 +59,9 @@ class Database:
 	async def initiate(self):
 		# Create the migration table.
 		from .models import migration
-		migration.Migration.create_table(True)
+		with self.objects.allow_sync():
+			migration.Migration.create_table(True)
 
 		# Migrate all models.
-		self.migrator.migrate()
+		with self.objects.allow_sync():
+			await self.migrator.migrate()
