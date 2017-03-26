@@ -47,7 +47,10 @@ class Command:
 		:return: Boolean if command matches.
 		"""
 		input = raw[:]
-		if self.namespace and input[0] == self.namespace:
+
+		if self.admin and input[0] in ['/', 'admin']:
+			input.pop(0)
+		if len(input) > 0 and self.namespace and input[0] == self.namespace:
 			input.pop(0)
 		elif self.namespace:
 			return False
@@ -67,6 +70,8 @@ class Command:
 		:return: Array of parameters, stripped of the command name and namespace, if defined.
 		:rtype: list
 		"""
+		if self.admin:
+			input.pop(0)
 		if self.namespace:
 			input.pop(0)
 		input.pop(0)

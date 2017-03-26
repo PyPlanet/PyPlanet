@@ -5,6 +5,7 @@ from pyplanet import __version__ as version
 
 from pyplanet.apps import Apps
 from pyplanet.conf import settings
+from pyplanet.contrib.permission import PermissionManager
 from pyplanet.core import signals
 from pyplanet.core.events import SignalManager
 from pyplanet.core.db.database import Database
@@ -26,17 +27,19 @@ class Instance:
 		:type process_name: str
 		"""
 		# Initiate all the core components.
-		self.process_name = 	process_name
-		self.loop = 			asyncio.get_event_loop()
-		self.game =				Game
+		self.process_name = 		process_name
+		self.loop = 				asyncio.get_event_loop()
+		self.game =					Game
 
-		self.gbx = 				GbxClient.create_from_settings(self, settings.DEDICATED[self.process_name])
-		self.db = 				Database.create_from_settings(self, settings.DATABASES[self.process_name])
-		self.signal_manager = 	SignalManager
-		self.apps = 			Apps(self)
+		self.gbx = 					GbxClient.create_from_settings(self, settings.DEDICATED[self.process_name])
+		self.db = 					Database.create_from_settings(self, settings.DATABASES[self.process_name])
+		self.signal_manager = 		SignalManager
+		self.apps = 				Apps(self)
 
-		self.map_manager =		MapManager(self)
-		self.player_manager =	PlayerManager(self)
+		# Contrib components.
+		self.map_manager =			MapManager(self)
+		self.player_manager =		PlayerManager(self)
+		self.permission_manager =	PermissionManager(self)
 
 		# Populate apps.
 		self.apps.populate(settings.MANDATORY_APPS, in_order=True)
@@ -100,6 +103,7 @@ class Instance:
 		pass
 		await self.gbx.execute('ChatSendServerMessage', '$fff    Successfully started {} apps.'.format(len(self.apps.apps)))
 		await self.gbx.execute('ChatSendServerMessage', '$n$fff--------------------------------------------------------------------')
+
 
 class _Controller:
 	def __init__(self, *args, **kwargs):
