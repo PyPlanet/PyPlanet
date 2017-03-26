@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 BEFORE_PWD=`pwd`
 cd "$(dirname "$0")"
-cd ../..
+cd ../../
 # From now we are in the project root.
 
 # Download the latest dedicated server.

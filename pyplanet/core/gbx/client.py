@@ -97,8 +97,13 @@ class GbxClient(GbxRemote):
 		multi_results = await asyncio.gather(*calls)
 		results = list()
 		for res in multi_results:
-			for row in res:
-				results += row
+			if isinstance(res, list) and len(res) > 0 and isinstance(res[0], list):
+				# When we have a list inside our list, we will unwrap that to our root results. This is mostly the case,
+				# except when we got error messages!
+				for row in res:
+					results += row
+			else:
+				results += res
 
 		return results
 

@@ -1,3 +1,3 @@
 from . import (
-	player,
+	player, map
 )

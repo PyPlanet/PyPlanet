@@ -52,6 +52,11 @@ class Map(TimedModel):
 	Type of map in slashes. Like: Trackmania\Race
 	"""
 
+	map_style = CharField(max_length=255, null=True, default=None)
+	"""
+	Style of the map.
+	"""
+
 	num_laps = IntegerField(null=True, default=None)
 	"""
 	Number of laps if multilap map, else None.
@@ -75,6 +80,27 @@ class Map(TimedModel):
 	Time of author and all medals.
 	"""
 
+	CACHE = dict()
+
+	def __str__(self):
+		return '\'{}\' by {} ({})'.format(self.name, self.author_login, self.uid)
+
+	def save(self, *args, **kwargs):
+		super().save(*args, **kwargs)
+		self.CACHE[self.uid] = self
+
+	@classmethod
+	def get_by_uid(cls, uid):
+		"""
+		Get map by UID.
+		:param uid: UId.
+		:return: Map instance
+		:rtype: pyplanet.apps.core.maniaplanet.models.map.Map
+		"""
+		if uid in cls.CACHE:
+			return cls.CACHE[uid]
+		return cls.get(uid=uid)
+
 	@cached_property
 	def author(self):
 		from .player import Player
@@ -82,3 +108,38 @@ class Map(TimedModel):
 		if self.author_login:
 			Player.get(login=self.author_login)
 		return None
+
+	@classmethod
+	def get_or_create_from_info(cls, uid, file, name, author_login, **kwargs):
+		"""
+		This method will be called from the core, getting or creating a map instance from the information we got from
+		the dedicated server.
+		:param uid: Map UID
+		:param file: Filename
+		:param name: Name of map
+		:param author_login: Author login
+		:param kwargs: Other key arguments, matching the model columns!
+		:return: Map instance.
+		:rtype: pyplanet.apps.core.maniaplanet.models.map.Map
+		"""
+		needs_save = False
+		try:
+			map = cls.get_by_uid(uid)
+			if map.file != file or map.name != name:
+				map.file = file
+				map.name = name
+				needs_save = True
+		except DoesNotExist:
+			map = Map(uid=uid, file=file, name=name, author_login=author_login)
+			needs_save = True
+
+		# Update from the kwargs.
+		for k, v in kwargs.items():
+			if v is not None and hasattr(map, k) and getattr(map, k) != v:
+				setattr(map, k, v)
+				needs_save = True
+
+		if needs_save:
+			map.save()
+
+		return map

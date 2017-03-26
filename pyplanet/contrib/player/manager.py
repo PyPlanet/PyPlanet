@@ -1,9 +1,12 @@
+import asyncio
 import datetime
 
 from peewee import DoesNotExist
 
 from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.contrib.player.exceptions import PlayerNotFound
+from pyplanet.core.events import receiver
+from pyplanet.core import signals
 
 
 class PlayerManager:
@@ -15,11 +18,21 @@ class PlayerManager:
 		"""
 		self._instance = instance
 
-		# Cache will only be used internally. Always ordered by key => model instance.
-		self._cache = dict()
-
 		# Online contains all currently online players.
 		self._online = set()
+
+		# Initiate the self instances on receivers.
+		self.handle_startup()
+
+	@receiver(signals.pyplanet_start_apps_before)
+	async def handle_startup(self, **kwargs):
+		"""
+		Handle startup, just before the apps will start. We will throw connects for the players so we know that the 
+		current playing players are also initiated correctly!
+		:param kwargs: Ignored parameters.
+		"""
+		player_list = await self._instance.gbx.execute('GetPlayerList', -1, 1)
+		await asyncio.gather(*[self.handle_connect(player['Login']) for player in player_list])
 
 	async def handle_connect(self, login):
 		"""
@@ -67,8 +80,8 @@ class PlayerManager:
 		:rtype: pyplanet.apps.core.maniaplanet.models.Player
 		"""
 		try:
-			if login and login in self._cache:
-				return self._cache[login]
+			if login:
+				return Player.get_by_login(login)
 
 			if pk:
 				player = Player.get(pk=pk)
@@ -76,8 +89,6 @@ class PlayerManager:
 				player = Player.get(login=login)
 			else:
 				raise PlayerNotFound('Player not found.')
-
-			self._cache[login] = player
 			return player
 		except DoesNotExist:
 			raise PlayerNotFound('Player not found.')

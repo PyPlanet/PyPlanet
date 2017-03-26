@@ -181,20 +181,17 @@ class Signal:
 
 		Return a list of tuple pairs [(receiver, response), ... ].
 		"""
-		if not isinstance(source, dict):
-			source = dict(source=source)
-
 		if not raw:
 			try:
-				source = await self.process_target(**source)
+				kwargs = await self.process_target(signal=self, source=source)
 			except SignalGlueStop:
 				# Stop calling the receivers when our glue says we should!
 				return []
+		else:
+			kwargs = dict(source=source, signal=self)
 
 		if not self.receivers:
 			return []
-
-		source['signal'] = self
 
 		# Call each receiver with whatever arguments it can accept.
 		# Return a list of tuple pairs [(receiver, response), ... ].
@@ -207,14 +204,14 @@ class Signal:
 				slf = slf()
 
 				if asyncio.iscoroutinefunction(receiver):
-					response = await receiver(slf, **source)
+					response = await receiver(slf, **kwargs)
 				else:
-					response = receiver(slf, **source)
+					response = receiver(slf, **kwargs)
 			else:
 				if asyncio.iscoroutinefunction(receiver):
-					response = await receiver(**source)
+					response = await receiver(**kwargs)
 				else:
-					response = receiver(**source)
+					response = receiver(**kwargs)
 
 			responses.append((receiver, response))
 		return responses
@@ -234,20 +231,17 @@ class Signal:
 		If any receiver raises an error (specifically any subclass of
 		Exception), return the error instance as the result for that receiver.
 		"""
-		if not isinstance(source, dict):
-			source = dict(source=source)
-
 		if not raw:
 			try:
-				source = await self.process_target(**source)
+				kwargs = await self.process_target(signal=self, source=source)
 			except SignalGlueStop:
 				# Stop calling the receivers when our glue says we should!
 				return []
+		else:
+			kwargs = dict(source=source, signal=self)
 
 		if not self.receivers:
 			return []
-
-		source['signal'] = self
 
 		# Call each receiver with whatever arguments it can accept.
 		# Return a list of tuple pairs [(receiver, response), ... ].
@@ -260,14 +254,14 @@ class Signal:
 					slf = slf()
 
 					if asyncio.iscoroutinefunction(receiver):
-						response = await receiver(slf, **source)
+						response = await receiver(slf, **kwargs)
 					else:
-						response = receiver(slf, **source)
+						response = receiver(slf, **kwargs)
 				else:
 					if asyncio.iscoroutinefunction(receiver):
-						response = await receiver(**source)
+						response = await receiver(**kwargs)
 					else:
-						response = receiver(**source)
+						response = receiver(**kwargs)
 			except Exception as err:
 				logger.exception(SignalException(
 					'Signal receiver \'{}\' => {} thrown an exception!'.format(receiver.__module__, receiver.__name__)
