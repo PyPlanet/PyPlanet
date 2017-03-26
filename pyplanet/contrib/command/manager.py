@@ -14,7 +14,7 @@ class _CommandManager:
 
 	@receiver(signals.pyplanet_start_after)
 	async def on_start(self, **kwargs):
-		tst_cmd = Command(command='ok', target=self.target)
+		tst_cmd = Command(command='ok', target=self.target, perms='core.pyplanet:use_ok', admin=True)
 		tst_cmd.add_param('times', type=int)
 
 		self.commands.extend([

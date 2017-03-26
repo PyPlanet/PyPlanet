@@ -49,7 +49,8 @@ class PlayerManager:
 			player = await Player.get(login=login)
 			player.last_ip = ip
 			player.last_seen = datetime.datetime.now()
-			player.level = Player.LEVEL_MASTER if is_owner else Player.LEVEL_PLAYER
+			if is_owner:
+				player.level = Player.LEVEL_MASTER
 			await player.save()
 		except DoesNotExist:
 			# Get details of player from dedicated.

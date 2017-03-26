@@ -1,13 +1,16 @@
 from pyplanet.apps.config import AppConfig
-from pyplanet.core.events import receiver, SignalManager
-from pyplanet.contrib.command import CommandManager
+from pyplanet.apps.core.maniaplanet.permissions import register_permissions
 
 
 class ManiaplanetConfig(AppConfig):
 	name = 'pyplanet.apps.core.maniaplanet'
 	core = True
 
-	def on_ready(self):
+	async def on_init(self):
+		# Register permissions.
+		await register_permissions(self)
+
+	async def on_ready(self):
 		# Register receivers context, only required if you use classmethods.
 		#
 

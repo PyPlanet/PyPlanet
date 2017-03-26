@@ -99,16 +99,18 @@ class Apps:
 		# Finishing signal manager.
 		self.instance.signal_manager.finish_reservations()
 
+	async def init(self):
+		if self.apps_ready:
+			raise Exception('Apps are not yet ordered!')
+		for label, app in self.apps.items():
+			await app.on_init()
+
 	async def start(self):
 		if self.apps_ready:
 			raise Exception('Apps are not yet ordered!')
 
-		# TODO: Fetch all apps logic.
-		# TODO: Register models some kind of shit.
-
 		# The apps are in order, lets loop over them.
 		for label, app in self.apps.items():
+			await app.on_ready()
 			logging.debug('App is ready: {}'.format(label))
-			app.on_ready()
-
 		logging.info('Apps successfully started!')

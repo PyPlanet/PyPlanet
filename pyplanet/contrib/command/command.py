@@ -1,3 +1,4 @@
+import asyncio
 import re
 from inspect import iscoroutinefunction
 
@@ -12,7 +13,7 @@ class Command:
 	"""
 
 	def __init__(
-		self, command, target, aliases=None, admin=False, namespace=None, parser=None
+		self, command, target, aliases=None, admin=False, namespace=None, parser=None, perms=None,
 	):
 		"""
 		Initiate a command.
@@ -22,12 +23,14 @@ class Command:
 		:param admin: Register command in admin context.
 		:param namespace: Custom namespace, this can be used to create commands like '/prog start' and '/prog end' 
 						  where 'prog' is the namespace.
+		:param perms: Required parameters, default everyone is allowed.
 		:param parser: Custom parser.
 		:type command: str
 		:type target: any
 		:type aliases: str[]
 		:type admin: bool
 		:type namespace: str
+		:type perms: list,str
 		:type parser: any
 		"""
 		self.command = command
@@ -35,6 +38,9 @@ class Command:
 		self.aliases = aliases or list()
 		self.admin = admin
 		self.namespace = namespace
+		if isinstance(perms, str):
+			perms = [perms]
+		self.perms = perms
 		self.parser = parser or \
 					  ParameterParser('{} {}'.format(self.namespace, self.command) if self.namespace else self.command)
 		self.__regex = None
@@ -110,6 +116,21 @@ class Command:
 		:param argv: Arguments in array
 		:type player: pyplanet.apps.core.maniaplanet.models.player.Player
 		"""
+		# TODO: Refactor the error flow, don't call the controller directly here!!
+		# Check permissions.
+		if self.perms and len(self.perms) > 0:
+			# All the given perms need to be matching!
+			is_allowed = await asyncio.gather(*[
+				Controller.instance.permission_manager.has_permission(player, perm) for perm in self.perms
+			])
+			if not all(allowed is True for allowed in is_allowed):
+				await Controller.instance.gbx.execute(
+					'ChatSendServerMessageToLogin',
+					'$z$s >> You are not authorized to use this command!',
+					player.login
+				)
+				return
+
 		# Strip off the namespace and command.
 		paramv = self.get_params(argv)
 

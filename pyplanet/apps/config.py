@@ -63,7 +63,7 @@ class AppConfig:
 
 		# The label can be given by the module, or automatically determinated on the last component.
 		if not hasattr(self, 'label') or getattr(self, 'label', None) is None:
-			self.label = app_name.rpartition(".")[2]
+			self.label = app_name.rpartition('.')[2]
 
 			# If the module is a core contrib module, we give the label a prefix (contrib.app).
 			if self.core is True:
@@ -80,12 +80,33 @@ class AppConfig:
 	def __repr__(self):
 		return '<%s: %s>' % (self.__class__.__name__, self.label)
 
-	def on_ready(self):
+	###################################################################################################
+	# Lifecycle Methods
+	###################################################################################################
+
+	async def on_init(self):
 		"""
-		The on_ready call is being called after all apps has been started successfully. You should register any stuff here
-		like your `self` context for signals if they are classmethods.
+		The on_init will be called before all apps are started (just before the on_ready). This will allow the app
+		to register things like commands, permissions and other things that are important and don't require other
+		apps to be ready.
+		:return: 
+		"""
+
+	async def on_ready(self):
+		"""
+		The on_ready call is being called after all apps has been started successfully. You should register any stuff 
+		that is related to any other apps and signals like your `self` context for signals if they are classmethods.
 		"""
 		pass
+
+	async def on_deinit(self):
+		"""
+		The on_deinit will be called  
+		"""
+		# TODO: Lifecycle.
+		pass
+
+	###################################################################################################
 
 	def is_mode_supported(self, mode):
 		return self.mode_dependencies or mode in self.mode_dependencies
