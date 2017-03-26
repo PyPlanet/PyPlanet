@@ -1,3 +1,5 @@
+import asyncio
+
 from peewee import DoesNotExist
 
 from pyplanet.apps.core.maniaplanet.models import Map
@@ -21,8 +23,10 @@ class MapManager:
 		# The maps contain a list of map instances in the order that are in the current loaded list.
 		self._maps = set()
 
-		# The current map will always be in this variable.
-		self._current = None
+		# The current map will always be in this variable. The next map will always be here. It will be updated. once
+		# it's updated it should be send to the dedicated to queue the next map.
+		self._current_map = None
+		self._next_map = None
 
 		# Initiate the self instances on receivers.
 		self.handle_startup()
@@ -42,8 +46,11 @@ class MapManager:
 
 			self._maps.add(map)
 
-		# Make sure we handle our current map & next map events.
-		# TODO.
+		# Get current and next map.
+		self._current_map, self._next_map = await asyncio.gather(
+			self.handle_map_change(await self._instance.gbx.execute('GetCurrentMapInfo')),
+			self.handle_map_change(await self._instance.gbx.execute('GetNextMapInfo')),
+		)
 
 	async def handle_map_change(self, info):
 		"""
@@ -65,10 +72,37 @@ class MapManager:
 		Get map instance by uid.
 		:param uid: By uid (pk).
 		:return: Player or exception if not found
-		:rtype: pyplanet.apps.core.maniaplanet.models.map.Map
 		"""
 		try:
-			if uid:
-				return Map.get_by_uid(uid)
+			return Map.get_by_uid(uid)
 		except DoesNotExist:
 			raise MapNotFound('Map not found.')
+
+	@property
+	def next_map(self):
+		return self._next_map
+
+	async def set_next_map(self, map):
+		if isinstance(map, str):
+			map = await self.get_map(map)
+		if not isinstance(map, Map):
+			raise Exception('When setting the map, you should give an Map instance!')
+		await self._instance.gbx.execute('SetNextMapIdent', map.uid)
+		self._next_map = map
+
+	@property
+	def current_map(self):
+		return self._current_map
+
+	async def set_current_map(self, map):
+		"""
+		Set the current map and jump to it.
+		:param map: Map instance or uid.
+		"""
+		if isinstance(map, str):
+			map = await self.get_map(map)
+		if not isinstance(map, Map):
+			raise Exception('When setting the map, you should give an Map instance!')
+
+		await self._instance.gbx.execute('JumpToMapIdent', map.uid)
+		self._next_map = map
