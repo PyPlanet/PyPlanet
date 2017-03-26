@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 BEFORE_PWD=`pwd`
 cd "$(dirname "$0")"
-cd ..
-cd dedicated
+cd ../../dedicated
 
 # Start the dedicated server.
 ./ManiaPlanetServer /dedicated_cfg=dedicated_cfg.txt /title=TMCanyon /game_settings=MatchSettings/matchsettings_1.txt /login=${MP_USER} /password=${MP_PASS} /loadcache

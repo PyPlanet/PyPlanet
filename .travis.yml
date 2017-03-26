@@ -27,11 +27,11 @@ matrix:
 
 install:
   - pip install tox codacy-coverage -U pip
-  - scripts/travis_dedicated.sh
+  - tests/_scripts/travis_dedicated_setup.sh
 
 before_script:
-  - scripts/travis_config.sh
-  - scripts/travis_dedicated_start.sh
+  - tests/_scripts/travis_config.sh
+  - tests/_scripts/travis_dedicated_start.sh
 
 script:
   - tox -e $TOXENV -- --cov-report=xml --cov=pyplanet
