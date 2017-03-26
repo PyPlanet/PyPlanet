@@ -32,7 +32,7 @@ class PlayerManager:
 		current playing players are also initiated correctly!
 		:param kwargs: Ignored parameters.
 		"""
-		player_list = await self._instance.gbx.execute('GetPlayerList', -1, 1)
+		player_list = await self._instance.gbx.execute('GetPlayerList', -1, 0)
 		await asyncio.gather(*[self.handle_connect(player['Login']) for player in player_list])
 
 	async def handle_connect(self, login):
@@ -42,6 +42,10 @@ class PlayerManager:
 		:return: Database Player instance.
 		:rtype: pyplanet.apps.core.maniaplanet.models.Player
 		"""
+		# Ignore if it's the server itself.
+		if self._instance.game.server_is_dedicated and self._instance.game.server_player_login == login:
+			return
+
 		info = await self._instance.gbx.execute('GetDetailedPlayerInfo', login)
 		ip, _, port = info['IPAddress'].rpartition(':')
 		is_owner = login in settings.OWNERS[self._instance.process_name]
