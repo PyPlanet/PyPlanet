@@ -37,14 +37,14 @@ class MapManager:
 		raw_list = await self._instance.gbx.execute('GetMapList', -1, 0)
 
 		# We will initiate the maps in the database (or update).
-		for details in raw_list:
-			map = await Map.get_or_create_from_info(
-				details['UId'], details['FileName'], details['Name'], details['Author'],
-				environment=details['Environnement'], time_gold=details['GoldTime'],
-				price=details['CopperPrice'], map_type=details['MapType'], map_style=details['MapStyle']
-			)
+		coroutines = [Map.get_or_create_from_info(
+			details['UId'], details['FileName'], details['Name'], details['Author'],
+			environment=details['Environnement'], time_gold=details['GoldTime'],
+			price=details['CopperPrice'], map_type=details['MapType'], map_style=details['MapStyle']
+		) for details in raw_list]
 
-			self._maps.add(map)
+		maps = await asyncio.gather(*coroutines)
+		self._maps = maps
 
 		# Get current and next map.
 		self._current_map, self._next_map = await asyncio.gather(
