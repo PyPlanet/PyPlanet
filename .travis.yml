@@ -67,12 +67,10 @@ before_install:
   - psql -c 'create database pyplanet_integration_py35;' -U postgres
   - psql -c 'create database pyplanet_integration_py36;' -U postgres
 
-# Deprecated
 install:
   - pip install tox codacy-coverage -U pip
   - tests/_scripts/travis_dedicated_setup.sh
 
-# Deprecated
 before_script:
   - tests/_scripts/travis_config.sh
   - tests/_scripts/travis_dedicated_start.sh
