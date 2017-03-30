@@ -1,15 +1,15 @@
 import re
 
 
-STRIP_ALL = r'(\$[wnoitsgz><]|\$[lh]\[.+\]|\$[lh]|\$[0-9a-f]{3})+'
-STRIP_COLORS = dict(letters='gz', part=r'\$[0-9a-f]{3}')
+STRIP_ALL = dict(letters='wnoitsgz<>', part=r'\$[lh]\[.+\]|\$[lh]|\$[0-9a-f]{3}')
+STRIP_COLORS = dict(letters='g', part=r'\$[0-9a-f]{3}')
 STRIP_SIZES = dict(letters='wnoiz')
 STRIP_SHADOWS = dict(letters='s')
 STRIP_CAPITALS = dict(letters='t')
 STRIP_LINKS = dict(part=r'\$[lh]\[.+\]|\$[lh]')
 
 
-def style_strip(text, *strip_methods, keep_styling_blocks=False, keep_reset=False):
+def style_strip(text, *strip_methods, strip_styling_blocks=True, keep_reset=False, keep_color_reset=False):
 	"""
 	Strip styles from the Maniaplanet universe.
 
@@ -35,11 +35,13 @@ def style_strip(text, *strip_methods, keep_styling_blocks=False, keep_reset=Fals
 
 	:param text: The input string text.
 	:param strip_methods: Methods for stripping, use one of the STRIP_* constants or leave undefined to strip everything.
-	:param keep_styling_blocks: Keep styling blocks ($> and $<)
+	:param strip_styling_blocks: Strip all styling blocks ($> and $<)
 	:param keep_reset: Keep full resets ($z).
+	:param keep_color_reset: Keep color resets ($g).
 	:type text: str
-	:type keep_styling_blocks: bool
+	:type strip_styling_blocks: bool
 	:type keep_reset: bool
+	:type keep_color_reset: bool
 	:return: Stripped style string.
 	:rtype: str
 	"""
@@ -58,9 +60,11 @@ def style_strip(text, *strip_methods, keep_styling_blocks=False, keep_reset=Fals
 			if 'part' in payload:
 				parts.append(payload['part'])
 
-	if not keep_reset:
+	if keep_reset:
 		letters = letters.replace('z', '')
-	if not keep_styling_blocks:
+	if keep_color_reset:
+		letters = letters.replace('g', '')
+	if strip_styling_blocks:
 		letters += '<>'
 
 	if not regex:
