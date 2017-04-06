@@ -40,7 +40,7 @@ class GbxClient(GbxRemote):
 		:param method: Scripted method name
 		:param args: Arguments
 		:param encode_json: Are the arguments dictionary, should it be encoded? (Then only provide the first arg).
-		:param response_id: Does the call work on response_id's? 
+		:param response_id: Does the call work on response_id's?
 							True by default, set to false to not expect response with response_id
 		:return: Future.
 		"""
@@ -50,7 +50,7 @@ class GbxClient(GbxRemote):
 	async def multicall(self, *queries):
 		"""
 		Run the queries given async. Will use one or more multicall(s), depends on content.
-		:param queries: 
+		:param queries: Queries to execute in multicall.
 		:return: Results in tuple.
 		:rtype: tuple<any>
 		"""
@@ -115,8 +115,8 @@ class GbxClient(GbxRemote):
 		"""
 		The initialize method will gather information about the server that is only fetched once and saved and used
 		in some classes/parts of the application. To make this information available, we use the pyplanet.core.state
-		class instance which is a singleton class instance holding information about the server that is public and 
-		should be stable. 
+		class instance which is a singleton class instance holding information about the server that is public and
+		should be stable.
 		"""
 		# Clear the previous created Manialinks.
 		await self.execute('SendHideManialinkPage')
@@ -126,9 +126,7 @@ class GbxClient(GbxRemote):
 			api_versions = await self.script('XmlRpc.GetAllApiVersions')
 			if 'versions' in api_versions and self.script_api_version in api_versions['versions']:
 				await self.script('XmlRpc.SetApiVersion', self.script_api_version, response_id=False)
-			# TODO: Activate after bug is fixed: https://forum.maniaplanet.com/viewtopic.php?f=561&p=278065
-			# self.script_api_version = await self.script('XmlRpc.GetApiVersion')
-			# print(self.script_api_version)
+			self.script_api_version = await self.script('XmlRpc.GetApiVersion')
 		except Exception as e:
 			logger.info('Can\'t set the script API Version! {}'.format(str(e)))
 
