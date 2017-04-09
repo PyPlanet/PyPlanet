@@ -44,7 +44,7 @@ class _LookBackUtils:
 
 		# Check if this will be the first occurrence.
 		if idx & 0xc0000000 != 0 and idx & 0x3fffffff == 0:
-			value = self.read_string()
+			value = await self.read_string()
 			self.store.append(value)
 			return value
 
@@ -79,7 +79,7 @@ class _AsyncBufferProxy:
 	async def read(self, size=1):
 		return self.buffer.read(size)
 
-	async def seek(self, offset, whence=io.SEEK_SET):
+	async def seek(self, offset, whence=io.SEEK_CUR):
 		return self.buffer.seek(offset, whence)
 
 	async def tell(self):
@@ -104,16 +104,32 @@ class GbxParser:
 		self.buffer = _AsyncBufferProxy(buffer)
 		self.strings = _LookBackUtils(self.buffer)
 
-		self.result = None
+		self.result = dict()
 
 		self.header = None
+		self.header_xml = None
 		self.header_length = 0
 		self.header_chunk_count = 0
 		self.header_chunks = dict()
 
-	async def parse(self):
+		self.parse_thumb = False
+		self.parse_header_xml = False
+
+	async def seek(self, offset):
+		"""
+		We need to override the second param to move from the current position.
+		:param offset: offset to move away.
+		:type offset: int
+		"""
+		return await self.buffer.seek(offset, io.SEEK_CUR)
+
+	async def parse(self, thumb=False, header_xml=False):
+		self.parse_thumb = thumb
+		self.parse_header_xml = header_xml
+
 		if self.file:
 			async with aiofiles.open(self.file, mode='rb') as self.buffer:
+				self.strings = _LookBackUtils(self.buffer)
 				return await self.__parse()
 		elif self.buffer:
 			return await self.__parse()
@@ -121,21 +137,22 @@ class GbxParser:
 
 	async def __parse(self):
 		# Skip until class reference.
-		await self.buffer.seek(9)
+		await self.seek(9)
 		# Read class ID.
 		class_id, = struct.unpack('<I', await self.buffer.read(4))
 		if class_id != ((0x3 << 24) | (0x43 << 12)):
 			raise GbxException('Gbx file has no valid parser, only maps are supported right now.')
 
-		header = await self.__parse_header()
-		return None
+		self.result.update(await self.__parse_header())
+
+		return self.result
 
 	async def __parse_header(self):
 		self.header_length, = struct.unpack('<I', await self.buffer.read(4))
 		self.header_chunk_count, = struct.unpack('<I', await self.buffer.read(4))
 
 		self.header_chunks = dict()
-		self.header = []
+		self.header = dict()
 
 		# Save header data from binary.
 		for nr in range(self.header_chunk_count):
@@ -146,45 +163,88 @@ class GbxParser:
 		# Parse all header chunks.
 		for chunk_id, chunk_size in self.header_chunks.items():
 			self.strings.reset()
-			await self.__parse_chunk(chunk_id, chunk_size)
+			self.header.update(await self.__parse_chunk(chunk_id, chunk_size))
+
+		return self.header
 
 	async def __parse_chunk(self, chunk_id, chunk_size):
 		if chunk_id == 0x03043002:
-			version, = struct.unpack('<H', await self.buffer.read(2))
-			await self.buffer.seek(4)
-
+			version, = struct.unpack('<B', await self.buffer.read(1))
+			await self.seek(4)
 			time_bronze, time_silver, time_gold, time_author = struct.unpack('<LLLL', await self.buffer.read(16))
 			price, is_multilap, map_type = struct.unpack('<LLL', await self.buffer.read(12))
 			is_multilap = True if is_multilap == 1 else False
-
-			await self.buffer.seek(4)
-
+			await self.seek(4)
 			author_score, editor = struct.unpack('<LL', await self.buffer.read(8))
 			editor = 'simple' if editor == 1 else 'advanced'
-
-			await self.buffer.seek(4)
-
+			await self.seek(4)
 			checkpoints, laps = struct.unpack('<LL', await self.buffer.read(8))
-			print(checkpoints, laps)
+			return dict(
+				time_bronze=time_bronze, time_silver=time_silver, time_gold=time_gold, time_author=time_author,
+				price=price, is_multilap=is_multilap, map_type=map_type, author_score=author_score, editor=editor,
+				checkpoints=checkpoints, laps=laps
+			)
 
-			pass
-		return
+		elif chunk_id == 0x03043003:
+			version, = struct.unpack('<B', await self.buffer.read(1))
+			uid = await self.strings.read_lookback_string()
+			environment = await self.strings.read_lookback_string()
+			author_login = await self.strings.read_lookback_string()
+			name = await self.strings.read_string()
+			await self.seek(5)
+			await self.strings.read_string() # Unknown, mostly empty.
+			mood = await self.strings.read_lookback_string()
+			decoration_env_id = await self.strings.read_lookback_string()
+			decoration_env_author = await self.strings.read_lookback_string()
+			await self.seek(4*4+16)
+			map_type = await self.strings.read_string()
+			map_style = await self.strings.read_string()
+			await self.seek(9)
+			title_id = await self.strings.read_lookback_string()
+			return dict(
+				uid=uid, environment=environment, author_login=author_login, name=name, mood=mood,
+				decoration_env_id=decoration_env_id, decoration_env_author=decoration_env_author,
+				map_type=map_type, map_style=map_style, title_id=title_id
+			)
 
+		elif chunk_id == 0x03043004:
+			version, = struct.unpack('<B', await self.buffer.read(1))
+			await self.seek(chunk_size - 1)
 
-if __name__ == '__main__':
-	filename = os.path.join(
-		os.path.dirname(os.path.dirname(os.path.abspath(os.curdir))),
-		'tests',
-		'_files',
-		'maps',
-		'canyon-mp4-1.gbx'
-	)
+		elif chunk_id == 0x03043005:
+			self.header_xml = await self.strings.read_string()
 
-	loop = asyncio.get_event_loop()
-	parser = GbxParser(file=filename)
-	result = loop.run_until_complete(parser.parse())
+		elif chunk_id == 0x03043007:
+			has_thumb = bool(struct.unpack('<L', await self.buffer.read(4))[0])
+			comment = None
+			thumb = None
+			if has_thumb:
+				thumb_size, = struct.unpack('<L', await self.buffer.read(4))
+				await self.seek(15) # Skip XML thumb tag.
+				if self.parse_thumb:
+					thumb = struct.unpack('<{}s'.format(thumb_size), await self.buffer.read(thumb_size))[0].decode()
+				else:
+					await self.seek(thumb_size)
+				await self.seek(16 + 10) # </Thumbnail.jpg></Comments>
 
-	# Buffered
-	parser = GbxParser(buffer=open(filename, mode='rb'))
-	result = loop.run_until_complete(parser.parse())
+				comment_size, = struct.unpack('<L', await self.buffer.read(4))
+				if comment_size > 0:
+					comment = struct.unpack('<{}s'.format(comment_size), await self.buffer.read(comment_size))[0].decode()
+				await self.seek(11) # </Comments>
+			else:
+				await self.seek(chunk_size - 4)
 
+			return dict(has_thumb=has_thumb, thumb=thumb, comment=comment)
+
+		elif chunk_id == 0x03043008:
+			version, = struct.unpack('<L', await self.buffer.read(4))
+			author_version, = struct.unpack('<L', await self.buffer.read(4))
+			author_login = await self.strings.read_string()
+			author_nickname = await self.strings.read_string()
+			author_zone = await self.strings.read_string()
+			author_extra = await self.strings.read_string()
+			return dict(
+				author_version=author_version, author_login=author_login, author_nickname=author_nickname,
+				author_zone=author_zone, author_extra=author_extra
+			)
+		return dict()
