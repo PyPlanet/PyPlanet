@@ -2,7 +2,6 @@
 This file has been forked from Django and PyDispatcher.
 The PyDispatcher is licensed under BSD.
 """
-
 import threading
 import weakref
 import logging

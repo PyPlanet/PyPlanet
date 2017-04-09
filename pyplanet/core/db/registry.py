@@ -4,7 +4,6 @@ The database registry class is used for managing apps models and states related 
 import os
 import inspect
 import importlib
-import logging
 
 from glob import glob
 

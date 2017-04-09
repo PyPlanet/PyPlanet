@@ -4,13 +4,11 @@ Settings for the PyPlanet application.
 Values will dynamically read from the settings module provided by your setup. All default values will be overwritten.
 Default values are retrieved from `default_settings.py`.
 """
-
 import importlib
 import os
 
 from pyplanet.conf import default_settings
 from pyplanet.core.exceptions import ImproperlyConfigured
-from pyplanet.utils.functional import empty
 
 
 class LazySettings:

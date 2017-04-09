@@ -6,8 +6,7 @@ import peewee
 
 from playhouse.sqlite_ext import SqliteExtDatabase
 from playhouse.migrate import (
-	PostgresqlMigrator, SqliteMigrator, MySQLMigrator,
-	SchemaMigrator
+	PostgresqlMigrator, SqliteMigrator, MySQLMigrator
 )
 
 from pyplanet.core.exceptions import ImproperlyConfigured
