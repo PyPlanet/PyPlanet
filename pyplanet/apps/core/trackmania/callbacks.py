@@ -1,5 +1,5 @@
 from pyplanet.apps.core.maniaplanet.models import Player
-from pyplanet.core.events import Callback, Signal
+from pyplanet.core.events import Callback, Signal, handle_generic
 from pyplanet.core.exceptions import SignalGlueStop
 
 
@@ -10,7 +10,6 @@ async def handle_start_line(source, signal, **kwargs):
 	return dict(
 		player=player, time=source['time'], flow=flow
 	)
-
 
 async def handle_waypoint(source, signal, **kwargs):
 	player = await Player.get_by_login(source['login'])
@@ -35,12 +34,10 @@ async def handle_waypoint(source, signal, **kwargs):
 		), raw=True)
 	raise SignalGlueStop()
 
-
 async def handle_give_up(source, signal, **kwargs):
 	player = await Player.get_by_login(source['login'])
 	player.flow.end_run()
 	return dict(player=player, flow=player.flow, time=source['time'])
-
 
 async def handle_respawn(source, signal, **kwargs):
 	player = await Player.get_by_login(source['login'])
@@ -76,6 +73,41 @@ respawn = Callback(
 	namespace='trackmania',
 	code='respawn',
 	target=handle_respawn,
+)
+
+stunt = Callback(
+	call='Script.Trackmania.Event.Stunt',
+	namespace='trackmania',
+	code='stunt',
+	target=handle_generic
+)
+
+warmup_start = Callback(
+	call='Script.Trackmania.WarmUp.Start',
+	namespace='trackmania',
+	code='warmup_start',
+	target=handle_generic
+)
+
+warmup_end = Callback(
+	call='Script.Trackmania.WarmUp.End',
+	namespace='trackmania',
+	code='warmup_end',
+	target=handle_generic
+)
+
+warmup_start_round = Callback(
+	call='Script.Trackmania.WarmUp.StartRound',
+	namespace='trackmania',
+	code='warmup_start_round',
+	target=handle_generic
+)
+
+warmup_end_round = Callback(
+	call='Script.Trackmania.WarmUp.EndRound',
+	namespace='trackmania',
+	code='warmup_end_round',
+	target=handle_generic
 )
 
 finish = Signal(

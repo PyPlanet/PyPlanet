@@ -1,6 +1,7 @@
 """
 This file contains a glue between core callbacks and desired callbacks.
 """
+from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.core.events import Signal, SignalManager
 
 
@@ -27,3 +28,8 @@ class Callback(Signal):
 	async def glue(self, signal, source, **kwargs):
 		return await self.send_robust(source)
 
+
+async def handle_generic(source, signal, **kwargs):
+	if 'login' in source:
+		source['player'] = await Player.get_by_login(source['login'])
+	return source

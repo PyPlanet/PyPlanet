@@ -14,6 +14,7 @@ async def handle_map_end(source, signal, **kwargs):
 	return dict(map=map)
 
 
+# We don't use scripted map events due to the information we get and the stability of the information structure.
 map_begin = Callback(
 	call='ManiaPlanet.BeginMap',
 	namespace='maniaplanet',
