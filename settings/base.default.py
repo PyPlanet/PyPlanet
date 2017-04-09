@@ -62,9 +62,8 @@ DEDICATED = {
 # Please refer to the documentation for more information.
 STORAGE = {
 	'default': {
-		'DRIVER': 'pyplanet.storage.backends.local',
-		'PATH': False
-		# Auto-detected by communicating to the dedicated server.
+		'DRIVER': 'pyplanet.core.storage.drivers.dedicated.DedicatedDriver',
+		'OPTIONS': {},
 	}
 }
 
