@@ -12,6 +12,7 @@ async def handle_on_hit(source, signal, **kwargs):
 	shooter, victim = await asyncio.gather(*[Player.get_by_login(source['shooter']), Player.get_by_login(source['victim'])])
 	return dict(
 		shooter=shooter, time=source['time'], weapon=source['weapon'], victim=victim, damage=source['damage'],
+		points=source['points'], distance=source['distance'],
 		shooter_position=source['shooterposition'], victim_position=source['victimposition'],
 	)
 
@@ -25,7 +26,7 @@ async def handle_on_near_miss(source, signal, **kwargs):
 async def handle_armor_empty(source, signal, **kwargs):
 	shooter, victim = await asyncio.gather(*[Player.get_by_login(source['shooter']), Player.get_by_login(source['victim'])])
 	return dict(
-		shooter=shooter, time=source['time'], weapon=source['weapon'], victim=victim,
+		shooter=shooter, time=source['time'], weapon=source['weapon'], victim=victim, distance=source['distance'],
 		shooter_position=source['shooterposition'], victim_position=source['victimposition'],
 	)
 
@@ -73,7 +74,7 @@ on_armor_empty = Callback(
 )
 
 on_capture = Callback(
-	call='Script.Shootmania.Event.OnArmorEmpty',
+	call='Script.Shootmania.Event.OnCapture',
 	namespace='shootmania',
 	code='on_capture',
 	target=handle_on_capture,
