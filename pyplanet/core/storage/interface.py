@@ -1,13 +1,13 @@
 
 class StorageInterface:
-	async def open_map(self, file: str, mode: str = 'rb'):
-		raise NotImplemented
+	async def open(self, file: str, mode: str = 'rb'):
+		raise NotImplementedError
 
-	async def open_file(self, file: str, mode: str = 'rb'):
-		raise NotImplemented
+	async def open_map(self, file: str, mode: str = 'rb'):
+		raise NotImplementedError
 
 	async def open_matchsettings(self, file: str, mode: str = 'r'):
-		raise NotImplemented
+		raise NotImplementedError
 
 
 class StorageDriver:
@@ -70,9 +70,10 @@ class StorageDriver:
 
 
 class StorageFile:
+	def __init__(self):
+		pass
 
 	async def __aenter__(self):
-		# TODO Download + open.
 		pass
 
 	async def __aexit__(self, exc_type, exc_val, exc_tb):
