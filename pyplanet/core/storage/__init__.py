@@ -1,5 +1,5 @@
-from .interface import StorageDriver, StorageFile, StorageInterface
+from .interface import StorageDriver, StorageInterface
 
 __all__ = [
-	'StorageDriver', 'StorageInterface', 'StorageFile'
+	'StorageDriver', 'StorageInterface'
 ]

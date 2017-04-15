@@ -62,7 +62,7 @@ DEDICATED = {
 # Please refer to the documentation for more information.
 STORAGE = {
 	'default': {
-		'DRIVER': 'pyplanet.core.storage.drivers.dedicated.DedicatedDriver',
+		'DRIVER': 'pyplanet.core.storage.drivers.local.LocalDriver',
 		'OPTIONS': {},
 	}
 }
