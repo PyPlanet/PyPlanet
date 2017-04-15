@@ -104,7 +104,7 @@ class Instance:
 	async def print_header(self):
 		pass
 		await self.gbx.execute('ChatSendServerMessage', '$n$fff--------------------------------------------------------------------')
-		await self.gbx.execute('ChatSendServerMessage', '$o$FD4Py$369Planet$z$fff Starting (v{}) ...'.format(version))
+		await self.gbx.execute('ChatSendServerMessage', '$o$FD4Py$369Planet$z$s$fff Starting (v{}) ...'.format(version))
 
 	async def print_footer(self):
 		pass
