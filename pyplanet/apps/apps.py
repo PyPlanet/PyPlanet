@@ -50,7 +50,7 @@ class Apps:
 
 		# Load modules.
 		for entry in apps:
-			app = AppConfig.import_app(entry)
+			app = AppConfig.import_app(entry, self.instance)
 
 			# Check if the app is unique.
 			if app.label in self.apps:

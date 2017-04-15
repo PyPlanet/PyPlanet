@@ -17,6 +17,8 @@ from pyplanet.core.exceptions import ImproperlyConfigured
 from pyplanet.contrib.map import MapManager
 from pyplanet.contrib.player import PlayerManager
 from pyplanet.core.storage.storage import Storage
+from pyplanet.core.ui import GlobalUIManager
+from pyplanet.views.generics.alert import Alert
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +39,7 @@ class Instance:
 		self.db = 					Database.create_from_settings(self, settings.DATABASES[self.process_name])
 		self.storage =				Storage.create_from_settings(self, settings.STORAGE[self.process_name])
 		self.signal_manager = 		SignalManager
+		self.ui_manager =			GlobalUIManager(self)
 		self.apps = 				Apps(self)
 
 		# Contrib components.

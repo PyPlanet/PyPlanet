@@ -45,7 +45,16 @@ class AppConfig:
 
 	"""
 
-	def __init__(self, app_name, app_module):
+	def __init__(self, app_name, app_module, instance):
+		"""
+		Init app config.
+		:param app_name: App Name (from module path).
+		:param app_module: App Module.
+		:param instance: Instance of controller
+		:type app_name: str
+		:type app_module: str
+		:type instance: pyplanet.core.instance.Instance
+		"""
 		# The full python module path. The postfix `*.app.*Config` is always the same!
 		# Example: pyplanet.contrib.apps.games.trackmania.app.TrackmaniaConfig
 		self.name = app_name
@@ -56,6 +65,10 @@ class AppConfig:
 
 		# The apps registry will be injected into the app config.
 		self.apps = None
+
+		# The instance and related app context managers.
+		self.instance = instance
+		self.ui = instance.ui_manager.create_app_manager(self)
 
 		# Make sure we give the core attribute the default value of false. This indicates if it's an internally
 		# module.
@@ -141,7 +154,7 @@ class AppConfig:
 		return paths[0]
 
 	@staticmethod
-	def import_app(entry):
+	def import_app(entry, instance):
 		# Import the module, we need to strip down the path into namespace, file and class.
 		module_path, _, cls_name = entry.rpartition('.')
 		if not module_path:
@@ -184,4 +197,4 @@ class AppConfig:
 				)
 			)
 
-		return module(app_name, app_module)
+		return module(app_name, app_module, instance)
