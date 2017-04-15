@@ -1,5 +1,3 @@
-from slugify import slugify
-
 from pyplanet.core import signals
 from pyplanet.core.events import receiver
 

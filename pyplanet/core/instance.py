@@ -18,7 +18,6 @@ from pyplanet.contrib.map import MapManager
 from pyplanet.contrib.player import PlayerManager
 from pyplanet.core.storage.storage import Storage
 from pyplanet.core.ui import GlobalUIManager
-from pyplanet.views.generics.alert import Alert
 
 logger = logging.getLogger(__name__)
 
