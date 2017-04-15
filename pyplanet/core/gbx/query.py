@@ -1,5 +1,6 @@
 import asyncio
 import json
+import uuid
 from xmlrpc.client import dumps
 
 from pyplanet.core.exceptions import TransportException
@@ -67,7 +68,7 @@ class ScriptQuery(Query):
 
 		# Make sure we generate a response_id.
 		if response_id is True:
-			self.response_id = id(self)
+			self.response_id = uuid.uuid4().hex # id(self)
 		else:
 			self.response_id = None
 

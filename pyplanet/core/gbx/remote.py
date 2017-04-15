@@ -228,19 +228,7 @@ class GbxRemote:
 
 		# Check if payload contains a responseid, when it does, we call the scripted handler future object.
 		if type(payload) is dict and 'responseid' in payload:
-			try:
-				# Try to parse responseid to integer, can maybe fail due to script incompatibility.
-				response_id = int(payload['responseid'])
-			except:
-				# Sometimes this is not a bug, but could be, When it's an empty string it's normal on some callbacks
-				# like Trackmania.Scores when you just get it without any request you or me did.
-				# Thats why we will show only a debug message!
-				logger.debug(
-					'GBX: Can\'t parse responseid in script callback into integer! We got \'{}\' at method {}'.format(
-						payload['responseid'],
-						method,
-					))
-				return
+			response_id = payload['responseid']
 
 			if response_id in self.script_handlers:
 				logger.debug('GBX: Received scripted response to method: {} and responseid: {}'.format(method, response_id))
