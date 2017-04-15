@@ -81,7 +81,13 @@ class Apps:
 
 		# Add in order
 		for label in order:
-			self.apps[label] = populated_apps[label]
+			try:
+				self.apps[label] = populated_apps[label]
+			except KeyError:
+				if label.startswith('core.'):
+					pass
+				else:
+					raise Exception('One of the apps depends on a non existing app: {}'.format(label))
 
 	async def discover(self):
 		"""

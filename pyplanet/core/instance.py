@@ -53,7 +53,7 @@ class Instance:
 			self.apps.populate(settings.APPS[self.process_name])
 		except KeyError as e:
 			raise ImproperlyConfigured(
-				'One of the pool names doesn\'t reflect intot the APPS setting! You must '
+				'One of the pool names doesn\'t reflect into the APPS setting! You must '
 				'declare the apps per pool! ({})'.format(str(e))
 			)
 
