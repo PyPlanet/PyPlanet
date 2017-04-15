@@ -97,3 +97,7 @@ class PlayerManager:
 				raise PlayerNotFound('Player not found.')
 		except DoesNotExist:
 			raise PlayerNotFound('Player not found.')
+
+	@property
+	def online(self):
+		return self._online
