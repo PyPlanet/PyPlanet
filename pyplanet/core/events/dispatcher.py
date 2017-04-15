@@ -242,7 +242,7 @@ class Signal:
 				# Stop calling the receivers when our glue says we should!
 				return []
 		else:
-			kwargs = dict(source=source, signal=self)
+			kwargs = dict(**source, signal=self)
 
 		if not self.receivers:
 			return []
