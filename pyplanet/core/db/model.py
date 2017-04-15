@@ -19,6 +19,10 @@ class Model(PeeweeModel):
 		return await cls.objects.get(cls, *args, **kwargs)
 
 	@classmethod
+	async def select(cls, query):
+		return await cls.objects.get(query)
+
+	@classmethod
 	async def get_or_create(cls, *args, **kwargs):
 		return await cls.objects.get_or_create(cls, *args, **kwargs)
 
