@@ -54,6 +54,13 @@ start_line = Callback(
 	target=handle_start_line,
 )
 
+start_countdown = Callback(
+	call='Script.Trackmania.Event.StartCountdown',
+	namespace='trackmania',
+	code='start_countdown',
+	target=handle_start_line,
+)
+
 waypoint = Callback(
 	call='Script.Trackmania.Event.WayPoint',
 	namespace='trackmania',
