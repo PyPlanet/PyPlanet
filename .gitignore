@@ -78,4 +78,4 @@ settings/*.py
 # Apps.
 /apps/*
 !/apps/__init__.py
-
+/pyplanet/apps/local
