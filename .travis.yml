@@ -8,7 +8,6 @@ python:
 cache:
   directories:
     - $HOME/.cache/pip
-    - dedicated.zip
 
 services:
   - mysql
