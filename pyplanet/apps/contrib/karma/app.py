@@ -1,5 +1,3 @@
-import math
-
 from pyplanet.apps.config import AppConfig
 from pyplanet.core.events import receiver
 
@@ -9,8 +7,8 @@ from .models import Karma
 
 class KarmaConfig(AppConfig):
 	name = 'pyplanet.apps.contrib.karma'
-	game_dependencies = ['trackmania']
-	app_dependencies = ['core.maniaplanet', 'core.trackmania']
+	game_dependencies = []
+	app_dependencies = ['core.maniaplanet']
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
