@@ -59,13 +59,15 @@ class MapManager:
 		:return: Map instance.
 		:rtype: pyplanet.apps.core.maniaplanet.models.map.Map
 		"""
-		return await Map.get_or_create_from_info(
+		map_info = await Map.get_or_create_from_info(
 			uid=info['UId'], name=info['Name'], author_login=info['Author'], file=info['FileName'],
 			environment=info['Environnement'], map_type=info['MapType'], map_style=info['MapStyle'],
 			num_laps=info['NbLaps'], num_checkpoints=info['NbCheckpoints'], time_author=info['AuthorTime'],
 			time_bronze=info['BronzeTime'], time_silver=info['SilverTime'], time_gold=info['GoldTime'],
 			price=info['CopperPrice']
 		)
+		self._current_map = map_info
+		return map_info
 
 	async def get_map(self, uid=None):
 		"""
