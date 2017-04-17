@@ -41,7 +41,7 @@ setup(
 
 	author='Tom Valk',
 	author_email='tomvalk@lt-box.info',
-	url='https://github.com/tomvlk/PyPlanet-core',
+	url='https://github.com/tomvlk/PyPlanet',
 
 	classifiers=[
 		'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
