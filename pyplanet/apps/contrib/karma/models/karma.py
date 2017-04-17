@@ -1,0 +1,30 @@
+"""
+Maniaplanet Core Models. This models are used in several apps and should be considered as very stable.
+"""
+from peewee import *
+from pyplanet.core.db import TimedModel
+from pyplanet.apps.core.maniaplanet.models import Map, Player
+
+class Karma(TimedModel):
+	map = ForeignKeyField(Map)
+	"""
+	Map on which the player voted.
+	"""
+
+	player = ForeignKeyField(Player)
+	"""
+	The player who voted.
+	"""
+
+	score = IntegerField(
+		null=False
+	)
+	"""
+	Karma vote (-1 or 0)
+	"""
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+
+	async def save(self, *args, **kwargs):
+		await super().save(*args, **kwargs)
