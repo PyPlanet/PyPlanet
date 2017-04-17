@@ -61,8 +61,12 @@ class Instance:
 		"""
 		Start wrapper.
 		"""
-		self.loop.run_until_complete(self.__start())
-		self.loop.run_forever()
+		try:
+			self.loop.run_until_complete(self.__start())
+			self.loop.run_forever()
+		except Exception as e:
+			logger.exception(e)
+			raise
 
 	async def __fire_signal(self, signal):
 		"""

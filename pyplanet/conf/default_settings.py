@@ -95,16 +95,22 @@ LOGGING = {
 			'formatter': 'colored',
 			'level': logging.INFO,
 		},
+		'sentry': {
+			'level': 'ERROR',
+			'filters': ['require_debug_false'],
+			'class': 'raven.handlers.logging.SentryHandler',
+			'dsn': ''
+		}
 	},
 	'loggers': {
 		'pyplanet': {
-			'handlers': ['console', 'console-debug'],# TODO: Other handlers.
+			'handlers': ['console', 'console-debug'],
 			'level': logging.DEBUG,
 			'propagate': False,
 		}
 	},
 	'root': {
-		'handlers': ['console', 'console-debug'],# TODO: Other handlers.
+		'handlers': ['console', 'console-debug'], # TODO: Add file (rotating) logger.
 		'level': logging.DEBUG,
 	}
 }
