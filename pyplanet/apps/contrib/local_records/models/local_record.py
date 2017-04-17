@@ -16,7 +16,9 @@ class LocalRecord(TimedModel):
 	Player who drove the local record.
 	"""
 
-	score = IntegerField()
+	score = IntegerField(
+		null=False
+	)
 	"""
 	Time/score of the local record.
 	"""
