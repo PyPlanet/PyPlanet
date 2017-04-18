@@ -6,6 +6,10 @@
 Welcome to PyPlanet's documentation!
 ====================================
 
+..  image:: _static/logo/pyplanet-sm.png
+    :scale: 50%
+    :align: right
+
 ..  toctree::
     :maxdepth: 2
     :caption: Contents:
