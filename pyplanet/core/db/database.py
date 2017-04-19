@@ -52,6 +52,16 @@ class Database:
 
 		return cls(engine, instance, db_name, **db_options)
 
+	def allow_sync(self, *args, **kwargs):
+		"""
+		Wrapper around engine allow_sync to allow failover when no async driver.
+		:param args: 
+		:param kwargs: 
+		:return: 
+		"""
+		if hasattr(self.engine, 'allow_sync'):
+			return self.engine.allow_sync(*args, **kwargs)
+
 	async def connect(self):
 		self.engine.connect()
 		logging.info('Database connection established!')
@@ -59,16 +69,16 @@ class Database:
 	async def initiate(self):
 		# Create the migration table.
 		from .models import migration
-		with self.objects.allow_sync():
+		with self.allow_sync():
 			migration.Migration.create_table(True)
 
 		# Migrate all models.
-		with self.objects.allow_sync():
+		with self.allow_sync():
 			await self.migrator.migrate()
 
 	async def drop_tables(self):
 		from .models import migration
-		with self.objects.allow_sync():
+		with self.allow_sync():
 			try:
 				migration.Migration.drop_table(True, True)
 			except:
