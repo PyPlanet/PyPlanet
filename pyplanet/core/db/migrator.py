@@ -2,15 +2,19 @@
 The database migrator class has logic for migrating existing models and holds some information like actual versions
 and differences.
 """
+import importlib
+
+import logging
 import peewee
 
 from playhouse.sqlite_ext import SqliteExtDatabase
 from playhouse.migrate import (
 	PostgresqlMigrator, SqliteMigrator, MySQLMigrator
 )
-from playhouse.migrate import migrate
 
 from pyplanet.core.exceptions import ImproperlyConfigured
+
+logger = logging.getLogger(__name__)
 
 
 class Migrator:
@@ -26,8 +30,7 @@ class Migrator:
 		self.db = db
 		self.migrator = self.__get_migrator()
 
-	# Create migrations model.
-	# self.Migrations.create_table(fail_silently=True)
+		self.pass_migrations = set()
 
 	def __get_migrator(self):
 		if isinstance(self.db.engine, peewee.SqliteDatabase) or isinstance(self.db.engine, SqliteExtDatabase):
@@ -43,7 +46,8 @@ class Migrator:
 			if not model.table_exists():
 				try:
 					model.create_table(False)
-					# TODO: Pass migrations
+					# Pass all migrations for this app.
+					self.pass_migrations.add(app.label)
 				except:
 					raise
 
@@ -73,11 +77,52 @@ class Migrator:
 
 		# Look for app migrations that are not yet applied.
 		for app, migration_files in self.db.registry.app_migrations.items():
-			applied_migrations = list(Migration.select().where(
-				(Migration.app == app) & (Migration.applied == True)
-			))
-			print(app, migration_files, applied_migrations)
-		# exit()
+			if not migration_files:
+				continue
 
-			# TODO: Look for unapplied migrations
-			# TODO: Execute migrations
+			# Get module path + current applied migrations.
+			app_module = self.instance.apps.apps[app].module.__name__
+			applied_migrations = [p.name for p in Migration.select().where(
+				(Migration.app == app) & (Migration.applied == True)
+			)]
+
+			# For each migration file.
+			for full_path, folder, name, ext in migration_files:
+				if name in applied_migrations:
+					continue
+				if app in self.pass_migrations:
+					# Fake the migration, we just created all the models for this app. Initial setup.
+					Migration.create(
+						app=app,
+						name=name,
+						applied=True
+					)
+					continue
+
+				# Apply migration..
+				self.run_migration(name, app, app_module)
+
+	def run_migration(self, name, app_label, app_module, save_migration=True):
+		"""
+		Run + apply migration to the actual database.
+		:param name: Name of migration.
+		:param app_label: App label.
+		:param app_module: App module path.
+		:param save_migration: Save migration state?
+		"""
+		from .models.migration import Migration
+		mod = importlib.import_module('{}.migrations.{}'.format(app_module, name))
+
+		try:
+			with self.db.objects.allow_sync():
+				mod.upgrade(self.migrator)
+
+				if save_migration:
+					Migration.create(
+						app=app_label,
+						name=name,
+						applied=True
+					)
+		except Exception as e:
+			logger.warning('Can\'t migrate {}.migrations.{}: {}'.format(app_module, name, str(e)))
+			raise

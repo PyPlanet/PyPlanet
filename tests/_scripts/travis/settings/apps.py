@@ -8,6 +8,8 @@ Please copy the default file to: apps.py
 # The mandatory defaults are specific per version, refer to the documentation:
 # TODO: Link to documentation.
 APPS = {
-	'default': [],
+	'default': [
+		'tests.apps.migration_test.app.MigrationTestConfig'
+	],
 	#'test2': [],
 }

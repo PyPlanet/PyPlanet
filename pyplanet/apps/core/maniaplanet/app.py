@@ -10,7 +10,7 @@ class ManiaplanetConfig(AppConfig):
 		# Register permissions.
 		await register_permissions(self)
 
-	async def on_ready(self):
+	async def on_start(self):
 		# Register receivers context, only required if you use classmethods.
 		#
 
