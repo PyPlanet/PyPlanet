@@ -7,6 +7,7 @@ from pyplanet.utils import times
 
 from .models import LocalRecord
 
+
 class LocalRecordsConfig(AppConfig):
 	name = 'pyplanet.apps.contrib.local_records'
 	game_dependencies = ['trackmania']
@@ -17,11 +18,15 @@ class LocalRecordsConfig(AppConfig):
 
 		self.current_records = []
 
-	async def on_ready(self):
+	async def on_start(self):
 		self.map_begin()
 		self.player_finish()
 
-		record_list = await LocalRecord.objects.execute(LocalRecord.select().where(LocalRecord.map_id == self.instance.map_manager.current_map.get_id()).order_by(LocalRecord.score.asc()))
+		record_list = await LocalRecord.objects.execute(
+			LocalRecord.select().where(
+				LocalRecord.map_id == self.instance.map_manager.current_map.get_id()
+			).order_by(LocalRecord.score.asc())
+		)
 		self.current_records = list(record_list)
 		await self.chat_current_record()
 
@@ -42,7 +47,7 @@ class LocalRecordsConfig(AppConfig):
 				previous_time = current_record.score
 
 				current_record.score = race_time
-				current_record.checkpoints = ','.join(str(cp) for cp in cps)
+				current_record.checkpoints = ','.join([str(cp) for cp in cps])
 				await current_record.save()
 
 				self.current_records.append(current_record)
@@ -68,7 +73,12 @@ class LocalRecordsConfig(AppConfig):
 				await self.instance.gbx.execute('ChatSendServerMessage', message)
 
 		else:
-			new_record = LocalRecord(map=self.instance.map_manager.current_map, player=player, score=race_time, cps=','.join(str(cp) for cp in cps))
+			new_record = LocalRecord(
+				map=self.instance.map_manager.current_map,
+				player=player,
+				score=race_time,
+				checkpoints=','.join([str(cp) for cp in cps])
+			)
 			await new_record.save()
 
 			self.current_records.append(new_record)
