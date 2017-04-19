@@ -158,3 +158,10 @@ podium_end = Callback(
 	code='podium_end',
 	target=handle_generic
 )
+
+match_begin = Callback(
+	call='ManiaPlanet.BeginMatch',
+	namespace='maniaplanet',
+	code='match_begin',
+	target=handle_generic,
+)
