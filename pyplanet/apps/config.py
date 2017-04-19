@@ -1,7 +1,11 @@
 import importlib
+import warnings
+
+import logging
 import os
 
 from pyplanet.core.exceptions import ImproperlyConfigured, InvalidAppModule
+from pyplanet.utils.codeutils import deprecated
 
 
 class AppConfig:
@@ -105,18 +109,27 @@ class AppConfig:
 		:return: 
 		"""
 
-	async def on_ready(self):
+	async def on_start(self):
 		"""
-		The on_ready call is being called after all apps has been started successfully. You should register any stuff 
+		The on_start call is being called after all apps has been started successfully. You should register any stuff 
 		that is related to any other apps and signals like your `self` context for signals if they are classmethods.
+		"""
+		# Deprecated: Fix the deprecated method
+		if hasattr(self, 'on_ready'):
+			logging.warning('on_ready is deprecated, use on_start instead! app: {}'.format(self.label))
+			await self.on_ready()
+		pass
+
+	async def on_stop(self):
+		"""
+		The on_stop will be called before stopping the app.  
 		"""
 		pass
 
-	async def on_deinit(self):
+	async def on_destroy(self):
 		"""
-		The on_deinit will be called  
+		On destroy is being called when unloading the app from the memory.
 		"""
-		# TODO: Lifecycle.
 		pass
 
 	###################################################################################################

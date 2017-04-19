@@ -117,6 +117,6 @@ class Apps:
 
 		# The apps are in order, lets loop over them.
 		for label, app in self.apps.items():
-			await app.on_ready()
+			await app.on_start()
 			logging.debug('App is ready: {}'.format(label))
 		logging.info('Apps successfully started!')
