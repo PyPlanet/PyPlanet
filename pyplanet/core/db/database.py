@@ -65,3 +65,19 @@ class Database:
 		# Migrate all models.
 		with self.objects.allow_sync():
 			await self.migrator.migrate()
+
+	async def drop_tables(self):
+		from .models import migration
+		with self.objects.allow_sync():
+			try:
+				migration.Migration.drop_table(True, True)
+			except:
+				pass
+
+			restart = 0
+			while restart < 5:
+				for name, (_, _, model) in self.registry.models.items():
+					try:
+						model.drop_table(True, True)
+					except:
+						restart += 1
