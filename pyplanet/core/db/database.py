@@ -32,7 +32,7 @@ class Database:
 
 		# Don't allow any sync code.
 		if hasattr(self.engine, 'allow_sync'):
-			self.engine.allow_sync = False #logging.ERROR
+			self.engine.allow_sync = False
 
 		Proxy.initialize(self.engine)
 
