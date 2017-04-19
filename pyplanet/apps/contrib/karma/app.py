@@ -5,6 +5,7 @@ from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 
 from .models import Karma
 
+
 class KarmaConfig(AppConfig):
 	name = 'pyplanet.apps.contrib.karma'
 	game_dependencies = []
@@ -66,9 +67,12 @@ class KarmaConfig(AppConfig):
 		self.current_karma = (len(self.current_positive_votes) - len(self.current_negative_votes))
 
 	async def chat_current_karma(self):
+		num_current_votes = len(self.current_votes)
 		message = '$z$s> $ff0Current map karma: $fff{}$ff0 [$fff{}$ff0 votes, ++: $fff{}$ff0 ($fff{}%$ff0), --: $fff{}$ff0 ($fff{}%$ff0)'.format(
-			self.current_karma, len(self.current_votes),
-			len(self.current_positive_votes), round((len(self.current_positive_votes) / len(self.current_votes)) * 100, 2),
-			len(self.current_negative_votes), round((len(self.current_negative_votes) / len(self.current_votes)) * 100, 2),
+			self.current_karma, num_current_votes,
+			len(self.current_positive_votes),
+			round((len(self.current_positive_votes) / num_current_votes) * 100, 2) if num_current_votes > 0 else 0,
+			len(self.current_negative_votes),
+			round((len(self.current_negative_votes) / num_current_votes) * 100, 2) if num_current_votes > 0 else 0,
 		)
 		await self.instance.gbx.execute('ChatSendServerMessage', message)
