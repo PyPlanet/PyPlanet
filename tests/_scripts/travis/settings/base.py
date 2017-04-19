@@ -53,6 +53,7 @@ POSTGRESQL = {
 		'host': 'localhost',
 		'user': 'pyplanet',
 		'password': 'pyplanet',
+		'autocommit': True,
 	}
 }
 DATABASE_ENGINE = None
