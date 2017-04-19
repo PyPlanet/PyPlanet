@@ -54,6 +54,12 @@ class Database:
 		return cls(engine, instance, db_name, **db_options)
 
 	@contextlib.contextmanager
+	def __fake_allow_sync(self):
+		try:
+			yield
+		except:
+			raise
+
 	def allow_sync(self, *args, **kwargs):
 		"""
 		Wrapper around engine allow_sync to allow failover when no async driver.
@@ -62,11 +68,8 @@ class Database:
 		:return: 
 		"""
 		if hasattr(self.engine, 'allow_sync'):
-			return self.engine.allow_sync(*args, **kwargs)
-		try:
-			yield
-		except:
-			raise
+			return self.engine.allow_sync()
+		return self.__fake_allow_sync()
 
 	async def connect(self):
 		self.engine.connect()
