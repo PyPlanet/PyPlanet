@@ -2,6 +2,7 @@
 The database class in this file holds the engine and state of the database connection. Each instance has one specific
 database instance running.
 """
+import contextlib
 import importlib
 import logging
 import peewee
@@ -52,6 +53,7 @@ class Database:
 
 		return cls(engine, instance, db_name, **db_options)
 
+	@contextlib.contextmanager
 	def allow_sync(self, *args, **kwargs):
 		"""
 		Wrapper around engine allow_sync to allow failover when no async driver.
@@ -61,6 +63,10 @@ class Database:
 		"""
 		if hasattr(self.engine, 'allow_sync'):
 			return self.engine.allow_sync(*args, **kwargs)
+		try:
+			yield
+		except:
+			raise
 
 	async def connect(self):
 		self.engine.connect()
