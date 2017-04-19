@@ -114,7 +114,7 @@ class Migrator:
 		mod = importlib.import_module('{}.migrations.{}'.format(app_module, name))
 
 		try:
-			with self.db.objects.allow_sync():
+			with self.db.allow_sync():
 				mod.upgrade(self.migrator)
 
 				if save_migration:

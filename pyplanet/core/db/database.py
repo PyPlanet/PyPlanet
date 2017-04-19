@@ -2,6 +2,7 @@
 The database class in this file holds the engine and state of the database connection. Each instance has one specific
 database instance running.
 """
+import contextlib
 import importlib
 import logging
 import peewee
@@ -32,7 +33,7 @@ class Database:
 
 		# Don't allow any sync code.
 		if hasattr(self.engine, 'allow_sync'):
-			self.engine.allow_sync = False #logging.ERROR
+			self.engine.allow_sync = False
 
 		Proxy.initialize(self.engine)
 
@@ -52,6 +53,24 @@ class Database:
 
 		return cls(engine, instance, db_name, **db_options)
 
+	@contextlib.contextmanager
+	def __fake_allow_sync(self):
+		try:
+			yield
+		except:
+			raise
+
+	def allow_sync(self, *args, **kwargs):
+		"""
+		Wrapper around engine allow_sync to allow failover when no async driver.
+		:param args: 
+		:param kwargs: 
+		:return: 
+		"""
+		if hasattr(self.engine, 'allow_sync'):
+			return self.engine.allow_sync()
+		return self.__fake_allow_sync()
+
 	async def connect(self):
 		self.engine.connect()
 		logging.info('Database connection established!')
@@ -59,16 +78,16 @@ class Database:
 	async def initiate(self):
 		# Create the migration table.
 		from .models import migration
-		with self.objects.allow_sync():
+		with self.allow_sync():
 			migration.Migration.create_table(True)
 
 		# Migrate all models.
-		with self.objects.allow_sync():
+		with self.allow_sync():
 			await self.migrator.migrate()
 
 	async def drop_tables(self):
 		from .models import migration
-		with self.objects.allow_sync():
+		with self.allow_sync():
 			try:
 				migration.Migration.drop_table(True, True)
 			except:
