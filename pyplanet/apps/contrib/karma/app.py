@@ -19,7 +19,7 @@ class KarmaConfig(AppConfig):
 		self.current_positive_votes = 0
 		self.current_negative_votes = 0
 
-	async def on_ready(self):
+	async def on_start(self):
 		self.map_begin()
 		self.player_chat()
 
