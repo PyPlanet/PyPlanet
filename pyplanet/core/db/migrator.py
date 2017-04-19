@@ -42,14 +42,13 @@ class Migrator:
 		raise ImproperlyConfigured('Database engine doesn\'t support Migrations!')
 
 	async def create_tables(self):
+		creating = list()
 		for name, (app, name, model) in self.db.registry.models.items():
 			if not model.table_exists():
-				try:
-					model.create_table(False)
-					# Pass all migrations for this app.
-					self.pass_migrations.add(app.label)
-				except:
-					raise
+				creating.append(model)
+				self.pass_migrations.add(app.label)
+
+		self.db.engine.create_tables(creating, safe=True)
 
 	async def migrate(self):
 		"""
@@ -58,22 +57,8 @@ class Migrator:
 		"""
 		from .models.migration import Migration
 
-		# Get all models that don't have a table defined yet, and create those.
-		restart = 0
-		restart_exception = None
-		while restart < 20:
-			try:
-				# HACK: Shuffle model list and try again if it fails.
-				self.db.registry.models = self.db.registry.models.copy()
-				await self.create_tables()
-				restart = 99
-			except Exception as e:
-				restart_exception = e
-				restart += 1
-		if restart != 99:
-			if restart_exception:
-				raise restart_exception
-			raise Exception('Can\'t create tables!')
+		# Create tables + skip migrations.
+		await self.create_tables()
 
 		# Look for app migrations that are not yet applied.
 		for app, migration_files in self.db.registry.app_migrations.items():
