@@ -58,9 +58,9 @@ matrix:
   last_finish: true
 
 before_install:
-  - mysql -e 'CREATE DATABASE pyplanet;'
-  - psql -c 'create database pyplanet;' -U postgres
-  - psql -c 'CREATE USER pyplanet WITH PASSWORD "pyplanet";' -U postgres
+  - mysql -e "CREATE DATABASE pyplanet;"
+  - psql -c "create database pyplanet;" -U postgres
+  - psql -c "CREATE USER pyplanet WITH PASSWORD 'pyplanet';" -U postgres
 
 install:
   - pip install tox codacy-coverage -U pip
