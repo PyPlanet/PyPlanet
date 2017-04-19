@@ -32,11 +32,40 @@ OWNERS = {
 
 # Databases configuration holds an dictionary with information of the database backend.
 # Please refer to the documentation for all examples.
-DATABASES = {
-	'default': {
-		'ENGINE': 'peewee.SqliteDatabase',
-		'NAME': 'database.db',
+SQLITE = {
+	'ENGINE': 'peewee.SqliteDatabase',
+	'NAME': 'database.db'
+}
+MYSQL = {
+	'ENGINE': 'peewee_async.MySQLDatabase',
+	'NAME': 'pyplanet',
+	'OPTIONS': {
+		'host': 'localhost',
+		'user': 'root',
+		'password': '',
+		'charset': 'utf8',
 	}
+}
+POSTGRESQL = {
+	'ENGINE': 'peewee_async.PostgresqlDatabase',
+	'NAME': 'pyplanet',
+	'OPTIONS': {
+		'host': 'localhost',
+		'user': 'pyplanet',
+		'password': 'pyplanet',
+		'autocommit': True,
+	}
+}
+DATABASE_ENGINE = None
+TOX_ENV = os.getenv('TOXENV', 'py36-unit-mysql')
+if 'mysql' in TOX_ENV:
+	DATABASE_ENGINE = MYSQL
+elif 'postgresql' in TOX_ENV:
+	DATABASE_ENGINE = POSTGRESQL
+else:
+	DATABASE_ENGINE = SQLITE
+DATABASES = {
+	'default': DATABASE_ENGINE
 }
 
 # Dedicated configuration holds the different dedicated servers that the instances will run on including the names of

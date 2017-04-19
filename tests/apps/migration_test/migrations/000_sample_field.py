@@ -3,9 +3,6 @@ from playhouse.migrate import migrate, SchemaMigrator
 
 from ..models import TestModel
 
-__version__ = '000'
-
-
 sample_field = CharField(default='unknown')
 
 
