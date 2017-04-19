@@ -26,8 +26,8 @@ class Database:
 		"""
 		self.engine = engine_cls(*args, **kwargs)
 		self.instance = instance
-		self.migrator = Migrator(self)
-		self.registry = Registry(self)
+		self.migrator = Migrator(self.instance, self)
+		self.registry = Registry(self.instance, self)
 		self.objects = peewee_async.Manager(self.engine, loop=self.instance.loop)
 
 		# Don't allow any sync code.

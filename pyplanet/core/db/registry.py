@@ -13,9 +13,11 @@ def get_app_models(app):
 	try:
 		models_module = importlib.import_module('{}.models'.format(app.name))
 		for name, obj in inspect.getmembers(models_module):
-			if issubclass(obj, Model):
+			if inspect.isclass(obj) and issubclass(obj, Model):
+				if obj.__name__ == 'TimedModel':
+					continue
 				yield name, obj
-	except:
+	except Exception as e:
 		return list()
 
 
@@ -33,7 +35,8 @@ def get_app_migrations(app):
 
 
 class Registry:
-	def __init__(self, db):
+	def __init__(self, instance, db):
+		self.instance = instance
 		self.db = db
 
 		# Cache app contexts
