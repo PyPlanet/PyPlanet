@@ -1,0 +1,53 @@
+<frame pos="0 0 0">
+  <quad pos="0 0" size="220 125" z-index="-50" bgcolor="FFFA" halign="center" valign="center" style="Bgs1" substyle="NavButtonBlink"/>
+  <quad pos="0 0" size="220 125" z-index="-51" bgcolor="FFFA" halign="center" valign="center" style="Bgs1" substyle="NavButtonBlink"/>
+
+  <quad pos="-109 61 0" size="10 10" z-index="1" bgcolor="FFFA" style="Icons64x64_1" substyle="Browser"/>
+  <label pos="0 59 0" size="190 7" z-index="2" text="{{ title }}" textsize="5" textcolor="FFFFFFA" halign="center"/>
+
+  <quad pos="99 61 0" size="10 10" z-index="1" bgcolor="FFFA" style="Icons64x64_1" substyle="Close" action="{{ id }}__list_button_close"/>
+  <quad pos="-110 51 0" size="220 1" z-index="1" bgcolor="FFFA" style="Bgs1" substyle="ProgressBarSmall"/>
+  <frame pos="-105 48 0" id="list_frame">
+    <frame pos="0 0 0" id="list_header">
+      <quad pos="0 0 0" z-index="1" size="210 5" bgcolor="FFF5"/>
+      <quad pos="0 -4.5 0" size="210 1" z-index="1" bgcolor="FFFA" style="Bgs1" substyle="ProgressBarSmall"/>
+      <frame>
+        {% for field in fields %}
+          <label pos="{{ field.left }} -2.5" size="{{ field.width }} 5" text="{{ field.name }}" textsize="2" valign="center2" action="{{ id }}__list_col_{{ loop.index0 }}" style="TrackerTextBig" />
+        {% endfor %}
+      </frame>
+    </frame>
+    <frame pos="0 -5 0" id="list_content">
+      <quad pos="0 0 0" z-index="1" size="210 85" bgcolor="FFF2"/>
+      {% for row in objects %}
+        {% set outer_loop = loop %}
+        <frame pos="0 {{ loop.index0 * -5 }}">
+          {% for field in fields %}
+            <label pos="{{ field.left }} -2.5" size="{{ field.width }} 5" text="{{ field_renderer(row, field) }}" textsize="2" valign="center2" action="{{ id }}__list_row_{{ outer_loop.index0 }}_col_{{ loop.index0 }}" style="TrackerText"/>
+          {% endfor %}
+        </frame>
+      {% endfor %}
+    </frame>
+    <frame pos="0 -97 0">
+      <frame z-index="1">
+        <label pos="0 -0 0" size="72 5" text="Items 1-10, Page {{ page }}/{{ pages }}" textsize="2" autonewline="1"/>
+        <label pos="0 -5 0" size="72 5" text="Total {{ total }} items" textsize="2" autonewline="1"/>
+
+        {% if provide_search %}
+          <entry pos="75 -2.5" size="47 5" z-index="2" default="{{ search|default('Search...', True) }}" style="FrameTransitionFromLeft" focusareacolor1="646464FF" name="list_search_field" selecttext="1" textformat="Basic" focusareacolor2="545454FF" scriptevents="1"/>
+          <quad pos="124 0" size="10 10" bgcolor="FFFA" style="Icons64x64_1" substyle="Maximize" action="{{ id }}__list_button_search" />
+        {% endif %}
+
+        <quad pos="133 0" size="10 10" bgcolor="FFFA" style="Icons64x64_1" substyle="Refresh" action="{{ id }}__list_button_refresh" />
+
+        <quad pos="150 0 0" size="10 10" bgcolor="FFFA" style="Icons64x64_1" substyle="ArrowFirst" action="{{ id }}__list_button_first" />
+        <quad pos="160 0 0" size="10 10" bgcolor="FFFA" style="Icons64x64_1" substyle="ArrowFastPrev" action="{{ id }}__list_button_prev_10" />
+        <quad pos="170 0 0" size="10 10" bgcolor="FFFA" style="Icons64x64_1" substyle="ArrowPrev" action="{{ id }}__list_button_prev" />
+        <quad pos="180 0 0" size="10 10" bgcolor="FFFA" style="Icons64x64_1" substyle="ArrowNext" action="{{ id }}__list_button_next" />
+        <quad pos="190 0 0" size="10 10" bgcolor="FFFA" style="Icons64x64_1" substyle="ArrowFastNext" action="{{ id }}__list_button_next_10" />
+        <quad pos="200 0 0" size="10 10" bgcolor="FFFA" style="Icons64x64_1" substyle="ArrowLast" action="{{ id }}__list_button_last" />
+      </frame>
+      <quad pos="0 0 0" size="210 10" z-index="0" bgcolor="F900"/>
+    </frame>
+  </frame>
+</frame>

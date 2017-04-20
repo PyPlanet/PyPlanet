@@ -11,7 +11,7 @@ class TemplateView(View):
 		Get global and local context data, used to render template.
 		"""
 		context = dict(
-			# TODO: Global context.
+			id=self.id
 		)
 		return context
 
@@ -22,7 +22,7 @@ class TemplateView(View):
 		return dict()
 
 	async def get_template(self):
-		return load_template(self.template_package, self.template_name)
+		return await load_template(self.template_package, self.template_name)
 
 	async def render(self, *args, player_login=None, **kwargs):
 		"""
@@ -31,4 +31,4 @@ class TemplateView(View):
 		kwargs['data'] = await self.get_context_data()
 		kwargs['player_data'] = await self.get_player_data()
 		kwargs['template'] = await self.get_template()
-		super().render(*args, **kwargs)
+		return await super().render(*args, **kwargs)

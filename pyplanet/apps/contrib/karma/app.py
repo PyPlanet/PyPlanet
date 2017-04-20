@@ -1,4 +1,5 @@
 from pyplanet.apps.config import AppConfig
+from pyplanet.apps.contrib.karma.views import SampleListView
 from pyplanet.core.events import receiver
 
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
@@ -26,6 +27,12 @@ class KarmaConfig(AppConfig):
 		await self.get_votes_list(self.instance.map_manager.current_map)
 		await self.calculate_karma()
 		await self.chat_current_karma()
+
+		await self.show_map_list()
+
+	async def show_map_list(self):
+		view = SampleListView(manager=self.ui)
+		await view.display(player='tomvalk')
 
 	@receiver(mp_signals.map.map_begin)
 	async def map_begin(self, map):

@@ -24,7 +24,6 @@ async def handle_player_chat(source, signal, **kwargs):
 	if Controller.instance.game.server_player_login == player_login and Controller.instance.game.server_is_dedicated:
 		raise SignalGlueStop('We won\'t inform anything about the chat we send ourself!')
 	player = await Controller.instance.player_manager.get_player(login=player_login)
-	# TODO: Command abstraction.
 	return dict(
 		player=player, text=text, cmd=cmd
 	)

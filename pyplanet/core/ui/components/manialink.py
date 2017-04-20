@@ -1,11 +1,18 @@
 import uuid
+import logging
 
+from asyncio import iscoroutinefunction
+
+from pyplanet.core.events import receiver
 from pyplanet.core.ui.template import Template
+
+logger = logging.getLogger(__name__)
 
 
 class _ManiaLink:
 	def __init__(
-		self, manager=None, id=None, version='3', body=None, template=None, timeout=0, hide_click=False, data=None, player_data=None
+		self, manager=None, id=None, version='3', body=None, template=None, timeout=0, hide_click=False, data=None,
+		player_data=None, throw_exceptions=False
 	):
 		"""
 		Create manialink (USE THE MANAGER CREATE, DONT INIT DIRECTLY!
@@ -19,6 +26,7 @@ class _ManiaLink:
 		:param data: Data to render. Could also be set later on or controlled separate from this instance.
 		:param player_data: Dict with player login and for value the player specific variables. Dont fill this to have
 		a global manialink instead of per person.
+		:param throw_exceptions: Throw exceptions during handling and executing of action handlers.
 		:type manager: pyplanet.core.ui.AppUIManager
 		:type template: pyplanet.core.ui.template.Template
 		:type id: str
@@ -34,6 +42,12 @@ class _ManiaLink:
 		self.hide_click = hide_click
 		self.data = data if data and isinstance(data, dict) else dict()
 		self.player_data = player_data if player_data and isinstance(player_data, dict) else None
+		self.throw_exceptions = False
+
+		self.receivers = dict()
+
+		# Call gbx receivers.
+		self.handle()
 
 	@property
 	def is_global(self):
@@ -86,9 +100,37 @@ class _ManiaLink:
 		"""
 		return await self.manager.hide(self, player_logins)
 
+	def subscribe(self, action, target):
+		if action not in self.receivers:
+			self.receivers[action] = list()
+		self.receivers[action].append(target)
+
+	@receiver('maniaplanet:manialink_answer')
+	async def handle(self, player, action, values, **kwargs):
+		if not action.startswith(self.id):
+			return
+		action_name = action[len(self.id)+2:]
+		if action_name not in self.receivers:
+			return
+
+		# Call receivers.
+		for rec in self.receivers[action_name]:
+			try:
+				if iscoroutinefunction(rec):
+					await rec(player, action, values)
+				else:
+					rec(player, action, values)
+			except Exception as e:
+				if self.throw_exceptions:
+					raise
+				else:
+					logging.exception('Exception has been silenced in ManiaLink Action receiver:', exc_info=e)
+
 	def __del__(self):
 		if self.manager:
 			self.manager.instance.loop.call_soon(self.manager.destroy, self)
+			self.data = None
+			self.player_data = None
 
 
 class StaticManiaLink(_ManiaLink):
