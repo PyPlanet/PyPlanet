@@ -1,7 +1,7 @@
 from pyplanet.views.template import TemplateView
 
 
-class TableView(TemplateView):
+class ListView(TemplateView):
 	query = None
 	fields = []
 
