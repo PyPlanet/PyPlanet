@@ -13,6 +13,8 @@ class SampleListView(ListView):
 			'sorting': True,
 			'searching': True,
 			'width': 100,
+			'action': lambda player, values, instance:
+				print(player, values, instance)
 		},
 		{
 			'name': 'Author',
@@ -22,6 +24,8 @@ class SampleListView(ListView):
 			'renderer': lambda row, field:
 				row.author_nickname if row.author_nickname and len(row.author_nickname) > 0 else row.author_login,
 			'width': 50,
+			'action': lambda player, values, instance:
+				print(player, values, instance)
 		},
 	]
 	title = 'Map List Testing'

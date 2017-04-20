@@ -111,7 +111,7 @@ class _ManiaLink:
 			return
 		action_name = action[len(self.id)+2:]
 		if action_name not in self.receivers:
-			return
+			return await self.handle_catch_all(player, action_name, values)
 
 		# Call receivers.
 		for rec in self.receivers[action_name]:
@@ -125,6 +125,9 @@ class _ManiaLink:
 					raise
 				else:
 					logging.exception('Exception has been silenced in ManiaLink Action receiver:', exc_info=e)
+
+	async def handle_catch_all(self, player, action, values, **kwargs):
+		pass
 
 	def __del__(self):
 		if self.manager:
