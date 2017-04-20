@@ -6,7 +6,7 @@ import logging
 from inspect import isclass
 
 from asyncio import iscoroutinefunction
-from peewee import Field
+from peewee import Field, fn
 
 from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.views.template import TemplateView
@@ -27,7 +27,7 @@ class ListView(TemplateView):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-		self.search = None
+		self.search_text = None
 		self.sort_field = None
 		self.sort_order = 1
 		self.page = 1
@@ -41,6 +41,7 @@ class ListView(TemplateView):
 		# Setup the receivers.
 		self.subscribe('list_button_close', self.close)
 		self.subscribe('list_button_refresh', self.refresh)
+		self.subscribe('list_button_search', self.search)
 
 		self.subscribe('list_button_first', self.first_page)
 		self.subscribe('list_button_prev_10', self.prev_10_pages)
@@ -113,6 +114,14 @@ class ListView(TemplateView):
 	def num_pages(self):
 		return int(math.ceil(self.count / self.num_per_page))
 
+	async def search(self, player, _, values, *args, **kwargs):
+		search_text = values[0]['Value']
+		if len(search_text) > 0 and search_text != 'Search...':
+			self.search_text = search_text
+		else:
+			self.search_text = None
+		await self.refresh(player)
+
 	async def close(self, player, *args, **kwargs):
 		self.data = None
 		await self.hide(player_logins=[player.login])
@@ -172,6 +181,11 @@ class ListView(TemplateView):
 		raise Exception('get_query() or self.query is empty! It should contain query that is not yet executed!')
 
 	async def apply_filter(self, query):
+		if not self.search_text:
+			return query
+		for field in self.fields:
+			if 'searching' in field and field['searching']:
+				query = query.orwhere(getattr(self.model, field['index']).contains(self.search_text))
 		return query
 
 	async def apply_ordering(self, query):
@@ -192,8 +206,9 @@ class ListView(TemplateView):
 		self.objects = list(await self.model.execute(query))
 		return {
 			'objects': self.objects,
-			'search': self.search,
+			'search': self.search_text,
 			'order': self.order,
+			'count': self.count,
 		}
 
 	async def get_context_data(self):
@@ -208,7 +223,7 @@ class ListView(TemplateView):
 			'fields': await self.get_fields(),
 			'provide_search': self.provide_search,
 			'title': self.title,
-			'search': self.search,
+			'search': self.search_text,
 			'pages': self.num_pages,
 			'page': self.page,
 		})
