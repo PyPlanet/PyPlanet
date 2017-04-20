@@ -1,3 +1,5 @@
+from pyplanet.core.ui.components.manialink import StaticManiaLink
 
-class View:
+
+class View(StaticManiaLink):
 	pass
