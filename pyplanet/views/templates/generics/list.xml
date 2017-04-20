@@ -31,7 +31,7 @@
     <frame pos="0 -97 0">
       <frame z-index="1">
         <label pos="0 -0 0" size="72 5" text="Items 1-10, Page {{ page }}/{{ pages }}" textsize="2" autonewline="1"/>
-        <label pos="0 -5 0" size="72 5" text="Total {{ total }} items" textsize="2" autonewline="1"/>
+        <label pos="0 -5 0" size="72 5" text="Total {{ count }} items" textsize="2" autonewline="1"/>
 
         {% if provide_search %}
           <entry pos="75 -2.5" size="47 5" z-index="2" default="{{ search|default('Search...', True) }}" style="FrameTransitionFromLeft" focusareacolor1="646464FF" name="list_search_field" selecttext="1" textformat="Basic" focusareacolor2="545454FF" scriptevents="1"/>
