@@ -13,6 +13,7 @@ class SampleListView(ListView):
 			'sorting': True,
 			'searching': True,
 			'width': 100,
+			'type': 'label',
 			'action': lambda player, values, instance:
 				print(player, values, instance)
 		},
@@ -27,5 +28,11 @@ class SampleListView(ListView):
 			'action': lambda player, values, instance:
 				print(player, values, instance)
 		},
+	]
+	actions = [
+		{
+			'name': 'Delete',
+			'code': 'delete',
+		}
 	]
 	title = 'Map List Testing'

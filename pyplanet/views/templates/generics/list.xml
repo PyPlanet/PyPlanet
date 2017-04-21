@@ -14,6 +14,11 @@
       <frame>
         {% for field in fields %}
           <label pos="{{ field.left }} -2.5" size="{{ field.width }} 5" text="{{ field.name }}" textsize="2" valign="center2" action="{{ id }}__list_col_{{ loop.index0 }}" style="TrackerTextBig" />
+          {% if field._sort == 1 %}
+            <quad pos="{{ field.left + field.width - 5 }} 0" size="5 5" style="Icons64x64_1" substyle="ShowUp" />
+          {% elif field._sort == 0 %}
+            <quad pos="{{ field.left + field.width - 5 }} 0" size="5 5" style="Icons64x64_1" substyle="ShowDown" />
+          {% endif %}
         {% endfor %}
       </frame>
     </frame>
@@ -23,7 +28,11 @@
         {% set outer_loop = loop %}
         <frame pos="0 {{ loop.index0 * -5 }}">
           {% for field in fields %}
-            <label pos="{{ field.left }} -2.5" size="{{ field.width }} 5" text="{{ field_renderer(row, field) }}" textsize="2" valign="center2" action="{{ id }}__list_row_{{ outer_loop.index0 }}_col_{{ loop.index0 }}" style="TrackerText"/>
+            {% if field.manialink %}
+              {{ field.manialink|safe }}
+            {% else %}
+              <label pos="{{ field.left }} -2.5" size="{{ field.width }} 5" text="{{ field_renderer(row, field) }}" textsize="2" valign="center2" action="{{ id }}__list_row_{{ outer_loop.index0 }}_col_{{ loop.index0 }}" style="TrackerText"/>
+            {% endif %}
           {% endfor %}
         </frame>
       {% endfor %}

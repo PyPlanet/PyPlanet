@@ -59,6 +59,7 @@ class ListView(TemplateView):
 		return None
 
 	async def handle_catch_all(self, player, action, values, **kwargs):
+		# Sorting the column:
 		if action.startswith('list_col_'):
 			match = re.search('^list_col_([0-9]+)$', action)
 			if len(match.groups()) != 1:
@@ -66,7 +67,8 @@ class ListView(TemplateView):
 
 			try:
 				col = int(match.group(1))
-				field = self.fields[col]
+				fields = await self.get_fields()
+				field = fields[col]
 			except Exception as e:
 				logger.warning('Got invalid result in list column click: {}'.format(str(e)))
 				return
@@ -78,13 +80,21 @@ class ListView(TemplateView):
 			# Sort on column
 			model_field = getattr(self.model, field['index'])
 			if self.sort_field and self.sort_field.db_column == model_field.db_column:
-				if self.sort_order:
+				if self.sort_order == 1:
 					self.sort_order = 0
 				else:
-					self.sort_order = 1
+					# Unsort. clear sorting
+					self.sort_field = None
+					self.sort_order = 0
 			else:
 				self.sort_field = model_field
 				self.sort_order = 1
+
+			# Set sort state on field.
+			for cur_field in fields:
+				cur_field['_sort'] = None
+			if self.sort_field:
+				field['_sort'] = self.sort_order
 
 			# Refresh list
 			await self.refresh(player)
@@ -164,12 +174,6 @@ class ListView(TemplateView):
 		return await super().display(player_logins=[login])
 
 	async def get_fields(self):
-		# Calculate positions of fields
-		left = 0
-		for field in self.fields:
-			field['left'] = left
-			left += field['width']
-
 		return self.fields
 
 	async def get_actions(self):
@@ -217,10 +221,23 @@ class ListView(TemplateView):
 		# Add dynamic data from query.
 		context.update(await self.get_object_data())
 
+		fields = await self.get_fields()
+		actions = await self.get_actions()
+
+		# Process fields + actions (normalize)
+		# Calculate positions of fields
+		left = 0
+		for field in fields:
+			field['left'] = left
+			left += field['width']
+			if 'type' not in field:
+				field['type'] = 'label'
+
 		# Add facts.
 		context.update({
 			'field_renderer': self.render_field,
-			'fields': await self.get_fields(),
+			'fields': fields,
+			'actions': actions,
 			'provide_search': self.provide_search,
 			'title': self.title,
 			'search': self.search_text,
