@@ -106,14 +106,12 @@ class Instance:
 		await self.__fire_signal(signals.pyplanet_start_after)
 
 	async def print_header(self):
-		pass
-		await self.gbx.execute('ChatSendServerMessage', '$n$fff--------------------------------------------------------------------')
-		await self.gbx.execute('ChatSendServerMessage', '$o$FD4Py$369Planet$z$s$fff Starting (v{}) ...'.format(version))
+		await self.gbx.execute('ChatSendServerMessage', '')
+		await self.gbx.execute('ChatSendServerMessage', '$fff$o$w⏳$z$fff Loading...')
 
 	async def print_footer(self):
-		pass
-		await self.gbx.execute('ChatSendServerMessage', '$fff    Successfully started {} apps.'.format(len(self.apps.apps)))
-		await self.gbx.execute('ChatSendServerMessage', '$n$fff--------------------------------------------------------------------')
+		await self.gbx.execute('ChatSendServerMessage', '\uf1e6 $o$FD4Py$369Planet$z$o$s$fff v{}, {}\uf013'.format(version, len(self.apps.apps)))
+		await self.gbx.execute('ChatSendServerMessage', '$o$FD4$l[http://pypla.net]Site$l $369|$FD4 $l[https://github.com/tomvlk/pyplanet]Github$l $369|$FD4 $l[http://pypla.net]Docs$l')
 
 
 class _Controller:

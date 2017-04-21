@@ -29,18 +29,19 @@ class KarmaConfig(AppConfig):
 		await self.calculate_karma()
 		await self.chat_current_karma()
 
+		# USE THIS TO TEST:
 		# await self.show_map_list()
-		await self.show_alert()
-
-	async def show_map_list(self):
-		view = SampleListView(manager=self.ui)
-		await view.display(player='tomvalk')
-
-	async def show_alert(self):
-		message = 'Free money?'
-		alert = Alert(message=message,
-					  size='sm')
-		await alert.display(player_logins=['tomvalk'])
+		# await self.show_alert()
+	#
+	# async def show_map_list(self):
+	# 	view = SampleListView(manager=self.ui)
+	# 	await view.display(player='tomvalk')
+	#
+	# async def show_alert(self):
+	# 	message = 'Free money?'
+	# 	alert = Alert(message=message,
+	# 				  size='sm')
+	# 	await alert.display(player_logins=['tomvalk'])
 
 	@receiver(mp_signals.map.map_begin)
 	async def map_begin(self, map):
