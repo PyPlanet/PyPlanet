@@ -1,12 +1,8 @@
 import math
-
 import re
-
 import logging
-from inspect import isclass
 
 from asyncio import iscoroutinefunction
-from peewee import Field, fn
 
 from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.views.template import TemplateView
@@ -41,14 +37,14 @@ class ListView(TemplateView):
 		# Setup the receivers.
 		self.subscribe('list_button_close', self.close)
 		self.subscribe('list_button_refresh', self.refresh)
-		self.subscribe('list_button_search', self.search)
+		self.subscribe('list_button_search', self._search)
 
-		self.subscribe('list_button_first', self.first_page)
-		self.subscribe('list_button_prev_10', self.prev_10_pages)
-		self.subscribe('list_button_prev', self.prev_page)
-		self.subscribe('list_button_next', self.next_page)
-		self.subscribe('list_button_next_10', self.next_10_pages)
-		self.subscribe('list_button_last', self.last_page)
+		self.subscribe('list_button_first', self._first_page)
+		self.subscribe('list_button_prev_10', self._prev_10_pages)
+		self.subscribe('list_button_prev', self._prev_page)
+		self.subscribe('list_button_next', self._next_page)
+		self.subscribe('list_button_next_10', self._next_10_pages)
+		self.subscribe('list_button_last', self._last_page)
 
 	@property
 	def order(self):
@@ -60,8 +56,8 @@ class ListView(TemplateView):
 
 	async def handle_catch_all(self, player, action, values, **kwargs):
 		# Sorting the column:
-		if action.startswith('list_col_'):
-			match = re.search('^list_col_([0-9]+)$', action)
+		if action.startswith('list_header_'):
+			match = re.search('^list_header_([0-9]+)$', action)
 			if len(match.groups()) != 1:
 				return
 
@@ -99,38 +95,38 @@ class ListView(TemplateView):
 			# Refresh list
 			await self.refresh(player)
 
-		elif action.startswith('list_row_'):
-			match = re.search('^list_row_([0-9]+)_col_([0-9]+)$', action)
+		elif action.startswith('list_body_') or action.startswith('list_action_'):
+			if action.startswith('list_body_'):
+				match = re.search('^list_body_([0-9]+)_([0-9]+)$', action)
+				trigger = 'body'
+			else:
+				match = re.search('^list_action_([0-9]+)_([0-9]+)$', action)
+				trigger = 'action'
 			if len(match.groups()) != 2:
 				return
 
 			try:
 				row = int(match.group(1))
-				col = int(match.group(2))
-				field = self.fields[col]
+				idx = int(match.group(2))
+				if trigger == 'body':
+					field = (await self.get_fields())[idx]
+				else:
+					field = (await self.get_actions())[idx]
+				action = field['action']
 				instance = self.objects[row]
 			except Exception as e:
 				logger.warning('Got invalid result in list item click: {}'.format(str(e)))
 				return
 
-			# Execute action if it has a valid method.
-			if 'action' in field:
-				if iscoroutinefunction(field['action']):
-					await field['action'](player, values, instance)
-				else:
-					field['action'](player, values, instance)
+			# Execute action/target method.
+			if iscoroutinefunction(action):
+				await action(player, values, instance)
+			else:
+				action(player, values, instance)
 
 	@property
 	def num_pages(self):
 		return int(math.ceil(self.count / self.num_per_page))
-
-	async def search(self, player, _, values, *args, **kwargs):
-		search_text = values[0]['Value']
-		if len(search_text) > 0 and search_text != 'Search...':
-			self.search_text = search_text
-		else:
-			self.search_text = None
-		await self.refresh(player)
 
 	async def close(self, player, *args, **kwargs):
 		self.data = None
@@ -138,34 +134,6 @@ class ListView(TemplateView):
 
 	async def refresh(self, player, *args, **kwargs):
 		await self.display(player=player)
-
-	async def first_page(self, player, *args, **kwargs):
-		self.page = 1
-		await self.refresh(player)
-
-	async def last_page(self, player, *args, **kwargs):
-		self.page = self.num_pages
-		await self.refresh(player)
-
-	async def next_page(self, player, *args, **kwargs):
-		if self.page + 1 <= self.num_pages:
-			self.page += 1
-			await self.refresh(player)
-
-	async def next_10_pages(self, player, *args, **kwargs):
-		if self.page + 10 <= self.num_pages:
-			self.page += 10
-			await self.refresh(player)
-
-	async def prev_page(self, player, *args, **kwargs):
-		if self.page - 1 > 0:
-			self.page -= 1
-			await self.refresh(player)
-
-	async def prev_10_pages(self, player, *args, **kwargs):
-		if self.page - 10 > 0:
-			self.page -= 10
-			await self.refresh(player)
 
 	async def display(self, player=None):
 		login = player.login if isinstance(player, Player) else player
@@ -235,7 +203,7 @@ class ListView(TemplateView):
 
 		# Add facts.
 		context.update({
-			'field_renderer': self.render_field,
+			'field_renderer': self._render_field,
 			'fields': fields,
 			'actions': actions,
 			'provide_search': self.provide_search,
@@ -247,7 +215,43 @@ class ListView(TemplateView):
 
 		return context
 
-	def render_field(self, row, field):
+	def _render_field(self, row, field):
 		if 'renderer' in field:
 			return field['renderer'](row, field)
 		return str(getattr(row, field['index']))
+
+	async def _search(self, player, _, values, *args, **kwargs):
+		search_text = values[0]['Value']
+		if len(search_text) > 0 and search_text != 'Search...':
+			self.search_text = search_text
+		else:
+			self.search_text = None
+		await self.refresh(player)
+
+	async def _first_page(self, player, *args, **kwargs):
+		self.page = 1
+		await self.refresh(player)
+
+	async def _last_page(self, player, *args, **kwargs):
+		self.page = self.num_pages
+		await self.refresh(player)
+
+	async def _next_page(self, player, *args, **kwargs):
+		if self.page + 1 <= self.num_pages:
+			self.page += 1
+			await self.refresh(player)
+
+	async def _next_10_pages(self, player, *args, **kwargs):
+		if self.page + 10 <= self.num_pages:
+			self.page += 10
+			await self.refresh(player)
+
+	async def _prev_page(self, player, *args, **kwargs):
+		if self.page - 1 > 0:
+			self.page -= 1
+			await self.refresh(player)
+
+	async def _prev_10_pages(self, player, *args, **kwargs):
+		if self.page - 10 > 0:
+			self.page -= 10
+			await self.refresh(player)

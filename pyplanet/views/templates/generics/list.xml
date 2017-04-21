@@ -13,7 +13,8 @@
       <quad pos="0 -4.5 0" size="210 1" z-index="1" bgcolor="FFFA" style="Bgs1" substyle="ProgressBarSmall"/>
       <frame>
         {% for field in fields %}
-          <label pos="{{ field.left }} -2.5" size="{{ field.width }} 5" text="{{ field.name }}" textsize="2" valign="center2" action="{{ id }}__list_col_{{ loop.index0 }}" style="TrackerTextBig" />
+          <label pos="{{ field.left }} -2.5" size="{{ field.width }} 5" text="{{ field.name }}" textsize="2"
+                 valign="center2" action="{{ id }}__list_header_{{ loop.index0 }}" style="TrackerTextBig" />
           {% if field._sort == 1 %}
             <quad pos="{{ field.left + field.width - 5 }} 0" size="5 5" style="Icons64x64_1" substyle="ShowUp" />
           {% elif field._sort == 0 %}
@@ -24,6 +25,7 @@
     </frame>
     <frame pos="0 -5 0" id="list_content">
       <quad pos="0 0 0" z-index="1" size="210 85" bgcolor="FFF2"/>
+      {% set actions_width = (actions|length) * 5 %}
       {% for row in objects %}
         {% set outer_loop = loop %}
         <frame pos="0 {{ loop.index0 * -5 }}">
@@ -31,8 +33,16 @@
             {% if field.manialink %}
               {{ field.manialink|safe }}
             {% else %}
-              <label pos="{{ field.left }} -2.5" size="{{ field.width }} 5" text="{{ field_renderer(row, field) }}" textsize="2" valign="center2" action="{{ id }}__list_row_{{ outer_loop.index0 }}_col_{{ loop.index0 }}" style="TrackerText"/>
+              <label pos="{{ field.left }} -2.5" size="{{ field.width }} 5" text="{{ field_renderer(row, field) }}"
+                     textsize="2" valign="center2" action="{{ id }}__list_body_{{ outer_loop.index0 }}_{{ loop.index0 }}"
+                     style="TrackerText"/>
             {% endif %}
+          {% endfor %}
+
+          {% for action in actions %}
+            <quad pos="{{ 210 - actions_width + loop.index0 * 5 }} 0" size="5 5" style="{{ action.style }}" substyle="{{ action.substyle }}"
+                  {% if action.attrs %}{{ action.attrs|safe }}{% endif %}
+                  action="{{ id }}__list_action_{{ outer_loop.index0 }}_{{ loop.index0 }}" />
           {% endfor %}
         </frame>
       {% endfor %}
@@ -43,7 +53,9 @@
         <label pos="0 -5 0" size="72 5" text="Total {{ count }} items" textsize="2" autonewline="1"/>
 
         {% if provide_search %}
-          <entry pos="75 -2.5" size="47 5" z-index="2" default="{{ search|default('Search...', True) }}" style="FrameTransitionFromLeft" focusareacolor1="646464FF" name="list_search_field" selecttext="1" textformat="Basic" focusareacolor2="545454FF" scriptevents="1"/>
+          <entry pos="75 -2.5" size="47 5" z-index="2" default="{{ search|default('Search...', True) }}"
+                 style="FrameTransitionFromLeft" focusareacolor1="646464FF" name="list_search_field" selecttext="1"
+                 textformat="Basic" focusareacolor2="545454FF" scriptevents="1"/>
           <quad pos="124 0" size="10 10" bgcolor="FFFA" style="Icons64x64_1" substyle="Maximize" action="{{ id }}__list_button_search" />
         {% endif %}
 
