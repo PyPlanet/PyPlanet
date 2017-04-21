@@ -1,9 +1,21 @@
-<frame>
-  <quad pos="0 0 0" size="{{ sizes.box_width }} {{ sizes.box_height }}" bgcolor="FFFA" halign="center" valign="center" style="Bgs1" substyle="NavButtonBlink"/>
-  <quad pos="{{ sizes.icon_left }} {{ sizes.icon_top }} 0" size="10 10" bgcolor="FFFA" style="{{ icon_style }}" substyle="{{ icon_substyle }}"/>
-  <label pos="0 {{ sizes.title_top }} 0" z-index="5" size="{{ sizes.box_width }} 7" text="{{ title }}" textsize="5" textcolor="FFFFFFA" halign="center"/>
-  <quad pos="{{ sizes.bar_left }} {{ sizes.bar_top }} 0" size="{{ sizes.box_width }} 1" bgcolor="FFFA" style="Bgs1" substyle="ProgressBarSmall"/>
-  <label pos="{{ sizes.message_left }} {{ sizes.message_top }} 0" z-index="5" size="{{ sizes.message_width }} {{ sizes.message_height }}" autonewline="1" text="{{ message }}"/>
-  <quad pos="0 {{ sizes.buttons_top }} 0" size="44 9" bgcolor="FFFA" halign="center" style="Bgs1" substyle="BgCard" action="{{ action }}"/>
-  <label pos="0 {{ sizes.buttons_labels_top }} 0" z-index="5" size="38 5" text="{{ button_text }}" halign="center"/>
+<frame pos="0 0 70">
+  <quad pos="0 0 -1" size="320 180" halign="center" valign="center" style="Bgs1" substyle="BgDialogBlur" z-index="50" />
+  <quad pos="{{ sizes.top__pos }}" size="{{ sizes.top__size }}" halign="center" style="Bgs1InRace" substyle="BgGlow2" z-index="52" />
+  <quad size="{{ sizes.box__size }}" halign="center" valign="center" style="Bgs1InRace" substyle="BgWindow2" z-index="51" />
+  <quad pos="{{ sizes.bottom__pos }}" size="{{ sizes.bottom__size }}" halign="center" style="Bgs1InRace" substyle="BgMetalBar" z-index="52" />
+
+  <frame z-index="55">
+    {% block body %}
+      <label pos="{{ sizes.text__pos }}" size="{{ sizes.text__size }}" halign="left" valign="center2" textsize="2" textcolor="FFF" autonewline="1" text="{{ message }}" />
+
+      {% if buttons|length >= 2 %}
+        <label pos="{{ sizes.button_0__pos__left }} {{ sizes.button_0__pos__top }}" style="CardButtonMedium" valign="center" halign="center" text="{{ buttons[0].name }}" translate="1" action="{{ id }}__button_0" />
+        <label pos="{{ sizes.button_1__pos__left }} {{ sizes.button_1__pos__top }}" style="CardButtonMedium" valign="center" halign="center" text="{{ buttons[1].name }}" translate="1" action="{{ id }}__button_1" />
+      {% elif buttons|length == 1 %}
+        <label pos="0 {{ sizes.button_0__pos__top }}" style="CardButtonMedium" valign="center" halign="center" text="{{ buttons[0].name }}" translate="1" action="{{ id }}__button_0" />
+      {% else %}
+        <label pos="0 {{ sizes.button_0__pos__top }}" style="CardButtonMedium" valign="center" halign="center" text="OK" translate="1" action="{{ id }}__button_0" />
+      {% endif %}
+    {% endblock %}
+  </frame>
 </frame>

@@ -1,3 +1,4 @@
+import asyncio
 import uuid
 import logging
 
@@ -130,10 +131,9 @@ class _ManiaLink:
 		pass
 
 	def __del__(self):
-		if self.manager:
-			self.manager.instance.loop.call_soon(self.manager.destroy, self)
-			self.data = None
-			self.player_data = None
+		asyncio.ensure_future(self.manager.destroy(self))
+		self.data = None
+		self.player_data = None
 
 
 class StaticManiaLink(_ManiaLink):
