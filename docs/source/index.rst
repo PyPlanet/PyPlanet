@@ -10,9 +10,12 @@ Welcome to PyPlanet's documentation!
     :caption: Contents:
 
     intro/index
+    installation
+    configuration
     core/index
     apps/index
 
+    api/index
 
 .. warning::
 
@@ -25,3 +28,11 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+
+Links
+=====
+
+| Documentation: http://pypla.net/
+| GitHub: https://github.com/PyPlanet
+| PyPi:

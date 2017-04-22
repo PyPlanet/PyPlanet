@@ -23,6 +23,25 @@ logger = logging.getLogger(__name__)
 
 
 class Instance:
+	"""
+	Controller Instance. The very base of the controller, containing class instances of all core components.
+	
+	:ivar process_name: Process and pool name.
+	:ivar loop: AsyncIO Event Loop.
+	:ivar game: Game Information class.
+	:ivar apps: Apps component.
+	:ivar gbx: Gbx component.
+	:ivar db: Database component.
+	:ivar storage: Storage component.
+	:ivar signal_manager: Signal Manager.
+	:ivar ui_manager: UI Manager (global).
+	
+	:ivar map_manager: Contrib: Map Manager.
+	:ivar player_manager: Contrib: Player Manager.
+	:ivar permission_manager: Contrib: Permission Manager.
+	:ivar command_manager: Contrib: Command Manager.
+	"""
+
 	def __init__(self, process_name):
 		"""
 		The actual instance of the controller.
@@ -134,3 +153,4 @@ class _Controller:
 		return self.__instance
 
 Controller = _Controller()
+"""Controller access point to prevent circular imports. This is a lazy provided way to get the instance from anywhere!"""

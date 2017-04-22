@@ -1,8 +1,18 @@
-from pyplanet.core.ui.components.manialink import StaticManiaLink
-from pyplanet.core.ui.template import load_template
+from pyplanet.views import TemplateView
 
 
-class Alert(StaticManiaLink):
+class AlertView(TemplateView):
+	"""
+	The AlertView can be used to show several generic alerts to a player. You can use 3 different sizes, and adjust the
+	message text.
+	
+	The 3 sizes:
+	sm, md and lg.
+	"""
+
+	template_package = 'pyplanet.views'
+	template_name = 'generics/alert.xml'
+
 	SIZES = dict(
 		sm={
 			'top__pos': '0 17',
@@ -48,9 +58,26 @@ class Alert(StaticManiaLink):
 	def __init__(
 		self, message, title='', size='md', buttons=None, manager=None
 	):
+		"""
+		Create an AlertView instance.
+		
+		:param message: The message to display to the end-user, Use ``\\n`` for new lines. You can use symbols from FontAwesome
+						by using Unicode escaped strings.
+		:param title: Title of message, currently not implemented for any size!
+		:param size: Size to use, this parameter should be a string, and one of the following choices:
+					 'sm', 'md' or 'lg. Defaults to 'md'.
+		:param buttons: Buttons to display, Should be an array with dictionary which contain: name.
+		:param manager: UI Manager to use, You should always keep this undefined unless you know what your doing!
+		
+		:type message: str
+		:type title: str
+		:type size: str
+		:type buttons: list
+		:type manager: pyplanet.core.ui._BaseUIManager
+		"""
 		from pyplanet.core import Controller
 
-		super().__init__(Controller.instance.ui_manager)
+		super().__init__(manager or Controller.instance.ui_manager)
 		sizes = self.SIZES[size]
 
 		if not buttons:
@@ -65,7 +92,7 @@ class Alert(StaticManiaLink):
 		self.hide_click = True
 
 	async def close(self, player, **kwargs):
-		print('close')
-
-	async def get_template(self):
-		return await load_template('pyplanet.views', 'generics/alert.xml')
+		"""
+		Close the alert.
+		"""
+		await self.hide(player_logins=[player.login])

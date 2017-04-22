@@ -21,8 +21,13 @@ import os
 import sys
 import sphinx_rtd_theme
 
-# sys.path.insert(0, os.path.abspath('.'))
+src_folder = os.path.abspath(os.path.join(os.path.dirname(__name__), '..', '..'))
+sys.path.insert(0, src_folder)
 
+# Import now, we won't have issues with circular imports
+import pyplanet
+import pyplanet.core.instance
+import pyplanet.apps
 
 # -- General configuration ------------------------------------------------
 
@@ -39,7 +44,7 @@ extensions = [
 	'sphinx.ext.todo',
 	'sphinx.ext.coverage',
 	'sphinx.ext.imgmath',
-	'sphinx.ext.viewcode',
+	# 'sphinx.ext.viewcode', # TODO: Enable after release.
 	'sphinx.ext.githubpages'
 ]
 
@@ -48,9 +53,7 @@ templates_path = ['_templates']
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
-#
-# source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+source_suffix = ['.rst', '.md']
 
 # The master toctree document.
 master_doc = 'index'
@@ -99,7 +102,6 @@ html_theme = 'sphinx_rtd_theme'
 # documentation.
 #
 # html_theme_options = {}
-
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # Add any paths that contain custom static files (such as style sheets) here,

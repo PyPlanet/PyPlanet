@@ -20,6 +20,7 @@ class Apps:
 	def __init__(self, instance):
 		"""
 		Initiate registry with pre-loaded apps.
+		
 		:param instance: Instance of the controller.
 		:type instance: pyplanet.core.instance.Instance
 		"""
@@ -93,7 +94,6 @@ class Apps:
 		"""
 		The discover function will discover all models, signals and more
 		from apps in the right order.
-		:return:
 		"""
 		for label, app in self.apps.items():
 			# Discover models.

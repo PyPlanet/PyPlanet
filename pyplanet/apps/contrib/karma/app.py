@@ -3,7 +3,7 @@ from pyplanet.apps.contrib.karma.views import SampleListView
 from pyplanet.core.events import receiver
 
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
-from pyplanet.views.generics.alert import Alert
+from pyplanet.views.generics import AlertView
 
 from .models import Karma
 
@@ -39,7 +39,7 @@ class KarmaConfig(AppConfig):
 	#
 	# async def show_alert(self):
 	# 	message = 'Free money?'
-	# 	alert = Alert(message=message,
+	# 	alert = AlertView(message=message,
 	# 				  size='sm')
 	# 	await alert.display(player_logins=['tomvalk'])
 

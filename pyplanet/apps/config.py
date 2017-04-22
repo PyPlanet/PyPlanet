@@ -1,11 +1,9 @@
 import importlib
-import warnings
 
 import logging
 import os
 
 from pyplanet.core.exceptions import ImproperlyConfigured, InvalidAppModule
-from pyplanet.utils.codeutils import deprecated
 
 
 class AppConfig:
@@ -13,6 +11,7 @@ class AppConfig:
 	This class is the base class for the Applications metadata class. The class holds information and hooks
 	that will be executed after initiation for example.
 	"""
+
 	name = None
 	label = None
 	human_name = None
@@ -22,17 +21,20 @@ class AppConfig:
 	"""
 	You can provide a list of dependencies to other apps (each entry needs to be a string of the app label!)
 	"""
+
 	mode_dependencies = None
 	"""
 	You can provide a list of gamemodes that are required to activate the app. Gamemodes needs to be declared as
 	script names.
 	You can override this behaviour by defining the following method in your config class
+	
 	.. code-block :: python
 
 		def is_mode_supported(self, mode):
 			return mode.startswith('TimeAttack')
 
 	"""
+
 	game_dependencies = None
 	"""
 	You can provide a list of game dependencies that needs to meet when the app is started. For example you can provide:
@@ -42,6 +44,7 @@ class AppConfig:
 		game_dependencies = ['trackmania']
 
 	You can override this behaviour by defining the following method in your config class
+	
 	.. code-block :: python
 
 		def is_game_supported(self, game):
@@ -52,6 +55,7 @@ class AppConfig:
 	def __init__(self, app_name, app_module, instance):
 		"""
 		Init app config.
+		
 		:param app_name: App Name (from module path).
 		:param app_module: App Module.
 		:param instance: Instance of controller
@@ -106,7 +110,6 @@ class AppConfig:
 		The on_init will be called before all apps are started (just before the on_ready). This will allow the app
 		to register things like commands, permissions and other things that are important and don't require other
 		apps to be ready.
-		:return: 
 		"""
 
 	async def on_start(self):

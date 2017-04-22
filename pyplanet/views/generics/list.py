@@ -11,6 +11,45 @@ logger = logging.getLogger(__name__)
 
 
 class ListView(TemplateView):
+	"""
+	The ListView is an abstract list that uses a database query to show and manipulate the list that is presented to the
+	end-user. The ListView is able to automatically manage the searching, ordering and pagination of your query contents.
+	
+	The columns could be specified, for each column you can change behaviour, such as searchable and sortable. But also
+	custom rendering of the values that will be displayed.
+	
+	You can override ``get_fields()``, ``get_actions()``, ``get_query()`` if you need any customization or use a self method
+	or variable in one of your properties.
+	
+	.. note::
+	
+		The design and some behaviour can change in updates of PyPlanet. We aim to provide backward compatibility as much
+		as we can. If we are going to break things we will make it deprecated, or if we are in a situation of not having
+		enough time to provide a transition time, we are going to create a separate solution (like a second version).
+
+	.. code-block:: python
+	
+		class SampleListView(ListView):
+			query = Model.select()
+			model = Model
+			title = 'Select your item'
+			fields = [
+				{'name': 'Name', 'index': 'name', 'searching': True, 'sorting': True},
+				{'name': 'Author', 'index': 'author', 'searching': True, 'sorting': True},
+			]
+			actions = [
+				{
+					'name': 'Delete',
+					'action': self.action_delete,
+					'style': 'Icons64x64_1',
+					'substyle': 'Close'
+				},
+			]
+			
+			async def action_delete(self, player, values, instance, **kwargs):
+				print('Delete value: {}'.format(instance))
+
+	"""
 	query = None
 	model = None
 
@@ -129,13 +168,32 @@ class ListView(TemplateView):
 		return int(math.ceil(self.count / self.num_per_page))
 
 	async def close(self, player, *args, **kwargs):
-		self.data = None
+		"""
+		Close the link for a specific player. Will hide manialink and destroy data for player specific to save memory.
+		
+		:param player: Player model instance.
+		:type player: pyplanet.apps.core.maniaplanet.models.Player
+		"""
+		if player.login in self.player_data:
+			del self.player_data[player.login]
 		await self.hide(player_logins=[player.login])
 
 	async def refresh(self, player, *args, **kwargs):
+		"""
+		Refresh list with current properties for a specific player. Can be used to show new data changes.
+		
+		:param player: Player model instance.
+		:type player: pyplanet.apps.core.maniaplanet.models.Player
+		"""
 		await self.display(player=player)
 
 	async def display(self, player=None):
+		"""
+		Display list to player.
+		
+		:param player: Player login or model instance.
+		:type player: str, pyplanet.apps.core.maniaplanet.models.Player
+		"""
 		login = player.login if isinstance(player, Player) else player
 		if not player:
 			raise Exception('No player/login given to display the list to!')
