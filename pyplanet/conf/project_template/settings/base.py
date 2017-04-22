@@ -1,9 +1,8 @@
 """
 This file contains the basic settings and overrides the default ones that are defined in the core.
-Please copy the default file to: base.py
+Documentation: http://pypla.net/
 """
 import os
-import tempfile
 
 # Set the root_path to the root of our project.
 ROOT_PATH = os.path.dirname(os.path.dirname(__file__))
@@ -32,7 +31,7 @@ OWNERS = {
 }
 
 # Databases configuration holds an dictionary with information of the database backend.
-# Please refer to the documentation for all examples.
+# Please refer to the documentation for all examples. http://pypla.net/
 DATABASES = {
 	'default': {
 		'ENGINE': 'peewee_async.MySQLDatabase',
@@ -45,6 +44,14 @@ DATABASES = {
 		}
 	}
 }
+
+# Example: SQLite Settings:
+# DATABASES = {
+# 	'default': {
+# 		'ENGINE': 'peewee.SqliteDatabase',
+# 		'NAME': 'database.db'
+# 	}
+# }
 
 # Dedicated configuration holds the different dedicated servers that the instances will run on including the names of
 # the instances.
@@ -59,7 +66,7 @@ DEDICATED = {
 
 # The storage configuration contains the same instance mapping of the dedicated servers and is used
 # to access the filesystem on the dedicated server location.
-# Please refer to the documentation for more information.
+# Please refer to the documentation for more information. http://pypla.net/
 STORAGE = {
 	'default': {
 		'DRIVER': 'pyplanet.core.storage.drivers.local.LocalDriver',
@@ -68,8 +75,10 @@ STORAGE = {
 }
 
 # Define any cache backends that can be used by the core and the plugins to cache data.
-CACHES = {
-	'default': {
-
-	}
-}
+# This is not yet implemented. As soon as it's implemented you can activate it with the documentation, available on
+# http://pypla.net/
+# CACHE = {
+# 	'default': {
+#
+# 	}
+# }

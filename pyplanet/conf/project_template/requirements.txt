@@ -1,0 +1,6 @@
+# Change the numbers according to the major release. First read the release notes and upgrade notes on our site:
+# http://pypla.net/
+pyplanet>=0.0.1,<1.0.0
+
+# Add your apps requirements here:
+

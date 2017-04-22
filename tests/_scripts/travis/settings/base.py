@@ -90,8 +90,8 @@ STORAGE = {
 }
 
 # Define any cache backends that can be used by the core and the plugins to cache data.
-CACHES = {
-	'default': {
-
-	}
-}
+# CACHE = {
+# 	'default': {
+#
+# 	}
+# }

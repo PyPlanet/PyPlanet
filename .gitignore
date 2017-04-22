@@ -70,12 +70,8 @@ gen
 /tmp
 /*.db
 
-# Settings.
-settings/*.py
-!settings/*.default.py
-!settings/__init__.py
-
-# Apps.
-/apps/*
+# local settings, apps etc.
+/settings/
+/apps/
 !/apps/__init__.py
 /pyplanet/apps/local

@@ -11,7 +11,6 @@ from pyplanet.utils.log import initiate_logger
 class Command(BaseCommand):
 	help = 'Start the PyPlanet god with all it\'s subprocesses.'
 
-	# TODO
 	requires_system_checks = False
 	requires_migrations_checks = False
 
