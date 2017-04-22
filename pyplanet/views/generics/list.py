@@ -174,7 +174,7 @@ class ListView(TemplateView):
 		:param player: Player model instance.
 		:type player: pyplanet.apps.core.maniaplanet.models.Player
 		"""
-		if player.login in self.player_data:
+		if self.player_data and player.login in self.player_data:
 			del self.player_data[player.login]
 		await self.hide(player_logins=[player.login])
 
