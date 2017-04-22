@@ -9,6 +9,7 @@ import asyncio
 
 from pyplanet.core.events.manager import SignalManager
 from pyplanet.core.exceptions import SignalException, SignalGlueStop
+from pyplanet.utils.log import handle_exception
 
 
 def _make_id(target):
@@ -269,7 +270,12 @@ class Signal:
 			except Exception as err:
 				logger.exception(SignalException(
 					'Signal receiver \'{}\' => {} thrown an exception!'.format(receiver.__module__, receiver.__name__)
-				))
+				), exc_info=False)
+
+				# Handle, will send to sentry if it's related to the core/contrib apps.
+				handle_exception(err, receiver.__module__, receiver.__name__)
+
+				# Log the actual exception.
 				logger.exception(err)
 				responses.append((receiver, err))
 			else:

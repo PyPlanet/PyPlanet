@@ -72,6 +72,9 @@ LOGGING = {
 		'require_debug_true': {
 			'()': 'pyplanet.utils.log.RequireDebugTrue',
 		},
+		'require_exception': {
+			'()': 'pyplanet.utils.log.RequireException',
+		}
 	},
 	'formatters': {
 		'colored': {
@@ -94,12 +97,6 @@ LOGGING = {
 			'filters': ['require_debug_false'],
 			'formatter': 'colored',
 			'level': logging.INFO,
-		},
-		'sentry': {
-			'level': 'ERROR',
-			'filters': ['require_debug_false'],
-			'class': 'raven.handlers.logging.SentryHandler',
-			'dsn': ''
 		}
 	},
 	'loggers': {
