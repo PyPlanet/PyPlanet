@@ -15,7 +15,7 @@ class Raven:
 	def get_client(cls):
 		if not cls.CLIENT:
 			cls.CLIENT = Client(
-				dsn='https://ca2c93716e0943debde509036d7e9c0d:c39a00a09df4411bad4ebf49780550c6@sentry.io/158911',
+				dsn='https://bcbafd2d81234d53b32c66077ae0a008:98dcc46acc484eeb95ebf9f0c30e6dd4@sentry.s3.toffe.me/2',
 				environment='development' if settings.DEBUG else 'production',
 				release=version,
 				include_paths=['pyplanet']
@@ -30,7 +30,7 @@ def initiate_logger():
 
 def handle_exception(exception, module_name, func_name):
 	from pyplanet.core import Controller
-	if not settings.DEBUG:
+	if settings.DEBUG:
 		return
 
 	exc_info = sys.exc_info()
