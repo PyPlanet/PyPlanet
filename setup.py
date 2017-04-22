@@ -17,13 +17,15 @@ def read_version():
 
 def read_requirements(filename):
 	with open(os.path.join(os.path.dirname(__file__), filename), 'r') as handler:
-		return [line for line in handler.readlines() if not line.startswith('-') and not len(line)]
+		return [line for line in handler.readlines() if not line.startswith('#') and not line.startswith('-') and not len(line) <= 1]
 
 
 EXCLUDE_FROM_PACKAGES = [
 	'pyplanet.bin',
 	'pyplanet.conf.app_template',
 	'pyplanet.conf.project_template',
+	'tests',
+	'tests.*',
 ]
 PKG = 'pyplanet'
 ######
@@ -41,10 +43,10 @@ setup(
 	install_requires=read_requirements('requirements.txt'),
 	tests_require=read_requirements('requirements-dev.txt'),
 	extras_require={},
-	test_suite='nose.collector',
+	test_suite='tests',
 	include_package_data=True,
 
-	scripts=['pyplanet/bin/pyplanet.py'],
+	scripts=['pyplanet/bin/pyplanet'],
 	entry_points={'console_scripts': [
 		'pyplanet = pyplanet.core.management:execute_from_command_line',
 	]},
