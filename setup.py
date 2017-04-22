@@ -20,6 +20,11 @@ def read_requirements(filename):
 		return [line for line in handler.readlines() if not line.startswith('-') and not len(line)]
 
 
+EXCLUDE_FROM_PACKAGES = [
+	'pyplanet.bin',
+	'pyplanet.conf.app_template',
+	'pyplanet.conf.project_template',
+]
 PKG = 'pyplanet'
 ######
 setup(
@@ -29,7 +34,7 @@ setup(
 	long_description=long_description(),
 	keywords='maniaplanet, controller, plugins',
 	license='GNU General Public License v3 (GPLv3)',
-	packages=find_packages(),
+	packages=find_packages(exclude=EXCLUDE_FROM_PACKAGES),
 	package_data={
 		'pyplanet/tests': ['pyplanet/tests/**.txt', 'pyplanet/tests/**.json', 'pyplanet/tests/**.xml', 'pyplanet/tests/**.j2']
 	},
@@ -39,20 +44,31 @@ setup(
 	test_suite='nose.collector',
 	include_package_data=True,
 
+	scripts=['pyplanet/bin/pyplanet.py'],
+	entry_points={'console_scripts': [
+		'pyplanet = pyplanet.core.management:execute_from_command_line',
+	]},
+
 	author='Tom Valk',
 	author_email='tomvalk@lt-box.info',
 	url='https://github.com/tomvlk/PyPlanet',
 
 	classifiers=[
 		'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-		'Development Status :: 1 - Planning',
+		'Development Status :: 3 - Alpha',
 
 		'Programming Language :: Python :: 3',
+		'Programming Language :: Python :: 3.5',
+		'Programming Language :: Python :: 3.6',
 		'Programming Language :: Python :: 3 :: Only',
+
+		'Operating System :: OS Independent',
 
 		'Topic :: Internet',
 		'Topic :: Software Development',
 		'Topic :: Games/Entertainment',
+		'Topic :: Software Development :: Libraries :: Application Frameworks',
+		'Topic :: Software Development :: Libraries :: Python Modules',
 
 		'Intended Audience :: System Administrators',
 		'Intended Audience :: Developers',

@@ -51,6 +51,11 @@ class LazySettings:
 		super().__delattr__(item)
 		self.__dict__.pop(item, None)
 
+	@property
+	def configured(self):
+		"""Return True if the settings have already been configured."""
+		return self._settings is not None
+
 
 class Settings:
 

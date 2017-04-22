@@ -8,12 +8,19 @@ from pyplanet import __version__ as version
 from pyplanet.conf import settings
 
 
-SENTRY = Client(
-	dsn='https://ca2c93716e0943debde509036d7e9c0d:c39a00a09df4411bad4ebf49780550c6@sentry.io/158911',
-	environment='development' if settings.DEBUG else 'production',
-	release=version,
-	include_paths=['pyplanet']
-)
+class Raven:
+	CLIENT = None
+
+	@classmethod
+	def get_client(cls):
+		if not cls.CLIENT:
+			cls.CLIENT = Client(
+				dsn='https://ca2c93716e0943debde509036d7e9c0d:c39a00a09df4411bad4ebf49780550c6@sentry.io/158911',
+				environment='development' if settings.DEBUG else 'production',
+				release=version,
+				include_paths=['pyplanet']
+			)
+		return cls.CLIENT
 
 
 def initiate_logger():
@@ -28,8 +35,8 @@ def handle_exception(exception, module_name, func_name):
 
 	exc_info = sys.exc_info()
 	if Controller.instance and Controller.instance.game:
-		SENTRY.extra_context(Controller.instance.game.__dict__)
-	SENTRY.captureException(exc_info=exc_info)
+		Raven.get_client().extra_context(Controller.instance.game.__dict__)
+	Raven.get_client().captureException(exc_info=exc_info)
 
 
 class RequireDebugFalse(logging.Filter):
