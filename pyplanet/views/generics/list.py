@@ -54,6 +54,8 @@ class ListView(TemplateView):
 	model = None
 
 	title = None
+	icon_style = None
+	icon_substyle = None
 	fields = []
 	actions = []
 
@@ -69,7 +71,7 @@ class ListView(TemplateView):
 		self.count = 0
 		self.objects = list()
 
-		self.num_per_page = 17
+		self.num_per_page = 20
 
 		self.provide_search = True
 
@@ -266,6 +268,8 @@ class ListView(TemplateView):
 			'actions': actions,
 			'provide_search': self.provide_search,
 			'title': self.title,
+			'icon_style': self.icon_style,
+			'icon_substyle': self.icon_substyle,
 			'search': self.search_text,
 			'pages': self.num_pages,
 			'page': self.page,

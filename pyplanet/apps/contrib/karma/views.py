@@ -7,6 +7,8 @@ class SampleListView(ListView):
 	model = Map
 	query = Map.select()
 	title = 'Map List Testing'
+	icon_style = 'Icons64x64_1'
+	icon_substyle = 'Browser'
 
 	async def get_fields(self):
 		return [
@@ -40,12 +42,6 @@ class SampleListView(ListView):
 				'action': self.action_delete,
 				'style': 'Icons64x64_1',
 				'substyle': 'Close'
-			},
-			{
-				'name': 'Move Down',
-				'action': self.action_delete,
-				'style': 'Icons64x64_1',
-				'substyle': 'ShowDown'
 			}
 		]
 
