@@ -45,13 +45,5 @@ class SampleListView(ListView):
 			}
 		]
 
-	''',
-				{
-					'name': 'Move Down',
-					'action': self.action_delete,
-					'style': 'Icons64x64_1',
-					'substyle': 'ShowDown'
-				}'''
-
 	async def action_delete(self, player, values, instance, **kwargs):
 		print('Delete value: {}'.format(instance))

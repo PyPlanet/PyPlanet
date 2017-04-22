@@ -79,19 +79,5 @@
       <quad pos="100 4 0" size="10 8" bgcolor="FFFA" style="Icons64x64_1" substyle="ArrowLast" action="{{ id }}__list_button_last" />
       <label pos="0 1.5 0" size="72 5" text="$fff$oPage {{ page }} / {{ pages }}" textsize="1.5" halign="center"/>
     </frame>
-    <frame pos="0 -97 0">
-      <frame z-index="1">
-<!--
-        {% if provide_search %}
-          <entry pos="75 -2.5" size="47 5" z-index="2" default="{{ search|default('Search...', True) }}"
-                 style="FrameTransitionFromLeft" focusareacolor1="646464FF" name="list_search_field" selecttext="1"
-                 textformat="Basic" focusareacolor2="545454FF" scriptevents="1"/>
-          <quad pos="124 0" size="10 10" bgcolor="FFFA" style="Icons64x64_1" substyle="Maximize" action="{{ id }}__list_button_search" />
-        {% endif %}
-
-        <quad pos="133 0" size="10 10" bgcolor="FFFA" style="Icons64x64_1" substyle="Refresh" action="{{ id }}__list_button_refresh" />
--->
-      </frame>
-    </frame>
   </frame>
 </frame>
