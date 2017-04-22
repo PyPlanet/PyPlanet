@@ -7,6 +7,8 @@ class SampleListView(ListView):
 	model = Map
 	query = Map.select()
 	title = 'Map List Testing'
+	icon_style = 'Icons64x64_1'
+	icon_substyle = 'Browser'
 
 	async def get_fields(self):
 		return [
@@ -40,14 +42,16 @@ class SampleListView(ListView):
 				'action': self.action_delete,
 				'style': 'Icons64x64_1',
 				'substyle': 'Close'
-			},
-			{
-				'name': 'Move Down',
-				'action': self.action_delete,
-				'style': 'Icons64x64_1',
-				'substyle': 'ShowDown'
 			}
 		]
+
+	''',
+				{
+					'name': 'Move Down',
+					'action': self.action_delete,
+					'style': 'Icons64x64_1',
+					'substyle': 'ShowDown'
+				}'''
 
 	async def action_delete(self, player, values, instance, **kwargs):
 		print('Delete value: {}'.format(instance))

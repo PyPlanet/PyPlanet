@@ -1,57 +1,87 @@
-<frame pos="0 0 0">
-  <quad pos="0 0" size="220 125" z-index="-50" bgcolor="FFFA" halign="center" valign="center" style="Bgs1" substyle="NavButtonBlink"/>
-  <quad pos="0 0" size="220 125" z-index="-51" bgcolor="FFFA" halign="center" valign="center" style="Bgs1" substyle="NavButtonBlink"/>
+<frame pos="0 10 0">
+  {% if provide_search %}
+    <quad pos="0 62.5" size="220 137" z-index="-50" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
+  {% else %}
+    <quad pos="0 62.5" size="220 127" z-index="-50" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
+  {% endif %}
+  <quad pos="0 61.5" size="218 11" z-index="-49" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
 
-  <quad pos="-109 61 0" size="10 10" z-index="1" bgcolor="FFFA" style="Icons64x64_1" substyle="Browser"/>
-  <label pos="0 59 0" size="190 7" z-index="2" text="{{ title }}" textsize="5" textcolor="FFFFFFA" halign="center"/>
+  <quad pos="-108 60.5 0" size="9 9" z-index="1" style="{{ icon_style }}" substyle="{{ icon_substyle }}"/>
+  <label pos="-97 57.8 0" size="190 7" z-index="2" text="$o{{ title }}" textsize="2.5" textcolor="FFFFFFF" halign="left"/>
+  <label pos="92 57.6 0" size="72 5" text="$o({{ count }} items)" textsize="1.5" halign="right"/>
 
-  <quad pos="99 61 0" size="10 10" z-index="1" bgcolor="FFFA" style="Icons64x64_1" substyle="Close" action="{{ id }}__list_button_close"/>
-  <quad pos="-110 51 0" size="220 1" z-index="1" bgcolor="FFFA" style="Bgs1" substyle="ProgressBarSmall"/>
-  <frame pos="-105 48 0" id="list_frame">
+  <quad pos="99 61 0" size="10 10" z-index="1" style="Icons64x64_1" substyle="Close" action="{{ id }}__list_button_close"/>
+  <quad pos="94 59 0" size="6 6" z-index="1" style="Icons64x64_1" substyle="Refresh" action="{{ id }}__list_button_refresh" />
+
+  {% if provide_search %}
+    <frame pos="-109 49.5 0" id="list_frame">
+      <quad pos="0 0" size="218 8.5" z-index="-50" style="Bgs1InRace" substyle="BgCardList"/>
+      <entry pos="2 -4.25" size="80 6" z-index="2" default="{{ search|default('Search...', True) }}"
+       focusareacolor1="0003" name="list_search_field" selecttext="1" textsize="1.6"
+       focusareacolor2="FFF2" scriptevents="1" valign="center"/>
+      <quad pos="83 -1.35" size="6 6" bgcolor="FFFA" style="Icons64x64_1" substyle="Maximize" action="{{ id }}__list_button_search" />
+    </frame>
+  {% endif %}
+
+  {% if provide_search %}
+    <frame pos="-109 39.5 0" id="list_frame">
+  {% else %}
+    <frame pos="-109 49.5 0" id="list_frame">
+  {% endif %}
     <frame pos="0 0 0" id="list_header">
-      <quad pos="0 0 0" z-index="1" size="210 5" bgcolor="FFF5"/>
-      <quad pos="0 -4.5 0" size="210 1" z-index="1" bgcolor="FFFA" style="Bgs1" substyle="ProgressBarSmall"/>
-      <frame>
+      <quad pos="0 0.1" size="218 105.2" z-index="-21" style="Bgs1InRace" substyle="BgCardList"/>
+      <quad pos="0 0.2" size="218 5.2" z-index="-20" style="Bgs1InRace" substyle="BgCardList"/>
+      <frame pos="0.1 -0 0">
         {% for field in fields %}
-          <label pos="{{ field.left }} -2.5" size="{{ field.width }} 5" text="{{ field.name }}" textsize="2"
-                 valign="center2" action="{{ id }}__list_header_{{ loop.index0 }}" style="TrackerTextBig" />
+          <label pos="{{ field.left }} -2.4" size="{{ field.width }} 4.9" text="$o$fff  {{ field.name }}" textsize="1.3"
+                 valign="center2" action="{{ id }}__list_header_{{ loop.index0 }}" focusareacolor1="0000" focusareacolor2="fff3" />
           {% if field._sort == 1 %}
-            <quad pos="{{ field.left + field.width - 5 }} 0" size="5 5" style="Icons64x64_1" substyle="ShowUp" />
+            <quad pos="{{ field.left + field.width - 5 }} 0" z-index="2" size="5 5" style="Icons64x64_1" substyle="ShowUp" />
           {% elif field._sort == 0 %}
-            <quad pos="{{ field.left + field.width - 5 }} 0" size="5 5" style="Icons64x64_1" substyle="ShowDown" />
+            <quad pos="{{ field.left + field.width - 5 }} 0" z-index="2" size="5 5" style="Icons64x64_1" substyle="ShowDown" />
           {% endif %}
         {% endfor %}
       </frame>
     </frame>
-    <frame pos="0 -5 0" id="list_content">
-      <quad pos="0 0 0" z-index="1" size="210 85" bgcolor="FFF2"/>
+    <frame pos="0.1 -4.9 0" id="list_content" z-index="1">
       {% set actions_width = (actions|length) * 5 %}
       {% for row in objects %}
         {% set outer_loop = loop %}
         <frame pos="0 {{ loop.index0 * -5 }}">
+          {% if loop.index0 % 2 != 0 %}
+            <quad pos="0 0" size="217.8 5" z-index="-20" bgcolor="0003"/>
+          {% endif %}
           {% for field in fields %}
             {% if field.manialink %}
               {{ field.manialink|safe }}
             {% else %}
-              <label pos="{{ field.left }} -2.5" size="{{ field.width }} 5" text="{{ field_renderer(row, field) }}"
-                     textsize="2" valign="center2" action="{{ id }}__list_body_{{ outer_loop.index0 }}_{{ loop.index0 }}"
-                     style="TrackerText"/>
+              <label pos="{{ field.left }} -2.5" size="{{ field.width }} 5" text="$fff  {{ field_renderer(row, field) }}"
+                     textsize="1.2" valign="center2" action="{{ id }}__list_body_{{ outer_loop.index0 }}_{{ loop.index0 }}"
+                     focusareacolor1="0000" focusareacolor2="fff2" />
             {% endif %}
           {% endfor %}
 
           {% for action in actions %}
-            <quad pos="{{ 210 - actions_width + loop.index0 * 5 }} 0" size="5 5" style="{{ action.style }}" substyle="{{ action.substyle }}"
+            <quad pos="{{ 217 - actions_width + loop.index0 * 5 }} 0" size="5 5" style="{{ action.style }}" substyle="{{ action.substyle }}"
                   {% if action.attrs %}{{ action.attrs|safe }}{% endif %}
                   action="{{ id }}__list_action_{{ outer_loop.index0 }}_{{ loop.index0 }}" />
           {% endfor %}
         </frame>
       {% endfor %}
     </frame>
+    <frame pos="109 -109.5 0">
+      <quad pos="0 0" size="218 7" z-index="-49" halign="center" valign="center" style="Bgs1InRace" substyle="BgCardList"/>
+      <quad pos="-110 4 0" size="10 8" bgcolor="FFFA" style="Icons64x64_1" substyle="ArrowFirst" action="{{ id }}__list_button_first" />
+      <quad pos="-102 4 0" size="10 8" bgcolor="FFFA" style="Icons64x64_1" substyle="ArrowFastPrev" action="{{ id }}__list_button_prev_10" />
+      <quad pos="-94 4 0" size="10 8" bgcolor="FFFA" style="Icons64x64_1" substyle="ArrowPrev" action="{{ id }}__list_button_prev" />
+      <quad pos="84 4 0" size="10 8" bgcolor="FFFA" style="Icons64x64_1" substyle="ArrowNext" action="{{ id }}__list_button_next" />
+      <quad pos="92 4 0" size="10 8" bgcolor="FFFA" style="Icons64x64_1" substyle="ArrowFastNext" action="{{ id }}__list_button_next_10" />
+      <quad pos="100 4 0" size="10 8" bgcolor="FFFA" style="Icons64x64_1" substyle="ArrowLast" action="{{ id }}__list_button_last" />
+      <label pos="0 1.5 0" size="72 5" text="$fff$oPage {{ page }} / {{ pages }}" textsize="1.5" halign="center"/>
+    </frame>
     <frame pos="0 -97 0">
       <frame z-index="1">
-        <label pos="0 -0 0" size="72 5" text="Items 1-10, Page {{ page }}/{{ pages }}" textsize="2" autonewline="1"/>
-        <label pos="0 -5 0" size="72 5" text="Total {{ count }} items" textsize="2" autonewline="1"/>
-
+<!--
         {% if provide_search %}
           <entry pos="75 -2.5" size="47 5" z-index="2" default="{{ search|default('Search...', True) }}"
                  style="FrameTransitionFromLeft" focusareacolor1="646464FF" name="list_search_field" selecttext="1"
@@ -60,15 +90,8 @@
         {% endif %}
 
         <quad pos="133 0" size="10 10" bgcolor="FFFA" style="Icons64x64_1" substyle="Refresh" action="{{ id }}__list_button_refresh" />
-
-        <quad pos="150 0 0" size="10 10" bgcolor="FFFA" style="Icons64x64_1" substyle="ArrowFirst" action="{{ id }}__list_button_first" />
-        <quad pos="160 0 0" size="10 10" bgcolor="FFFA" style="Icons64x64_1" substyle="ArrowFastPrev" action="{{ id }}__list_button_prev_10" />
-        <quad pos="170 0 0" size="10 10" bgcolor="FFFA" style="Icons64x64_1" substyle="ArrowPrev" action="{{ id }}__list_button_prev" />
-        <quad pos="180 0 0" size="10 10" bgcolor="FFFA" style="Icons64x64_1" substyle="ArrowNext" action="{{ id }}__list_button_next" />
-        <quad pos="190 0 0" size="10 10" bgcolor="FFFA" style="Icons64x64_1" substyle="ArrowFastNext" action="{{ id }}__list_button_next_10" />
-        <quad pos="200 0 0" size="10 10" bgcolor="FFFA" style="Icons64x64_1" substyle="ArrowLast" action="{{ id }}__list_button_last" />
+-->
       </frame>
-      <quad pos="0 0 0" size="210 10" z-index="0" bgcolor="F900"/>
     </frame>
   </frame>
 </frame>
