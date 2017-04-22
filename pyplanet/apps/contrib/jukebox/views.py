@@ -3,12 +3,19 @@ from pyplanet.apps.core.maniaplanet.models import Map
 from pyplanet.views.generics.list import ListView
 
 
-class SampleListView(ListView):
+class MapListView(ListView):
+	app = None
+
 	model = Map
 	query = Map.select()
 	title = 'Map List Testing'
 	icon_style = 'Icons64x64_1'
 	icon_substyle = 'Browser'
+
+	def __init__(self, app):
+		super().__init__(self)
+		self.app = app
+		self.manager = app.ui
 
 	async def get_fields(self):
 		return [
@@ -19,8 +26,7 @@ class SampleListView(ListView):
 				'searching': True,
 				'width': 100,
 				'type': 'label',
-				'action': lambda player, values, instance:
-				print(player, values, instance)
+				'action': self.action_jukebox
 			},
 			{
 				'name': 'Author',
@@ -44,6 +50,9 @@ class SampleListView(ListView):
 				'substyle': 'Close'
 			}
 		]
+
+	async def action_jukebox(self, player, values, instance, **kwargs):
+		await self.app.add_to_jukebox(player, instance)
 
 	async def action_delete(self, player, values, instance, **kwargs):
 		print('Delete value: {}'.format(instance))
