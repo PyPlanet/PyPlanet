@@ -4,7 +4,7 @@ from pyplanet.views.generics.list import ManualListView
 class KarmaListView(ManualListView):
 	app = None
 
-	title = 'Who voted what on this map?'
+	title = 'Karma votes on this map'
 	icon_style = 'Icons128x128_1'
 	icon_substyle = 'Buddies'
 

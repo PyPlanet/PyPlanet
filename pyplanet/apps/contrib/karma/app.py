@@ -38,6 +38,7 @@ class KarmaConfig(AppConfig):
 			vote_player = await item.get_related('player')
 			view_data.append({'player_nickname': vote_player.nickname, 'vote': ('++' if item.score == 1 else '--')})
 		view.objects_raw = view_data
+		view.title = 'Karma votes on {}'.format(self.instance.map_manager.current_map.name)
 		await view.display(player=player.login)
 
 	@receiver(mp_signals.map.map_begin)
