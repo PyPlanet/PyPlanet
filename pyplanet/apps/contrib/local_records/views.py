@@ -30,11 +30,19 @@ class LocalRecordsListView(ManualListView):
 				'index': 'player_nickname',
 				'sorting': True,
 				'searching': True,
-				'width': 50
+				'width': 70
 			},
 			{
 				'name': 'Time',
 				'index': 'record_time',
+				'sorting': True,
+				'searching': False,
+				'width': 30,
+				'type': 'label'
+			},
+			{
+				'name': 'Difference',
+				'index': 'record_time_difference',
 				'sorting': True,
 				'searching': False,
 				'width': 50,

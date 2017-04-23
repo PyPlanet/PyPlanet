@@ -39,8 +39,15 @@ class LocalRecordsConfig(AppConfig):
 			index = 1
 			view = LocalRecordsListView(self)
 			view_data = []
+			first_time = self.current_records[0].score
 			for item in self.current_records:
-				view_data.append({'index': index, 'player_nickname': item.player.nickname, 'record_time': times.format_time(item.score)})
+				record_player = await item.get_related('player')
+				record_time_difference = ''
+				if index > 1:
+					record_time_difference = '$f00 + ' + times.format_time((item.score - first_time))
+				view_data.append({'index': index, 'player_nickname': record_player.nickname,
+								  'record_time': times.format_time(item.score),
+								  'record_time_difference': record_time_difference})
 				index += 1
 			view.objects_raw = view_data
 			await view.display(player=player.login)
@@ -50,7 +57,8 @@ class LocalRecordsConfig(AppConfig):
 
 	@receiver(mp_signals.map.map_begin)
 	async def map_begin(self, map):
-		record_list = await LocalRecord.objects.execute(LocalRecord.select().where(LocalRecord.map_id == map.get_id()).order_by(LocalRecord.score.asc()))
+		record_list = await LocalRecord.objects.execute(
+			LocalRecord.select().where(LocalRecord.map_id == map.get_id()).order_by(LocalRecord.score.asc()))
 		self.current_records = list(record_list)
 		await self.chat_current_record()
 
@@ -75,11 +83,13 @@ class LocalRecordsConfig(AppConfig):
 
 				if new_index < previous_index:
 					message = '$z$s$fff»» $fff{}$z$s$0f3 gained the $fff{}.$0f3 Local Record, with a time of $fff\uf017 {}$0f3 ($fff{}.$0f3 $fff-{}$0f3).'.format(
-						player.nickname, new_index, times.format_time(race_time), previous_index, times.format_time((previous_time - race_time))
+						player.nickname, new_index, times.format_time(race_time), previous_index,
+						times.format_time((previous_time - race_time))
 					)
 				else:
 					message = '$z$s$fff»» $fff{}$z$s$0f3 improved the $fff{}.$0f3 Local Record, with a time of $fff\uf017 {}$0f3 ($fff-{}$0f3).'.format(
-						player.nickname, new_index, times.format_time(race_time), times.format_time((previous_time - race_time))
+						player.nickname, new_index, times.format_time(race_time),
+						times.format_time((previous_time - race_time))
 					)
 
 				await self.instance.gbx.execute('ChatSendServerMessage', message)
