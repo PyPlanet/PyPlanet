@@ -45,7 +45,7 @@ class KarmaConfig(AppConfig):
 						player_vote.score = score
 						await player_vote.save()
 
-						message = '$z$s> $ff0Successfully changed your karma vote to $fff{}$ff0!'.format(text)
+						message = '$z$s$fff» $ff0Successfully changed your karma vote to $fff{}$ff0!'.format(text)
 						await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
 				else:
 					new_vote = Karma(map=self.instance.map_manager.current_map,player=player,score=score)
@@ -54,7 +54,7 @@ class KarmaConfig(AppConfig):
 					self.current_votes.append(new_vote)
 					await self.calculate_karma()
 
-					message = '$z$s> $ff0Successfully voted $fff{}$ff0!'.format(text)
+					message = '$z$s$fff» $ff0Successfully voted $fff{}$ff0!'.format(text)
 					await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
 
 	async def get_votes_list(self, map):
@@ -68,7 +68,7 @@ class KarmaConfig(AppConfig):
 
 	async def chat_current_karma(self):
 		num_current_votes = len(self.current_votes)
-		message = '$z$s> $ff0Current map karma: $fff{}$ff0 [$fff{}$ff0 votes, ++: $fff{}$ff0 ($fff{}%$ff0), --: $fff{}$ff0 ($fff{}%$ff0)'.format(
+		message = '$z$s$fff»» $ff0Current map karma: $fff{}$ff0 [$fff{}$ff0 votes, ++: $fff{}$ff0 ($fff{}%$ff0), --: $fff{}$ff0 ($fff{}%$ff0)'.format(
 			self.current_karma, num_current_votes,
 			len(self.current_positive_votes),
 			round((len(self.current_positive_votes) / num_current_votes) * 100, 2) if num_current_votes > 0 else 0,
