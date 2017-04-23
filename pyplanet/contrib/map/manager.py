@@ -8,10 +8,12 @@ from pyplanet.core.events import receiver
 from pyplanet.core import signals
 
 
+# TODO: Implement insertion of a map.
 class MapManager:
 	def __init__(self, instance):
 		"""
 		Initiate, should only be done from the core instance.
+		
 		:param instance: Instance.
 		:type instance: pyplanet.core.instance.Instance
 		"""
@@ -21,7 +23,7 @@ class MapManager:
 		self._matchsettings = None
 
 		# The maps contain a list of map instances in the order that are in the current loaded list.
-		self._maps = set()
+		self._maps = set() # TODO: Update list at changes, such as matchsettings load, or insert of a map.
 
 		# The current map will always be in this variable. The next map will always be here. It will be updated. once
 		# it's updated it should be send to the dedicated to queue the next map.
@@ -55,6 +57,7 @@ class MapManager:
 	async def handle_map_change(self, info):
 		"""
 		This will be called from the glue that creates the signal 'maniaplanet:map_begin' or 'map_end'.
+		
 		:param info: Mapinfo in dict.
 		:return: Map instance.
 		:rtype: pyplanet.apps.core.maniaplanet.models.map.Map
@@ -72,6 +75,7 @@ class MapManager:
 	async def get_map(self, uid=None):
 		"""
 		Get map instance by uid.
+		
 		:param uid: By uid (pk).
 		:return: Player or exception if not found
 		"""
@@ -82,9 +86,23 @@ class MapManager:
 
 	@property
 	def next_map(self):
+		"""
+		The next scheduled map.
+		
+		:rtype: pyplanet.apps.core.maniaplanet.models.Map
+		"""
 		return self._next_map
 
 	async def set_next_map(self, map):
+		"""
+		Set the next map. This will prepare the manager to set the next map and will communicate the next map to the
+		dedicated server.
+		
+		The Map parameter can be a map instance or the UID of the map.
+		
+		:param map: Map instance or UID string.
+		:type map: pyplanet.apps.core.maniaplanet.models.Map, str
+		"""
 		if isinstance(map, str):
 			map = await self.get_map(map)
 		if not isinstance(map, Map):
@@ -94,11 +112,27 @@ class MapManager:
 
 	@property
 	def current_map(self):
+		"""
+		The current map, database model instance.
+		
+		:rtype: pyplanet.apps.core.maniaplanet.models.Map
+		"""
 		return self._current_map
+
+	@property
+	def maps(self):
+		"""
+		Get the maps that are currently loaded on the server. The list should contain model instances of the currently
+		loaded matchsettings. This list should be up-to-date.
+		
+		:rtype: list 
+		"""
+		return self._maps
 
 	async def set_current_map(self, map):
 		"""
 		Set the current map and jump to it.
+		
 		:param map: Map instance or uid.
 		"""
 		if isinstance(map, str):

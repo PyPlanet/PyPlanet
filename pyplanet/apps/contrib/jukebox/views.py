@@ -1,3 +1,5 @@
+from playhouse.shortcuts import model_to_dict
+
 from pyplanet.apps.core.maniaplanet.models import Map
 
 from pyplanet.views.generics.list import ListView, ManualListView
@@ -49,9 +51,8 @@ class JukeboxListView(ManualListView):
 		await self.app.drop_from_jukebox(player, instance)
 
 
-class MapListView(ListView):
+class MapListView(ManualListView):
 	model = Map
-	query = Map.select()
 	title = 'Maps on this server'
 	icon_style = 'Icons128x128_1'
 	icon_substyle = 'Browse'
@@ -60,6 +61,9 @@ class MapListView(ListView):
 		super().__init__(self)
 		self.app = app
 		self.manager = app.ui
+
+	async def get_data(self):
+		return [model_to_dict(m) for m in self.app.instance.map_manager.maps]
 
 	async def get_fields(self):
 		return [
@@ -78,7 +82,9 @@ class MapListView(ListView):
 				'sorting': True,
 				'searching': True,
 				'renderer': lambda row, field:
-				row.author_nickname if row.author_nickname and len(row.author_nickname) > 0 else row.author_login,
+					row['author_nickname']
+					if 'author_nickname' in row and row['author_nickname'] and len(row['author_nickname'])
+					else row['author_login'],
 				'width': 50,
 			},
 		]

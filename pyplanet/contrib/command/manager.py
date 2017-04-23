@@ -28,14 +28,14 @@ class CommandManager:
 			tst_cmd
 		])
 
-	async def register(self, command):
+	async def register(self, *commands):
 		"""
 		Register your command.
 		
-		:param command: Command instance. 
-		:type command: pyplanet.contrib.command.command.Command
+		:param commands: Command instance. 
+		:type commands: pyplanet.contrib.command.command.Command
 		"""
-		self._commands.append(command)
+		self._commands.extend(commands)
 
 	async def target(self, player, data, **kwargs):
 		await self._instance.gbx.execute(

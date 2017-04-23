@@ -5,6 +5,7 @@ from pyplanet.contrib.command import Command
 
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 
+
 class JukeboxConfig(AppConfig):
 	name = 'pyplanet.apps.contrib.jukebox'
 	game_dependencies = ['trackmania', 'shootmania']
@@ -20,11 +21,13 @@ class JukeboxConfig(AppConfig):
 
 		await self.instance.permission_manager.register('next', 'Skip to the next map', app=self, min_level=1)
 
-		self.instance.command_manager.commands.extend([Command(command='list', target=self.show_map_list)])
-		self.instance.command_manager.commands.extend([Command(command='next', target=self.skip_map, perms='jukebox:next', admin=True)])
-		jukebox_command = Command(command='jukebox', target=self.chat_command)
-		jukebox_command.add_param(name='option', required=False)
-		self.instance.command_manager.commands.extend([jukebox_command])
+		await self.instance.command_manager.register(
+			Command(command='list', target=self.show_map_list),
+			Command(command='next', target=self.skip_map, perms='jukebox:next', admin=True)
+		)
+		await self.instance.command_manager.register(
+			Command(command='jukebox', target=self.chat_command).add_param(name='option', required=False)
+		)
 
 	async def show_map_list(self, player, data, **kwargs):
 		view = MapListView(self)
