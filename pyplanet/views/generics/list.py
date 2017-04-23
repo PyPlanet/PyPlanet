@@ -309,6 +309,8 @@ class ListView(TemplateView):
 			self.search_text = search_text
 		else:
 			self.search_text = None
+		# Reset page when searching
+		self.page = 1
 		await self.refresh(player)
 
 	async def _first_page(self, player, *args, **kwargs):
