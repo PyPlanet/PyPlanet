@@ -1,10 +1,7 @@
 from pyplanet.apps.config import AppConfig
-from pyplanet.apps.contrib.karma.views import SampleListView, SampleManualListView
 from pyplanet.core.events import receiver
-from pyplanet.contrib.command import Command
 
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
-from pyplanet.views.generics import AlertView
 
 from .models import Karma
 
@@ -26,24 +23,9 @@ class KarmaConfig(AppConfig):
 		self.map_begin()
 		self.player_chat()
 
-		self.instance.command_manager.commands.extend([Command(command='list', target=self.show_map_list)])
-
 		await self.get_votes_list(self.instance.map_manager.current_map)
 		await self.calculate_karma()
 		await self.chat_current_karma()
-
-		# USE THIS TO TEST:
-		# await self.show_alert()
-
-	async def show_map_list(self, player, data, **kwargs):
-		view = SampleManualListView(manager=self.ui)
-		await view.display(player=player.login)
-
-	# async def show_alert(self):
-	# 	message = 'Free money?'
-	# 	alert = AlertView(message=message,
-	# 				  size='sm')
-	# 	await alert.display(player_logins=['tomvalk'])
 
 	@receiver(mp_signals.map.map_begin)
 	async def map_begin(self, map):
