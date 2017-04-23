@@ -7,8 +7,8 @@ class JukeboxListView(ManualListView):
 	app = None
 
 	title = 'Currently in the Jukebox'
-	icon_style = 'Icons64x64_1'
-	icon_substyle = 'Browser'
+	icon_style = 'Icons128x128_1'
+	icon_substyle = 'Browse'
 
 	data = []
 
@@ -53,8 +53,8 @@ class MapListView(ListView):
 	model = Map
 	query = Map.select()
 	title = 'Maps on this server'
-	icon_style = 'Icons64x64_1'
-	icon_substyle = 'Browser'
+	icon_style = 'Icons128x128_1'
+	icon_substyle = 'Browse'
 
 	def __init__(self, app):
 		super().__init__(self)
