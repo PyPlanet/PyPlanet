@@ -45,16 +45,11 @@ class JukeboxListView(ManualListView):
 			},
 		]
 
-	async def get_actions(self):
-		return []
-
 	async def action_drop(self, player, values, instance, **kwargs):
 		await self.app.drop_from_jukebox(player, instance)
 
 
 class MapListView(ListView):
-	app = None
-
 	model = Map
 	query = Map.select()
 	title = 'Maps on this server'
@@ -85,8 +80,6 @@ class MapListView(ListView):
 				'renderer': lambda row, field:
 				row.author_nickname if row.author_nickname and len(row.author_nickname) > 0 else row.author_login,
 				'width': 50,
-				'action': lambda player, values, instance:
-				print(player, values, instance)
 			},
 		]
 

@@ -43,7 +43,6 @@ class JukeboxConfig(AppConfig):
 					view_data.append({'index': index, 'map_name': item['map'].name, 'player_nickname': item['player'].nickname, 'player_login': item['player'].login})
 					index += 1
 				view.objects_raw = view_data
-				print(await view.get_data())
 				await view.display(player=player.login)
 			else:
 				message = '$z$s$fff» $i$f00There are currently no maps in the jukebox!'

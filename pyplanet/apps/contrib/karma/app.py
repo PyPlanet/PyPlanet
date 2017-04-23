@@ -1,6 +1,5 @@
 from pyplanet.apps.config import AppConfig
 from pyplanet.core.events import receiver
-from pyplanet.contrib.command import Command
 
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 
@@ -27,15 +26,6 @@ class KarmaConfig(AppConfig):
 		await self.get_votes_list(self.instance.map_manager.current_map)
 		await self.calculate_karma()
 		await self.chat_current_karma()
-
-		# USE THIS TO TEST:
-		# await self.show_alert()
-
-	# async def show_alert(self):
-	# 	message = 'Free money?'
-	# 	alert = AlertView(message=message,
-	# 				  size='sm')
-	# 	await alert.display(player_logins=['tomvalk'])
 
 	@receiver(mp_signals.map.map_begin)
 	async def map_begin(self, map):
