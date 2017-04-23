@@ -1,3 +1,3 @@
 from . import (
-	player, map, flow, ui
+	player, map, flow, ui, other
 )
