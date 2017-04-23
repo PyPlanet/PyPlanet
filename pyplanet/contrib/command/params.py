@@ -95,7 +95,7 @@ class ParameterParser:
 			else:
 				value = []
 
-			for i in range(1, len(input)):
+			for i in range(0, len(input)):
 				try:
 					value.append(self.parse_parameter(nparam, input, position + i))
 				except ParamException:
