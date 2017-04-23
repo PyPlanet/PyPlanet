@@ -12,3 +12,8 @@ Modules:
     views
     core_exceptions
     core_instance
+
+    contrib_map
+    contrib_player
+    contrib_command
+    contrib_permission

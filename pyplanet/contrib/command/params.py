@@ -29,6 +29,7 @@ class ParameterParser:
 	):
 		"""
 		Add positional parameter.
+		
 		:param name: Name of parameter, will be used to store result into!
 		:param nargs: Number of arguments, use integer or '*' for multiple or infinite.
 		:param type: Type of value, keep str to match all types. Use any other to try to parse to the type.
@@ -47,6 +48,7 @@ class ParameterParser:
 	def parse_parameter(self, param, input, position):
 		"""
 		Validate and parse param value at input position.
+		
 		:param param: Param dict given.
 		:param input: Full params input (without command or namespace!)
 		:param position: Current seek position.
@@ -116,6 +118,7 @@ class ParameterParser:
 	def parse(self, argv):
 		"""
 		Parse arguments.
+		
 		:param argv: arguments.
 		"""
 		values = dict()
@@ -134,6 +137,7 @@ class ParameterParser:
 	def is_valid(self):
 		"""
 		Is data valid?
+		
 		:return: boolean
 		"""
 		if self.data is None:
@@ -144,6 +148,7 @@ class ParameterParser:
 	def errors(self):
 		"""
 		Get errors.
+		
 		:return: array of strings.
 		:rtype: list
 		"""

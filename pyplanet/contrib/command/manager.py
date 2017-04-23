@@ -15,18 +15,11 @@ class CommandManager:
 		self._commands = list()
 
 		#
-		self.on_start()
+		self._on_start()
 
 	@receiver(signals.pyplanet_start_after)
-	async def on_start(self, **kwargs):
-		self.on_chat()
-
-		tst_cmd = Command(command='ok', target=self.target, perms='core.pyplanet:use_ok', admin=True)
-		tst_cmd.add_param('times', type=int)
-
-		self._commands.extend([
-			tst_cmd
-		])
+	async def _on_start(self, **kwargs):
+		self._on_chat()
 
 	async def register(self, *commands):
 		"""
@@ -37,15 +30,8 @@ class CommandManager:
 		"""
 		self._commands.extend(commands)
 
-	async def target(self, player, data, **kwargs):
-		await self._instance.gbx.execute(
-			'ChatSendServerMessageToLogin',
-			'$z$s >> You just did /ok. Parameters we got: {}'.format(str(data)),
-			player.login
-		)
-
 	@receiver('maniaplanet:player_chat')
-	async def on_chat(self, player, text, cmd, **kwargs):
+	async def _on_chat(self, player, text, cmd, **kwargs):
 		# Only take action if the chat entry is a command.
 		if not cmd:
 			return

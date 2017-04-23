@@ -7,9 +7,13 @@ from pyplanet.core import signals
 
 
 class PermissionManager:
+	"""
+	Permission Manager manges the permissions of all apps and players.
+	"""
 	def __init__(self, instance):
 		"""
 		Initiate, should only be done from the core instance.
+		
 		:param instance: Instance.
 		:type instance: pyplanet.core.instance.Instance
 		"""
@@ -21,7 +25,8 @@ class PermissionManager:
 	@receiver(signals.pyplanet_start_apps_before)
 	async def handle_startup(self, **kwargs):
 		"""
-		Handle startup, just before the apps will start. We will make sure we are ready to get requests for permissions
+		Handle startup, just before the apps will start. We will make sure we are ready to get requests for permissions.
+		
 		:param kwargs: Ignored parameters.
 		"""
 		pass
@@ -29,6 +34,7 @@ class PermissionManager:
 	async def has_permission(self, player, permission):
 		"""
 		Check if the player has the right permission.
+		
 		:param player: player instance.
 		:param permission: permission name.
 		:return: boolean if player is allowed.
@@ -45,11 +51,20 @@ class PermissionManager:
 		return player.level >= permission.min_level
 
 	async def get_perm(self, namespace, name):
+		"""
+		Get permission by namespace and name.
+		
+		:param namespace: Namespace of the permission
+		:param name: Name of the permission.
+		:type name: str
+		:type namespace: str
+		"""
 		return await Permission.get(namespace=namespace, name=name)
 
 	async def register(self, name, description='', app=None, min_level=1, namespace=None):
 		"""
 		Register a new permission.
+		
 		:param name: Name of permission
 		:param description: Description in english.
 		:param app: App instance to retrieve the label.

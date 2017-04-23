@@ -15,6 +15,7 @@ class Command:
 	):
 		"""
 		Initiate a command.
+		
 		:param command: Command text (prefix without parameters).
 		:param target: Target method to fire.
 		:param aliases: Alias(ses) for the command.
@@ -45,6 +46,7 @@ class Command:
 	def match(self, raw):
 		"""
 		Try to match the command with the given input in array style (splitted by spaces).
+		
 		:param raw: Raw input, split by spaces.
 		:type raw: list
 		:return: Boolean if command matches.
@@ -78,6 +80,7 @@ class Command:
 	def get_params(self, input):
 		"""
 		Get params in array from input in array.
+		
 		:param input: Array of raw input.
 		:type input: list
 		:return: Array of parameters, stripped of the command name and namespace, if defined.
@@ -104,6 +107,7 @@ class Command:
 	):
 		"""
 		Add positional parameter.
+		
 		:param name: Name of parameter, will be used to store result into!
 		:param nargs: Number of arguments, use integer or '*' for multiple or infinite.
 		:param type: Type of value, keep str to match all types. Use any other to try to parse to the type.
@@ -122,11 +126,11 @@ class Command:
 	async def handle(self, instance, player, argv):
 		"""
 		Handle command parsing and execution.
+		
 		:param player: Player object.
 		:param argv: Arguments in array
 		:type player: pyplanet.apps.core.maniaplanet.models.player.Player
 		"""
-		# TODO: Refactor the error flow, don't call the controller directly here!!
 		# Check permissions.
 		if self.perms and len(self.perms) > 0:
 			# All the given perms need to be matching!
@@ -134,6 +138,7 @@ class Command:
 				instance.permission_manager.has_permission(player, perm) for perm in self.perms
 			])
 			if not all(allowed is True for allowed in is_allowed):
+				# TODO: Refactor to exception.
 				await instance.gbx.execute(
 					'ChatSendServerMessageToLogin',
 					'$z$s >> You are not authorized to use this command!',
@@ -147,6 +152,7 @@ class Command:
 		# Parse, validate and show errors if any.
 		self.parser.parse(paramv)
 		if not self.parser.is_valid():
+			# TODO: Refactor to exception.
 			await instance.gbx.multicall(
 				instance.gbx.prepare(
 					'ChatSendServerMessageToLogin',
@@ -168,6 +174,9 @@ class Command:
 
 	@property
 	def usage_text(self):
+		"""
+		The usage text line for the command. 
+		"""
 		text = 'Usage: /{}{}{}'.format(
 			'admin' if self.admin else '',
 			self.namespace if self.namespace else '',

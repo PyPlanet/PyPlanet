@@ -10,6 +10,9 @@ from pyplanet.core import signals
 
 # TODO: Implement insertion of a map.
 class MapManager:
+	"""
+	Map Manager. Manages the current map pool and the current and next map.
+	"""
 	def __init__(self, instance):
 		"""
 		Initiate, should only be done from the core instance.

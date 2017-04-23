@@ -1,7 +1,5 @@
 """
 The commands contributed package contains command management and callback logic.
-
-.. author:: Tom Valk
 """
 from .manager import CommandManager
 from .command import Command
