@@ -24,43 +24,55 @@ class LocalRecordsConfig(AppConfig):
 		self.map_begin()
 		self.player_finish()
 
-		self.instance.command_manager.commands.extend([Command(command='records', target=self.show_records_list)])
+		await self.instance.command_manager.register(Command(command='records', target=self.show_records_list))
+		await self.refresh_locals()
+		await self.chat_current_record()
 
+	async def refresh_locals(self):
 		record_list = await LocalRecord.objects.execute(
 			LocalRecord.select().where(
 				LocalRecord.map_id == self.instance.map_manager.current_map.get_id()
 			).order_by(LocalRecord.score.asc())
 		)
 		self.current_records = list(record_list)
-		await self.chat_current_record()
 
 	async def show_records_list(self, player, data, **kwargs):
-		if len(self.current_records) > 0:
-			index = 1
-			view = LocalRecordsListView(self)
-			view_data = []
-			first_time = self.current_records[0].score
-			for item in self.current_records:
-				record_player = await item.get_related('player')
-				record_time_difference = ''
-				if index > 1:
-					record_time_difference = '$f00 + ' + times.format_time((item.score - first_time))
-				view_data.append({'index': index, 'player_nickname': record_player.nickname,
-								  'record_time': times.format_time(item.score),
-								  'record_time_difference': record_time_difference})
-				index += 1
-			view.objects_raw = view_data
-			view.title = 'Local Records on {}'.format(self.instance.map_manager.current_map.name)
-			await view.display(player=player.login)
-		else:
+		"""
+		Show record list view to player. 
+		
+		:param player: Player instance.
+		:param data: -
+		:param kwargs: -
+		:type player: pyplanet.apps.core.maniaplanet.models.Player
+		:return: view instance or nothing when there are no records.
+		"""
+		if not len(self.current_records):
 			message = '$z$s$fff» $i$f00There are currently no records on this map!'
 			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+			return
+
+		# TODO: Move logic to view class.
+		index = 1
+		view = LocalRecordsListView(self)
+		view_data = []
+		first_time = self.current_records[0].score
+		for item in self.current_records:
+			record_player = await item.get_related('player')
+			record_time_difference = ''
+			if index > 1:
+				record_time_difference = '$f00 + ' + times.format_time((item.score - first_time))
+			view_data.append({'index': index, 'player_nickname': record_player.nickname,
+							  'record_time': times.format_time(item.score),
+							  'record_time_difference': record_time_difference})
+			index += 1
+		view.objects_raw = view_data
+		view.title = 'Local Records on {}'.format(self.instance.map_manager.current_map.name)
+		await view.display(player=player.login)
+		return view
 
 	@receiver(mp_signals.map.map_begin)
 	async def map_begin(self, map):
-		record_list = await LocalRecord.objects.execute(
-			LocalRecord.select().where(LocalRecord.map_id == map.get_id()).order_by(LocalRecord.score.asc()))
-		self.current_records = list(record_list)
+		await self.refresh_locals()
 		await self.chat_current_record()
 
 	@receiver(tm_signals.finish)
