@@ -169,8 +169,8 @@ class Command:
 
 		# We are through. Call our target!
 		if iscoroutinefunction(self.target):
-			return await self.target(player=player, data=self.parser.data, raw=argv)
-		return self.target(player=player, data=self.parser.data, raw=argv)
+			return await self.target(player=player, data=self.parser.data, raw=argv, command=self)
+		return self.target(player=player, data=self.parser.data, raw=argv, command=self)
 
 	@property
 	def usage_text(self):
@@ -178,7 +178,7 @@ class Command:
 		The usage text line for the command. 
 		"""
 		text = 'Usage: /{}{}{}'.format(
-			'admin' if self.admin else '',
+			'/' if self.admin else '',
 			self.namespace if self.namespace else '',
 			self.command
 		)
@@ -193,8 +193,8 @@ class Command:
 		return text
 
 	def __str__(self):
-		return 'Command: /{}{} {}'.format(
+		return '/{}{}{}'.format(
 			'/' if self.admin else '',
 			self.namespace or self.command,
-			self.command if self.namespace else '',
+			' ' + self.command if self.namespace else '',
 		)

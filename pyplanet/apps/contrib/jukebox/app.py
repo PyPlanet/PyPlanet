@@ -20,7 +20,6 @@ class JukeboxConfig(AppConfig):
 		self.match_end()
 
 		await self.instance.permission_manager.register('next', 'Skip to the next map', app=self, min_level=1)
-
 		await self.instance.command_manager.register(
 			Command(command='list', target=self.show_map_list),
 			Command(command='next', target=self.skip_map, perms='jukebox:next', admin=True)
