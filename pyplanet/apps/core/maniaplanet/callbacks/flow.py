@@ -165,3 +165,10 @@ match_begin = Callback(
 	code='match_begin',
 	target=handle_generic,
 )
+
+status_changed = Callback(
+	call='ManiaPlanet.StatusChanged',
+	namespace='maniaplanet',
+	code='status_changed',
+	target=handle_generic,
+)

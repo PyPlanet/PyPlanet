@@ -1,10 +1,14 @@
 import math
 import re
 import logging
+import pandas as pd
+import numpy as np
 
 from asyncio import iscoroutinefunction
+from peewee import Field
 
 from pyplanet.apps.core.maniaplanet.models import Player
+from pyplanet.core.db import Model
 from pyplanet.views.template import TemplateView
 
 logger = logging.getLogger(__name__)
@@ -89,10 +93,13 @@ class ListView(TemplateView):
 
 	@property
 	def order(self):
-		if self.sort_order and self.sort_field:
+		if self.sort_field and isinstance(self.sort_field, Field):
+			if self.sort_order and self.sort_field:
+				return self.sort_field
+			elif not self.sort_order and self.sort_field:
+				return -self.sort_field
+		elif self.sort_field:
 			return self.sort_field
-		elif not self.sort_order and self.sort_field:
-			return -self.sort_field
 		return None
 
 	async def handle_catch_all(self, player, action, values, **kwargs):
@@ -115,8 +122,16 @@ class ListView(TemplateView):
 				return
 
 			# Sort on column
-			model_field = getattr(self.model, field['index'])
-			if self.sort_field and self.sort_field.db_column == model_field.db_column:
+			if isinstance(self.model, Model):
+				sort_field = getattr(self.model, field['index'])
+				current_field_name = self.sort_field.db_column if self.sort_field else None
+				field_name = sort_field.db_column
+			else:
+				sort_field = field
+				current_field_name = self.sort_field['index'] if self.sort_field else None
+				field_name = sort_field['index']
+
+			if self.sort_field and current_field_name == field_name:
 				if self.sort_order == 1:
 					self.sort_order = 0
 				else:
@@ -124,7 +139,7 @@ class ListView(TemplateView):
 					self.sort_field = None
 					self.sort_order = 0
 			else:
-				self.sort_field = model_field
+				self.sort_field = sort_field
 				self.sort_order = 1
 
 			# Set sort state on field.
@@ -280,7 +295,10 @@ class ListView(TemplateView):
 	def _render_field(self, row, field):
 		if 'renderer' in field:
 			return field['renderer'](row, field)
-		return str(getattr(row, field['index']))
+		if isinstance(row, dict):
+			return str(row[field['index']])
+		else:
+			return str(getattr(row, field['index']))
 
 	async def _search(self, player, _, values, *args, **kwargs):
 		search_text = values[0]['Value']
@@ -317,3 +335,58 @@ class ListView(TemplateView):
 		if self.page - 10 > 0:
 			self.page -= 10
 			await self.refresh(player)
+
+
+class ManualListView(ListView):
+	"""
+	The ManualListView will act as a ListView, but not based on a model or query.
+	"""
+
+	def __init__(self, data=None, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.objects_raw = data
+
+
+
+	async def get_data(self):
+		"""
+		Override this method, return a list with dictionaries inside.
+		"""
+		if not self.objects_raw:
+			raise NotImplementedError
+		return self.objects_raw
+
+	async def get_object_data(self):
+		frame = pd.DataFrame(await self.get_data())
+		frame = await self.apply_filter(frame)
+		frame = await self.apply_ordering(frame)
+		self.count = len(frame)
+		frame = await self.apply_pagination(frame)
+		self.objects = frame.to_dict('records')
+		return {
+			'objects': self.objects,
+			'search': self.search_text,
+			'order': self.order,
+			'count': self.count,
+		}
+
+	async def apply_filter(self, frame):
+		if not self.search_text:
+			return frame
+		query = list()
+		for field in await self.get_fields():
+			if 'searching' in field and field['searching']:
+				query.append(
+					frame[field['index']].apply(lambda x: self.search_text.lower() in x.lower())
+				)
+		if query:
+			return frame.loc[np.logical_or(*query)]
+		return frame
+
+	async def apply_ordering(self, frame):
+		if self.sort_field:
+			return frame.sort_values(self.sort_field['index'], ascending=bool(self.sort_order))
+		return frame
+
+	async def apply_pagination(self, frame):
+		return frame[(self.page - 1) * self.num_per_page:self.page * self.num_per_page]

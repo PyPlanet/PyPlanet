@@ -1,6 +1,55 @@
 from pyplanet.apps.core.maniaplanet.models import Map
 
-from pyplanet.views.generics.list import ListView
+from pyplanet.views.generics.list import ListView, ManualListView
+
+
+class JukeboxListView(ManualListView):
+	app = None
+
+	title = 'Currently in the Jukebox'
+	icon_style = 'Icons64x64_1'
+	icon_substyle = 'Browser'
+
+	data = []
+
+	def __init__(self, app):
+		super().__init__(self)
+		self.app = app
+		self.manager = app.ui
+
+	async def get_fields(self):
+		return [
+			{
+				'name': '#',
+				'index': 'index',
+				'sorting': True,
+				'searching': False,
+				'width': 10,
+				'type': 'label'
+			},
+			{
+				'name': 'Map',
+				'index': 'map_name',
+				'sorting': True,
+				'searching': True,
+				'width': 100,
+				'type': 'label',
+				'action': self.action_drop
+			},
+			{
+				'name': 'Requested by',
+				'index': 'player_nickname',
+				'sorting': True,
+				'searching': False,
+				'width': 50
+			},
+		]
+
+	async def get_actions(self):
+		return []
+
+	async def action_drop(self, player, values, instance, **kwargs):
+		await self.app.drop_from_jukebox(player, instance)
 
 
 class MapListView(ListView):
@@ -8,7 +57,7 @@ class MapListView(ListView):
 
 	model = Map
 	query = Map.select()
-	title = 'Map List Testing'
+	title = 'Maps on this server'
 	icon_style = 'Icons64x64_1'
 	icon_substyle = 'Browser'
 
