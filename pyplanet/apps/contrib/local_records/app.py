@@ -50,6 +50,7 @@ class LocalRecordsConfig(AppConfig):
 								  'record_time_difference': record_time_difference})
 				index += 1
 			view.objects_raw = view_data
+			view.title = 'Local Records on {}'.format(self.instance.map_manager.current_map.name)
 			await view.display(player=player.login)
 		else:
 			message = '$z$s$fff» $i$f00There are currently no records on this map!'
