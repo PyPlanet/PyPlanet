@@ -33,8 +33,12 @@
       <quad pos="0 0.2" size="218 5.2" z-index="-20" style="Bgs1InRace" substyle="BgCardList"/>
       <frame pos="0.1 -0 0">
         {% for field in fields %}
-          <label pos="{{ field.left }} -2.4" size="{{ field.width }} 4.9" text="$o$fff  {{ field.name }}" textsize="1.3"
-                 valign="center2" action="{{ id }}__list_header_{{ loop.index0 }}" focusareacolor1="0000" focusareacolor2="fff3" />
+          {% if field.sorting %}
+            <label pos="{{ field.left }} -2.4" size="{{ field.width }} 4.9" text="$o$fff  {{ field.name }}" textsize="1.3"
+                   valign="center2" action="{{ id }}__list_header_{{ loop.index0 }}" focusareacolor1="0000" focusareacolor2="fff3" />
+          {% else %}
+            <label pos="{{ field.left }} -2.4" size="{{ field.width }} 4.9" text="$o$fff  {{ field.name }}" textsize="1.3" valign="center2" />
+          {% endif %}
           {% if field._sort == 1 %}
             <quad pos="{{ field.left + field.width - 5 }} 0" z-index="2" size="5 5" style="Icons64x64_1" substyle="ShowUp" />
           {% elif field._sort == 0 %}
@@ -55,9 +59,14 @@
             {% if field.manialink %}
               {{ field.manialink|safe }}
             {% else %}
-              <label pos="{{ field.left }} -2.5" size="{{ field.width }} 5" text="$fff  {{ field_renderer(row, field) }}"
-                     textsize="1.2" valign="center2" action="{{ id }}__list_body_{{ outer_loop.index0 }}_{{ loop.index0 }}"
-                     focusareacolor1="0000" focusareacolor2="fff2" />
+              {% if field.action %}
+                <label pos="{{ field.left }} -2.5" size="{{ field.width }} 5" text="$fff  {{ field_renderer(row, field) }}"
+                       textsize="1.2" valign="center2" action="{{ id }}__list_body_{{ outer_loop.index0 }}_{{ loop.index0 }}"
+                       focusareacolor1="0000" focusareacolor2="fff2" />
+              {% else %}
+                <label pos="{{ field.left }} -2.5" size="{{ field.width }} 5" text="$fff  {{ field_renderer(row, field) }}"
+                       textsize="1.2" valign="center2" />
+              {% endif %}
             {% endif %}
           {% endfor %}
 

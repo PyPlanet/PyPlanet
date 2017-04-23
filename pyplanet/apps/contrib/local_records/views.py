@@ -28,7 +28,7 @@ class LocalRecordsListView(ManualListView):
 			{
 				'name': 'Player',
 				'index': 'player_nickname',
-				'sorting': True,
+				'sorting': False,
 				'searching': True,
 				'width': 70
 			},
