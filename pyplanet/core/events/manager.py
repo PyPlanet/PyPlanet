@@ -9,6 +9,8 @@ all the raw XML-RPC events into nice structured and maybe even including fetched
 import importlib
 import logging
 
+import sys
+
 
 class _SignalManager:
 	def __init__(self):
@@ -68,7 +70,7 @@ class _SignalManager:
 			signal = self.get_signal(signal)
 			signal.connect(func, **kwargs)
 		except:
-			if not signal in self.reserved:
+			if signal not in self.reserved:
 				self.reserved[signal] = list()
 			self.reserved[signal].append((func, kwargs))
 
@@ -83,7 +85,7 @@ class _SignalManager:
 			signal = self.get_signal(signal)
 			signal.set_self(func, slf)
 		except Exception as e:
-			logging.debug(str(e))
+			logging.warning('Signal not found: {}'.format(signal), exc_info=sys.exc_info())
 
 			if signal not in self.reserved_self:
 				self.reserved_self[signal] = list()
@@ -123,8 +125,9 @@ class _SignalManager:
 					signal = self.get_signal(sig_name)
 					signal.connect(func, **kwargs)
 				except Exception as e:
-					logging.debug(str(e))
-					logging.warning('Signal not found: {}'.format(sig_name))
+					logging.warning('Signal not found: {}, {}'.format(
+						sig_name, e
+					), exc_info=sys.exc_info())
 
 		for sig_name, recs in self.reserved_self.items():
 			for func, slf in recs:
@@ -132,7 +135,7 @@ class _SignalManager:
 					signal = self.get_signal(sig_name)
 					signal.set_self(func, slf)
 				except Exception as e:
-					logging.warning(str(e))
+					logging.warning(str(e), exc_info=sys.exc_info())
 
 		self.reserved = dict()
 		self.reserved_self = dict()
