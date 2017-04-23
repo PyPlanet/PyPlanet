@@ -99,8 +99,8 @@ class MapListView(ManualListView):
 			}
 		]
 
-	async def action_jukebox(self, player, values, instance, **kwargs):
-		await self.app.add_to_jukebox(player, instance)
+	async def action_jukebox(self, player, values, map_info, **kwargs):
+		await self.app.add_to_jukebox(player, await self.app.instance.map_manager.get_map(map_info['uid']))
 
-	async def action_delete(self, player, values, instance, **kwargs):
-		print('Delete value: {}'.format(instance))
+	async def action_delete(self, player, values, map_info, **kwargs):
+		print('Delete value: {}'.format(map_info))
