@@ -1,5 +1,5 @@
 from pyplanet.apps.config import AppConfig
-from pyplanet.apps.contrib.karma.views import SampleListView
+from pyplanet.apps.contrib.karma.views import SampleListView, SampleManualListView
 from pyplanet.core.events import receiver
 from pyplanet.contrib.command import Command
 
@@ -36,7 +36,7 @@ class KarmaConfig(AppConfig):
 		# await self.show_alert()
 
 	async def show_map_list(self, player, data, **kwargs):
-		view = SampleListView(manager=self.ui)
+		view = SampleManualListView(manager=self.ui)
 		await view.display(player=player.login)
 
 	# async def show_alert(self):
