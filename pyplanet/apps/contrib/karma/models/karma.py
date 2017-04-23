@@ -5,6 +5,7 @@ from peewee import *
 from pyplanet.core.db import TimedModel
 from pyplanet.apps.core.maniaplanet.models import Map, Player
 
+
 class Karma(TimedModel):
 	map = ForeignKeyField(Map)
 	"""
@@ -22,9 +23,3 @@ class Karma(TimedModel):
 	"""
 	Karma vote (-1 or 0)
 	"""
-
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
-
-	async def save(self, *args, **kwargs):
-		await super().save(*args, **kwargs)

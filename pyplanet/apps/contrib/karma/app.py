@@ -1,5 +1,7 @@
 from pyplanet.apps.config import AppConfig
+from pyplanet.apps.contrib.karma.views import KarmaListView
 from pyplanet.core.events import receiver
+from pyplanet.contrib.command import Command
 
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 
@@ -23,9 +25,27 @@ class KarmaConfig(AppConfig):
 		self.map_begin()
 		self.player_chat()
 
+		# Register commands.
+		await self.instance.command_manager.register(Command(command='whokarma', target=self.show_map_list))
+
+		# Load initial data.
 		await self.get_votes_list(self.instance.map_manager.current_map)
 		await self.calculate_karma()
 		await self.chat_current_karma()
+
+	async def show_map_list(self, player, map=None, **kwargs):
+		"""
+		Show map list to player for current map or map provided.. Provide player instance.
+		
+		:param player: Player instance. 
+		:param map: Map instance or current map.
+		:param kwargs: ...
+		:type player: pyplanet.apps.core.maniaplanet.models.Player
+		:return: View instance.
+		"""
+		view = KarmaListView(self, map or self.instance.map_manager.current_map)
+		await view.display(player=player.login)
+		return view
 
 	@receiver(mp_signals.map.map_begin)
 	async def map_begin(self, map):
@@ -45,7 +65,7 @@ class KarmaConfig(AppConfig):
 						player_vote.score = score
 						await player_vote.save()
 
-						message = '$z$s> $ff0Successfully changed your karma vote to $fff{}$ff0!'.format(text)
+						message = '$z$s$fff» $ff0Successfully changed your karma vote to $fff{}$ff0!'.format(text)
 						await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
 				else:
 					new_vote = Karma(map=self.instance.map_manager.current_map,player=player,score=score)
@@ -54,7 +74,7 @@ class KarmaConfig(AppConfig):
 					self.current_votes.append(new_vote)
 					await self.calculate_karma()
 
-					message = '$z$s> $ff0Successfully voted $fff{}$ff0!'.format(text)
+					message = '$z$s$fff» $ff0Successfully voted $fff{}$ff0!'.format(text)
 					await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
 
 	async def get_votes_list(self, map):
@@ -68,7 +88,7 @@ class KarmaConfig(AppConfig):
 
 	async def chat_current_karma(self):
 		num_current_votes = len(self.current_votes)
-		message = '$z$s> $ff0Current map karma: $fff{}$ff0 [$fff{}$ff0 votes, ++: $fff{}$ff0 ($fff{}%$ff0), --: $fff{}$ff0 ($fff{}%$ff0)'.format(
+		message = '$z$s$fff»» $ff0Current map karma: $fff{}$ff0 [$fff{}$ff0 votes, ++: $fff{}$ff0 ($fff{}%$ff0), --: $fff{}$ff0 ($fff{}%$ff0)'.format(
 			self.current_karma, num_current_votes,
 			len(self.current_positive_votes),
 			round((len(self.current_positive_votes) / num_current_votes) * 100, 2) if num_current_votes > 0 else 0,
