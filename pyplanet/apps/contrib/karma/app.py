@@ -1,5 +1,7 @@
 from pyplanet.apps.config import AppConfig
+from pyplanet.apps.contrib.karma.views import KarmaListView
 from pyplanet.core.events import receiver
+from pyplanet.contrib.command import Command
 
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 
@@ -23,9 +25,20 @@ class KarmaConfig(AppConfig):
 		self.map_begin()
 		self.player_chat()
 
+		self.instance.command_manager.commands.extend([Command(command='whokarma', target=self.show_map_list)])
+
 		await self.get_votes_list(self.instance.map_manager.current_map)
 		await self.calculate_karma()
 		await self.chat_current_karma()
+
+	async def show_map_list(self, player, data, **kwargs):
+		view = KarmaListView(self)
+		view_data = []
+		for item in self.current_votes:
+			vote_player = await item.get_related('player')
+			view_data.append({'player_nickname': vote_player.nickname, 'vote': ('++' if item.score == 1 else '--')})
+		view.objects_raw = view_data
+		await view.display(player=player.login)
 
 	@receiver(mp_signals.map.map_begin)
 	async def map_begin(self, map):
