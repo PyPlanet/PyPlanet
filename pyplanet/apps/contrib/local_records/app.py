@@ -1,5 +1,7 @@
 from pyplanet.apps.config import AppConfig
+from pyplanet.apps.contrib.local_records.views import LocalRecordsListView
 from pyplanet.core.events import receiver
+from pyplanet.contrib.command import Command
 
 from pyplanet.apps.core.trackmania import callbacks as tm_signals
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
@@ -22,6 +24,8 @@ class LocalRecordsConfig(AppConfig):
 		self.map_begin()
 		self.player_finish()
 
+		self.instance.command_manager.commands.extend([Command(command='records', target=self.show_records_list)])
+
 		record_list = await LocalRecord.objects.execute(
 			LocalRecord.select().where(
 				LocalRecord.map_id == self.instance.map_manager.current_map.get_id()
@@ -29,6 +33,20 @@ class LocalRecordsConfig(AppConfig):
 		)
 		self.current_records = list(record_list)
 		await self.chat_current_record()
+
+	async def show_records_list(self, player, data, **kwargs):
+		if len(self.current_records) > 0:
+			index = 1
+			view = LocalRecordsListView(self)
+			view_data = []
+			for item in self.current_records:
+				view_data.append({'index': index, 'player_nickname': item.player.nickname, 'record_time': times.format_time(item.score)})
+				index += 1
+			view.objects_raw = view_data
+			await view.display(player=player.login)
+		else:
+			message = '$z$s$fff» $i$f00There are currently no records on this map!'
+			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
 
 	@receiver(mp_signals.map.map_begin)
 	async def map_begin(self, map):
