@@ -25,21 +25,27 @@ class KarmaConfig(AppConfig):
 		self.map_begin()
 		self.player_chat()
 
-		self.instance.command_manager.commands.extend([Command(command='whokarma', target=self.show_map_list)])
+		# Register commands.
+		await self.instance.command_manager.register(Command(command='whokarma', target=self.show_map_list))
 
+		# Load initial data.
 		await self.get_votes_list(self.instance.map_manager.current_map)
 		await self.calculate_karma()
 		await self.chat_current_karma()
 
-	async def show_map_list(self, player, data, **kwargs):
-		view = KarmaListView(self)
-		view_data = []
-		for item in self.current_votes:
-			vote_player = await item.get_related('player')
-			view_data.append({'player_nickname': vote_player.nickname, 'vote': ('++' if item.score == 1 else '--')})
-		view.objects_raw = view_data
-		view.title = 'Karma votes on {}'.format(self.instance.map_manager.current_map.name)
+	async def show_map_list(self, player, map=None, **kwargs):
+		"""
+		Show map list to player for current map or map provided.. Provide player instance.
+		
+		:param player: Player instance. 
+		:param map: Map instance or current map.
+		:param kwargs: ...
+		:type player: pyplanet.apps.core.maniaplanet.models.Player
+		:return: View instance.
+		"""
+		view = KarmaListView(self, map or self.instance.map_manager.current_map)
 		await view.display(player=player.login)
+		return view
 
 	@receiver(mp_signals.map.map_begin)
 	async def map_begin(self, map):

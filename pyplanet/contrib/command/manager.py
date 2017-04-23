@@ -4,22 +4,38 @@ from pyplanet.core import signals
 
 
 class CommandManager:
+	"""
+	The Command Manager contributed extension is a manager that controls all chat-commands in the game.
+	Your app needs to use this manager to register any custom commands you want to provide.
+	"""
+
 	def __init__(self, instance):
 		self._instance = instance
 
-		self.commands = list()
+		self._commands = list()
 
+		#
 		self.on_start()
-		self.on_chat()
 
 	@receiver(signals.pyplanet_start_after)
 	async def on_start(self, **kwargs):
+		self.on_chat()
+
 		tst_cmd = Command(command='ok', target=self.target, perms='core.pyplanet:use_ok', admin=True)
 		tst_cmd.add_param('times', type=int)
 
-		self.commands.extend([
+		self._commands.extend([
 			tst_cmd
 		])
+
+	async def register(self, command):
+		"""
+		Register your command.
+		
+		:param command: Command instance. 
+		:type command: pyplanet.contrib.command.command.Command
+		"""
+		self._commands.append(command)
 
 	async def target(self, player, data, **kwargs):
 		await self._instance.gbx.execute(
@@ -44,7 +60,7 @@ class CommandManager:
 
 		# Try to match the command prefix by one of the registered commands.
 		command = None
-		for cmd in self.commands:
+		for cmd in self._commands:
 			if cmd.match(argv):
 				command = cmd
 				break

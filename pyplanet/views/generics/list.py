@@ -219,6 +219,9 @@ class ListView(TemplateView):
 	async def get_fields(self):
 		return self.fields
 
+	async def get_title(self):
+		return self.title
+
 	async def get_actions(self):
 		return self.actions
 
@@ -282,7 +285,7 @@ class ListView(TemplateView):
 			'fields': fields,
 			'actions': actions,
 			'provide_search': self.provide_search,
-			'title': self.title,
+			'title': await self.get_title(),
 			'icon_style': self.icon_style,
 			'icon_substyle': self.icon_substyle,
 			'search': self.search_text,
