@@ -346,8 +346,6 @@ class ManualListView(ListView):
 		super().__init__(*args, **kwargs)
 		self.objects_raw = data
 
-
-
 	async def get_data(self):
 		"""
 		Override this method, return a list with dictionaries inside.
