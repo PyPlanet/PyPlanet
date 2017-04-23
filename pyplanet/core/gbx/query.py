@@ -45,6 +45,7 @@ class Query:
 
 	async def __aenter__(self):
 		self.result = await self.execute()
+		return self
 
 	async def __aexit__(self, exc_type, exc_val, exc_tb):
 		self.result = None
