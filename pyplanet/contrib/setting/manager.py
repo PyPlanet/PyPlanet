@@ -17,16 +17,6 @@ class _BaseSettingManager:
 		self._settings = list()
 		self._app = None
 
-	async def initiate_setting(self, setting):
-		"""
-		Initiate setting, make sure we have a database record filled with empty (null) value.
-		
-		:param setting: Setting instance.
-		:type setting: pyplanet.contrib.setting.setting._Setting
-		"""
-		# TODO.
-		pass
-
 	async def register(self, *settings):
 		"""
 		Register your setting(s). This will create default values when the setting has not yet been inited before.
@@ -35,7 +25,7 @@ class _BaseSettingManager:
 		:type settings: pyplanet.contrib.setting.setting._Setting
 		"""
 		# Check if setting has a value, then fetch it, if not, create new entry with default or none.
-		await asyncio.gather(*[self.initiate_setting(s) for s in settings])
+		await asyncio.gather(*[s.initiate_setting() for s in settings])
 
 		# Register the setting.
 		self._settings.extend(settings)
@@ -85,7 +75,7 @@ class AppSettingManager(_BaseSettingManager):
 			setting.app_label = self._app.label
 
 		# Check if setting has a value, then fetch it, if not, create new entry with default or none.
-		await asyncio.gather(*[self.initiate_setting(s) for s in settings])
+		await asyncio.gather(*[s.initiate_setting() for s in settings])
 
 		# Register the setting.
 		self._settings.extend(settings)

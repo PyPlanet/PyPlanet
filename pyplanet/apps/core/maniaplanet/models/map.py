@@ -99,6 +99,7 @@ class Map(TimedModel):
 	async def get_by_uid(cls, uid):
 		"""
 		Get map by UID.
+		
 		:param uid: UId.
 		:return: Map instance
 		:rtype: pyplanet.apps.core.maniaplanet.models.map.Map
@@ -112,13 +113,13 @@ class Map(TimedModel):
 		"""
 		This method will be called from the core, getting or creating a map instance from the information we got from
 		the dedicated server.
+		
 		:param uid: Map UID
 		:param file: Filename
 		:param name: Name of map
 		:param author_login: Author login
 		:param kwargs: Other key arguments, matching the model columns!
 		:return: Map instance.
-		:rtype: pyplanet.apps.core.maniaplanet.models.map.Map
 		"""
 		needs_save = False
 		try:

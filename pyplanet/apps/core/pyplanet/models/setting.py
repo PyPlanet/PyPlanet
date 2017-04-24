@@ -1,21 +1,6 @@
 from peewee import *
 
-from pyplanet.apps.core.pyplanet.models import Permission
 from pyplanet.core.db import Model
-
-
-class SettingCategory(Model):
-	code = CharField(
-		max_length=100,
-		null=False,
-		unique=True,
-		index=True
-	)
-
-	name = CharField(
-		max_length=255,
-		null=False
-	)
 
 
 class Setting(Model):
@@ -80,3 +65,32 @@ class Setting(Model):
 
 	def __str__(self):
 		return '{} ({}:{})'.format(self.app, self.key, self.name)
+
+	@classmethod
+	async def get_or_create_from_info(cls, key, app, **kwargs):
+		"""
+		This method will be called from the core, getting or creating a setting instance from the information we got from
+		the setting instance (static setting object).
+		
+		:param key: Key of setting.
+		:param app: App label.
+		:param kwargs: Other key arguments, matching the model columns!
+		:return: Setting instance.
+		"""
+		needs_save = False
+		try:
+			setting = await cls.get(key=key, app=app)
+		except DoesNotExist:
+			setting = cls(key=key, app=app)
+			needs_save = True
+
+		# Update from the kwargs.
+		for k, v in kwargs.items():
+			if v is not None and hasattr(setting, k) and getattr(setting, k) != v:
+				setattr(setting, k, v)
+				needs_save = True
+
+		if needs_save:
+			await setting.save()
+
+		return setting
