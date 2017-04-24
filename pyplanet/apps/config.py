@@ -1,9 +1,25 @@
+import traceback
+
 import importlib
 
 import logging
 import os
+import sys
 
 from pyplanet.core.exceptions import ImproperlyConfigured, InvalidAppModule
+
+
+class _AppContext:
+	def __init__(self, app):
+		"""
+		Initiate the App Context. Used by several core and contribs to have it's own manager instance per app.
+		You should always use the managers of your local app at first!
+		
+		:param app: App Config instance.
+		:type app: pyplanet.apps.config.AppConfig
+		"""
+		self.ui = app.instance.ui_manager.create_app_manager(app)
+		self.settings = app.instance.setting_manager.create_app_manager(app)
 
 
 class AppConfig:
@@ -76,7 +92,7 @@ class AppConfig:
 
 		# The instance and related app context managers.
 		self.instance = instance
-		self.ui = instance.ui_manager.create_app_manager(self)
+		self.context = _AppContext(self)
 
 		# Make sure we give the core attribute the default value of false. This indicates if it's an internally
 		# module.
@@ -100,6 +116,15 @@ class AppConfig:
 
 	def __repr__(self):
 		return '<%s: %s>' % (self.__class__.__name__, self.label)
+
+	@property
+	def ui(self):
+		logging.warning(DeprecationWarning(
+			'AppConfig.ui is deprecated, use AppConfig.context.ui instead.'
+			'This is done to prevent collisions in future changes or feature adding.'
+			'Calling app.ui from app \'{}\''.format(self.label)
+		))
+		return self.context.ui
 
 	###################################################################################################
 	# Lifecycle Methods
