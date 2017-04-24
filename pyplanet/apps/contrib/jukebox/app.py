@@ -19,21 +19,17 @@ class JukeboxConfig(AppConfig):
 	async def on_start(self):
 		self.match_end()
 
-		await self.instance.permission_manager.register('next', 'Skip to the next map', app=self, min_level=1)
+		await self.instance.permission_manager.register('clear', 'Clear the jukebox', app=self, min_level=1)
 		await self.instance.command_manager.register(
+			Command(command='cjb', target=self.clear_jukebox, perms='jukebox:clear', admin=True),
+			Command(command='clearjukebox', target=self.clear_jukebox, perms='jukebox:clear', admin=True),
 			Command(command='list', target=self.show_map_list),
-			Command(command='next', target=self.skip_map, perms='jukebox:next', admin=True)
-		)
-		await self.instance.command_manager.register(
 			Command(command='jukebox', target=self.chat_command).add_param(name='option', required=False)
 		)
 
 	async def show_map_list(self, player, data, **kwargs):
 		view = MapListView(self)
 		await view.display(player=player.login)
-
-	async def skip_map(self, player, data, **kwargs):
-		await self.instance.gbx.execute('NextMap')
 
 	async def chat_command(self, player, data, **kwargs):
 		if data.option == 'list' or data.option == 'display':
@@ -65,13 +61,16 @@ class JukeboxConfig(AppConfig):
 				message = '$z$s$fff» $i$f00You\'re not allowed to do this!'
 				await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
 			else:
-				if len(self.jukebox) > 0:
-					self.jukebox.clear()
-					message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has cleared the jukebox.'.format(player.nickname)
-					await self.instance.gbx.execute('ChatSendServerMessage', message)
-				else:
-					message = '$z$s$fff» $i$f00There are currently no maps in the jukebox.'
-					await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+				await self.clear_jukebox(player, data)
+
+	async def clear_jukebox(self, player, data, **kwargs):
+		if len(self.jukebox) > 0:
+			self.jukebox.clear()
+			message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has cleared the jukebox.'.format(player.nickname)
+			await self.instance.gbx.execute('ChatSendServerMessage', message)
+		else:
+			message = '$z$s$fff» $i$f00There are currently no maps in the jukebox.'
+			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
 
 	async def add_to_jukebox(self, player, map):
 		if player.level == 0 and any(item['player'].login == player.login for item in self.jukebox):

@@ -34,10 +34,10 @@
       <frame pos="0.1 -0 0">
         {% for field in fields %}
           {% if field.sorting %}
-            <label pos="{{ field.left }} -2.4" size="{{ field.width }} 4.9" text="$o$fff  {{ field.name }}" textsize="1.3"
+            <label pos="{{ field.left }} -2.4" size="{{ field.width }} 4.9" text="$o$fff {{ field.name }}" textsize="1.3"
                    valign="center2" action="{{ id }}__list_header_{{ loop.index0 }}" focusareacolor1="0000" focusareacolor2="fff3" />
           {% else %}
-            <label pos="{{ field.left }} -2.4" size="{{ field.width }} 4.9" text="$o$fff  {{ field.name }}" textsize="1.3" valign="center2" />
+            <label pos="{{ field.left }} -2.4" size="{{ field.width }} 4.9" text="$o$fff {{ field.name }}" textsize="1.3" valign="center2" />
           {% endif %}
           {% if field._sort == 1 %}
             <quad pos="{{ field.left + field.width - 5 }} 0" z-index="2" size="5 5" style="Icons64x64_1" substyle="ShowUp" />

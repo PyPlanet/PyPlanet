@@ -1,107 +1,138 @@
 from pyplanet.apps.config import AppConfig
-from pyplanet.apps.contrib.jukebox.views import MapListView, JukeboxListView
-from pyplanet.core.events import receiver
 from pyplanet.contrib.command import Command
 
-from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
+from pyplanet.contrib.player.exceptions import PlayerNotFound
 
 
-class JukeboxConfig(AppConfig):
-	name = 'pyplanet.apps.contrib.jukebox'
+class AdminConfig(AppConfig):
+	name = 'pyplanet.apps.contrib.admin'
 	game_dependencies = ['trackmania', 'shootmania']
 	app_dependencies = ['core.maniaplanet']
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		self.jukebox = []
-
 	async def on_start(self):
-		self.match_end()
-
 		await self.instance.permission_manager.register('next', 'Skip to the next map', app=self, min_level=1)
+		await self.instance.permission_manager.register('restart', 'Restart the maps', app=self, min_level=1)
+
+		await self.instance.permission_manager.register('ignore', 'Ignore a player', app=self, min_level=1)
+		await self.instance.permission_manager.register('unignore', 'Unignore a player', app=self, min_level=1)
+		await self.instance.permission_manager.register('kick', 'Kick a player', app=self, min_level=1)
+		await self.instance.permission_manager.register('ban', 'Ban a player', app=self, min_level=2)
+		await self.instance.permission_manager.register('unban', 'Unban a player', app=self, min_level=2)
+
+		await self.instance.permission_manager.register('password', 'Set the server passwords', app=self, min_level=2)
+
 		await self.instance.command_manager.register(
-			Command(command='list', target=self.show_map_list),
-			Command(command='next', target=self.skip_map, perms='jukebox:next', admin=True)
-		)
-		await self.instance.command_manager.register(
-			Command(command='jukebox', target=self.chat_command).add_param(name='option', required=False)
+			Command(command='next', target=self.next_map, perms='admin:next', admin=True),
+			Command(command='skip', target=self.next_map, perms='admin:next', admin=True),
+			Command(command='restart', target=self.restart_map, perms='admin:restart', admin=True),
+			Command(command='res', target=self.restart_map, perms='admin:restart', admin=True),
+			Command(command='rs', target=self.restart_map, perms='admin:restart', admin=True),
+
+			Command(command='mute', target=self.ignore_player, perms='admin:ignore', admin=True).add_param(name='login', required=True),
+			Command(command='ignore', target=self.ignore_player, perms='admin:ignore', admin=True).add_param(name='login', required=True),
+			Command(command='unmute', target=self.unignore_player, perms='admin:unignore', admin=True).add_param(name='login', required=True),
+			Command(command='unignore', target=self.unignore_player, perms='admin:unignore', admin=True).add_param(name='login', required=True),
+			Command(command='kick', target=self.kick_player, perms='admin:kick', admin=True).add_param(name='login', required=True),
+			Command(command='ban', target=self.ban_player, perms='admin:ban', admin=True).add_param(name='login', required=True),
+			Command(command='unban', target=self.unban_player, perms='admin:unban', admin=True).add_param(name='login', required=True),
+
+			Command(command='setpassword', target=self.set_password, perms='admin:password', admin=True).add_param(name='password', required=False),
+			Command(command='srvpass', target=self.set_password, perms='admin:password', admin=True).add_param(name='password', required=False),
+			Command(command='setspecpassword', target=self.set_spec_password, perms='admin:password', admin=True).add_param(name='password', required=False),
+			Command(command='spectpass', target=self.set_spec_password, perms='admin:password', admin=True).add_param(name='password', required=False)
 		)
 
-	async def show_map_list(self, player, data, **kwargs):
-		view = MapListView(self)
-		await view.display(player=player.login)
-
-	async def skip_map(self, player, data, **kwargs):
+	async def next_map(self, player, data, **kwargs):
 		await self.instance.gbx.execute('NextMap')
+		message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has skipped to the next map.'.format(player.nickname)
+		await self.instance.gbx.execute('ChatSendServerMessage', message)
 
-	async def chat_command(self, player, data, **kwargs):
-		if data.option == 'list' or data.option == 'display':
-			if len(self.jukebox) > 0:
-				index = 1
-				view = JukeboxListView(self)
-				view_data = []
-				for item in self.jukebox:
-					view_data.append({'index': index, 'map_name': item['map'].name, 'player_nickname': item['player'].nickname, 'player_login': item['player'].login})
-					index += 1
-				view.objects_raw = view_data
-				await view.display(player=player.login)
-			else:
-				message = '$z$s$fff» $i$f00There are currently no maps in the jukebox!'
-				await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+	async def restart_map(self, player, data, **kwargs):
+		await self.instance.gbx.execute('RestartMap')
+		message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has restarted the map.'.format(player.nickname)
+		await self.instance.gbx.execute('ChatSendServerMessage', message)
 
-		elif data.option == 'drop':
-			first_player = next((item for item in reversed(self.jukebox) if item['player'].login == player.login), None)
-			if first_player is not None:
-				self.jukebox.remove(first_player)
-				message = '$z$s$fff»» $fff{}$z$s$fa0 dropped $fff{}$z$s$fa0 from the jukebox.'.format(first_player['player'].nickname, first_player['map'].name)
-				await self.instance.gbx.execute('ChatSendServerMessage', message)
-			else:
-				message = '$z$s$fff» $i$f00You currently don\'t have a map in the jukebox.'
-				await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
-
-		elif data.option == 'clear':
-			if player.level == 0:
-				message = '$z$s$fff» $i$f00You\'re not allowed to do this!'
-				await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
-			else:
-				if len(self.jukebox) > 0:
-					self.jukebox.clear()
-					message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has cleared the jukebox.'.format(player.nickname)
-					await self.instance.gbx.execute('ChatSendServerMessage', message)
-				else:
-					message = '$z$s$fff» $i$f00There are currently no maps in the jukebox.'
-					await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
-
-	async def add_to_jukebox(self, player, map):
-		if player.level == 0 and any(item['player'].login == player.login for item in self.jukebox):
-			message = '$z$s$fff» $i$f00You already have a map in the jukebox! Wait till it\'s been played before adding another.'
-			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
-			return
-
-		if not any(item['map'] == map for item in self.jukebox):
-			self.jukebox.append({'player': player, 'map': map})
-			message = '$z$s$fff»» $fff{}$z$s$fa0 was added to the jukebox by $fff{}$z$s$fa0.'.format(map.name, player.nickname)
+	async def ignore_player(self, player, data, **kwargs):
+		try:
+			mute_player = await self.instance.player_manager.get_player(data.login)
+			await self.instance.gbx.execute('Ignore', data.login)
+			message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has muted $fff{}$z$s$ff0.'.format(player.nickname, mute_player.nickname)
 			await self.instance.gbx.execute('ChatSendServerMessage', message)
-		else:
-			message = '$z$s$fff» $i$f00This map has already been added to the jukebox, pick another one.'
+		except PlayerNotFound:
+			message = '$z$s$fff» $i$f00Unknown login!'
 			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
 
-	async def drop_from_jukebox(self, player, instance):
-		if player.level == 0 and instance['player_login'] != player.login:
-			message = '$z$s$fff» $i$f00You can only drop your own jukeboxed maps!'
-			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
-		else:
-			drop_map = next((item for item in self.jukebox if item['map'].name == instance['map_name']), None)
-			if drop_map is not None:
-				self.jukebox.remove(drop_map)
-				message = '$z$s$fff»» $fff{}$z$s$fa0 dropped $fff{}$z$s$fa0 from the jukebox.'.format(player.nickname, instance['map_name'])
-				await self.instance.gbx.execute('ChatSendServerMessage', message)
-
-	@receiver(mp_signals.flow.podium_start)
-	async def match_end(self, **kwargs):
-		if len(self.jukebox) > 0:
-			next = self.jukebox.pop(0)
-			message = '$z$s$fff»» $fa0The next map will be $fff{}$z$s$fa0 as requested by $fff{}$z$s$fa0.'.format(next['map'].name, next['player'].nickname)
+	async def unignore_player(self, player, data, **kwargs):
+		try:
+			unmute_player = await self.instance.player_manager.get_player(data.login)
+			await self.instance.gbx.execute('UnIgnore', data.login)
+			message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has un-muted $fff{}$z$s$ff0.'.format(player.nickname, unmute_player.nickname)
 			await self.instance.gbx.execute('ChatSendServerMessage', message)
-			await self.instance.map_manager.set_next_map(next['map'])
+		except PlayerNotFound:
+			message = '$z$s$fff» $i$f00Unknown login!'
+			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+
+	async def kick_player(self, player, data, **kwargs):
+		try:
+			kick_player = await self.instance.player_manager.get_player(data.login)
+			await self.instance.gbx.execute('Kick', data.login)
+			message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has kicked $fff{}$z$s$ff0.'.format(player.nickname, kick_player.nickname)
+			await self.instance.gbx.execute('ChatSendServerMessage', message)
+		except PlayerNotFound:
+			message = '$z$s$fff» $i$f00Unknown login!'
+			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+
+	async def ban_player(self, player, data, **kwargs):
+		try:
+			ban_player = await self.instance.player_manager.get_player(data.login)
+			await self.instance.gbx.execute('Ban', data.login)
+			await self.instance.gbx.execute('Kick', data.login)
+			message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has banned $fff{}$z$s$ff0.'.format(player.nickname, ban_player.nickname)
+			await self.instance.gbx.execute('ChatSendServerMessage', message)
+		except PlayerNotFound:
+			message = '$z$s$fff» $i$f00Unknown login!'
+			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+
+	async def unban_player(self, player, data, **kwargs):
+		await self.instance.gbx.execute('UnBan', data.login)
+		message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has un-banned $fff{}$z$s$ff0.'.format(player.nickname, data.login)
+		await self.instance.gbx.execute('ChatSendServerMessage', message)
+
+	async def blacklist_player(self, player, data, **kwargs):
+		try:
+			blacklist_player = await self.instance.player_manager.get_player(data.login)
+			await self.instance.gbx.execute('BlackList', data.login)
+			await self.instance.gbx.execute('Kick', data.login)
+			message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has blacklisted $fff{}$z$s$ff0.'.format(player.nickname, blacklist_player.nickname)
+			await self.instance.gbx.execute('ChatSendServerMessage', message)
+		except PlayerNotFound:
+			message = '$z$s$fff» $i$f00Unknown login!'
+			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+
+	async def unblacklist_player(self, player, data, **kwargs):
+		await self.instance.gbx.execute('UnBlackList', data.login)
+		message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has un-blacklisted $fff{}$z$s$ff0.'.format(player.nickname, data.login)
+		await self.instance.gbx.execute('ChatSendServerMessage', message)
+
+	async def set_password(self, player, data, **kwargs):
+		if data.password is None or data.password == 'none':
+			await self.instance.gbx.execute('SetServerPassword', '')
+			message = '$z$s$fff» $ff0You removed the server password.'
+			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+		else:
+			await self.instance.gbx.execute('SetServerPassword', data.password)
+			message = '$z$s$fff» $ff0You changed the server password to: "$fff{}$ff0".'.format(data.password)
+			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+
+	async def set_spec_password(self, player, data, **kwargs):
+		if data.password is None or data.password == 'none':
+			await self.instance.gbx.execute('SetServerPasswordForSpectator', '')
+			message = '$z$s$fff» $ff0You removed the spectator password.'
+			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+		else:
+			await self.instance.gbx.execute('SetServerPasswordForSpectator', data.password)
+			message = '$z$s$fff» $ff0You changed the spectator password to: "$fff{}$ff0".'.format(data.password)
+			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
