@@ -142,12 +142,6 @@ class ListView(TemplateView):
 				self.sort_field = sort_field
 				self.sort_order = 1
 
-			# Set sort state on field.
-			for cur_field in fields:
-				cur_field['_sort'] = None
-			if self.sort_field:
-				field['_sort'] = self.sort_order
-
 			# Refresh list
 			await self.refresh(player)
 
@@ -278,6 +272,10 @@ class ListView(TemplateView):
 			left += field['width']
 			if 'type' not in field:
 				field['type'] = 'label'
+
+			field['_sort'] = None
+			if self.sort_field is not None and field['index'] == self.sort_field['index']:
+				field['_sort'] = self.sort_order
 
 		# Add facts.
 		context.update({
