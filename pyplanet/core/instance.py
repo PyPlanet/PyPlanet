@@ -5,19 +5,20 @@ from pyplanet import __version__ as version
 
 from pyplanet.apps import Apps
 from pyplanet.conf import settings
-from pyplanet.contrib.command import CommandManager
-from pyplanet.contrib.permission import PermissionManager
 from pyplanet.core import signals
 from pyplanet.core.events import SignalManager
 from pyplanet.core.db.database import Database
 from pyplanet.core.game import Game
 from pyplanet.core.gbx import GbxClient
 from pyplanet.core.exceptions import ImproperlyConfigured
+from pyplanet.core.storage.storage import Storage
+from pyplanet.core.ui import GlobalUIManager
 
 from pyplanet.contrib.map import MapManager
 from pyplanet.contrib.player import PlayerManager
-from pyplanet.core.storage.storage import Storage
-from pyplanet.core.ui import GlobalUIManager
+from pyplanet.contrib.command import CommandManager
+from pyplanet.contrib.permission import PermissionManager
+from pyplanet.contrib.setting.manager import GlobalSettingManager
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +41,7 @@ class Instance:
 	:ivar player_manager: Contrib: Player Manager.
 	:ivar permission_manager: Contrib: Permission Manager.
 	:ivar command_manager: Contrib: Command Manager.
+	:ivar setting_manager: Contrib: Setting Manager.
 	"""
 
 	def __init__(self, process_name):
@@ -65,6 +67,7 @@ class Instance:
 		self.player_manager =		PlayerManager(self)
 		self.permission_manager =	PermissionManager(self)
 		self.command_manager =		CommandManager(self)
+		self.setting_manager =		GlobalSettingManager(self)
 
 		# Populate apps.
 		self.apps.populate(settings.MANDATORY_APPS, in_order=True)
@@ -147,10 +150,13 @@ class _Controller:
 	def instance(self):
 		"""
 		Get active instance in current process.
+
 		:return: Controller Instance
 		:rtype: pyplanet.core.instance.Instance
 		"""
 		return self.__instance
 
 Controller = _Controller()
-"""Controller access point to prevent circular imports. This is a lazy provided way to get the instance from anywhere!"""
+"""
+Controller access point to prevent circular imports. This is a lazy provided way to get the instance from anywhere!
+"""
