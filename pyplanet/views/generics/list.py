@@ -66,6 +66,9 @@ class ListView(TemplateView):
 	template_package = 'pyplanet.views'
 	template_name = 'generics/list.xml'
 
+	single_list = True
+	"""Change this to False to have multiple lists open at the same time."""
+
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.search_text = None
@@ -78,6 +81,9 @@ class ListView(TemplateView):
 		self.num_per_page = 20
 
 		self.provide_search = True
+
+		if self.single_list:
+			self.id = 'pyplanet__generics_list'
 
 		# Setup the receivers.
 		self.subscribe('list_button_close', self.close)
