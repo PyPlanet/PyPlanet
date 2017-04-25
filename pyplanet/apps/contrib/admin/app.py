@@ -46,21 +46,27 @@ class AdminConfig(AppConfig):
 		)
 
 	async def next_map(self, player, data, **kwargs):
-		await self.instance.gbx.execute('NextMap')
 		message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has skipped to the next map.'.format(player.nickname)
-		await self.instance.gbx.execute('ChatSendServerMessage', message)
+		await self.instance.gbx.multicall(
+			self.instance.gbx.prepare('NextMap'),
+			self.instance.gbx.prepare('ChatSendServerMessage', message)
+		)
 
 	async def restart_map(self, player, data, **kwargs):
-		await self.instance.gbx.execute('RestartMap')
 		message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has restarted the map.'.format(player.nickname)
-		await self.instance.gbx.execute('ChatSendServerMessage', message)
+		await self.instance.gbx.multicall(
+			self.instance.gbx.prepare('RestartMap'),
+			self.instance.gbx.prepare('ChatSendServerMessage', message)
+		)
 
 	async def ignore_player(self, player, data, **kwargs):
 		try:
 			mute_player = await self.instance.player_manager.get_player(data.login)
-			await self.instance.gbx.execute('Ignore', data.login)
 			message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has muted $fff{}$z$s$ff0.'.format(player.nickname, mute_player.nickname)
-			await self.instance.gbx.execute('ChatSendServerMessage', message)
+			await self.instance.gbx.multicall(
+				self.instance.gbx.prepare('Ignore', data.login),
+				self.instance.gbx.prepare('ChatSendServerMessage', message)
+			)
 		except PlayerNotFound:
 			message = '$z$s$fff» $i$f00Unknown login!'
 			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
@@ -68,9 +74,11 @@ class AdminConfig(AppConfig):
 	async def unignore_player(self, player, data, **kwargs):
 		try:
 			unmute_player = await self.instance.player_manager.get_player(data.login)
-			await self.instance.gbx.execute('UnIgnore', data.login)
 			message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has un-muted $fff{}$z$s$ff0.'.format(player.nickname, unmute_player.nickname)
-			await self.instance.gbx.execute('ChatSendServerMessage', message)
+			await self.instance.gbx.multicall(
+				self.instance.gbx.prepare('UnIgnore', data.login),
+				self.instance.gbx.prepare('ChatSendServerMessage', message)
+			)
 		except PlayerNotFound:
 			message = '$z$s$fff» $i$f00Unknown login!'
 			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
@@ -78,9 +86,11 @@ class AdminConfig(AppConfig):
 	async def kick_player(self, player, data, **kwargs):
 		try:
 			kick_player = await self.instance.player_manager.get_player(data.login)
-			await self.instance.gbx.execute('Kick', data.login)
 			message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has kicked $fff{}$z$s$ff0.'.format(player.nickname, kick_player.nickname)
-			await self.instance.gbx.execute('ChatSendServerMessage', message)
+			await self.instance.gbx.multicall(
+				self.instance.gbx.prepare('Kick', data.login),
+				self.instance.gbx.prepare('ChatSendServerMessage', message)
+			)
 		except PlayerNotFound:
 			message = '$z$s$fff» $i$f00Unknown login!'
 			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
@@ -88,51 +98,66 @@ class AdminConfig(AppConfig):
 	async def ban_player(self, player, data, **kwargs):
 		try:
 			ban_player = await self.instance.player_manager.get_player(data.login)
-			await self.instance.gbx.execute('Ban', data.login)
-			await self.instance.gbx.execute('Kick', data.login)
 			message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has banned $fff{}$z$s$ff0.'.format(player.nickname, ban_player.nickname)
-			await self.instance.gbx.execute('ChatSendServerMessage', message)
+			await self.instance.gbx.multicall(
+				self.instance.gbx.prepare('Ban', data.login),
+				self.instance.gbx.prepare('ChatSendServerMessage', message)
+			)
 		except PlayerNotFound:
 			message = '$z$s$fff» $i$f00Unknown login!'
 			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
 
 	async def unban_player(self, player, data, **kwargs):
-		await self.instance.gbx.execute('UnBan', data.login)
 		message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has un-banned $fff{}$z$s$ff0.'.format(player.nickname, data.login)
-		await self.instance.gbx.execute('ChatSendServerMessage', message)
+		await self.instance.gbx.multicall(
+			self.instance.gbx.prepare('UnBan', data.login),
+			self.instance.gbx.prepare('ChatSendServerMessage', message)
+		)
 
 	async def blacklist_player(self, player, data, **kwargs):
 		try:
 			blacklist_player = await self.instance.player_manager.get_player(data.login)
-			await self.instance.gbx.execute('BlackList', data.login)
-			await self.instance.gbx.execute('Kick', data.login)
 			message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has blacklisted $fff{}$z$s$ff0.'.format(player.nickname, blacklist_player.nickname)
-			await self.instance.gbx.execute('ChatSendServerMessage', message)
+			await self.instance.gbx.multicall(
+				self.instance.gbx.prepare('BlackList', data.login),
+				self.instance.gbx.prepare('Kick', data.login),
+				self.instance.gbx.prepare('ChatSendServerMessage', message)
+			)
 		except PlayerNotFound:
 			message = '$z$s$fff» $i$f00Unknown login!'
 			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
 
 	async def unblacklist_player(self, player, data, **kwargs):
-		await self.instance.gbx.execute('UnBlackList', data.login)
 		message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has un-blacklisted $fff{}$z$s$ff0.'.format(player.nickname, data.login)
-		await self.instance.gbx.execute('ChatSendServerMessage', message)
+		await self.instance.gbx.multicall(
+			self.instance.gbx.prepare('UnBlackList', data.login),
+			self.instance.gbx.prepare('ChatSendServerMessage', message)
+		)
 
 	async def set_password(self, player, data, **kwargs):
 		if data.password is None or data.password == 'none':
-			await self.instance.gbx.execute('SetServerPassword', '')
 			message = '$z$s$fff» $ff0You removed the server password.'
-			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+			await self.instance.gbx.multicall(
+				self.instance.gbx.prepare('SetServerPassword', ''),
+				self.instance.gbx.prepare('ChatSendServerMessageToLogin', message, player.login)
+			)
 		else:
-			await self.instance.gbx.execute('SetServerPassword', data.password)
 			message = '$z$s$fff» $ff0You changed the server password to: "$fff{}$ff0".'.format(data.password)
-			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+			await self.instance.gbx.multicall(
+				self.instance.gbx.prepare('SetServerPassword', data.password),
+				self.instance.gbx.prepare('ChatSendServerMessageToLogin', message, player.login)
+			)
 
 	async def set_spec_password(self, player, data, **kwargs):
 		if data.password is None or data.password == 'none':
-			await self.instance.gbx.execute('SetServerPasswordForSpectator', '')
 			message = '$z$s$fff» $ff0You removed the spectator password.'
-			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+			await self.instance.gbx.multicall(
+				self.instance.gbx.prepare('SetServerPasswordForSpectator', ''),
+				self.instance.gbx.prepare('ChatSendServerMessageToLogin', message, player.login)
+			)
 		else:
-			await self.instance.gbx.execute('SetServerPasswordForSpectator', data.password)
 			message = '$z$s$fff» $ff0You changed the spectator password to: "$fff{}$ff0".'.format(data.password)
-			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+			await self.instance.gbx.multicall(
+				self.instance.gbx.prepare('SetServerPasswordForSpectator', data.password),
+				self.instance.gbx.prepare('ChatSendServerMessageToLogin', message, player.login)
+			)
