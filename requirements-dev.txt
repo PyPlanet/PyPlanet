@@ -10,3 +10,4 @@ nose
 rednose
 coverage==4.3.4
 asynctest
+twine

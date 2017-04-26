@@ -4,8 +4,9 @@ build:
 	@ python setup.py bdist_wheel --python-tag py3
 
 publish:
-	@ python setup.py sdist upload
-	@ python setup.py bdist_wheel --python-tag py3 upload
+	@ python setup.py sdist
+	@ python setup.py bdist_wheel --python-tag py3
+	@ twine upload dist/*
 
 run-tox:
 	@ tox
