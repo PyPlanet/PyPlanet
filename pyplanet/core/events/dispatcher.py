@@ -8,7 +8,6 @@ import logging
 import asyncio
 
 from pyplanet.core.exceptions import SignalException, SignalGlueStop
-from pyplanet.utils.codeutils import deprecated
 from pyplanet.utils.log import handle_exception
 
 
@@ -63,6 +62,7 @@ class Signal:
 		"""
 		This method processed data into abstract data. You can give your own function in the init of the Signal or
 		override the method.
+		
 		:param data: Raw data input
 		:return: Parsed data output
 		"""
@@ -71,6 +71,7 @@ class Signal:
 	def has_listeners(self):
 		"""
 		Has the signal listeners.
+		
 		:return:
 		"""
 		return bool(self._live_receivers())
@@ -78,6 +79,7 @@ class Signal:
 	def set_self(self, receiver, slf):
 		"""
 		Set the self instance on a receiver.
+		
 		:param receiver: Receiver function.
 		:param slf: Self instance
 		"""

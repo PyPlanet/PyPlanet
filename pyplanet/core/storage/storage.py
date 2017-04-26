@@ -11,6 +11,7 @@ class Storage(StorageInterface):
 	def __init__(self, instance, driver: StorageDriver, config):
 		"""
 		Initiate storage manager.
+		
 		:param instance: Instance of the controller.
 		:param driver: Driver instance, must be init already!
 		:param config: Storage configuration (including driver + driver config).
@@ -38,6 +39,7 @@ class Storage(StorageInterface):
 	def driver(self):
 		"""
 		Get the raw driver. Be careful with this!
+		
 		:return: Driver Instance
 		:rtype: pyplanet.core.storage.interface.StorageDriver
 		"""
@@ -47,6 +49,7 @@ class Storage(StorageInterface):
 		"""
 		Open a file on the server. Use relative path to the dedicated root. Use the other open methods to relative
 		from another base path.
+		
 		:param file: Filename/path, relative to the dedicated root path.
 		:param mode: Mode to open, see the python `open` manual for supported modes.
 		:return: File handler.
@@ -57,6 +60,7 @@ class Storage(StorageInterface):
 	async def open_match_settings(self, file: str, mode: str = 'r'):
 		"""
 		Open a file on the server. Relative to the MatchSettings folder (UserData/Maps/MatchSettings).
+		
 		:param file: Filename/path, relative to the dedicated matchsettings folder.
 		:param mode: Mode to open, see the python `open` manual for supported modes.
 		:return: File handler.
@@ -67,6 +71,7 @@ class Storage(StorageInterface):
 	async def open_map(self, file: str, mode: str = 'rb'):
 		"""
 		Open a file on the server. Relative to the Maps folder (UserData/Maps).
+		
 		:param file: Filename/path, relative to the dedicated maps folder.
 		:param mode: Mode to open, see the python `open` manual for supported modes.
 		:return: File handler.

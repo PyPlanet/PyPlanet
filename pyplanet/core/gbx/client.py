@@ -1,5 +1,4 @@
 import asyncio
-
 import logging
 
 from pyplanet.core.gbx.query import Query, ScriptQuery
@@ -25,6 +24,7 @@ class GbxClient(GbxRemote):
 	def prepare(self, method, *args, **kwargs):
 		"""
 		Prepare an query.
+		
 		:param method: Method name
 		:param args: Arguments...
 		:return: Prepared query.
@@ -37,6 +37,7 @@ class GbxClient(GbxRemote):
 	async def script(self, method, *args, encode_json=True, response_id=True):
 		"""
 		Execute scripted call.
+		
 		:param method: Scripted method name
 		:param args: Arguments
 		:param encode_json: Are the arguments dictionary, should it be encoded? (Then only provide the first arg).
@@ -50,6 +51,7 @@ class GbxClient(GbxRemote):
 	async def multicall(self, *queries):
 		"""
 		Run the queries given async. Will use one or more multicall(s), depends on content.
+		
 		:param queries: Queries to execute in multicall.
 		:return: Results in tuple.
 		:rtype: tuple<any>

@@ -1,5 +1,4 @@
 import argparse
-
 import logging.config
 import threading
 

@@ -10,6 +10,7 @@ class Query:
 	def __init__(self, client, method, *args, **kwargs):
 		"""
 		Initiate the prepared query.
+		
 		:param client: GbxClient to execute actions.
 		:param method: Method name
 		:param args: Arguments
@@ -28,6 +29,7 @@ class Query:
 	async def execute(self):
 		"""
 		Execute call.
+		
 		:return: Future with results.
 		:rtype: Future<any>
 		"""
@@ -56,6 +58,7 @@ class ScriptQuery(Query):
 	def __init__(self, client, method, *args, encode_json=True, response_id=True):
 		"""
 		Initiate a Scripted Query.
+		
 		:param client: Client instance
 		:param method: Method name
 		:param args: Arguments
@@ -86,6 +89,7 @@ class ScriptQuery(Query):
 	async def execute(self):
 		"""
 		Execute call.
+		
 		:return: Future with results.
 		:rtype: Future<any>
 		"""

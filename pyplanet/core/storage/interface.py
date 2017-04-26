@@ -15,6 +15,7 @@ class StorageDriver:
 	def __init__(self, instance, config: dict = None):
 		"""
 		Initiate storage driver.
+		
 		:param instance: Instance instance :P.
 		:param config: Driver configuration.
 		:type instance: pyplanet.core.instance.Instance

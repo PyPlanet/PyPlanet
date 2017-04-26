@@ -1,12 +1,11 @@
 import asyncio
 import functools
 import pkgutil
+import os
+import sys
 
 from collections import defaultdict
 from importlib import import_module
-
-import os
-import sys
 
 from pyplanet import __version__ as version
 from pyplanet.conf import settings

@@ -62,7 +62,10 @@ class TemplateView(View):
 
 	async def render(self, *args, player_login=None, **kwargs):
 		"""
-		:inherit: 
+		Render template for player. This will only render the body and return it. Not send it!
+		
+		:param player_login: Render data only for player, set to None to globally render (and ignore player_data).
+		:return: Body, rendered manialink + script.
 		"""
 		kwargs['data'] = await self.get_context_data()
 		kwargs['player_data'] = await self.get_player_data()

@@ -4,6 +4,7 @@ from multiprocessing import Process
 def _run(name, queue):
 	"""
 	The actual process that runs the separate controller instance.
+	
 	:param name: name of the process
 	:type name: str
 	"""
@@ -22,6 +23,7 @@ class InstanceProcess:
 	def __init__(self, queue, environment_name='default', pool=None):
 		"""
 		Create an environment process of the controller itself.
+		
 		:param queue: Queue to hook on.
 		:param environment_name: Name of environment.
 		:param pool: Pool.

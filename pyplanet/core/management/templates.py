@@ -2,11 +2,11 @@ import stat
 import os
 import shutil
 import sys
+import pyplanet
 
 from os import path
 from jinja2 import Environment
 
-import pyplanet
 from pyplanet.conf import settings
 from pyplanet.core.management import BaseCommand, CommandError
 

@@ -5,6 +5,7 @@ import asyncio
 import json
 import logging
 import struct
+
 from xmlrpc.client import dumps, loads, Fault
 
 from pyplanet.core.exceptions import TransportException
@@ -23,6 +24,7 @@ class GbxRemote:
 	def __init__(self, host, port, event_pool=None, user=None, password=None, api_version='2013-04-16', instance=None):
 		"""
 		Initiate the GbxRemote client.
+		
 		:param host: Host of the dedicated server.
 		:param port: Port of the dedicated XML-RPC server.
 		:param event_pool: Asyncio pool to execute the handling on.
@@ -60,7 +62,8 @@ class GbxRemote:
 	@classmethod
 	def create_from_settings(cls, instance, conf):
 		"""
-		Create an instance from configuration given for the specific pool
+		Create an instance from configuration given for the specific pool.
+		
 		:param instance: Instance of the app.
 		:param conf: Settings for pool.
 		:type conf: dict
@@ -168,7 +171,6 @@ class GbxRemote:
 				try:
 					data, method = loads(body, use_builtin_types=True)
 				except Fault as e:
-					# TODO: Handle some parse problems here!
 					raise e
 
 				if len(data) == 1:
@@ -186,6 +188,7 @@ class GbxRemote:
 	async def handle_payload(self, handle_nr, method, data):
 		"""
 		Handle a callback/response payload.
+		
 		:param handle_nr: Handler ID
 		:param method: Method name
 		:param data: Parsed payload data.

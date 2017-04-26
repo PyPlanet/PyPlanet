@@ -45,6 +45,7 @@ class EnvironmentPool:
 	def restart(self, name=None):
 		"""
 		Restart single process, or all if no name is given.
+		
 		:param name: Name or none for all pools.
 		"""
 		if name:

@@ -89,6 +89,7 @@ class GbxParser:
 	def __init__(self, file=None, buffer=None):
 		"""
 		Initiate a parser with either a file path or buffer.
+		
 		:param file: File path.
 		:param buffer: Buffer
 		:type file: str
@@ -116,6 +117,7 @@ class GbxParser:
 	async def seek(self, offset):
 		"""
 		We need to override the second param to move from the current position.
+		
 		:param offset: offset to move away.
 		:type offset: int
 		"""

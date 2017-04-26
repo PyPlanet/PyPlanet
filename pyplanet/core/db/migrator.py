@@ -3,7 +3,6 @@ The database migrator class has logic for migrating existing models and holds so
 and differences.
 """
 import importlib
-
 import logging
 import peewee
 
@@ -21,6 +20,7 @@ class Migrator:
 	def __init__(self, instance, db):
 		"""
 		Initiate migrator.
+		
 		:param instance: Instance of controller
 		:param db: Database instance.
 		:type instance: pyplanet.core.instance.Instance
@@ -53,6 +53,7 @@ class Migrator:
 	async def migrate(self):
 		"""
 		Migrate all models.
+		
 		:return:
 		"""
 		from .models.migration import Migration
@@ -90,6 +91,7 @@ class Migrator:
 	def run_migration(self, name, app_label, app_module, save_migration=True):
 		"""
 		Run + apply migration to the actual database.
+		
 		:param name: Name of migration.
 		:param app_label: App label.
 		:param app_module: App module path.

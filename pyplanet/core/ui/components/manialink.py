@@ -17,6 +17,7 @@ class _ManiaLink:
 	):
 		"""
 		Create manialink (USE THE MANAGER CREATE, DONT INIT DIRECTLY!
+		
 		:param manager: Manager instance. use your app manager.
 		:param id: Unique manialink id. Could be set later, must be set before displaying.
 		:param version: Version of manialink.
@@ -60,6 +61,7 @@ class _ManiaLink:
 	async def render(self, player_login=None, data=None, player_data=None, template=None):
 		"""
 		Render template. Will render template and return body.
+		
 		:param player_login: Render data only for player, set to None to globally render (and ignore player_data).
 		:param data: Data to append.
 		:param player_data: Data to append.
@@ -90,6 +92,7 @@ class _ManiaLink:
 		"""
 		Display the manialink. Will also render if no body is given. Will show per player or global. depending on 
 		the data given and stored!
+		
 		:param player_logins: Only display to the list of player logins given.
 		"""
 		return await self.manager.send(self, player_logins)
@@ -97,6 +100,7 @@ class _ManiaLink:
 	async def hide(self, player_logins=None):
 		"""
 		Hide manialink globally of only for the logins given in parameter.
+		
 		:param player_logins: Only hide for list of players, None for all players on the server.
 		"""
 		return await self.manager.hide(self, player_logins)

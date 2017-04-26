@@ -19,6 +19,7 @@ class Database:
 	def __init__(self, engine_cls, instance, *args, **kwargs):
 		"""
 		Initiate database.
+		
 		:param engine_cls: Engine class
 		:param instance: Instance of the app.
 		:param args: *
@@ -63,6 +64,7 @@ class Database:
 	def allow_sync(self, *args, **kwargs):
 		"""
 		Wrapper around engine allow_sync to allow failover when no async driver.
+		
 		:param args: 
 		:param kwargs: 
 		:return: 

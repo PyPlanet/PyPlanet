@@ -8,11 +8,9 @@ all the raw XML-RPC events into nice structured and maybe even including fetched
 """
 import importlib
 import logging
-
 import sys
 
 from pyplanet.core.events import Signal
-from pyplanet.utils.codeutils import deprecated
 
 
 class _SignalManager:
@@ -79,26 +77,6 @@ class _SignalManager:
 			if signal not in self.reserved:
 				self.reserved[signal] = list()
 			self.reserved[signal].append((target, kwargs))
-
-	@deprecated
-	def set_self(self, signal, func, slf):
-		"""
-		Set the self instance on a function inside of a signal.
-		:param signal: Signal name.
-		:param func: Function
-		:param slf: Self instance reference.
-		"""
-		logging.warning('Set_Self is deprecated. You should not have to use this anymore.')
-		# TODO: Remove method.
-		try:
-			signal = self.get_signal(signal)
-			signal.set_self(func, slf)
-		except Exception as e:
-			logging.warning('Signal not found: {}'.format(signal), exc_info=sys.exc_info())
-
-			if signal not in self.reserved_self:
-				self.reserved_self[signal] = list()
-			self.reserved_self[signal].append((func, slf))
 
 	def get_callback(self, call_name):
 		"""

@@ -10,6 +10,7 @@ class Callback(Signal):
 		"""
 		Shortcut for registering two signals, one is the raw signal and the second one is the parsed and structured
 		output signal. This also glues the two together.
+		
 		:param call:
 		:param namespace:
 		:param code:

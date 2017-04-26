@@ -4,6 +4,7 @@ import math
 def format_time(time):
 	"""
 	Format time from integer milliseconds to string format that could be displayed to the end-user.
+	
 	:param time: Integer time in milliseconds.
 	:type time: int
 	:return: String output

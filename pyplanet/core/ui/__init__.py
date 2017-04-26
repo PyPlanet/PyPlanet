@@ -1,5 +1,3 @@
-from pyplanet.core import signals
-
 
 class _BaseUIManager:
 	def __init__(self, instance):
@@ -77,6 +75,7 @@ class _BaseUIManager:
 	async def hide(self, manialink, logins=None):
 		"""
 		Send manialink to player(s).
+		
 		:param manialink: ManiaLink instance.
 		:param logins: Logins to post to. None to globally send.
 		:type manialink: pyplanet.core.ui.components.manialink._ManiaLink
