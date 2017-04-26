@@ -17,7 +17,6 @@ class JukeboxConfig(AppConfig):
 
 	async def on_start(self):
 		# Register permissions + commands.
-		await self.instance.permission_manager.register('next', 'Skip to the next map', app=self, min_level=1)
 		await self.instance.permission_manager.register('clear', 'Clear the jukebox', app=self, min_level=1)
 		await self.instance.command_manager.register(
 			Command(command='cjb', target=self.clear_jukebox, perms='jukebox:clear', admin=True),
