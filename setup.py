@@ -24,9 +24,13 @@ EXCLUDE_FROM_PACKAGES = [
 	'pyplanet.bin',
 	'pyplanet.conf.app_template',
 	'pyplanet.conf.project_template',
-	'tests',
-	'tests.*',
+	'docs*',
+	'env*',
+	'tests*',
+	'apps*',
+	'settings*',
 ]
+
 PKG = 'pyplanet'
 ######
 setup(
@@ -34,7 +38,7 @@ setup(
 	version=read_version(),
 	description='Maniaplanet Server Controller',
 	long_description=long_description(),
-	keywords='maniaplanet, controller, plugins',
+	keywords='maniaplanet, controller, plugins, apps',
 	license='GNU General Public License v3 (GPLv3)',
 	packages=find_packages(exclude=EXCLUDE_FROM_PACKAGES),
 	package_data={
@@ -53,7 +57,7 @@ setup(
 
 	author='Tom Valk',
 	author_email='tomvalk@lt-box.info',
-	url='https://github.com/tomvlk/PyPlanet',
+	url='http://pypla.net/',
 
 	classifiers=[
 		'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
