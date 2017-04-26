@@ -1,3 +1,5 @@
+import asyncio
+
 from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.core.events import Callback, Signal, handle_generic
 from pyplanet.core.exceptions import SignalGlueStop
@@ -44,6 +46,37 @@ async def handle_respawn(source, signal, **kwargs):
 	return dict(
 		player=player, flow=player.flow, race_cp=source['checkpointinrace'], lap_cp=source['checkpointinlap'],
 		race_time=source['racetime'], lap_time=source['laptime']
+	)
+
+async def handle_scores(source, signal, **kwargs):
+	async def get_player_scores(data):
+		player = await Player.get_by_login(data['login'])
+		return dict(
+			player=player, stunt_score=data['stuntscore'], best_lap_checkpoints=data['bestlapcheckpoints'],
+			match_points=data['match_points'], rank=data['rank'], best_lap_time=data['bestlaptime'],
+			best_lap_respawns=data['bestlaprespawns'], map_points=data['mappoints'], best_race_time=data['bestracetime'],
+			round_points=data['roundpoints'], best_race_checkpoints=data['bestracecheckpoints'],
+			best_race_respawns=data['bestracerespawns']
+		)
+	async def get_team_scores(data):
+		return dict(
+			map_points=data['mappoints'], name=data['name'], id=data['id'], match_points=data['matchpoints'],
+			round_points=data['roundpoints'],
+		)
+
+	player_scores = await asyncio.gather(*[
+		get_player_scores(d) for d in source['players']
+	])
+	team_scores = await asyncio.gather(*[
+		get_team_scores(d) for d in source['teams']
+	])
+	return dict(
+		players=player_scores,
+		teams=team_scores,
+		winner_team=source['winnerteam'],
+		use_teams=source['useteams'],
+		winner_player=source['winnerplayer'],
+		section=source['section']
 	)
 
 
@@ -115,6 +148,13 @@ warmup_end_round = Callback(
 	namespace='trackmania',
 	code='warmup_end_round',
 	target=handle_generic
+)
+
+scores = Callback(
+	call='Script.Trackmania.Scores',
+	namespace='trackmania',
+	code='scores',
+	target=handle_scores
 )
 
 finish = Signal(

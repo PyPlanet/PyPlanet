@@ -1,10 +1,13 @@
+from pyplanet.core import Controller
 from pyplanet.core.events import Callback, handle_generic
 
 
 async def handle_map_loading(source, signal, **kwargs):
-	print(source)
-	# map = await Controller.instance.map_manager.get_map()
-	return source
+	map = await Controller.instance.map_manager.get_map(uid=source['map']['uid'])
+	return dict(
+		map=map,
+		restarted=source['restarted']
+	)
 
 
 server_start = Callback(

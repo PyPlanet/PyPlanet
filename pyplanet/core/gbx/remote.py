@@ -227,7 +227,7 @@ class GbxRemote:
 			payload = raw
 
 		# Check if payload contains a responseid, when it does, we call the scripted handler future object.
-		if type(payload) is dict and 'responseid' in payload:
+		if isinstance(payload, dict) and 'responseid' in payload and len(payload['responseid']) > 0:
 			response_id = payload['responseid']
 
 			if response_id in self.script_handlers:
@@ -238,7 +238,7 @@ class GbxRemote:
 				return
 			else:
 				# We don't have this handler registered, throw warning in console.
-				logger.warning('GBX: Received scripted resopnse with responseid, but no hander was registered! Payload: {}'.format(payload))
+				logger.warning('GBX: Received scripted response with responseid, but no hander was registered! Payload: {}'.format(payload))
 				return
 
 		# If not, we should just throw it as an ordinary callback.
