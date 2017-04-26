@@ -7,8 +7,8 @@ import weakref
 import logging
 import asyncio
 
-from pyplanet.core.events.manager import SignalManager
 from pyplanet.core.exceptions import SignalException, SignalGlueStop
+from pyplanet.utils.codeutils import deprecated
 from pyplanet.utils.log import handle_exception
 
 
@@ -91,27 +91,22 @@ class Signal:
 					return
 			raise Exception('Receiver is not yet known! You registered too early!')
 
-	def connect(self, receiver, weak=True, dispatch_uid=None):
+	def register(self, receiver, weak=True, dispatch_uid=None):
 		"""
 		Connect receiver to sender for signal.
-		Arguments:
-			receiver
-				A function or an instance method which is to receive signals.
-				Receivers must be hashable objects.
-				If weak is True, then receiver must be weak referenceable.
-				Receivers must be able to accept keyword arguments.
-				If a receiver is connected with a dispatch_uid argument, it
-				will not be added if another receiver was already connected
-				with that dispatch_uid.
-			weak
-				Whether to use weak references to the receiver. By default, the
-				module will attempt to use weak references to the receiver
-				objects. If this parameter is false, then strong references will
-				be used.
-			dispatch_uid
-				An identifier used to uniquely identify a particular instance of
-				a receiver. This will usually be a string, though it may be
-				anything hashable.
+		
+		:param receiver: A function or an instance method which is to receive signals. Receivers must be hashable objects.
+		If weak is True, then receiver must be weak referenceable.Receivers must be able to accept keyword arguments.
+		If a receiver is connected with a dispatch_uid argument, it
+		will not be added if another receiver was already connected with that dispatch_uid.
+					
+		:param weak: Whether to use weak references to the receiver. By default, the
+		module will attempt to use weak references to the receiver
+		objects. If this parameter is false, then strong references will
+		be used.
+		
+		:param dispatch_uid: An identifier used to uniquely identify a particular instance of
+		a receiver. This will usually be a string, though it may be anything hashable.
 		"""
 		if dispatch_uid:
 			lookup_key = dispatch_uid
@@ -138,17 +133,14 @@ class Signal:
 				self.receivers.append((lookup_key, receiver))
 			self.sender_receivers_cache.clear()
 
-	def disconnect(self, receiver=None, dispatch_uid=None):
+	def unregister(self, receiver=None, dispatch_uid=None):
 		"""
 		Disconnect receiver from sender for signal.
 		If weak references are used, disconnect need not be called. The receiver
 		will be removed from dispatch automatically.
-		Arguments:
-			receiver
-				The registered receiver to disconnect. May be none if
-				dispatch_uid is specified.
-			dispatch_uid
-				the unique identifier of the receiver to disconnect
+		
+		:param receiver: The registered receiver to disconnect. May be none if dispatch_uid is specified.
+		:param dispatch_uid: the unique identifier of the receiver to disconnect
 		"""
 		if dispatch_uid:
 			lookup_key = dispatch_uid
@@ -176,15 +168,11 @@ class Signal:
 		If any receiver raises an error, the error propagates back through send,
 		terminating the dispatch loop. So it's possible that all receivers
 		won't be called if an error is raised.
-		Arguments:
-			source
-				The data to be send to the processor which produces data
-				that will be send to the receivers.
-			raw
-				Optional bool parameter to just send the source to the receivers without
-				any processing.
-
-		Return a list of tuple pairs [(receiver, response), ... ].
+		
+		:param source: The data to be send to the processor which produces data that will be send to the receivers.
+		:param raw: Optional bool parameter to just send the source to the receivers without any processing.
+		
+		:return: Return a list of tuple pairs [(receiver, response), ... ].
 		"""
 		if not raw:
 			try:
@@ -224,15 +212,11 @@ class Signal:
 	async def send_robust(self, source=None, raw=False):
 		"""
 		Send signal from sender to all connected receivers catching errors.
-		Arguments:
-			source
-				The data to be send to the processor which produces data
-				that will be send to the receivers.
-			raw
-				Optional bool parameter to just send the source to the receivers without
-				any processing.
+		
+		:param source: The data to be send to the processor which produces data that will be send to the receivers.
+		:param raw: Optional bool parameter to just send the source to the receivers without any processing.
 
-		Return a list of tuple pairs [(receiver, response), ... ].
+		:return: Return a list of tuple pairs [(receiver, response), ... ].
 		If any receiver raises an error (specifically any subclass of
 		Exception), return the error instance as the result for that receiver.
 		"""
@@ -340,72 +324,3 @@ class Signal:
 		# The list must be marked as dead. And will be cleaned in the next registry or call.
 		# We can't directly remove because GC is always running when lock is preserved.
 		self._dead_receivers = True
-
-
-def receiver(signal, filter=None, **kwargs):
-	"""
-	Decorator for registering a receiver for a specific signal::
-
-		@receiver(signals.player_connect)
-		def player_connect(**kwargs):
-			print(kwargs.get('player'))
-			...
-
-		@receiver('maniaplanet.custom-signal')
-		def custom(**kwargs):
-			...
-
-		# This example is strongly not advised. Instead, please register your custom signal and abstraction!
-		@receiver('raw.LibXmlRpc_BeginRoundStop')
-		def custom(**kwargs):
-			...
-
-	:param signal: Signal string or identifier.
-	:param filter: Filter of the contents. Not yet implemented ()
-	:param kwargs:
-	"""
-	def connect(signal, func):
-		if isinstance(signal, Signal):
-			signal.connect(func, **kwargs)
-		elif isinstance(signal, str):
-			try:
-				SignalManager.connect(signal, func, **kwargs)
-			except Exception as e:
-				logger.debug(str(e))
-		else:
-			raise Exception('Signal should be a valid string or signal instance. or a tuple/list with multiple.')
-
-	def set_self(signal, func, self):
-		if isinstance(signal, Signal):
-			signal.set_self(func, self)
-		elif isinstance(signal, str):
-			try:
-				SignalManager.set_self(signal, func, self)
-			except Exception as e:
-				logger.debug(str(e))
-		else:
-			raise Exception('Signal should be a valid string or signal instance. or a tuple/list with multiple.')
-
-	def decorator(func):
-		# If signal is an array of signals/strings, loop and connect. If not, just connect the single one.
-		if isinstance(signal, (list, tuple)):
-			for sig in signal:
-				connect(signal, func)
-		else:
-			connect(signal, func)
-
-		def wrapper(*ag, **kw):
-			try:
-				# When only one argument given and it contains the __dict__ we have the registering self call.
-				# At this point, we want to set the self instance into our signal instance and pass away the call.
-				if len(ag) == 1 and hasattr(ag[0], '__dict__'):
-					set_self(signal, func, ag[0])
-				else:
-					# Mostly we really want to call it. Throw exception for flow control.
-					raise Exception()
-			except:
-				# Call the real function.
-				return func(*ag, **kw)
-		return wrapper
-	# TODO: Filter signal
-	return decorator

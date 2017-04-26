@@ -1,6 +1,5 @@
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.jukebox.views import MapListView, JukeboxListView
-from pyplanet.core.events import receiver
 from pyplanet.contrib.command import Command
 
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
@@ -17,8 +16,8 @@ class JukeboxConfig(AppConfig):
 		self.jukebox = []
 
 	async def on_start(self):
-		self.match_end()
-
+		# Register permissions + commands.
+		await self.instance.permission_manager.register('next', 'Skip to the next map', app=self, min_level=1)
 		await self.instance.permission_manager.register('clear', 'Clear the jukebox', app=self, min_level=1)
 		await self.instance.command_manager.register(
 			Command(command='cjb', target=self.clear_jukebox, perms='jukebox:clear', admin=True),
@@ -26,6 +25,9 @@ class JukeboxConfig(AppConfig):
 			Command(command='list', target=self.show_map_list),
 			Command(command='jukebox', target=self.chat_command).add_param(name='option', required=False)
 		)
+
+		# Register callback.
+		self.instance.signal_manager.listen(mp_signals.flow.podium_start, self.podium_start)
 
 	async def show_map_list(self, player, data, **kwargs):
 		view = MapListView(self)
@@ -97,8 +99,7 @@ class JukeboxConfig(AppConfig):
 				message = '$z$s$fff»» $fff{}$z$s$fa0 dropped $fff{}$z$s$fa0 from the jukebox.'.format(player.nickname, instance['map_name'])
 				await self.instance.gbx.execute('ChatSendServerMessage', message)
 
-	@receiver(mp_signals.flow.podium_start)
-	async def match_end(self, **kwargs):
+	async def podium_start(self, **kwargs):
 		if len(self.jukebox) > 0:
 			next = self.jukebox.pop(0)
 			message = '$z$s$fff»» $fa0The next map will be $fff{}$z$s$fa0 as requested by $fff{}$z$s$fa0.'.format(next['map'].name, next['player'].nickname)

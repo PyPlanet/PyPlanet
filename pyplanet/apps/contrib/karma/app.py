@@ -1,6 +1,5 @@
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.karma.views import KarmaListView
-from pyplanet.core.events import receiver
 from pyplanet.contrib.command import Command
 
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
@@ -22,11 +21,12 @@ class KarmaConfig(AppConfig):
 		self.current_negative_votes = 0
 
 	async def on_start(self):
-		self.map_begin()
-		self.player_chat()
-
 		# Register commands.
 		await self.instance.command_manager.register(Command(command='whokarma', target=self.show_map_list))
+
+		# Register signals.
+		self.instance.signal_manager.listen(mp_signals.map.map_begin, self.map_begin)
+		self.instance.signal_manager.listen(mp_signals.player.player_chat, self.player_chat)
 
 		# Load initial data.
 		await self.get_votes_list(self.instance.map_manager.current_map)
@@ -47,13 +47,11 @@ class KarmaConfig(AppConfig):
 		await view.display(player=player.login)
 		return view
 
-	@receiver(mp_signals.map.map_begin)
 	async def map_begin(self, map):
 		await self.get_votes_list(map)
 		await self.calculate_karma()
 		await self.chat_current_karma()
 
-	@receiver(mp_signals.player.player_chat)
 	async def player_chat(self, player, text, cmd):
 		if not cmd:
 			if text == '++' or text == '--':

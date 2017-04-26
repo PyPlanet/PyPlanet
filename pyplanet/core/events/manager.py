@@ -11,6 +11,9 @@ import logging
 
 import sys
 
+from pyplanet.core.events import Signal
+from pyplanet.utils.codeutils import deprecated
+
 
 class _SignalManager:
 	def __init__(self):
@@ -27,16 +30,17 @@ class _SignalManager:
 		# This var is used to temporary override namespaces when processing apps.
 		self._current_namespace = None
 
-	def register(self, signal, app=None, callback=False):
+	def register_signal(self, signal, app=None, callback=False):
 		"""
-		Register a signal (or multiple)
+		Register a signal to be known in the signalling system.
+		
 		:param signal: Signal(s)
-		:param app: App context
+		:param app: App context/instance.
 		:param callback: Will a callback handle the response (mostly raw callbacks).
 		"""
 		if isinstance(signal, list):
 			for sig in signal:
-				self.register(sig)
+				self.register_signal(sig)
 			return
 
 		if not signal.code:
@@ -59,21 +63,24 @@ class _SignalManager:
 		else:
 			self.signals[signal_code] = instance
 
-	def connect(self, signal, func, **kwargs):
+	def listen(self, signal, target, conditions=None, **kwargs):
 		"""
-		Connect to signal, or reserve it to be registerd later on.
-		:param signal: Signal name.
-		:param func: Function
-		:param kwargs: Kwargs.
+		Register a listing client to the signal given (signal instance or string).
+		
+		:param signal: Signal instance or string: "namespace:code"
+		:param target: Target method to call.
+		:param conditions: Reserved for future purposes.
 		"""
 		try:
-			signal = self.get_signal(signal)
-			signal.connect(func, **kwargs)
+			if not isinstance(signal, Signal):
+				signal = self.get_signal(signal)
+			signal.register(target, **kwargs)
 		except:
 			if signal not in self.reserved:
 				self.reserved[signal] = list()
-			self.reserved[signal].append((func, kwargs))
+			self.reserved[signal].append((target, kwargs))
 
+	@deprecated
 	def set_self(self, signal, func, slf):
 		"""
 		Set the self instance on a function inside of a signal.
@@ -81,6 +88,8 @@ class _SignalManager:
 		:param func: Function
 		:param slf: Self instance reference.
 		"""
+		logging.warning('Set_Self is deprecated. You should not have to use this anymore.')
+		# TODO: Remove method.
 		try:
 			signal = self.get_signal(signal)
 			signal.set_self(func, slf)
@@ -171,10 +180,10 @@ SignalManager = _SignalManager()
 
 
 def public_signal(cls):
-	SignalManager.register(cls)
+	SignalManager.register_signal(cls)
 	return cls
 
 
 def public_callback(cls):
-	SignalManager.register(cls)
+	SignalManager.register_signal(cls)
 	return cls

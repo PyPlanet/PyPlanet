@@ -20,10 +20,10 @@ class Callback(Signal):
 
 		# Initiate raw signal, the raw gbx/script callback.
 		self.raw_signal = Signal(code=call, namespace='raw')
-		self.raw_signal.connect(self.glue, weak=False)
+		self.raw_signal.register(self.glue, weak=False)
 
-		SignalManager.register(self.raw_signal, app=None, callback=True)
-		SignalManager.register(self, app=None)
+		SignalManager.register_signal(self.raw_signal, app=None, callback=True)
+		SignalManager.register_signal(self, app=None)
 
 	async def glue(self, signal, source, **kwargs):
 		return await self.send_robust(source)

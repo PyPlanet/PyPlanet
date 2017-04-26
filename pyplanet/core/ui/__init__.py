@@ -1,5 +1,4 @@
 from pyplanet.core import signals
-from pyplanet.core.events import receiver
 
 
 class _BaseUIManager:
@@ -12,13 +11,6 @@ class _BaseUIManager:
 		"""
 		self.instance = instance
 		self.manialinks = dict()
-
-		# Initiate the self instances on receivers.
-		self.handle_startup()
-
-	@receiver(signals.pyplanet_start_apps_before)
-	async def handle_startup(self, **kwargs):
-		pass
 
 	async def send(self, manialink, logins=None):
 		"""

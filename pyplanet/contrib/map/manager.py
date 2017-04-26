@@ -3,13 +3,12 @@ import asyncio
 from peewee import DoesNotExist
 
 from pyplanet.apps.core.maniaplanet.models import Map
+from pyplanet.contrib import CoreContrib
 from pyplanet.contrib.map.exceptions import MapNotFound
-from pyplanet.core.events import receiver
-from pyplanet.core import signals
 
 
 # TODO: Implement insertion of a map.
-class MapManager:
+class MapManager(CoreContrib):
 	"""
 	Map Manager. Manages the current map pool and the current and next map.
 	"""
@@ -33,11 +32,7 @@ class MapManager:
 		self._current_map = None
 		self._next_map = None
 
-		# Initiate the self instances on receivers.
-		self.handle_startup()
-
-	@receiver(signals.pyplanet_start_apps_before)
-	async def handle_startup(self, **kwargs):
+	async def on_start(self):
 		# Fetch the list of maps.
 		raw_list = await self._instance.gbx.execute('GetMapList', -1, 0)
 
