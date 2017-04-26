@@ -11,7 +11,7 @@ class Command:
 	"""
 
 	def __init__(
-		self, command, target, aliases=None, admin=False, namespace=None, parser=None, perms=None,
+		self, command, target, aliases=None, admin=False, namespace=None, parser=None, perms=None, description=None
 	):
 		"""
 		Initiate a command.
@@ -24,6 +24,7 @@ class Command:
 						  where 'prog' is the namespace.
 		:param perms: Required parameters, default everyone is allowed.
 		:param parser: Custom parser.
+		:param description: Description of the command.
 		:type command: str
 		:type target: any
 		:type aliases: str[]
@@ -31,6 +32,7 @@ class Command:
 		:type namespace: str
 		:type perms: list,str
 		:type parser: any
+		:type description: str
 		"""
 		self.command = command
 		self.target = target
@@ -42,6 +44,7 @@ class Command:
 		self.perms = perms
 		self.parser = parser or \
 					  ParameterParser('{} {}'.format(self.namespace, self.command) if self.namespace else self.command)
+		self.description = description
 
 	def match(self, raw):
 		"""

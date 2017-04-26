@@ -17,3 +17,4 @@ Modules:
     contrib_player
     contrib_command
     contrib_permission
+    contrib_setting

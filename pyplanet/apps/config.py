@@ -1,10 +1,6 @@
-import traceback
-
 import importlib
-
 import logging
 import os
-import sys
 
 from pyplanet.core.exceptions import ImproperlyConfigured, InvalidAppModule
 
@@ -19,7 +15,7 @@ class _AppContext:
 		:type app: pyplanet.apps.config.AppConfig
 		"""
 		self.ui = app.instance.ui_manager.create_app_manager(app)
-		self.settings = app.instance.setting_manager.create_app_manager(app)
+		self.setting = app.instance.setting_manager.create_app_manager(app)
 
 
 class AppConfig:

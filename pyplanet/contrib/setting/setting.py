@@ -1,6 +1,7 @@
-from peewee import DoesNotExist
+import json
 
 from pyplanet.apps.core.pyplanet.models.setting import Setting as SettingModel
+from pyplanet.contrib.setting.exceptions import TypeUnknownException, SerializationException
 
 
 class Setting:
@@ -40,3 +41,99 @@ class Setting:
 			key=self.key, app=self.app_label, category=self.category, name=self.name, description=self.description,
 			value=None
 		)
+
+	def unserialize_value(self, value):
+		"""
+		Unserialize the datastorage value to the python value, based on the type of the setting.
+		
+		:param value: Value from database.
+		:return: Python value.
+		:raise pyplanet.contrib.setting.exceptions.SerializationException: SerializationException
+		"""
+		if value is None:
+			return self.default
+
+		try:
+			if self.type == str:
+				return str(value)
+			elif self.type == int:
+				return int(value)
+			elif self.type == float:
+				return float(value)
+			elif self.type == bool:
+				return bool(value)
+			elif self.type == list or self.type == set or self.type == dict:
+				return json.loads(value)
+			else:
+				raise TypeUnknownException('The type \'{}\' is unknown!'.format(self.type))
+		except TypeUnknownException:
+			raise
+		except Exception as e:
+			raise SerializationException('Error with unserialization of the setting \'{}\''.format(str(self))) from e
+
+	def serialize_value(self, value):
+		"""
+		Serialize the python value to the data store value, based on the type of the setting.
+
+		:param value: Python Value.
+		:return: Database Value
+		"""
+		# Always set to Null, so we get the default value back.
+		if value is None:
+			return value
+
+		try:
+			if self.type == int:
+				value = int(value)
+			elif self.type == float:
+				value = float(value)
+		except:
+			pass
+
+		if type(value) != self.type:
+			raise SerializationException(
+				'Your given value is not of the type you specified! \'{}\' != \'{}\''.format(type(value), self.type)
+			)
+
+		if self.type == list or self.type == set or self.type == dict:
+			return json.dumps(value)
+		return value
+
+	async def get_value(self):
+		"""
+		Get the value or the default value for the setting model.
+
+		:return: Value in the desired type and unserialized from database/storage.
+		:raise: NotFound / SerializationException
+		"""
+		model = await self.get_model()
+		return self.unserialize_value(model.value)
+
+	async def set_value(self, value):
+		"""
+		Set the value, this will serialize and save the setting to the data storage.
+		
+		:param value: Python value input.
+		:raise: NotFound / SerializationException
+		"""
+		model = await self.get_model()
+		model.value = self.serialize_value(value)
+		await model.save()
+
+	async def clear(self):
+		"""
+		Clear the value in the data storage. This will set the value to None, and will return the default value on
+		request of data. 
+		
+		:raise: NotFound / SerializationException
+		"""
+		return await self.set_value(None)
+
+	async def get_model(self):
+		"""
+		Get the model for the setting. This will return the model instance or raise an exception when not found.
+		
+		:return: Model instance
+		:raise: NotFound
+		"""
+		return await SettingModel.get(key=self.key, app=self.app_label)

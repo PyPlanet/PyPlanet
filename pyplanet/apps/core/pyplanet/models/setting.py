@@ -4,6 +4,10 @@ from pyplanet.core.db import Model
 
 
 class Setting(Model):
+	"""
+	DON'T USE THIS DIRECTLY, USE THE CONTRIB MANAGER!
+	"""
+
 	app = CharField(
 		max_length=255,
 		null=True,

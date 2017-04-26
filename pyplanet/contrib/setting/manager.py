@@ -81,3 +81,28 @@ class AppSettingManager(_BaseSettingManager):
 
 		# Register the setting.
 		self._settings.extend(settings)
+
+	def get_apps(self):
+		"""
+		Get all the app label + names for all the settings we can find in our registry.
+		Returns a dict with label as key, and count + name as values.
+		"""
+		apps = dict()
+		for setting in self._settings:
+			if setting.app_label:
+				if setting.app_label not in apps:
+					apps[setting.app_label] = dict(count=0, name=self._instance.apps.apps[setting.app_label].name)
+				apps[setting.app_label]['count'] += 1
+		return apps
+
+	def get_categories(self):
+		"""
+		Get all the categories we have registered.
+		Returns a dict with label as key, and count + name as values.
+		"""
+		cats = dict()
+		for setting in self._settings:
+			if setting.category not in cats:
+				cats[setting.category] = dict(count=0)
+			cats[setting.category]['count'] += 1
+		return cats
