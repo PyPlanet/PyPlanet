@@ -1,4 +1,12 @@
 #!/usr/bin/env bash
+
+# Check if we should run at all
+if [[ ${TOXENV} == *"integration"* ]]; then
+  echo "Integration test requires the dedicated server.. Starting..."
+else
+  exit
+fi
+
 BEFORE_PWD=`pwd`
 cd "$(dirname "$0")"
 cd ../../dedicated

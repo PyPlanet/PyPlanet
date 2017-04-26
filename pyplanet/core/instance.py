@@ -79,13 +79,14 @@ class Instance:
 				'declare the apps per pool! ({})'.format(str(e))
 			)
 
-	def start(self):
+	def start(self, run_forever=True):
 		"""
 		Start wrapper.
 		"""
 		try:
-			self.loop.run_until_complete(self.__start())
-			self.loop.run_forever()
+			self.loop.run_until_complete(self._start())
+			if run_forever:
+				self.loop.run_forever()
 		except Exception as e:
 			logger.exception(e)
 			raise
@@ -98,7 +99,7 @@ class Instance:
 		"""
 		await signal.send(dict(instance=self))
 
-	async def __start(self):
+	async def _start(self):
 		"""
 		The start coroutine is executed when the process is ready to create connection to the gbx protocol, database,
 		other services and finally start the apps.

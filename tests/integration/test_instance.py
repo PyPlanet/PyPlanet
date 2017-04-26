@@ -1,10 +1,20 @@
-import pytest
+import asyncio
+
+import asynctest
 
 from pyplanet.core.instance import Controller
 
 
-@pytest.mark.asyncio
-async def test_gbx_init():
-	instance = Controller.prepare(name='default').instance
-	await instance.gbx.connect()
-	assert len(instance.gbx.gbx_methods) > 0
+class TestInstanceInit(asynctest.TestCase):
+	async def test_gbx_init(self):
+		instance = Controller.prepare(name='default').instance
+		await instance.gbx.connect()
+		self.assertGreater(len(instance.gbx.gbx_methods), 0)
+		await instance.gbx.disconnect()
+		del instance
+
+	async def test_startup(self):
+		instance = Controller.prepare(name='default').instance
+		await instance._start()
+		self.assertGreater(len(instance.gbx.gbx_methods), 0)
+		del instance

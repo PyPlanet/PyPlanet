@@ -10,8 +10,11 @@ publish:
 run-tox:
 	@ tox
 
-run-tests:
-	@ pytest tests
+test-unit:
+	@ nosetests --rednose tests/unit
+
+test-integration:
+	@ nosetests --rednose tests/integration
 
 tests: run-tox clean
 tests-dev: run-nose clean

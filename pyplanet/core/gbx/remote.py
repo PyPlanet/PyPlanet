@@ -58,6 +58,7 @@ class GbxRemote:
 
 		self.reader = None
 		self.writer = None
+		self.loop_task = None
 
 	@classmethod
 	def create_from_settings(cls, instance, conf):
@@ -103,7 +104,7 @@ class GbxRemote:
 		logger.debug('Dedicated connection established!')
 
 		# From now we need to start listening.
-		self.event_loop.create_task(self.listen())
+		self.loop_task = self.event_loop.create_task(self.listen())
 
 		# Startup tasks.
 		await self.execute('Authenticate', self.user, self.password)
@@ -131,6 +132,19 @@ class GbxRemote:
 			)
 
 		logger.debug('Dedicated authenticated, API version set and callbacks enabled!')
+
+	async def disconnect(self):
+		"""
+		Stop the task of listening, destroy connections, reader and writer.
+		"""
+		if self.loop_task:
+			self.loop_task.cancel()
+			del self.loop_task
+		if self.reader:
+			del self.reader
+		if self.writer:
+			self.writer.close()
+			del self.writer
 
 	async def execute(self, method, *args):
 		"""
