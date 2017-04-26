@@ -4,7 +4,7 @@
 if [[ ${TOXENV} == *"integration"* ]]; then
   echo "Integration test requires the dedicated server.. Downloading..."
 else
-  exit
+  exit 0
 fi
 
 BEFORE_PWD=`pwd`
