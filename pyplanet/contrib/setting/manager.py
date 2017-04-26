@@ -1,5 +1,7 @@
 import asyncio
 
+from pyplanet.contrib import CoreContrib
+
 
 class _BaseSettingManager:
 	"""
@@ -31,7 +33,7 @@ class _BaseSettingManager:
 		self._settings.extend(settings)
 
 
-class GlobalSettingManager(_BaseSettingManager):
+class GlobalSettingManager(_BaseSettingManager, CoreContrib):
 	def __init__(self, instance):
 		super().__init__(instance)
 		self.app_managers = dict()

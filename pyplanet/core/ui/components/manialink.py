@@ -4,7 +4,7 @@ import logging
 
 from asyncio import iscoroutinefunction
 
-from pyplanet.core.events import receiver
+from pyplanet.core.events import SignalManager
 from pyplanet.core.ui.template import Template
 
 logger = logging.getLogger(__name__)
@@ -47,8 +47,8 @@ class _ManiaLink:
 
 		self.receivers = dict()
 
-		# Call gbx receivers.
-		self.handle()
+		# Register handle
+		SignalManager.listen('maniaplanet:manialink_answer', self.handle)
 
 	@property
 	def is_global(self):
@@ -106,7 +106,6 @@ class _ManiaLink:
 			self.receivers[action] = list()
 		self.receivers[action].append(target)
 
-	@receiver('maniaplanet:manialink_answer')
 	async def handle(self, player, action, values, **kwargs):
 		if not action.startswith(self.id):
 			return
@@ -131,6 +130,10 @@ class _ManiaLink:
 		pass
 
 	def __del__(self):
+		try:
+			SignalManager.get_signal('maniaplanet:manialink_answer').unregister(self.handle)
+		except:
+			pass
 		asyncio.ensure_future(self.manager.destroy(self))
 		self.data = None
 		self.player_data = None

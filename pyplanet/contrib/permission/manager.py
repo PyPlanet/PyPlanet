@@ -2,11 +2,11 @@ from peewee import DoesNotExist
 
 from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.apps.core.pyplanet.models import Permission
-from pyplanet.core.events import receiver
+from pyplanet.contrib import CoreContrib
 from pyplanet.core import signals
 
 
-class PermissionManager:
+class PermissionManager(CoreContrib):
 	"""
 	Permission Manager manges the permissions of all apps and players.
 	"""
@@ -19,15 +19,9 @@ class PermissionManager:
 		"""
 		self._instance = instance
 
-		# Initiate the self instances on receivers.
-		self.handle_startup()
-
-	@receiver(signals.pyplanet_start_apps_before)
-	async def handle_startup(self, **kwargs):
+	async def on_start(self):
 		"""
 		Handle startup, just before the apps will start. We will make sure we are ready to get requests for permissions.
-		
-		:param kwargs: Ignored parameters.
 		"""
 		pass
 

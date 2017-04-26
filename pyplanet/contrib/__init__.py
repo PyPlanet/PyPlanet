@@ -4,3 +4,8 @@ on the long term without breaking any core code.
 
 In the contrib package you can find many useful packages, such as the command manager and parameter parser.
 """
+
+
+class CoreContrib:
+	async def on_start(self):
+		pass

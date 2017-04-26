@@ -209,10 +209,10 @@ class AppConfig:
 			raise ImproperlyConfigured(
 				'Can\'t load the app {}. Can\'t find the app config!'.format(entry)
 			)
-		except AttributeError:
+		except AttributeError as e:
 			raise ImproperlyConfigured(
 				'Can\'t load the app {}. Can\'t load the app class!'.format(entry)
-			)
+			) from e
 
 		# Last check if subclass of appconfig.
 		if not issubclass(module, AppConfig):

@@ -1,10 +1,9 @@
-from .dispatcher import Signal, receiver
+from .dispatcher import Signal
 from .manager import SignalManager, public_signal, public_callback
 from .callback import Callback, handle_generic
 
 __all__ = [
 	'Signal',
-	'receiver',
 
 	'SignalManager',
 	'public_signal',

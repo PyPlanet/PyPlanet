@@ -1,6 +1,5 @@
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.local_records.views import LocalRecordsListView
-from pyplanet.core.events import receiver
 from pyplanet.contrib.command import Command
 
 from pyplanet.apps.core.trackmania import callbacks as tm_signals
@@ -21,10 +20,14 @@ class LocalRecordsConfig(AppConfig):
 		self.current_records = []
 
 	async def on_start(self):
-		self.map_begin()
-		self.player_finish()
-
+		# Register commands
 		await self.instance.command_manager.register(Command(command='records', target=self.show_records_list))
+
+		# Register signals
+		self.instance.signal_manager.listen(mp_signals.map.map_begin, self.map_begin)
+		self.instance.signal_manager.listen(tm_signals.finish, self.player_finish)
+
+		# Load initial data.
 		await self.refresh_locals()
 		await self.chat_current_record()
 
@@ -70,12 +73,10 @@ class LocalRecordsConfig(AppConfig):
 		await view.display(player=player.login)
 		return view
 
-	@receiver(mp_signals.map.map_begin)
 	async def map_begin(self, map):
 		await self.refresh_locals()
 		await self.chat_current_record()
 
-	@receiver(tm_signals.finish)
 	async def player_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
 		current_records = [x for x in self.current_records if x.player_id == player.get_id()]
 		if len(current_records) > 0:

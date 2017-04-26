@@ -5,12 +5,11 @@ from peewee import DoesNotExist
 
 from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.conf import settings
+from pyplanet.contrib import CoreContrib
 from pyplanet.contrib.player.exceptions import PlayerNotFound
-from pyplanet.core.events import receiver
-from pyplanet.core import signals
 
 
-class PlayerManager:
+class PlayerManager(CoreContrib):
 	"""
 	Player Manager.
 	Todo: Write introduction.
@@ -27,16 +26,10 @@ class PlayerManager:
 		# Online contains all currently online players.
 		self._online = set()
 
-		# Initiate the self instances on receivers.
-		self._handle_startup()
-
-	@receiver(signals.pyplanet_start_apps_before)
-	async def _handle_startup(self, **kwargs):
+	async def on_start(self):
 		"""
 		Handle startup, just before the apps will start. We will throw connects for the players so we know that the 
 		current playing players are also initiated correctly!
-		
-		:param kwargs: Ignored parameters.
 		"""
 		player_list = await self._instance.gbx.execute('GetPlayerList', -1, 0)
 		await asyncio.gather(*[self.handle_connect(player['Login']) for player in player_list])

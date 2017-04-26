@@ -1,9 +1,8 @@
-from pyplanet.core.events import receiver
+from pyplanet.contrib import CoreContrib
 from pyplanet.contrib.command.command import Command
-from pyplanet.core import signals
 
 
-class CommandManager:
+class CommandManager(CoreContrib):
 	"""
 	The Command Manager contributed extension is a manager that controls all chat-commands in the game.
 	Your app needs to use this manager to register any custom commands you want to provide.
@@ -20,12 +19,9 @@ class CommandManager:
 
 		self._commands = list()
 
-		#
-		self._on_start()
-
-	@receiver(signals.pyplanet_start_after)
-	async def _on_start(self, **kwargs):
-		self._on_chat()
+	async def on_start(self, **kwargs):
+		# Register events.
+		self._instance.signal_manager.listen('maniaplanet:player_chat', self._on_chat)
 
 		# Register /help and //help
 		await self.register(
@@ -42,7 +38,6 @@ class CommandManager:
 		"""
 		self._commands.extend(commands)
 
-	@receiver('maniaplanet:player_chat')
 	async def _on_chat(self, player, text, cmd, **kwargs):
 		# Only take action if the chat entry is a command.
 		if not cmd:
