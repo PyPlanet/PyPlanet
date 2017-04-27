@@ -63,7 +63,7 @@ before_install:
   - psql -c "CREATE USER pyplanet WITH PASSWORD 'pyplanet';" -U postgres
 
 install:
-  - pip install tox codacy-coverage -U pip
+  - pip install tox codacy-coverage codecov -U pip
   - tests/_scripts/travis_dedicated_setup.sh
 
 before_script:
