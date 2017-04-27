@@ -25,8 +25,8 @@ class _LeakChecker:
 			)
 			if not self.reported:
 				try:
-					raise Exception('Found memory leaks: {}'.format(gc.garbage))
-				except Exception as e:
+					raise MemoryError('Found memory leaks: {}'.format(gc.garbage))
+				except MemoryError as e:
 					log.handle_exception(exception=e, extra_data=dict(leaks=gc.garbage))
 				self.reported = True
 
