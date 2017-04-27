@@ -109,6 +109,14 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+html_context = {
+	'display_github': True,
+	'github_user': 'PyPlanet',
+	'github_repo': 'pyplanet',
+	'github_version': 'master',
+	'conf_py_path': '/docs/source/'
+}
+
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
