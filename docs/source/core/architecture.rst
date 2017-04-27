@@ -2,6 +2,8 @@
 Architecture
 ------------
 
-The architecture of the core and plugins is described bellow::
+The architecture of the core and plugins is described bellow:
 
-    agdfs
+.. todo::
+
+  Write architecture document.

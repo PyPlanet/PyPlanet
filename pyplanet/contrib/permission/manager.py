@@ -3,12 +3,19 @@ from peewee import DoesNotExist
 from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.apps.core.pyplanet.models import Permission
 from pyplanet.contrib import CoreContrib
-from pyplanet.core import signals
 
 
 class PermissionManager(CoreContrib):
 	"""
 	Permission Manager manges the permissions of all apps and players.
+	
+	.. todo::
+	
+		Write introduction.
+		
+	.. warning::
+	
+		Don't initiate this class yourself.
 	"""
 	def __init__(self, instance):
 		"""

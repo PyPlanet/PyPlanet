@@ -12,7 +12,14 @@ from pyplanet.contrib.player.exceptions import PlayerNotFound
 class PlayerManager(CoreContrib):
 	"""
 	Player Manager.
-	Todo: Write introduction.
+	
+	.. todo::
+	
+		Write introduction.
+		
+	.. warning::
+	
+		Don't initiate this class yourself.
 	"""
 	def __init__(self, instance):
 		"""

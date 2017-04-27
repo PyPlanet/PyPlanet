@@ -5,6 +5,16 @@ from pyplanet.contrib.setting.exceptions import TypeUnknownException, Serializat
 
 
 class Setting:
+	"""
+	The setting class is for defining a setting for the end-user. 
+	This setting can be changed with /settings and //settings.
+	
+	.. todo::
+	
+		Provide examples.
+	
+	"""
+
 	CAT_GENERAL = 'General'
 	CAT_DESIGN = 'Design'
 	CAT_POSITION = 'Position'
@@ -19,8 +29,8 @@ class Setting:
 		"""
 		Create setting with properties.
 		
-		:param key: Key of setting, this is mainly only used for the backend and for referencing the setting. You should
-		keep this unique in your app!
+		:param key: Key of setting, this is mainly only used for the backend and for referencing the setting. 
+					You should keep this unique in your app!
 		:param name: Name of the setting that will be displayed as a small label to the player.
 		:param category: Category from Categories.*. Must be provided!
 		:param type: Type of value to expect, use python types here. str by default.

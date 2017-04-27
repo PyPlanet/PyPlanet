@@ -6,6 +6,14 @@ class CommandManager(CoreContrib):
 	"""
 	The Command Manager contributed extension is a manager that controls all chat-commands in the game.
 	Your app needs to use this manager to register any custom commands you want to provide.
+	
+	.. todo::
+	
+		Write introduction.
+		
+	.. warning::
+	
+		Don't initiate this class yourself.
 	"""
 
 	def __init__(self, instance):

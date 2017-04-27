@@ -31,6 +31,7 @@ Information about development of apps and the core is also available under:
     :caption: User Documentation
 
     intro/index
+    convert/index
 
 
 .. _app-docs:
@@ -65,7 +66,9 @@ Information about development of apps and the core is also available under:
     :maxdepth: 1
     :caption: About PyPlanet
 
+    support
     changelog
+    todo
 
 
 Indices and tables

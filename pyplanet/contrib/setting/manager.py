@@ -6,10 +6,6 @@ from pyplanet.contrib.setting.exceptions import SettingException
 
 
 class _BaseSettingManager:
-	"""
-	Setting  Manager.
-	Todo: Write introduction.
-	"""
 	def __init__(self, instance):
 		"""
 		Initiate, should only be done from the core instance.
@@ -58,6 +54,17 @@ class _BaseSettingManager:
 
 
 class GlobalSettingManager(_BaseSettingManager, CoreContrib):
+	"""
+	Global Setting manager is available at the instance. ``instance.setting_manager``.
+	
+	.. warning::
+	
+		Don't use the setting_manager for registering app settings! Use the app setting manager instead!
+		
+		Don't initiate this class yourself.
+	
+	"""
+
 	def __init__(self, instance):
 		super().__init__(instance)
 		self.app_managers = dict()
@@ -164,6 +171,30 @@ class GlobalSettingManager(_BaseSettingManager, CoreContrib):
 
 
 class AppSettingManager(_BaseSettingManager):
+	"""
+	The local app setting manager is the one you should use to register settings to inside of your app.
+	
+	You can use this manager like this:
+	
+	.. code-block:: python
+
+		from pyplanet.contrib.setting import Setting	
+	
+		async def on_start(self):
+			await self.context.setting.register(
+				Setting('feature_a', 'Enable feature A', Setting.CAT_FEATURES, type=bool, description='Enable feature A'),
+				Setting('feature_b', 'Enable feature B', Setting.CAT_FEATURES, type=bool, description='Enable feature B'),
+			)
+			
+	For more information about the settings, categories, types, and all other options. Look at the ``Settings`` 
+	documentation.
+	
+	.. warning::
+	
+		Don't initiate this class yourself.
+	
+	"""
+
 	def __init__(self, instance, app):
 		"""
 		Initiate app setting manager.

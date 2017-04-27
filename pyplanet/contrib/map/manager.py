@@ -11,6 +11,14 @@ from pyplanet.contrib.map.exceptions import MapNotFound
 class MapManager(CoreContrib):
 	"""
 	Map Manager. Manages the current map pool and the current and next map.
+	
+	.. todo::
+	
+		Write introduction.
+		
+	.. warning::
+	
+		Don't initiate this class yourself.
 	"""
 	def __init__(self, instance):
 		"""

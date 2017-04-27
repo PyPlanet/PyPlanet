@@ -1,6 +1,6 @@
 Local Records
 =============
 
-.. note::
+.. todo::
 
     Documentation is not yet complete for this app.

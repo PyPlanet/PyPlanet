@@ -8,6 +8,10 @@ class Command:
 	"""
 	The command instance describes the command itself, the target to fire and all other related information, like
 	admin command or aliases.
+	
+	.. todo::
+	
+		Write introduction + examples
 	"""
 
 	def __init__(
