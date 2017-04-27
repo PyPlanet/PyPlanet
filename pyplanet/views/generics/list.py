@@ -308,7 +308,7 @@ class ListView(TemplateView):
 			return str(getattr(row, field['index']))
 
 	async def _search(self, player, _, values, *args, **kwargs):
-		search_text = values[0]['Value']
+		search_text = values['list_search_field']
 		if len(search_text) > 0 and search_text != 'Search...':
 			self.search_text = search_text
 		else:

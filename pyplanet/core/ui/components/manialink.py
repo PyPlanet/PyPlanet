@@ -5,6 +5,7 @@ import logging
 from asyncio import iscoroutinefunction
 
 from pyplanet.core.events import SignalManager
+from pyplanet.core.ui.exceptions import ManialinkMemoryLeakException
 from pyplanet.core.ui.template import Template
 
 logger = logging.getLogger(__name__)
@@ -47,6 +48,8 @@ class _ManiaLink:
 		self.throw_exceptions = False
 
 		self.receivers = dict()
+		self._is_global_shown = False
+		self._is_player_shown = dict() # Holds per player login a boolean if the ml is shown.
 
 		# Register handle
 		SignalManager.listen('maniaplanet:manialink_answer', self.handle)
@@ -95,6 +98,12 @@ class _ManiaLink:
 		
 		:param player_logins: Only display to the list of player logins given.
 		"""
+		if player_logins:
+			for login in player_logins:
+				self._is_player_shown[login] = True
+		else:
+			self._is_global_shown = True
+
 		return await self.manager.send(self, player_logins)
 
 	async def hide(self, player_logins=None):
@@ -103,6 +112,12 @@ class _ManiaLink:
 		
 		:param player_logins: Only hide for list of players, None for all players on the server.
 		"""
+		if player_logins:
+			for login in player_logins:
+				del self._is_player_shown[login]
+		else:
+			self._is_global_shown = False
+
 		return await self.manager.hide(self, player_logins)
 
 	def subscribe(self, action, target):
@@ -113,6 +128,14 @@ class _ManiaLink:
 	async def handle(self, player, action, values, **kwargs):
 		if not action.startswith(self.id):
 			return
+
+		if not self._is_global_shown and player.login not in self._is_player_shown.keys():
+			raise ManialinkMemoryLeakException(
+				'Old view instance (ml-id: {}) is not yet destroyed, but is receiving player callbacks!, '
+				'Make sure you are not removing old view instances with .destroy() and del variable! '
+				'Potential Memory Leak!! Should be fixed asap!'.format(self.id)
+			)
+
 		action_name = action[len(self.id)+2:]
 		if action_name not in self.receivers:
 			return await self.handle_catch_all(player, action_name, values)
@@ -133,14 +156,31 @@ class _ManiaLink:
 	async def handle_catch_all(self, player, action, values, **kwargs):
 		pass
 
-	def __del__(self):
+	async def destroy(self):
 		try:
 			SignalManager.get_signal('maniaplanet:manialink_answer').unregister(self.handle)
+		except Exception as e:
+			logging.exception(e)
+		try:
+			await self.manager.destroy(self)
 		except:
 			pass
-		asyncio.ensure_future(self.manager.destroy(self))
+		self.receivers = dict()
 		self.data = None
 		self.player_data = None
+
+	def destroy_sync(self):
+		try:
+			SignalManager.get_signal('maniaplanet:manialink_answer').unregister(self.handle)
+			asyncio.ensure_future(self.manager.destroy(self))
+		except Exception as e:
+			logging.exception(e)
+		self.receivers = dict()
+		self.data = None
+		self.player_data = None
+
+	def __del__(self):
+		self.destroy_sync()
 
 
 class StaticManiaLink(_ManiaLink):

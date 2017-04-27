@@ -86,10 +86,6 @@ class AppConfig:
 		# The apps registry will be injected into the app config.
 		self.apps = None
 
-		# The instance and related app context managers.
-		self.instance = instance
-		self.context = _AppContext(self)
-
 		# Make sure we give the core attribute the default value of false. This indicates if it's an internally
 		# module.
 		self.core = getattr(self, 'core', False)
@@ -109,6 +105,10 @@ class AppConfig:
 		# Filesystem path to the application directory eg.
 		if not hasattr(self, 'path') or getattr(self, 'path') is None:
 			self.path = self._path_from_module(app_module)
+
+		# The instance and related app context managers.
+		self.instance = instance
+		self.context = _AppContext(self)
 
 	def __repr__(self):
 		return '<%s: %s>' % (self.__class__.__name__, self.label)

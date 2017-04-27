@@ -1,6 +1,8 @@
 import asyncio
 
+from pyplanet.apps import AppConfig
 from pyplanet.contrib import CoreContrib
+from pyplanet.contrib.setting.exceptions import SettingException
 
 
 class _BaseSettingManager:
@@ -32,6 +34,28 @@ class _BaseSettingManager:
 		# Register the setting.
 		self._settings.extend(settings)
 
+	async def get_setting(self, key, prefetch_values=True):
+		"""
+		Get setting by key and optionally fetch the value if not yet fetched.
+
+		:param key: Key string
+		:param prefetch_values: Prefetch the values if not yet fetched?
+		:return: Setting instance.
+		:raise: SettingException
+		"""
+		setting = None
+		for s in self._settings:
+			if s.key == key:
+				setting = s
+				break
+
+		if not setting:
+			raise SettingException('Setting with key not found')
+
+		if prefetch_values and setting._value[0] is False:
+			await setting.get_value()
+		return setting
+
 
 class GlobalSettingManager(_BaseSettingManager, CoreContrib):
 	def __init__(self, instance):
@@ -50,6 +74,93 @@ class GlobalSettingManager(_BaseSettingManager, CoreContrib):
 		if app_config.label not in self.app_managers:
 			self.app_managers[app_config.label] = AppSettingManager(self._instance, app_config)
 		return self.app_managers[app_config.label]
+
+	def get_app_manager(self, app):
+		"""
+		Get the app manager for a specified app label or config instance.
+		
+		:param app: App label in string or the app config instance.
+		:return: App manager instance.
+		:rtype: pyplanet.contrib.setting.manager.AppSettingManager
+		"""
+		if isinstance(app, AppConfig):
+			app = app.label
+		return self.app_managers[app]
+
+	@property
+	def recursive_settings(self):
+		"""
+		Retrieve all settings, of all submanagers.
+		"""
+		for setting in self._settings:
+			yield setting
+		for app, manager in self.app_managers.items():
+			for setting in manager._settings:
+				yield setting
+
+	async def get_apps(self, prefetch_values=True):
+		"""
+		Get all the app label + names for all the settings we can find in our registry.
+		Returns a dict with label as key, and count + name as values.
+		
+		:param prefetch_values: Prefetch the values in this call. Defaults to True.
+		:return: List with setting objects.
+		"""
+		apps = dict()
+		if prefetch_values:
+			await asyncio.gather(*[
+				s.get_value(refresh=True) for s in self.recursive_settings
+			])
+
+		for setting in self.recursive_settings:
+			if setting.app_label not in apps:
+				apps[setting.app_label] = dict(
+					count=0,
+					name=self._instance.apps.apps[setting.app_label].name,
+					app=self._instance.apps.apps[setting.app_label],
+					settings=list()
+				)
+			apps[setting.app_label]['count'] += 1
+			apps[setting.app_label]['settings'].append(setting)
+		return apps
+
+	async def get_categories(self, prefetch_values=True):
+		"""
+		Get all the categories we have registered.
+		Returns a dict with label as key, and count + name as values.
+		
+		:param prefetch_values: Prefetch the values in this call. Defaults to True.
+		:return: List with setting objects.
+		"""
+		cats = dict()
+		if prefetch_values:
+			await asyncio.gather(*[
+				s.get_value(refresh=True) for s in self.recursive_settings
+			])
+
+		for setting in self.recursive_settings:
+			if setting.category not in cats:
+				cats[setting.category] = dict(
+					count=0,
+					name=setting.category,
+					settings=list()
+				)
+			cats[setting.category]['count'] += 1
+			cats[setting.category]['settings'].append(setting)
+		return cats
+
+	async def get_all(self, prefetch_values=True):
+		"""
+		Retrieve a list of settings, with prefetched values, so get_value is almost instant (or use ._value, not recommended).
+		
+		:param prefetch_values: Prefetch the values in this call. Defaults to True.
+		:return: List with setting objects.
+		"""
+		if prefetch_values:
+			await asyncio.gather(*[
+				s.get_value(refresh=True) for s in self.recursive_settings
+			])
+		return self.recursive_settings
 
 
 class AppSettingManager(_BaseSettingManager):
@@ -82,19 +193,6 @@ class AppSettingManager(_BaseSettingManager):
 		# Register the setting.
 		self._settings.extend(settings)
 
-	def get_apps(self):
-		"""
-		Get all the app label + names for all the settings we can find in our registry.
-		Returns a dict with label as key, and count + name as values.
-		"""
-		apps = dict()
-		for setting in self._settings:
-			if setting.app_label:
-				if setting.app_label not in apps:
-					apps[setting.app_label] = dict(count=0, name=self._instance.apps.apps[setting.app_label].name)
-				apps[setting.app_label]['count'] += 1
-		return apps
-
 	def get_categories(self):
 		"""
 		Get all the categories we have registered.
@@ -106,3 +204,17 @@ class AppSettingManager(_BaseSettingManager):
 				cats[setting.category] = dict(count=0)
 			cats[setting.category]['count'] += 1
 		return cats
+
+	async def get_all(self, prefetch_values=True):
+		"""
+		Retrieve a list of settings, with prefetched values, so get_value is almost instant (or use ._value, not recommended).
+		
+		:param prefetch_values: Prefetch the values in this call. Defaults to True.
+		:return: List with setting objects.
+		"""
+		if prefetch_values:
+			await asyncio.gather(*[
+				s.get_value(refresh=True) for s in self._settings
+			])
+		return self._settings
+

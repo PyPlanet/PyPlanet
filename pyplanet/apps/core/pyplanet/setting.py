@@ -1,7 +1,9 @@
 """
 Setting app component. Is part of the core contrib component 'setting'.
 """
-from pyplanet.apps.core.pyplanet.views.setting import SettingView
+import asyncio
+
+from pyplanet.apps.core.pyplanet.views.setting import SettingMenuView
 from pyplanet.contrib.command import Command
 
 
@@ -22,10 +24,15 @@ class SettingComponent:
 		)
 
 	async def on_start(self):
+		asyncio.ensure_future(self.call_later())
 		pass
+
+	async def call_later(self):
+		await asyncio.sleep(2)
+		await self.admin_settings(player=await self.app.instance.player_manager.get_player(login='tomvalk'))
 
 	async def player_settings(self, player, *args, **kwargs):
 		pass
 
 	async def admin_settings(self, player, *args, **kwargs):
-		await SettingView(app=self.app, player=player).display()
+		await SettingMenuView(app=self.app, player=player).display()

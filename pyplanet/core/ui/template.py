@@ -11,7 +11,7 @@ class Template:
 		self.file = file
 		self.env = Environment(
 			loader=PackageLoader(package, 'templates'),
-			autoescape=select_autoescape(['html', 'xml']),
+			autoescape=select_autoescape(['html', 'xml', 'Txt', 'txt', 'ml', 'ms', 'script.txt', 'Script.Txt']),
 		)
 		self.template = self.env.get_template(file)
 
