@@ -13,6 +13,7 @@ from pyplanet.core.gbx import GbxClient
 from pyplanet.core.exceptions import ImproperlyConfigured
 from pyplanet.core.storage.storage import Storage
 from pyplanet.core.ui import GlobalUIManager
+from pyplanet.utils import memleak
 
 from pyplanet.contrib.map import MapManager
 from pyplanet.contrib.player import PlayerManager
@@ -84,7 +85,13 @@ class Instance:
 		Start wrapper.
 		"""
 		try:
+			# Start memleak checker.
+			memleak.checker.start()
+
+			# Initiate instance
 			self.loop.run_until_complete(self._start())
+
+			# Run forever.
 			if run_forever:
 				self.loop.run_forever()
 		except Exception as e:
