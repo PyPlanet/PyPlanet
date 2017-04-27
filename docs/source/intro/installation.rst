@@ -1,9 +1,9 @@
 
 Installation
-============
+------------
 
 Requirements
-------------
+~~~~~~~~~~~~
 
 PyPlanet runs on Python 3.5 and later. Most linux distributions contain default packages or will come with Python
 preinstalled. To be 100% sure you have to check if you have Python 3 and your version is above 3.5.
@@ -25,14 +25,14 @@ preinstalled. To be 100% sure you have to check if you have Python 3 and your ve
 
 
 Installing PyPlanet
--------------------
+~~~~~~~~~~~~~~~~~~~
 
 We recommend using a virtualenv to manage multiple versions at the same time. Virtual environments are basically abstracting
 the global module installations of python, and doesn't require root rights on some platforms.
 
 
 Virtual Environment
-~~~~~~~~~~~~~~~~~~~
+```````````````````
 
 We recommend using a `virtualenv` to install PyPlanet, and keep the version separate for multiple projects/dedicated servers.
 With this method you won't have to upgrade all servers at the same time and don't have any issues with system managed python
@@ -69,7 +69,7 @@ To activate, use the following commands:
 
 
 System Installation
-~~~~~~~~~~~~~~~~~~~
+```````````````````
 
 
 PyPlanet is published through the Python Package Index (PyPi) and is easy to install with ``pip``. To install PyPlanet
@@ -92,7 +92,7 @@ After installing it on your system you can use the pyplanet cli commands. To get
 
 
 Setup Project
--------------
+~~~~~~~~~~~~~
 
 After installing PyPlanet on your system, you can't yet start any instances because starting requires you to give up an
 settings module. You could either provide this with the start command or create a project directory with skeleton files.

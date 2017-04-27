@@ -52,7 +52,7 @@ gh-deploy:
 
 .PHONY: livehtml
 livehtml:
-	sphinx-autobuild -b html "$(SOURCEDIR)" "$(BUILDDIR)/html"
+	sphinx-autobuild -b html "$(SOURCEDIR)" "$(BUILDDIR)/html" -i *___jb_*___
 
 
 # Catch-all target: route all unknown targets to Sphinx using the new

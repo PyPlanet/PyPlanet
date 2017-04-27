@@ -1,7 +1,7 @@
 
-============
-Introduction
-============
+===============
+Getting Started
+===============
 
-
-.. include:: general.rst
+.. include:: installation.rst
+.. include:: configuration.rst
