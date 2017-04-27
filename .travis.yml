@@ -73,5 +73,6 @@ before_script:
 script:
   - tox -e $TOXENV -- --with-coverage --cover-package=pyplanet --cover-xml --cover-xml-file=coverage.xml
 
-#after_success:
+after_success:
+  - codecov
 #  - python-codacy-coverage -r coverage.xml
