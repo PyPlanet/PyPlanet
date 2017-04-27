@@ -102,6 +102,9 @@ class Setting:
 				value = int(value)
 			elif self.type == float:
 				value = float(value)
+			elif self.type == bool:
+				if value == '1' or value == 1 or value == '0' or value == 0:
+					value = bool(value)
 		except:
 			pass
 
