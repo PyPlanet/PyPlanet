@@ -29,7 +29,15 @@ class TemplateView(View):
 	.. code-block:: python
 
 		class AlertView(TemplateView):	
-			template_name = 'my_app/test.xml' # template should be in: ./my_app/templates/test.xml		
+			template_name = 'my_app/test.xml' # template should be in: ./my_app/templates/test.xml
+			# Some prefixes that can be used in the template_name:
+			#
+			# - core.views: ``pyplanet.views.templates``.
+			# - core.pyplanet: ``pyplanet.apps.core.pyplanet.templates``.
+			# - core.maniaplanet: ``pyplanet.apps.core.pyplanet.templates``.
+			# - core.trackmania: ``pyplanet.apps.core.trackmania.templates``.
+			# - core.shootmania: ``pyplanet.apps.core.shootmania.templates``.
+			# - [app_label]: ``[app path]/templates``.
 		
 			async def get_context_data(self):
 				context = await super().get_context_data()

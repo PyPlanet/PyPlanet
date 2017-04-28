@@ -121,6 +121,13 @@ class _ManiaLink:
 		return await self.manager.hide(self, player_logins)
 
 	def subscribe(self, action, target):
+		"""
+		Subscribe to a action given by the manialink.
+		
+		:param action: Action name.
+		:param target: Target method.
+		:return: 
+		"""
 		if action not in self.receivers:
 			self.receivers[action] = list()
 		self.receivers[action].append(target)
@@ -154,9 +161,21 @@ class _ManiaLink:
 					logging.exception('Exception has been silenced in ManiaLink Action receiver:', exc_info=e)
 
 	async def handle_catch_all(self, player, action, values, **kwargs):
+		"""
+		Override this class to handle all other actions related to this view/manialink.
+		
+		:param player: Player instance.
+		:param action: Action name/string
+		:param values: Values provided by the user client.
+		:param kwargs: *
+		"""
 		pass
 
 	async def destroy(self):
+		"""
+		Destroy the Manialink with it's handlers and references.
+		Will also hide the Manialink for all users!
+		"""
 		try:
 			SignalManager.get_signal('maniaplanet:manialink_answer').unregister(self.handle)
 		except Exception as e:
@@ -170,6 +189,13 @@ class _ManiaLink:
 		self.player_data = None
 
 	def destroy_sync(self):
+		"""
+		Destroy the Manialink with it's handlers and references.
+		Will also hide the Manialink for all users!
+		
+		This method is sync and will call a async method (destroying of the manialink at our players) async but will not
+		be executed at the same time. Be aware with this one!
+		"""
 		try:
 			SignalManager.get_signal('maniaplanet:manialink_answer').unregister(self.handle)
 			asyncio.ensure_future(self.manager.destroy(self))
@@ -184,10 +210,23 @@ class _ManiaLink:
 
 
 class StaticManiaLink(_ManiaLink):
+	"""
+	The StaticManiaLink is mostly used in PyPlanet for general views. Please use the ``View`` classes instead of this
+	core ui component!
+	"""
 	pass
 
 
 class DynamicManiaLink(_ManiaLink):
+	"""
+	The DynamicManiaLink is a special manialink with data-bindings and automatically updates via maniascript.
+	Please use the ``View`` classes instead!
+	
+	.. warning ::
+	
+		This feature is not yet implemented.
+
+	"""
 	def __init__(self, id):
 		super().__init__(id)
 		raise NotImplementedError

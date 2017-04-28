@@ -60,7 +60,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'PyPlanet'
-copyright = '2017, Tom Valk'
+copyright = '2017, PyPlanet (Tom Valk)'
 author = 'Tom Valk'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -148,7 +148,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
 	(master_doc, 'PyPlanet.tex', 'PyPlanet Documentation',
-	 'Tom Valk', 'manual'),
+	 'PyPlanet (Tom Valk)', 'manual'),
 ]
 
 # -- Options for manual page output ---------------------------------------
