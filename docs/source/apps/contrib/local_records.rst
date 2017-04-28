@@ -38,8 +38,8 @@ Signal:
 Functionality:
   Retrieve records for the new map.
 
-Player chat
-~~~~~~~~~~~
+Player finish
+~~~~~~~~~~~~~
 Signal:
   ``pyplanet.apps.core.trackmania.finish``
 Functionality:
