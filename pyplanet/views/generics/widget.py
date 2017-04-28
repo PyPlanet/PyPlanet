@@ -55,7 +55,7 @@ class WidgetView(TemplateView):
 		"""
 		await self.display(player=player)
 
-	async def display(self, player=None):
+	async def display(self, player=None, **kwargs):
 		"""
 		Display list to player.
 
@@ -64,8 +64,8 @@ class WidgetView(TemplateView):
 		"""
 		login = player.login if isinstance(player, Player) else player
 		if not player:
-			return await super().display()
-		return await super().display(player_logins=[login])
+			return await super().display(**kwargs)
+		return await super().display(player_logins=[login], **kwargs)
 
 	async def get_title(self):
 		return self.title

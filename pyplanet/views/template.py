@@ -86,7 +86,6 @@ class TemplateView(View):
 		
 		:param player_logins: Only display to the list of player logins given.
 		"""
-		if not self.player_data:
-			self.player_data = await self.get_player_data()
+		self.player_data = await self.get_player_data()
 
 		return await super().display(player_logins, **kwargs)
