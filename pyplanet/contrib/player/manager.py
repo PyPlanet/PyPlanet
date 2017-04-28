@@ -75,6 +75,8 @@ class PlayerManager(CoreContrib):
 
 		self._online.add(player)
 
+		return player
+
 	async def handle_disconnect(self, login):
 		"""
 		Handle a disconnection of a player, this call is being called inside of the Glue of the callbacks.
@@ -87,6 +89,8 @@ class PlayerManager(CoreContrib):
 		self._online.remove(player)
 		player.last_seen = datetime.datetime.now()
 		await player.save()
+
+		return player
 
 	async def get_player(self, login=None, pk=None):
 		"""
