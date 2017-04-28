@@ -1,0 +1,15 @@
+<frame pos="{{ widget_x }} {{ widget_y }} 0">
+  <label pos="0.5 -0.5" size="{{ (size_x - 1) }} {{ (size_y - 1) }}" z-index="-42" text=" " focusareacolor1="3341" focusareacolor2="{{ hover_color }}" action="{{ id }}__open_widget" />
+  <quad pos="-0.2 0.2" size="{{ (size_x + 0.2) }} {{ (size_y + 0.2) }}" z-index="-41" style="Bgs1InRace" substyle="BgTitleShadow" />
+  <quad pos="0 0" size="{{ (size_x - 0.2) }} {{ (size_y - 0.2) }}" z-index="-40" style="Bgs1InRace" substyle="BgTitleGlow" />
+  <frame pos="1 -1" z-index="0">
+    <quad pos="0 0" size="{{ (size_x - 2) }} 3.5" z-index="0" style="BgsPlayerCard" substyle="BgRacePlayerName" />
+    <quad pos="{{ icon_x }} 0.35" size="4.5 4.5" z-index="1" style="{{ icon_style }}" substyle="{{ icon_substyle }}" />
+    <label pos="{{ title_x }} -0.5" size="{{ (widget_x - 8) }} 3" z-index="1" halign="{{ title_halign }}" text="$s{{ title }}" textcolor="FFFFFFF" textsize="1" />
+  </frame>
+  <frame pos="2 -5" z-index="0">
+    {% block content %}
+
+    {% endblock %}
+  </frame>
+</frame>

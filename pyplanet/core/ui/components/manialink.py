@@ -54,9 +54,8 @@ class _ManiaLink:
 		# Register handle
 		SignalManager.listen('maniaplanet:manialink_answer', self.handle)
 
-	@property
-	def is_global(self):
-		return not self.player_data or len(self.player_data.keys()) == 0
+	async def is_global(self):
+		return not self.player_data or self.player_data.keys() == 0
 
 	async def get_template(self):
 		return self._template
@@ -74,8 +73,8 @@ class _ManiaLink:
 		"""
 		if data and isinstance(data, dict):
 			self.data.update(data)
-		if player_data and isinstance(player_data, dict):
-			self.player_data.update(player_data)
+		if not player_data:
+			player_data = self.player_data or dict()
 		if template and isinstance(template, Template):
 			self._template = template
 		if not template:
@@ -91,7 +90,7 @@ class _ManiaLink:
 		# Render and save in content.
 		return await template.render(**payload_data)
 
-	async def display(self, player_logins=None):
+	async def display(self, player_logins=None, **kwargs):
 		"""
 		Display the manialink. Will also render if no body is given. Will show per player or global. depending on 
 		the data given and stored!
@@ -104,7 +103,7 @@ class _ManiaLink:
 		else:
 			self._is_global_shown = True
 
-		return await self.manager.send(self, player_logins)
+		return await self.manager.send(self, player_logins, **kwargs)
 
 	async def hide(self, player_logins=None):
 		"""

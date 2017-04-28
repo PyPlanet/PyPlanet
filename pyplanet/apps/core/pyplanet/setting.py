@@ -11,7 +11,7 @@ class SettingComponent:
 	def __init__(self, app):
 		"""
 		Initiate setting component.
-		
+
 		:param app: App config instance
 		:type app: pyplanet.apps.core.pyplanet.app.PyPlanetConfig
 		"""
@@ -29,7 +29,7 @@ class SettingComponent:
 
 	async def call_later(self):
 		await asyncio.sleep(2)
-		await self.admin_settings(player=await self.app.instance.player_manager.get_player(login='tomvalk'))
+		#await self.admin_settings(player=await self.app.instance.player_manager.get_player(login='tomvalk'))
 
 	async def player_settings(self, player, *args, **kwargs):
 		pass

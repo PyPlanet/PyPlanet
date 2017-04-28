@@ -1,0 +1,14 @@
+{% extends 'core.views/generics/widget.xml' %}
+
+{% block content %}
+  <label pos="0.5 -0.5" size="{{ (size_x - 2) }} 3" z-index="1" halign="left" text="$s{{ map_name }}" textcolor="FFFFFFF" textsize="1" />
+
+  <quad pos="0.5 -3.7" size="3 3" style="Icons128x128_1" substyle="ChallengeAuthor"/>
+  <label pos="4.5 -4" size="{{ (size_x - 5) }} 3" z-index="1" halign="left" text="$s{{ map_author }}" textcolor="FFFFFFF" textsize="0.8" />
+
+  <quad pos="0.5 -7" size="3 3" style="BgRaceScore2" substyle="ScoreReplay"/>
+  <label pos="4.5 -7.4" size="{{ (size_x - 5 - (size_x / 2)) }} 3" z-index="1" halign="left" text="$s{{ map_authortime }}" textcolor="FFFFFFF" textsize="0.8" />
+
+  <quad pos="{{ (0.5 + (size_x / 2) - 2) }} -7" size="3 3" style="Icons128x128_1" substyle="United"/>
+  <label pos="{{ (4.5 + (size_x / 2) - 2) }} -7.4" size="{{ (size_x - 5 - (size_x / 2)) }} 3" z-index="1" halign="left" text="$s{{ map_environment }}" textcolor="FFFFFFF" textsize="0.8" />
+{% endblock %}
