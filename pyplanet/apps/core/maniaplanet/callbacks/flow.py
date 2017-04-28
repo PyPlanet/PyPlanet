@@ -6,7 +6,6 @@ async def handle_map_loading(source, signal, **kwargs):
 	map = await Controller.instance.map_manager.get_map(uid=source['map']['uid'])
 	return dict(
 		map=map,
-		restarted=source['restarted']
 	)
 
 
