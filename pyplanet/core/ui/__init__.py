@@ -10,7 +10,7 @@ class _BaseUIManager:
 		self.instance = instance
 		self.manialinks = dict()
 
-	async def send(self, manialink, logins=None):
+	async def send(self, manialink, logins=None, **kwargs):
 		"""
 		Send manialink to player(s).
 		
@@ -25,7 +25,7 @@ class _BaseUIManager:
 		if manialink.id not in self.manialinks:
 			self.manialinks[manialink.id] = manialink
 
-		if not manialink.is_global:
+		if not await manialink.is_global():
 			for login in for_logins:
 				if login not in manialink.player_data:
 					continue
