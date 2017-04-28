@@ -2,7 +2,7 @@ from pyplanet.apps.config import AppConfig
 from pyplanet.contrib.setting import Setting
 
 
-class MigrationTestConfig(AppConfig):
+class MigrationTest(AppConfig):
 	name = 'tests.apps.migration_test'
 
 	SETTING_1 = Setting('test_setting_1', 'Setting 1', Setting.CAT_GENERAL)

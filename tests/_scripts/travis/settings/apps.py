@@ -9,7 +9,12 @@ Please copy the default file to: apps.py
 # TODO: Link to documentation.
 APPS = {
 	'default': [
-		'tests.apps.migration_test.app.MigrationTestConfig'
+		'pyplanet.apps.contrib.admin.app.Admin',
+		'pyplanet.apps.contrib.jukebox.app.Jukebox',
+		'pyplanet.apps.contrib.karma.app.Karma',
+		'pyplanet.apps.contrib.local_records.app.LocalRecords',
+		'pyplanet.apps.contrib.players.app.Players',
+		'tests.apps.migration_test.app.MigrationTest',
 	],
 	#'test2': [],
 }

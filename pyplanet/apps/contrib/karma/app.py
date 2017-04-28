@@ -4,7 +4,7 @@ from pyplanet.contrib.command import Command
 
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 
-from .models import Karma
+from .models import Karma as KarmaModel
 
 
 class Karma(AppConfig):
@@ -66,7 +66,7 @@ class Karma(AppConfig):
 						message = '$z$s$fff» $ff0Successfully changed your karma vote to $fff{}$ff0!'.format(text)
 						await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
 				else:
-					new_vote = Karma(map=self.instance.map_manager.current_map,player=player,score=score)
+					new_vote = KarmaModel(map=self.instance.map_manager.current_map, player=player, score=score)
 					await new_vote.save()
 
 					self.current_votes.append(new_vote)
@@ -76,7 +76,7 @@ class Karma(AppConfig):
 					await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
 
 	async def get_votes_list(self, map):
-		vote_list = await Karma.objects.execute(Karma.select().where(Karma.map_id == map.get_id()))
+		vote_list = await KarmaModel.objects.execute(KarmaModel.select().where(KarmaModel.map_id == map.get_id()))
 		self.current_votes = list(vote_list)
 
 	async def calculate_karma(self):
