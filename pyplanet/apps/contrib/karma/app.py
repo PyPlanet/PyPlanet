@@ -3,6 +3,7 @@ from pyplanet.apps.contrib.karma.views import KarmaListView
 from pyplanet.contrib.command import Command
 
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
+from pyplanet.apps.contrib.karma.views import KarmaWidget
 
 from .models import Karma
 
@@ -19,6 +20,7 @@ class KarmaConfig(AppConfig):
 		self.current_karma = 0
 		self.current_positive_votes = 0
 		self.current_negative_votes = 0
+		self.widget = None
 
 	async def on_start(self):
 		# Register commands.
@@ -27,17 +29,22 @@ class KarmaConfig(AppConfig):
 		# Register signals.
 		self.instance.signal_manager.listen(mp_signals.map.map_begin, self.map_begin)
 		self.instance.signal_manager.listen(mp_signals.player.player_chat, self.player_chat)
+		self.instance.signal_manager.listen(mp_signals.player.player_connect, self.player_connect)
 
 		# Load initial data.
 		await self.get_votes_list(self.instance.map_manager.current_map)
 		await self.calculate_karma()
 		await self.chat_current_karma()
 
+		self.widget = KarmaWidget(self)
+
+		await self.update_widgets()
+
 	async def show_map_list(self, player, map=None, **kwargs):
 		"""
 		Show map list to player for current map or map provided.. Provide player instance.
-		
-		:param player: Player instance. 
+
+		:param player: Player instance.
 		:param map: Map instance or current map.
 		:param kwargs: ...
 		:type player: pyplanet.apps.core.maniaplanet.models.Player
@@ -52,6 +59,11 @@ class KarmaConfig(AppConfig):
 		await self.calculate_karma()
 		await self.chat_current_karma()
 
+		await self.update_widgets()
+
+	async def player_connect(self, player, is_spectator, source, signal):
+		await self.widget.display(player=player)
+
 	async def player_chat(self, player, text, cmd):
 		if not cmd:
 			if text == '++' or text == '--':
@@ -65,6 +77,8 @@ class KarmaConfig(AppConfig):
 
 						message = '$z$s$fff» $ff0Successfully changed your karma vote to $fff{}$ff0!'.format(text)
 						await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+						await self.calculate_karma()
+						await self.update_widgets()
 				else:
 					new_vote = Karma(map=self.instance.map_manager.current_map,player=player,score=score)
 					await new_vote.save()
@@ -74,6 +88,7 @@ class KarmaConfig(AppConfig):
 
 					message = '$z$s$fff» $ff0Successfully voted $fff{}$ff0!'.format(text)
 					await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+					await self.update_widgets()
 
 	async def get_votes_list(self, map):
 		vote_list = await Karma.objects.execute(Karma.select().where(Karma.map_id == map.get_id()))
@@ -94,3 +109,7 @@ class KarmaConfig(AppConfig):
 			round((len(self.current_negative_votes) / num_current_votes) * 100, 2) if num_current_votes > 0 else 0,
 		)
 		await self.instance.gbx.execute('ChatSendServerMessage', message)
+
+	async def update_widgets(self):
+		for player in self.instance.player_manager.online:
+			await self.widget.display(player=player)
