@@ -32,10 +32,14 @@ class KarmaWidget(WidgetView):
 		elif self.app.current_karma < 0:
 			karma_color = '$f00'
 
+		karma_percentage = round((len(self.app.current_positive_votes) / (len(self.app.current_votes))) * 100, 1)
+		positive_blocks = round(karma_percentage / 10)
+
 		context = await super().get_context_data()
 		context.update({
 			'current_karma': self.app.current_karma,
-			'current_karma_percentage': round((len(self.app.current_positive_votes) / (len(self.app.current_votes))) * 100, 1),
+			'current_karma_percentage': karma_percentage,
+			'positive_blocks': positive_blocks,
 			'karma_color': karma_color,
 			'positive_votes': len(self.app.current_positive_votes),
 			'negative_votes': len(self.app.current_negative_votes)
