@@ -29,8 +29,7 @@ class TemplateView(View):
 	.. code-block:: python
 
 		class AlertView(TemplateView):	
-			template_package = 'my_app'
-			template_name = 'test.xml' # template should be in: ./my_app/templates/test.xml		
+			template_name = 'my_app/test.xml' # template should be in: ./my_app/templates/test.xml		
 		
 			async def get_context_data(self):
 				context = await super().get_context_data()
@@ -39,7 +38,6 @@ class TemplateView(View):
 
 	"""
 
-	template_package = None
 	template_name = None
 
 	async def get_context_data(self):
@@ -58,7 +56,7 @@ class TemplateView(View):
 		return dict()
 
 	async def get_template(self):
-		return await load_template(self.template_package, self.template_name)
+		return await load_template(self.template_name)
 
 	async def render(self, *args, player_login=None, **kwargs):
 		"""

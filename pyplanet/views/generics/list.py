@@ -63,8 +63,7 @@ class ListView(TemplateView):
 	fields = []
 	actions = []
 
-	template_package = 'pyplanet.views'
-	template_name = 'generics/list.xml'
+	template_name = 'core.views/generics/list.xml'
 
 	single_list = True
 	"""Change this to False to have multiple lists open at the same time."""

@@ -10,8 +10,7 @@ class AlertView(TemplateView):
 	sm, md and lg.
 	"""
 
-	template_package = 'pyplanet.views'
-	template_name = 'generics/alert.xml'
+	template_name = 'core.views/generics/alert.xml'
 
 	SIZES = dict(
 		sm={

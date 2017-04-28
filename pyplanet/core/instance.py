@@ -48,6 +48,7 @@ class Instance:
 	def __init__(self, process_name):
 		"""
 		The actual instance of the controller.
+		
 		:param process_name: EnvironmentProcess class specific for this process.
 		:type process_name: str
 		"""

@@ -1,16 +1,18 @@
 from jinja2 import Environment, PackageLoader, select_autoescape
 
+from pyplanet.core.ui.loader import PyPlanetLoader
 
-async def load_template(package, file):
-	return Template(package, file)
+
+async def load_template(file):
+	return Template(file)
 
 
 class Template:
-	def __init__(self, package, file):
+	def __init__(self, file):
 
 		self.file = file
 		self.env = Environment(
-			loader=PackageLoader(package, 'templates'),
+			loader=PyPlanetLoader.get_loader(),
 			autoescape=select_autoescape(['html', 'xml', 'Txt', 'txt', 'ml', 'ms', 'script.txt', 'Script.Txt']),
 		)
 		self.template = self.env.get_template(file)
