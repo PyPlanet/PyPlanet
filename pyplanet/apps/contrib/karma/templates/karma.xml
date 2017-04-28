@@ -2,24 +2,34 @@
 
 {% block content %}
   <frame pos="1 0">
-    <quad pos="1.5 -1" size="2.8 4.5" image="http://kreipe.patrick.coolserverhosting.de/local/grey.jpg"/>
-    <quad pos="4.3 -1" size="2.8 4.5" image="http://kreipe.patrick.coolserverhosting.de/local/grey.jpg"/>
-    <quad pos="7.1 -1" size="2.8 4.5" image="http://kreipe.patrick.coolserverhosting.de/local/grey.jpg"/>
-    <quad pos="9.9 -1" size="2.8 4.5" image="http://kreipe.patrick.coolserverhosting.de/local/grey.jpg"/>
-    <quad pos="12.7 -1" size="2.8 4.5" image="http://kreipe.patrick.coolserverhosting.de/local/grey.jpg"/>
-    <quad pos="15.5 -1" size="2.8 4.5" image="http://kreipe.patrick.coolserverhosting.de/local/grey.jpg"/>
-    <quad pos="18.3 -1" size="2.8 4.5" image="http://kreipe.patrick.coolserverhosting.de/local/grey.jpg"/>
-    <quad pos="21.1 -1" size="2.8 4.5" image="http://kreipe.patrick.coolserverhosting.de/local/grey.jpg"/>
-    <quad pos="23.9 -1" size="2.8 4.5" image="http://kreipe.patrick.coolserverhosting.de/local/grey.jpg"/>
-    <quad pos="26.7 -1" size="2.8 4.5" image="http://kreipe.patrick.coolserverhosting.de/local/grey.jpg"/>
+    {% if current_karma == 0 %}
+      {% for i in range(0, 10) %}
+        <quad pos="{{ (loop.index0 * 2.8) + 1.5 }} -1" size="2.8 4.5" image="http://kreipe.patrick.coolserverhosting.de/local/grey.jpg"/>
+      {% endfor %}
+    {% else %}
+      {% set negative_start = 1.5 %}
+      {% for i in range(0, positive_blocks) %}
+        <quad pos="{{ (loop.index0 * 2.8) + 1.5 }} -1" size="2.8 4.5" image="http://kreipe.patrick.coolserverhosting.de/local/green.jpg"/>
+        {% set negative_start = (loop.index0 * 2.8) + 1.5 %}
+      {% endfor %}
+      {% for i in range(positive_blocks, 10) %}
+        <quad pos="{{ (loop.index0 * 2.8) + negative_start }} -1" size="2.8 4.5" image="http://kreipe.patrick.coolserverhosting.de/local/red.jpg"/>
+      {% endfor %}
+    {% endif %}
   </frame>
 
+  {% if player_vote == -1 %}
+    <quad pos="1.75 -5.25" size="6.5 6.5" z-index="0" style="Icons64x64_1" substyle="LvlRed" />
+  {% endif %}
+  <quad pos="2 -5.5" size="6 6" z-index="1" style="Icons64x64_1" substyle="Sub" action="{{ id }}__vote_negative" />
+
   <label pos="16.5 -7.3" size="5 2" text="$s$o{{ karma_color }}{{ current_karma }}" textsize="1" halign="center" />
-  <quad pos="2 -5.5" size="6 6" style="Icons64x64_1" substyle="Sub" action="vote_negative" />
   <label pos="5 -11.2" size="5 2" text="$s$f00{{ negative_votes }}" textsize="0.8" halign="center" />
   <label pos="16.5 -11.2" size="10 2" text="$s{{ current_karma_percentage }}%" textsize="0.8" halign="center" />
-  <quad pos="25 -5.5" size="6 6" style="Icons64x64_1" substyle="Add" action="vote_positive" />
   <label pos="28 -11.2" size="5 2" text="$s$3f3{{ positive_votes }}" textsize="0.8" halign="center" />
 
-  <label pos="10.5 -7.3" size="5 2" text="$s$o$fff{{ player_vote }}" textsize="1" halign="center" />
+  {% if player_vote == 1 %}
+    <quad pos="24.75 -5.25" size="6.5 6.5" z-index="0" style="Icons64x64_1" substyle="LvlGreen" />
+  {% endif %}
+  <quad pos="25 -5.5" size="6 6" z-index="1" style="Icons64x64_1" substyle="Add" action="{{ id }}__vote_positive" />
 {% endblock %}
