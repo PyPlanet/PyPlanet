@@ -1,4 +1,4 @@
-{% extends 'generics/widget.xml' %}
+{% extends 'core.views/generics/widget.xml' %}
 
 {% block content %}
   <frame pos="1 0">
@@ -20,4 +20,6 @@
   <label pos="16.5 -11.2" size="10 2" text="$s{{ current_karma_percentage }}%" textsize="0.8" halign="center" />
   <quad pos="25 -5.5" size="6 6" style="Icons64x64_1" substyle="Add" action="vote_positive" />
   <label pos="28 -11.2" size="5 2" text="$s$3f3{{ positive_votes }}" textsize="0.8" halign="center" />
+
+  <label pos="10.5 -7.3" size="5 2" text="$s$o$fff{{ player_vote }}" textsize="1" halign="center" />
 {% endblock %}

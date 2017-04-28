@@ -19,8 +19,7 @@ class WidgetView(TemplateView):
 
 	action = None
 
-	template_package = 'pyplanet.views'
-	template_name = 'generics/widget.xml'
+	template_name = 'core.views/generics/widget.xml'
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)

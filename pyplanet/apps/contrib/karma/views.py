@@ -13,7 +13,7 @@ class KarmaWidget(WidgetView):
 	icon_style = 'Icons128x128_1'
 	icon_substyle = 'Buddies'
 
-	template_name = 'apps/karma.xml'
+	template_name = 'karma/karma.xml'
 
 	def __init__(self, app):
 		super().__init__(self)

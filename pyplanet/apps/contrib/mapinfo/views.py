@@ -11,7 +11,7 @@ class MapInfoWidget(WidgetView):
 	icon_style = 'Icons128x128_1'
 	icon_substyle = 'Challenge'
 
-	template_name = 'apps/mapinfo.xml'
+	template_name = 'mapinfo/mapinfo.xml'
 
 	def __init__(self, app):
 		super().__init__(self)
