@@ -53,7 +53,7 @@ async def handle_scores(source, signal, **kwargs):
 		player = await Player.get_by_login(data['login'])
 		return dict(
 			player=player, stunts_score=data['stuntsscore'], best_lap_checkpoints=data['bestlapcheckpoints'],
-			match_points=data['match_points'], rank=data['rank'], best_lap_time=data['bestlaptime'],
+			match_points=data['mappoints'], rank=data['rank'], best_lap_time=data['bestlaptime'],
 			best_lap_respawns=data['bestlaprespawns'], map_points=data['mappoints'], best_race_time=data['bestracetime'],
 			round_points=data['roundpoints'], best_race_checkpoints=data['bestracecheckpoints'],
 			best_race_respawns=data['bestracerespawns']
