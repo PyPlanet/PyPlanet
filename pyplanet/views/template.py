@@ -74,6 +74,19 @@ class TemplateView(View):
 		:return: Body, rendered manialink + script.
 		"""
 		kwargs['data'] = await self.get_context_data()
-		kwargs['player_data'] = await self.get_player_data()
+		kwargs['player_login'] = player_login
+		kwargs['player_data'] = self.player_data # Should already been read by display().
 		kwargs['template'] = await self.get_template()
 		return await super().render(*args, **kwargs)
+
+	async def display(self, player_logins=None, **kwargs):
+		"""
+		Display the manialink. Will also render if no body is given. Will show per player or global. depending on 
+		the data given and stored!
+		
+		:param player_logins: Only display to the list of player logins given.
+		"""
+		if not self.player_data:
+			self.player_data = await self.get_player_data()
+
+		return await super().display(player_logins, **kwargs)
