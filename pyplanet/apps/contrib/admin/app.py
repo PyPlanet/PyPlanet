@@ -4,7 +4,7 @@ from pyplanet.contrib.command import Command
 from pyplanet.contrib.player.exceptions import PlayerNotFound
 
 
-class AdminConfig(AppConfig):
+class Admin(AppConfig):
 	name = 'pyplanet.apps.contrib.admin'
 	game_dependencies = ['trackmania', 'shootmania']
 	app_dependencies = ['core.maniaplanet']

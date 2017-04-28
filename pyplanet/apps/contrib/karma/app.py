@@ -7,7 +7,7 @@ from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 from .models import Karma
 
 
-class KarmaConfig(AppConfig):
+class Karma(AppConfig):
 	name = 'pyplanet.apps.contrib.karma'
 	game_dependencies = []
 	app_dependencies = ['core.maniaplanet']

@@ -9,7 +9,10 @@ Documentation: http://pypla.net/
 # DOCUMENTATION: http://pypla.net/
 APPS = {
 	'default': [
-		'pyplanet.apps.contrib.local_records.app.LocalRecordsConfig',
-		'pyplanet.apps.contrib.karma.app.KarmaConfig',
+		'pyplanet.apps.contrib.admin.app.Admin',
+		'pyplanet.apps.contrib.jukebox.app.Jukebox',
+		'pyplanet.apps.contrib.karma.app.Karma',
+		'pyplanet.apps.contrib.local_records.app.LocalRecords',
+		'pyplanet.apps.contrib.players.app.Players',
 	]
 }

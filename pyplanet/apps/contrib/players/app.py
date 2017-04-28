@@ -4,7 +4,7 @@ from pyplanet.contrib.command import Command
 from pyplanet.apps.contrib.players.views import PlayerListView
 
 
-class PlayersConfig(AppConfig):
+class Players(AppConfig):
 	name = 'pyplanet.apps.contrib.players'
 	game_dependencies = ['trackmania', 'shootmania']
 	app_dependencies = ['core.maniaplanet']

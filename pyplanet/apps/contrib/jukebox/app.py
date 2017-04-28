@@ -5,7 +5,7 @@ from pyplanet.contrib.command import Command
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 
 
-class JukeboxConfig(AppConfig):
+class Jukebox(AppConfig):
 	name = 'pyplanet.apps.contrib.jukebox'
 	game_dependencies = ['trackmania', 'shootmania']
 	app_dependencies = ['core.maniaplanet']
