@@ -44,7 +44,7 @@ class _ManiaLink:
 		self.timeout = timeout
 		self.hide_click = hide_click
 		self.data = data if data and isinstance(data, dict) else dict()
-		self.player_data = player_data if player_data and isinstance(player_data, dict) else None
+		self.player_data = player_data if player_data and isinstance(player_data, dict) else dict()
 		self.throw_exceptions = False
 
 		self.receivers = dict()
