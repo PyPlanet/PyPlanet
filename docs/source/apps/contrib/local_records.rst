@@ -17,8 +17,8 @@ This app enables players to have their map records stored.
 Commands
 --------
 
-Display votes
-~~~~~~~~~~~~~
+Display local records
+~~~~~~~~~~~~~~~~~~~~~
 Command:
   ``/records``
 Parameters:
