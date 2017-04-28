@@ -7,11 +7,11 @@ pyplanet.views
 
 .. automodule:: pyplanet.views.base
   :members:
-  :special-members:
+  :inherited-members:
 
 .. automodule:: pyplanet.views.template
   :members:
-  :special-members:
+  :inherited-members:
 
 
 

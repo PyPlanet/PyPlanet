@@ -11,8 +11,7 @@ from pyplanet.views import TemplateView
 
 
 class SettingMenuView(TemplateView):
-	template_package = 'pyplanet.apps.core.pyplanet'
-	template_name = 'setting/list.xml'
+	template_name = 'core.pyplanet/setting/list.xml'
 
 	def __init__(self, app, player):
 		"""
@@ -113,8 +112,7 @@ class SettingEditView(TemplateView):
 	"""
 	Setting Edit view will provide the user with a friendly edit window.
 	"""
-	template_package = 'pyplanet.apps.core.pyplanet'
-	template_name = 'setting/edit.xml'
+	template_name = 'core.pyplanet/setting/edit.xml'
 
 	def __init__(self, parent, player, setting):
 		"""

@@ -5,10 +5,10 @@ from pyplanet.contrib.command import Command
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 from pyplanet.apps.contrib.karma.views import KarmaWidget
 
-from .models import Karma
+from .models import Karma as KarmaModel
 
 
-class KarmaConfig(AppConfig):
+class Karma(AppConfig):
 	name = 'pyplanet.apps.contrib.karma'
 	game_dependencies = []
 	app_dependencies = ['core.maniaplanet']
@@ -80,7 +80,7 @@ class KarmaConfig(AppConfig):
 						await self.calculate_karma()
 						await self.update_widgets()
 				else:
-					new_vote = Karma(map=self.instance.map_manager.current_map,player=player,score=score)
+					new_vote = KarmaModel(map=self.instance.map_manager.current_map, player=player, score=score)
 					await new_vote.save()
 
 					self.current_votes.append(new_vote)
@@ -91,7 +91,7 @@ class KarmaConfig(AppConfig):
 					await self.update_widgets()
 
 	async def get_votes_list(self, map):
-		vote_list = await Karma.objects.execute(Karma.select().where(Karma.map_id == map.get_id()))
+		vote_list = await KarmaModel.objects.execute(KarmaModel.select().where(KarmaModel.map_id == map.get_id()))
 		self.current_votes = list(vote_list)
 
 	async def calculate_karma(self):

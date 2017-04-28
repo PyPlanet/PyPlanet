@@ -9,7 +9,7 @@ from pyplanet.utils import times
 from .models import LocalRecord
 
 
-class LocalRecordsConfig(AppConfig):
+class LocalRecords(AppConfig):
 	name = 'pyplanet.apps.contrib.local_records'
 	game_dependencies = ['trackmania']
 	app_dependencies = ['core.maniaplanet', 'core.trackmania']

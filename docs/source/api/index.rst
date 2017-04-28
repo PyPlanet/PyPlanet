@@ -12,6 +12,7 @@ Modules:
     views
     core_exceptions
     core_instance
+    core_ui
 
     contrib_map
     contrib_player
