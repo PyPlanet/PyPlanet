@@ -90,10 +90,10 @@ class AlertView(TemplateView):
 		)
 		self.data.update(data)
 
-	async def handle(self, player, action, values, **kwargs):
+	async def handle(self, player, action, values, **kwargs):  # pragma: no cover
 		await self.close(player)
 
-	async def close(self, player, **kwargs):
+	async def close(self, player, **kwargs):  # pragma: no cover
 		"""
 		Close the alert.
 		"""
@@ -196,7 +196,7 @@ class PromptView(AlertView):
 
 		self.input_future = asyncio.Future()
 
-	async def wait_for_input(self):
+	async def wait_for_input(self):  # pragma: no cover
 		"""
 		Wait for input and return it.
 		
@@ -204,12 +204,12 @@ class PromptView(AlertView):
 		"""
 		return await self.input_future
 
-	def validate_input(self, value):
+	def validate_input(self, value):  # pragma: no cover
 		if not value or len(value) == 0:
 			return False, 'Empty value given!'
 		return True, None
 
-	async def handle(self, player, action, values, **kwargs):
+	async def handle(self, player, action, values, **kwargs):  # pragma: no cover
 		self.data['errors'] = ''
 		value = self.default
 		if 'prompt_value' in values:
