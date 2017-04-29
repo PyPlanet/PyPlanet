@@ -136,11 +136,15 @@ class _ManiaLink:
 			return
 
 		if not self._is_global_shown and player.login not in self._is_player_shown.keys():
-			raise ManialinkMemoryLeakException(
-				'Old view instance (ml-id: {}) is not yet destroyed, but is receiving player callbacks!, '
-				'Make sure you are not removing old view instances with .destroy() and del variable! '
-				'Potential Memory Leak!! Should be fixed asap!'.format(self.id)
-			)
+			# Ignore if id is unique (uuid4)
+			try:
+				uuid.UUID(self.id, version=4)
+			except:
+				raise ManialinkMemoryLeakException(
+					'Old view instance (ml-id: {}) is not yet destroyed, but is receiving player callbacks!, '
+					'Make sure you are not removing old view instances with .destroy() and del variable! '
+					'Potential Memory Leak!! Should be fixed asap!'.format(self.id)
+				)
 
 		action_name = action[len(self.id)+2:]
 		if action_name not in self.receivers:
