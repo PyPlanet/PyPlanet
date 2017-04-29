@@ -193,11 +193,11 @@ class Signal:
 		responses = []
 		for key, receiver in self._live_receivers():
 			slf = self.self_refs.get(key, None)
-
 			if slf and isinstance(slf, weakref.ReferenceType):
 				# Dereference the weak reference.
 				slf = slf()
 
+			if slf is not None:
 				if asyncio.iscoroutinefunction(receiver):
 					response = await receiver(slf, **kwargs)
 				else:
@@ -244,6 +244,7 @@ class Signal:
 					# Dereference the weak reference.
 					slf = slf()
 
+				if slf is not None:
 					if asyncio.iscoroutinefunction(receiver):
 						response = await receiver(slf, **kwargs)
 					else:

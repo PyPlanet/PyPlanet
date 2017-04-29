@@ -30,7 +30,7 @@ class StorageDriver:
 		self.base_dir = None
 
 	def absolute(self, path):
-		return '{}/{}'.format(self.base_dir, path)
+		return '{}{}{}'.format(self.base_dir or '', '/' if self.base_dir else '', path)
 
 	async def __aenter__(self, **kwargs):
 		return self
