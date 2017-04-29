@@ -39,11 +39,15 @@ class Players(AppConfig):
 		await view.display(player=player.login)
 
 	async def player_connect(self, player, **kwargs):
+		if not await self.setting_enable_join_msg.get_value():
 		await self.instance.gbx.execute(
 			'ChatSendServerMessage',
 			'$z$s$fff»» $ff0Player {}$z$s$ff0 joined the server!'.format(player.nickname)
 		)
+
 	async def player_disconnect(self, player, **kwargs):
+		if not await self.setting_enable_leave_msg.get_value():
+			return
 		await self.instance.gbx.execute(
 			'ChatSendServerMessage',
 			'$z$s$fff»» $ff0Player {}$z$s$ff0 left the server!'.format(player.nickname)
