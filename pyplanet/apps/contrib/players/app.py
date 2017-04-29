@@ -3,6 +3,7 @@ from pyplanet.contrib.command import Command
 
 from pyplanet.apps.contrib.players.views import PlayerListView
 from pyplanet.apps.core.maniaplanet.callbacks import player as player_signals
+from pyplanet.contrib.setting import Setting
 
 
 class Players(AppConfig):
@@ -13,9 +14,21 @@ class Players(AppConfig):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
+		self.setting_enable_join_msg = Setting(
+			'enable_join_message', 'Enable player join messages', Setting.CAT_FEATURES, type=bool, default=True,
+			description='Enable this to announce that a player has joined the server.'
+		)
+		self.setting_enable_leave_msg = Setting(
+			'enable_leave_message', 'Enable player leave messages', Setting.CAT_FEATURES, type=bool, default=True,
+			description='Enable this to announce that a player has left the server.'
+		)
+
 	async def on_start(self):
 		await self.instance.command_manager.register(
 			Command(command='players', target=self.player_list)
+		)
+		await self.context.setting.register(
+			self.setting_enable_join_msg, self.setting_enable_leave_msg
 		)
 
 		player_signals.player_connect.register(self.player_connect)

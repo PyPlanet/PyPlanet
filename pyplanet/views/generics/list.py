@@ -69,6 +69,7 @@ class ListView(TemplateView):
 	"""Change this to False to have multiple lists open at the same time."""
 
 	def __init__(self, *args, **kwargs):
+		self.id = 'pyplanet.views.generics.list.ListView'
 		super().__init__(*args, **kwargs)
 		self.search_text = None
 		self.sort_field = None
