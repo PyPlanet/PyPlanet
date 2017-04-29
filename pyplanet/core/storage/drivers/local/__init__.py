@@ -17,7 +17,7 @@ class LocalDriver(StorageDriver):
 	def absolute(self, path):
 		if self.override_base_path:
 			return os.path.join(self.override_base_path, path)
-		return os.path.join(self.base_dir, path)
+		return os.path.join(self.base_dir or '', path)
 
 	async def chmod(self, path: str, mode: int, **kwargs):
 		os.chmod(self.absolute(path), mode, **kwargs)

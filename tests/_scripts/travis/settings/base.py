@@ -89,6 +89,8 @@ STORAGE = {
 	}
 }
 
+MAP_MATCHSETTINGS = 'test.txt'
+
 # Define any cache backends that can be used by the core and the plugins to cache data.
 # CACHE = {
 # 	'default': {
