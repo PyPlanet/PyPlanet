@@ -56,6 +56,10 @@ class LazySettings:
 		"""Return True if the settings have already been configured."""
 		return self._settings is not None
 
+	def reset(self):
+		"""Clear the current wrapped settings. Useful when reloaded or in tests."""
+		self._settings = None
+
 
 class Settings:
 
