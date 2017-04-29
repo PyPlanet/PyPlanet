@@ -81,7 +81,7 @@ class Instance:
 				'declare the apps per pool! ({})'.format(str(e))
 			)
 
-	def start(self, run_forever=True):
+	def start(self, run_forever=True):  # pragma: no cover
 		"""
 		Start wrapper.
 		"""
@@ -99,15 +99,16 @@ class Instance:
 			logger.exception(e)
 			raise
 
-	async def __fire_signal(self, signal):
+	async def __fire_signal(self, signal):  # pragma: no cover
 		"""
 		Fire signal with given name to all listeners.
+		
 		:param signal: Signal to fire on.
 		:type signal: pyplanet.core.events.dispatcher.Signal
 		"""
 		await signal.send(dict(instance=self))
 
-	async def _start(self):
+	async def _start(self):  # pragma: no cover
 		"""
 		The start coroutine is executed when the process is ready to create connection to the gbx protocol, database,
 		other services and finally start the apps.
@@ -143,11 +144,11 @@ class Instance:
 		await self.signal_manager.finish_start()
 		await self.__fire_signal(signals.pyplanet_start_after)
 
-	async def print_header(self):
+	async def print_header(self):  # pragma: no cover
 		await self.gbx.execute('ChatSendServerMessage', '')
 		await self.gbx.execute('ChatSendServerMessage', '$fff$o$w⏳$z$fff Loading...')
 
-	async def print_footer(self):
+	async def print_footer(self):  # pragma: no cover
 		await self.gbx.execute('ChatSendServerMessage', '\uf1e6 $o$FD4Py$369Planet$z$o$s$fff v{}, {}\uf013'.format(version, len(self.apps.apps)))
 		# await self.gbx.execute('ChatSendServerMessage', '$o$FD4$l[http://pypla.net]Site$l $369|$FD4 $l[https://github.com/tomvlk/pyplanet]Github$l $369|$FD4 $l[http://pypla.net]Docs$l')
 
