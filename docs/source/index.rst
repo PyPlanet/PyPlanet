@@ -45,6 +45,7 @@ Information about development of apps and the core is also available under:
     apps/contrib/jukebox
     apps/contrib/karma
     apps/contrib/local_records
+    apps/contrib/mapinfo
     apps/contrib/players
 
 
