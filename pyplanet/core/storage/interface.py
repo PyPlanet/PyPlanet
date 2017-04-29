@@ -24,6 +24,14 @@ class StorageDriver:
 		self.instance = instance
 		self.config = config or {}
 
+		self.map_dir = None
+		self.skin_dir = None
+		self.data_dir = None
+		self.base_dir = None
+
+	def absolute(self, path):
+		return '{}/{}'.format(self.base_dir, path)
+
 	async def __aenter__(self, **kwargs):
 		return self
 
@@ -69,5 +77,11 @@ class StorageDriver:
 	async def stat(self, path: str, **kwargs):
 		raise NotImplemented
 
+	async def exists(self, path: str, **kwargs):
+		raise NotImplementedError
+
 	async def symlink(self, source: str, dest: str, **kwargs):
 		raise NotImplemented
+
+	async def touch(self, path: str, **kwargs):
+		raise NotImplementedError

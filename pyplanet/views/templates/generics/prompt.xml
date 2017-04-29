@@ -6,7 +6,8 @@
 
   <frame z-index="55">
     {% block body %}
-      <label pos="{{ sizes.text__pos }}" size="{{ sizes.text__size }}" halign="left" valign="center2" textsize="2" textcolor="FFF" autonewline="1" text="{{ message }}" />
+      <label pos="{{ sizes.text__pos }}" size="{{ sizes.text__size }}" halign="left" valign="center2" textsize="2" textcolor="FFF" autonewline="1" text="{{ message }} $f90{{ errors }}" />
+      <entry pos="{{ sizes.input__pos }}" size="{{ sizes.input__size }}" halign="center" valign="center2" textsize="2" textcolor="FFF" default="{{ default }}" name="prompt_value" />
 
       {% if buttons|length >= 2 %}
         <label pos="{{ sizes.button_0__pos__left }} {{ sizes.button_0__pos__top }}" style="CardButtonMedium" valign="center" halign="center" text="{{ buttons[0].name }}" translate="1" action="{{ id }}__button_0" />

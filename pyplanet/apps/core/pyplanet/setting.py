@@ -5,6 +5,7 @@ import asyncio
 
 from pyplanet.apps.core.pyplanet.views.setting import SettingMenuView
 from pyplanet.contrib.command import Command
+from pyplanet.views.generics.alert import PromptView, AlertView
 
 
 class SettingComponent:
@@ -28,8 +29,12 @@ class SettingComponent:
 		pass
 
 	async def call_later(self):
-		await asyncio.sleep(2)
-		#await self.admin_settings(player=await self.app.instance.player_manager.get_player(login='tomvalk'))
+		await asyncio.sleep(1.5)
+		await self.display_test()
+
+	async def display_test(self):
+		# await self.admin_settings(player=await self.app.instance.player_manager.get_player(login='tomvalk'))
+		pass
 
 	async def player_settings(self, player, *args, **kwargs):
 		pass

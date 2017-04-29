@@ -113,7 +113,10 @@ class _ManiaLink:
 		"""
 		if player_logins:
 			for login in player_logins:
-				del self._is_player_shown[login]
+				try:
+					del self._is_player_shown[login]
+				except:
+					pass
 		else:
 			self._is_global_shown = False
 

@@ -2,16 +2,16 @@
 Setting Views. Based on the Contrib component Setting.
 """
 import asyncio
-import re
-
-from asyncio import Future
 
 from pyplanet.contrib.setting.exceptions import SerializationException
 from pyplanet.views import TemplateView
+from pyplanet.views.generics import ManualListView
 
 
-class SettingMenuView(TemplateView):
-	template_name = 'core.pyplanet/setting/list.xml'
+class SettingMenuView(ManualListView):
+	title = 'PyPlanet Settings'
+	icon_style = 'Icons128x128_1'
+	icon_substyle = 'ProfileAdvanced'
 
 	def __init__(self, app, player):
 		"""
@@ -20,92 +20,116 @@ class SettingMenuView(TemplateView):
 		:type app: pyplanet.apps.core.pyplanet.app.PyPlanetConfig
 		:type player: pyplanet.apps.core.maniaplanet.models.player.Player
 		"""
-		super().__init__(app.context.ui)
-		self.id = 'pyplanet_settings_menu'
+		super().__init__()
+		self.manager = app.context.ui
 		self.app = app
 		self.player = player
 
-		self.page = 1
-		self.per_page = 20
-
 		self.child = None
 
-		self.subscribe('button_close', self.close)
-		self.subscribe('button_refresh', self.refresh)
+	async def get_data(self):
+		return [
+			dict(
+				key=setting.key,
+				name=setting.name,
+				app_label=setting.app_label,
+				category=setting.category,
+				type=setting.type,
+				type_name=setting.type_name,
+				value=setting._value[1],
+			)
+			for setting in await self.app.instance.setting_manager.get_all(prefetch_values=True)
+		]
+
+	async def open_edit_setting(self, player, values, row, **kwargs):
+		if self.child:
+			return
+
+		# Getting the setting itself.
+		setting = await self.app.instance.setting_manager\
+			.get_app_manager(row['app_label'])\
+			.get_setting(row['key'], prefetch_values=True)
+
+		# Show edit view.
+		self.child = SettingEditView(self, self.player, setting)
+		await self.child.display()
+		await self.child.wait_for_response()
+		await self.child.destroy()
+		await self.display()  # refresh.
+		self.child = None
 
 	async def display(self, **kwargs):
-		await super().display(player_logins=[self.player.login])
+		kwargs['player'] = self.player
+		return await super().display(**kwargs)
 
-	async def get_settings_data(self):
-		# Displaying goes with app as heading/section, settings under it (sorted by category).
-		count = len(list(self.app.instance.setting_manager.recursive_settings))
-		data = await self.app.instance.setting_manager.get_apps(prefetch_values=True)
-		apps = list(data.keys())
+	def value_renderer(self, row, field, **kwargs):
+		if row[field['index']] is None:
+			return '-'
+		if row['type'] == str or row['type'] == int or row['type'] == float or row['type'] == bool:
+			return str(row[field['index']])
+		elif row['type'] == dict:
+			return 'Dictionary, edit to show'
+		elif row['type'] == set or row['type'] == list:
+			return '{} values, edit to show'.format(len(row[field['index']]))
+		return 'Unknown type {}'.format(row['type_name'])
 
-		apps, data = await self.apply_filter(apps, data)
-		apps, data = await self.apply_sort(apps, data)
-		apps, data = await self.apply_pagination(apps, data)
+	async def get_fields(self):
+		return [
+			{
+				'name': 'Name',
+				'index': 'name',
+				'sorting': True,
+				'searching': True,
+				'width': 50,
+				'type': 'label'
+			},
+			{
+				'name': 'App',
+				'index': 'app_label',
+				'sorting': True,
+				'searching': True,
+				'width': 20,
+				'type': 'label'
+			},
+			{
+				'name': 'Category',
+				'index': 'category',
+				'sorting': True,
+				'searching': True,
+				'width': 20,
+				'type': 'label'
+			},
+			{
+				'name': 'Type',
+				'index': 'type_name',
+				'sorting': True,
+				'searching': True,
+				'width': 15,
+				'type': 'label'
+			},
+			{
+				'name': 'Value or contents',
+				'index': 'value',
+				'sorting': False,
+				'searching': False,
+				'width': 100,
+				'type': 'label',
+				'renderer': self.value_renderer,
+				'action': self.open_edit_setting
+			},
+		]
 
-		return apps, data, count
-
-	async def apply_filter(self, apps: list, data: dict):
-		return apps, data
-
-	async def apply_sort(self, apps: list, data: dict):
-		return sorted(apps, key=lambda x: (x, x.startswith('core'))), data
-
-	async def apply_pagination(self, apps: list, data: dict):
-		# TODO: Calculate pagination.
-		return apps, data
-
-	async def get_context_data(self):
-		context = await super().get_context_data()
-
-		# Get all settings apps + categories.
-		context['title'] = 'PyPlanet Settings'
-		context['icon_style'] = 'Icons128x128_1'
-		context['icon_substyle'] = 'ProfileAdvanced'
-		context['apps'], context['data'], context['count'] = await self.get_settings_data()
-		context['types'] = dict(int=int, str=str, float=float, set=set, dict=dict, list=list, bool=bool)
-
-		return context
-
-	async def handle_catch_all(self, player, action, values, **kwargs):
-		if action.startswith('setting__'):
-			match = re.search('^setting__(.+)__(.+)__(.+)$', action)
-			try:
-				app_label, setting_key, action = match.groups()
-				manager = self.app.instance.setting_manager.get_app_manager(app_label)
-				setting = await manager.get_setting(setting_key, prefetch_values=True)
-
-				self.child = SettingEditView(self, self.player, setting)
-				await asyncio.gather(
-					self.hide(),
-					self.child.display()
-				)
-				await self.child.wait_for_response()
-				await self.child.destroy()
-				await self.refresh()
-				self.child = None
-			finally:
-				pass
-
-	async def close(self, player, *args, **kwargs):
-		"""
-		Close the link for a specific player. Will hide manialink and destroy data for player specific to save memory.
-		
-		:param player: Player model instance.
-		:type player: pyplanet.apps.core.maniaplanet.models.Player
-		"""
-		if self.player_data and player.login in self.player_data:
-			del self.player_data[player.login]
-		await self.hide(player_logins=[player.login])
-
-	async def refresh(self, *args, **kwargs):
-		"""
-		Refresh settings window. Will also refresh settings itself from data store.
-		"""
-		await self.display(**kwargs)
+	async def get_actions(self):
+		return [
+			{
+				'name': 'Edit',
+				'type': 'label',
+				'text': '$fff &#xf040; Edit',
+				'width': 11,
+				'action': self.open_edit_setting,
+				'safe': True
+			},
+		]
 
 
 class SettingEditView(TemplateView):
@@ -117,7 +141,7 @@ class SettingEditView(TemplateView):
 	def __init__(self, parent, player, setting):
 		"""
 		Initiate child edit view.
-		
+
 		:param parent: Parent view.
 		:param player: Player instance.
 		:param setting: Setting instance.
@@ -131,7 +155,7 @@ class SettingEditView(TemplateView):
 		self.player = player
 		self.setting = setting
 
-		self.response_future = Future()
+		self.response_future = asyncio.Future()
 
 		self.subscribe('button_close', self.close)
 		self.subscribe('button_save', self.save)
@@ -162,7 +186,7 @@ class SettingEditView(TemplateView):
 	async def close(self, player, *args, **kwargs):
 		"""
 		Close the link for a specific player. Will hide manialink and destroy data for player specific to save memory.
-		
+
 		:param player: Player model instance.
 		:type player: pyplanet.apps.core.maniaplanet.models.Player
 		"""

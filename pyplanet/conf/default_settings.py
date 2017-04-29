@@ -112,6 +112,15 @@ LOGGING = {
 	}
 }
 
+# Error reporting
+# See documentation for the options, (docs => privacy).
+# Options:
+# 0 = Don't report any errors or messages.
+# 1 = Report errors with only traces.
+# 2 = Report errors with traces and server data.
+# 3 = Report errors with traces and server data, provide data to contributed apps (only pyplanet team has access).
+LOGGING_REPORTING = 3
+
 
 ##########################################
 ################# APPS ###################
@@ -143,6 +152,10 @@ DEDICATED = {
 		'PASSWORD': 'SuperAdmin',
 	}
 }
+
+# Map configuration is a set of configuration options related to match settings etc.
+# Matchsettings filename.
+MAP_MATCHSETTINGS = None
 
 # The storage configuration contains the same instance mapping of the dedicated servers and is used
 # to access the filesystem on the dedicated server location.
