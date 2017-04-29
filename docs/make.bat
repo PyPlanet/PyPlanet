@@ -26,6 +26,10 @@ if errorlevel 9009 (
 	exit /b 1
 )
 
+if "%1" == "livehtml" (
+  sphinx-autobuild -b html "%SOURCEDIR%" "%BUILDDIR%\html" -i *___jb_*___
+)
+
 %SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS%
 goto end
 

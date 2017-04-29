@@ -1,9 +1,19 @@
+|
+|
+|
+|
+|
 
 Life Cycle
 ----------
 
 ..  image:: /_static/apps/lifecycle.png
 
+
+.. warning::
+
+  Currently the life cycle **isn't fully implemented**. Only the ``on_init`` and ``on_start`` will be called, but please
+  prepare your app to support the following life cycle methods.
 
 on_init
 ~~~~~~~

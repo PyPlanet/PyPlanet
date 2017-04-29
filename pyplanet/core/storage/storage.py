@@ -1,12 +1,16 @@
+import asyncio_extras
 import os
 
 import importlib
+from async_generator import yield_
 
 from pyplanet.conf import settings
 from pyplanet.core.storage import StorageDriver, StorageInterface
 
 
 class Storage(StorageInterface):
+	MAP_FOLDER = 'UserData/Maps'
+	MATCHSETTINGS_FOLDER = 'UserData/Maps/MatchSettings'
 
 	def __init__(self, instance, driver: StorageDriver, config):
 		"""
@@ -22,6 +26,7 @@ class Storage(StorageInterface):
 		self._instance = instance
 		self._driver = driver
 		self._config = config
+		self._game = None
 
 		# Create temp folders for driver.
 		self._tmp_root = os.path.join(settings.TMP_PATH, self._instance.process_name)
@@ -35,6 +40,13 @@ class Storage(StorageInterface):
 		driver = driver_cls(instance, driver_options)
 		return cls(instance, driver, storage_config)
 
+	async def initialize(self):
+		self._game = self._instance.game
+		self._driver.map_dir = self._game.server_map_dir
+		self._driver.skin_dir = self._game.server_skin_dir
+		self._driver.data_dir = self._game.server_data_dir
+		self._driver.base_dir = self._game.server_data_dir[:len(self._game.server_data_dir)-9]
+
 	@property
 	def driver(self):
 		"""
@@ -45,6 +57,7 @@ class Storage(StorageInterface):
 		"""
 		return self._driver
 
+	@asyncio_extras.async_contextmanager
 	async def open(self, file: str, mode: str = 'rb'):
 		"""
 		Open a file on the server. Use relative path to the dedicated root. Use the other open methods to relative
@@ -53,10 +66,12 @@ class Storage(StorageInterface):
 		:param file: Filename/path, relative to the dedicated root path.
 		:param mode: Mode to open, see the python `open` manual for supported modes.
 		:return: File handler.
-		:rtype: apyio.AsyncBufferedIOBaseWrapper
 		"""
-		return await self._driver.file(file, mode)
+		context = self._driver.open(file, mode)
+		await yield_(await context.__aenter__())
+		await context.__aexit__(None, None, None)
 
+	@asyncio_extras.async_contextmanager
 	async def open_match_settings(self, file: str, mode: str = 'r'):
 		"""
 		Open a file on the server. Relative to the MatchSettings folder (UserData/Maps/MatchSettings).
@@ -64,10 +79,12 @@ class Storage(StorageInterface):
 		:param file: Filename/path, relative to the dedicated matchsettings folder.
 		:param mode: Mode to open, see the python `open` manual for supported modes.
 		:return: File handler.
-		:rtype: apyio.AsyncBufferedIOBaseWrapper
 		"""
-		return await self._driver.file('UserData/Maps/MatchSettings/{}'.format(file), mode)
+		context = self._driver.open('{}/{}'.format(self.MATCHSETTINGS_FOLDER, file), mode)
+		await yield_(await context.__aenter__())
+		await context.__aexit__(None, None, None)
 
+	@asyncio_extras.async_contextmanager
 	async def open_map(self, file: str, mode: str = 'rb'):
 		"""
 		Open a file on the server. Relative to the Maps folder (UserData/Maps).
@@ -75,6 +92,15 @@ class Storage(StorageInterface):
 		:param file: Filename/path, relative to the dedicated maps folder.
 		:param mode: Mode to open, see the python `open` manual for supported modes.
 		:return: File handler.
-		:rtype: apyio.AsyncBufferedIOBaseWrapper
 		"""
-		return await self._driver.file('UserData/Maps/{}'.format(file), mode)
+		context = self._driver.open('{}/{}'.format(self.MAP_FOLDER, file), mode)
+		await yield_(await context.__aenter__())
+		await context.__aexit__(None, None, None)
+
+	async def remove_map(self, file: str):
+		"""
+		Remove a map file with filename given.
+		
+		:param file: Filename, relative to Maps folder.
+		"""
+		await self._driver.remove('{}/{}'.format(self.MAP_FOLDER, file))

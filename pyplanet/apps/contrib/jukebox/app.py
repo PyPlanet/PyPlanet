@@ -65,6 +65,17 @@ class Jukebox(AppConfig):
 				await self.clear_jukebox(player, data)
 
 	async def clear_jukebox(self, player, data, **kwargs):
+		local_file = '/home/tom/IdeaProjects/maniaplanet/pyplanet-core/tests/_files/maps/canyon-mp4-1.gbx'
+		remote_file = 'test3.Map.gbx'
+
+		try:
+			await self.instance.map_manager.remove_map('test3.Map.gbx')
+		except: pass
+		await self.instance.map_manager.upload_map(open(local_file, 'rb'), remote_file, overwrite=True)
+		await self.instance.map_manager.save_matchsettings()
+		await self.instance.map_manager.remove_map('test3.Map.gbx')
+		# await self.instance.map_manager.add_map('test1.Map.gbx')
+
 		if len(self.jukebox) > 0:
 			self.jukebox.clear()
 			message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has cleared the jukebox.'.format(player.nickname)

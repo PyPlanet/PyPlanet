@@ -1,3 +1,5 @@
+import threading
+
 from multiprocessing import Process
 
 
@@ -12,6 +14,9 @@ def _run(name, queue):
 	import logging
 
 	logging.getLogger(__name__).info('Starting pool process for \'{}\'...'.format(name))
+
+	# Setting thread name to our process name.
+	threading.main_thread().setName(name)
 
 	# Start instance.
 	instance = Controller.prepare(name).instance

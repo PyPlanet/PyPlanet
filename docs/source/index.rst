@@ -68,6 +68,7 @@ Information about development of apps and the core is also available under:
     :caption: About PyPlanet
 
     support
+    privacy
     changelog
     todo
 

@@ -1,5 +1,5 @@
 <frame pos="0 0 70" z-index="50">
-  <quad pos="0 0 -1" size="320 180" halign="center" valign="center" style="Bgs1" substyle="BgDialogBlur" z-index="50" />
+  <quad pos="0 0 -1" size="320 180" halign="center" valign="center" style="Bgs1" substyle="BgDialogBlur" z-index="50" scriptevents="1" />
 </frame>
 <frame pos="0 17 0" z-index="60">
   <quad pos="0 62.5" size="120 127" z-index="60" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
@@ -61,4 +61,4 @@
 </frame>
 
 
-<script><!-- {% include 'setting/edit.Script.Txt' %} --></script>
+<script><!-- {% include 'core.pyplanet/setting/edit.Script.Txt' %} --></script>

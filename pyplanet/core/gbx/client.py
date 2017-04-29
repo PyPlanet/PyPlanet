@@ -112,6 +112,7 @@ class GbxClient(GbxRemote):
 	async def connect(self):
 		await super().connect()
 		await self.initialize()
+		await self.instance.storage.initialize()
 
 	async def initialize(self):
 		"""

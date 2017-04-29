@@ -132,6 +132,21 @@ This one is pretty important, and pretty simple too. Look at the examples bellow
   }
 
 
+Map settings (base.py)
+~~~~~~~~~~~~~~~~~~~~~~
+
+Some of these settings are required to be able to save match settings for example.
+
+.. code-block:: python
+
+  # Map configuration is a set of configuration options related to match settings etc.
+  # Matchsettings filename.
+  MAP_MATCHSETTINGS = 'autosave.txt'
+
+  # You can set this to a automatically generated name:
+  MAP_MATCHSETTINGS = '{server_login}.txt'
+
+
 Storage (base.py)
 ~~~~~~~~~~~~~~~~~
 
