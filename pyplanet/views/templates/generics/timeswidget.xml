@@ -1,0 +1,15 @@
+{% extends 'core.views/generics/widget.xml' %}
+
+{% block content %}
+  <quad pos="0 0" size="5 {{ (size_y - 5.5) }}" z-index="0" bgcolor="06F5"/>
+  <quad pos="5 0" size="9 {{ (size_y - 5.5) }}" z-index="0" bgcolor="09F3"/>
+  <quad pos="14 0" size="{{ (size_x - 14 - 1) }} {{ (size_y - 5.5) }}" z-index="0" bgcolor="09F1"/>
+
+  {% if top_entries > 0 %}
+    <quad pos="0.1 -0.2" size="{{ (size_x - 0.2) }} {{ (top_entries * 3.2) }}" z-index="1" style="BgsPlayerCard" substyle="BgCardSystem"/>
+  {% endif %}
+
+  {% if times != None %}
+
+  {% endif %}
+{% endblock %}

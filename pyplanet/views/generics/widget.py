@@ -98,7 +98,25 @@ class WidgetView(TemplateView):
 			'title_halign': title_halign,
 			'open_action': (self.action is not None),
 			'icon_style': self.icon_style,
-			'icon_substyle': self.icon_substyle
+			'icon_substyle': self.icon_substyle,
+			'content_pos_x': 2,
+			'content_pos_y': -5
+		})
+
+		return context
+
+class TimesWidgetView(WidgetView):
+	template_name = 'core.views/generics/timeswidget.xml'
+
+	async def get_context_data(self):
+		context = await super().get_context_data()
+
+		# Add facts.
+		context.update({
+			'content_pos_x': 1,
+			'content_pos_y': -4.5,
+			'top_entries': 3,
+			'times': None
 		})
 
 		return context

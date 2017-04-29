@@ -1,5 +1,5 @@
 from pyplanet.apps.config import AppConfig
-from pyplanet.apps.contrib.local_records.views import LocalRecordsListView
+from pyplanet.apps.contrib.local_records.views import LocalRecordsListView, LocalRecordsWidget
 from pyplanet.contrib.command import Command
 
 from pyplanet.apps.core.trackmania import callbacks as tm_signals
@@ -18,6 +18,7 @@ class LocalRecords(AppConfig):
 		super().__init__(*args, **kwargs)
 
 		self.current_records = []
+		self.widget = None
 
 	async def on_start(self):
 		# Register commands
@@ -26,10 +27,14 @@ class LocalRecords(AppConfig):
 		# Register signals
 		self.instance.signal_manager.listen(mp_signals.map.map_begin, self.map_begin)
 		self.instance.signal_manager.listen(tm_signals.finish, self.player_finish)
+		self.instance.signal_manager.listen(mp_signals.player.player_connect, self.player_connect)
 
 		# Load initial data.
 		await self.refresh_locals()
 		await self.chat_current_record()
+
+		self.widget = LocalRecordsWidget(self)
+		await self.widget.display()
 
 	async def refresh_locals(self):
 		record_list = await LocalRecord.objects.execute(
@@ -41,8 +46,8 @@ class LocalRecords(AppConfig):
 
 	async def show_records_list(self, player, data, **kwargs):
 		"""
-		Show record list view to player. 
-		
+		Show record list view to player.
+
 		:param player: Player instance.
 		:param data: -
 		:param kwargs: -
@@ -76,6 +81,10 @@ class LocalRecords(AppConfig):
 	async def map_begin(self, map):
 		await self.refresh_locals()
 		await self.chat_current_record()
+		await self.widget.display()
+
+	async def player_connect(self, player, is_spectator, source, signal):
+		await self.widget.display(player=player)
 
 	async def player_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
 		current_records = [x for x in self.current_records if x.player_id == player.get_id()]
@@ -107,6 +116,7 @@ class LocalRecords(AppConfig):
 					)
 
 				await self.instance.gbx.execute('ChatSendServerMessage', message)
+				await self.widget.display()
 
 			elif race_time == current_record.score:
 				message = '$z$s$fff»» $fff{}$z$s$0f3 equalled the $fff{}.$0f3 Local Record, with a time of $fff\uf017 {}$0f3.'.format(
@@ -131,6 +141,7 @@ class LocalRecords(AppConfig):
 				player.nickname, new_index, times.format_time(race_time)
 			)
 			await self.instance.gbx.execute('ChatSendServerMessage', message)
+			await self.widget.display()
 
 	async def chat_current_record(self):
 		records_amount = len(self.current_records)
