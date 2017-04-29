@@ -44,7 +44,7 @@ class LocalRecords(AppConfig):
 		)
 		self.current_records = list(record_list)
 
-	async def show_records_list(self, player, data, **kwargs):
+	async def show_records_list(self, player, data = None, **kwargs):
 		"""
 		Show record list view to player.
 
@@ -98,8 +98,6 @@ class LocalRecords(AppConfig):
 				current_record.score = race_time
 				current_record.checkpoints = ','.join([str(cp) for cp in cps])
 				await current_record.save()
-
-				self.current_records.append(current_record)
 				self.current_records.sort(key=lambda x: x.score)
 
 				new_index = self.current_records.index(current_record) + 1

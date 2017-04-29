@@ -105,6 +105,7 @@ class WidgetView(TemplateView):
 
 		return context
 
+
 class TimesWidgetView(WidgetView):
 	template_name = 'core.views/generics/timeswidget.xml'
 
