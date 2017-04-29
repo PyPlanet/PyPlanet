@@ -277,10 +277,23 @@ class ListView(TemplateView):
 			left += field['width']
 			if 'type' not in field:
 				field['type'] = 'label'
+			if 'safe' not in field:
+				field['safe'] = False
 
 			field['_sort'] = None
 			if self.sort_field is not None and field['index'] == self.sort_field['index']:
 				field['_sort'] = self.sort_order
+		fields_width = int(left)
+
+		left = 0
+		for action in actions:
+			action['left'] = left
+			left += action['width'] if 'width' in action else 5
+			if 'type' not in action:
+				action['type'] = 'quad'
+			if 'safe' not in action:
+				action['safe'] = False
+		actions_width = int(left)
 
 		# Add facts.
 		context.update({
@@ -294,6 +307,8 @@ class ListView(TemplateView):
 			'search': self.search_text,
 			'pages': self.num_pages,
 			'page': self.page,
+			'fields_width': fields_width,
+			'actions_width': actions_width,
 		})
 
 		return context
@@ -386,7 +401,8 @@ class ManualListView(ListView):
 					frame[field['index']].apply(lambda x: self.search_text.lower() in x.lower())
 				)
 		if query:
-			return frame.loc[np.logical_or(*query)]
+			query = np.logical_or.reduce(query)
+			return frame.loc[query]
 		return frame
 
 	async def apply_ordering(self, frame):
