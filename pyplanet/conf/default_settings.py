@@ -112,6 +112,15 @@ LOGGING = {
 	}
 }
 
+# Error reporting
+# See documentation for the options, (docs => privacy).
+# Options:
+# 0 = Don't report any errors or messages.
+# 1 = Report errors with only traces.
+# 2 = Report errors with traces and server data.
+# 3 = Report errors with traces and server data, provide data to contributed apps (only pyplanet team has access).
+LOGGING_REPORTING = 3
+
 
 ##########################################
 ################# APPS ###################

@@ -32,6 +32,8 @@ def handle_exception(exception=None, module_name=None, func_name=None, extra_dat
 	from pyplanet.core import Controller
 	if settings.DEBUG:
 		return
+	if settings.LOGGING_REPORTING == 0:
+		return
 
 	if not extra_data:
 		extra_data = dict()
@@ -39,7 +41,20 @@ def handle_exception(exception=None, module_name=None, func_name=None, extra_dat
 	if Controller.instance and Controller.instance.game:
 		extra_data.update(dict(game=Controller.instance.game.__dict__))
 
-	Raven.get_client().extra_context(extra_data)
+	if exception and hasattr(exception, '__dict__'):
+		extra_data['report_exception'] = exception.__dict__
+	if module_name:
+		extra_data['report_module_name'] = module_name
+	if func_name:
+		extra_data['report_func_name'] = func_name
+
+	if settings.LOGGING_REPORTING == 3:
+		extra_data['report_privacy'] = 'allow-share-contrib-apps'
+	else:
+		extra_data['report_privacy'] = 'deny-share-contrib-apps'
+
+	if settings.LOGGING_REPORTING >= 2:
+		Raven.get_client().extra_context(extra_data)
 
 	exc_info = sys.exc_info()
 	Raven.get_client().captureException(exc_info=exc_info)
