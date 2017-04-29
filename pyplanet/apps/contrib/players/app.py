@@ -40,6 +40,7 @@ class Players(AppConfig):
 
 	async def player_connect(self, player, **kwargs):
 		if not await self.setting_enable_join_msg.get_value():
+			return
 		await self.instance.gbx.execute(
 			'ChatSendServerMessage',
 			'$z$s$fff»» $ff0Player {}$z$s$ff0 joined the server!'.format(player.nickname)
