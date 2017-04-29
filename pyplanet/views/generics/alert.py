@@ -112,7 +112,29 @@ class PromptView(AlertView):
 		
 	.. code-block:: python
 	
-		PromptView('Please enter your name')
+		prompt = PromptView('Please enter your name')
+		await prompt.display(['login'])
+		
+		user_input = await prompt.wait_for_input()
+		print(user_input)
+		
+		
+	You can do validations before it's okay with giving a function to the argument ``validator``. Example:
+	
+	.. code-block:: python
+	
+		def my_validator(value):
+			try:
+				int(value)
+				return True, None
+			except:
+				return False, 'Value should be an integer!'
+	
+		prompt = PromptView('Please enter your name', validator=my_validator)
+		await prompt.display(['login'])
+		
+		user_input = await prompt.wait_for_input()
+		print(user_input)
 	
 	"""
 
@@ -175,6 +197,11 @@ class PromptView(AlertView):
 		self.input_future = asyncio.Future()
 
 	async def wait_for_input(self):
+		"""
+		Wait for input and return it.
+		
+		:return: Returns the string value of the user.
+		"""
 		return await self.input_future
 
 	def validate_input(self, value):
