@@ -10,6 +10,7 @@ from xmlrpc.client import dumps, loads, Fault
 
 from pyplanet.core.exceptions import TransportException
 from pyplanet.core.events.manager import SignalManager
+from pyplanet.utils.log import handle_exception
 
 logger = logging.getLogger(__name__)
 
@@ -181,16 +182,17 @@ class GbxRemote:
 				head = await self.reader.readexactly(8)
 				size, handle = struct.unpack_from('<LL', head)
 				body = await self.reader.readexactly(size)
+				data = method = fault = None
 
 				try:
 					data, method = loads(body, use_builtin_types=True)
 				except Fault as e:
-					raise e
+					fault = e
 
-				if len(data) == 1:
+				if data and len(data) == 1:
 					data = data[0]
 
-				self.event_loop.create_task(self.handle_payload(handle, method, data))
+				self.event_loop.create_task(self.handle_payload(handle, method, data, fault))
 		except ConnectionResetError as e:
 			logger.critical(
 				'Connection with the dedicated server has been closed, we will now close down the subprocess! {}'.format(str(e))
@@ -198,27 +200,36 @@ class GbxRemote:
 			# When the connection has been reset, we will close the controller process so it can be restarted by the god
 			# process. Exit code 10 gives the information to the god process. TODO: Make nice table for exit codes.
 			exit(10)
+		except Exception as e:
+			handle_exception(exception=e, module_name=__name__, func_name='listen')
+			raise
 
-	async def handle_payload(self, handle_nr, method, data):
+	async def handle_payload(self, handle_nr, method=None, data=None, fault=None):
 		"""
-		Handle a callback/response payload.
+		Handle a callback/response payload or fault.
 		
 		:param handle_nr: Handler ID
 		:param method: Method name
 		:param data: Parsed payload data.
+		:param fault: Fault object.
 		"""
 		if handle_nr in self.handlers:
-			await self.handle_response(handle_nr, data)
-		else:
+			await self.handle_response(handle_nr, data, fault)
+		elif method and data:
 			if method == 'ManiaPlanet.ModeScriptCallbackArray':
 				await self.handle_scripted(handle_nr, method, data)
 			else:
 				await self.handle_callback(handle_nr, method, data)
+		else:
+			raise TransportException('Handle payload got invalid parameters, see fault exception!') from fault
 
-	async def handle_response(self, handle_nr, data):
+	async def handle_response(self, handle_nr, data=None, fault=None):
 		logger.debug('GBX: Received response to handler {}'.format(handle_nr))
 		handler = self.handlers.pop(handle_nr)
-		handler.set_result(data)
+		if not fault:
+			handler.set_result(data)
+		else:
+			handler.set_exception(fault)
 		handler.done()
 
 	async def handle_callback(self, handle_nr, method, data):

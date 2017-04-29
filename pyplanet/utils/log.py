@@ -6,6 +6,7 @@ from raven import Client
 
 from pyplanet import __version__ as version
 from pyplanet.conf import settings
+from pyplanet.core.exceptions import ImproperlyConfigured
 
 
 class Raven:
@@ -29,6 +30,10 @@ def initiate_logger():
 
 
 def handle_exception(exception=None, module_name=None, func_name=None, extra_data=None):
+	# Test for ignored exceptions
+	if exception and isinstance(exception, (ImproperlyConfigured,)):
+		return
+
 	from pyplanet.core import Controller
 	if settings.DEBUG:
 		return
