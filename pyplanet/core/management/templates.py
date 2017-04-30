@@ -68,8 +68,11 @@ class TemplateCommand(BaseCommand):
 		})
 
 		# Setup a stub settings environment for template rendering
-		if not settings.configured:
-			_ = settings.APPS
+		try:
+			if not settings.configured:
+				_ = settings.APPS
+		except:
+			pass
 
 		template_dir = self.handle_template(base_subdir)
 		prefix_length = len(template_dir) + 1

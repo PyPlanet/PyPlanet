@@ -21,5 +21,5 @@ class Karma(TimedModel):
 		null=False
 	)
 	"""
-	Karma vote (-1 or 0)
+	Karma vote (-1 or 1)
 	"""
