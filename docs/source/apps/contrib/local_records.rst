@@ -12,7 +12,7 @@ Game:
 
 Features
 --------
-This app enables players to have their map records stored.
+This app enables players to have their map records stored and displays the records in a widget.
 
 Commands
 --------
@@ -36,7 +36,14 @@ Map begin
 Signal:
   ``pyplanet.apps.core.maniaplanet.callbacks.map.map_begin``
 Functionality:
-  Retrieve records for the new map.
+  Retrieves records for the new map and updates the widget.
+
+Player connect
+~~~~~~~~~~~~~~
+Signal:
+  ``pyplanet.apps.core.maniaplanet.callbacks.player.player_connect``
+Functionality:
+  Displays the records widget for the connecting player.
 
 Player finish
 ~~~~~~~~~~~~~
