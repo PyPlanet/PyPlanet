@@ -102,7 +102,7 @@ class KarmaListView(ManualListView):
 	def __init__(self, app, map):
 		super().__init__(self)
 		self.app = app
-		self.manager = app.ui
+		self.manager = app.context.ui
 		self.map = map
 
 	async def get_title(self):
