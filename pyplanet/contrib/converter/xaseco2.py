@@ -75,10 +75,14 @@ class Xaseco2Converter(BaseConverter):
 					print('Can\'t convert record, map or player not found. Skipping...')
 					continue
 
-				await LocalRecord.get_or_create(
-					map=map, player=player, score=s_record['Score'], checkpoints=s_record['Checkpoints'],
-					created_at=s_record['Date'], updated_at=datetime.datetime.now()
-				)
+				try:
+					await LocalRecord.get(map=map, player=player)
+					print('Record with uid \'{}\' and player \'{}\' already exists, skipping..'.format(map.uid, player.login))
+				except:
+					await LocalRecord.create(
+						map=map, player=player, score=s_record['Score'], checkpoints=s_record['Checkpoints'],
+						created_at=s_record['Date'], updated_at=datetime.datetime.now()
+					)
 
 	async def migrate_karma(self):
 		if 'karma' not in self.instance.apps.apps:
@@ -104,7 +108,11 @@ class Xaseco2Converter(BaseConverter):
 				if s_karma['Score'] == 0:
 					continue
 
-				await Karma.get_or_create(
-					map=map, player=player, score=-1 if s_karma['Score'] < 0 else 1,
-					updated_at=datetime.datetime.now()
-				)
+				try:
+					await Karma.get(map=map, player=player)
+					print('Karma with uid \'{}\' and player \'{}\' already exists, skipping..'.format(map.uid, player.login))
+				except:
+					await Karma.create(
+						map=map, player=player, score=-1 if s_karma['Score'] < 0 else 1,
+						updated_at=datetime.datetime.now()
+					)

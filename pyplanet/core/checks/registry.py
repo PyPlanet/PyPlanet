@@ -11,7 +11,6 @@ class CheckRegistry:
 		try:
 			from pyplanet.conf import settings
 			_ = settings.DEBUG
-			print('jodan')
 		except:
 			errors.append(
 				Error(
