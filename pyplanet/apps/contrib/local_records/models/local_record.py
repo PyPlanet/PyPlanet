@@ -12,7 +12,7 @@ class LocalRecord(TimedModel):
 	Map on which the local record is driven.
 	"""
 
-	player = ForeignKeyField(Player)
+	player = ForeignKeyField(Player, index=True)
 	"""
 	Player who drove the local record.
 	"""

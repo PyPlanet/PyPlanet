@@ -7,12 +7,12 @@ from pyplanet.apps.core.maniaplanet.models import Map, Player
 
 
 class Karma(TimedModel):
-	map = ForeignKeyField(Map)
+	map = ForeignKeyField(Map, index=True)
 	"""
 	Map on which the player voted.
 	"""
 
-	player = ForeignKeyField(Player)
+	player = ForeignKeyField(Player, index=True)
 	"""
 	The player who voted.
 	"""
