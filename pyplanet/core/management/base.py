@@ -151,6 +151,10 @@ class BaseCommand:
 	requires_migrations_checks = False
 	requires_system_checks = True
 
+	# default arguments required
+	arg_pool_required = False
+	arg_settings_required = False
+
 	def __init__(self, stdout=None, stderr=None, no_color=False):
 		self.stdout = OutputWrapper(stdout or sys.stdout)
 		self.stderr = OutputWrapper(stderr or sys.stderr)
@@ -198,6 +202,7 @@ class BaseCommand:
 				'If this isn\'t provided, the PYPLANET_POOL environment variable will be used.'
 				'If the environment variable isn\'t provided, \'default\' will be used.'
 			),
+			required=self.arg_pool_required,
 		)
 		parser.add_argument(
 			'--pythonpath',
