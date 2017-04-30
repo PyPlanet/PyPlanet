@@ -37,8 +37,7 @@ class Karma(AppConfig):
 		await self.chat_current_karma()
 
 		self.widget = KarmaWidget(self)
-
-		await self.update_widgets()
+		await self.widget.display()
 
 	async def show_map_list(self, player, map=None, **kwargs):
 		"""
@@ -59,7 +58,7 @@ class Karma(AppConfig):
 		await self.calculate_karma()
 		await self.chat_current_karma()
 
-		await self.update_widgets()
+		await self.widget.display()
 
 	async def player_connect(self, player, is_spectator, source, signal):
 		await self.widget.display(player=player)
@@ -78,7 +77,7 @@ class Karma(AppConfig):
 						message = '$z$s$fff» $ff0Successfully changed your karma vote to $fff{}$ff0!'.format(text)
 						await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
 						await self.calculate_karma()
-						await self.update_widgets()
+						await self.widget.display()
 				else:
 					new_vote = KarmaModel(map=self.instance.map_manager.current_map, player=player, score=score)
 					await new_vote.save()
@@ -88,7 +87,7 @@ class Karma(AppConfig):
 
 					message = '$z$s$fff» $ff0Successfully voted $fff{}$ff0!'.format(text)
 					await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
-					await self.update_widgets()
+					await self.widget.display()
 
 	async def get_votes_list(self, map):
 		vote_list = await KarmaModel.objects.execute(KarmaModel.select().where(KarmaModel.map_id == map.get_id()))
@@ -109,7 +108,3 @@ class Karma(AppConfig):
 			round((len(self.current_negative_votes) / num_current_votes) * 100, 2) if num_current_votes > 0 else 0,
 		)
 		await self.instance.gbx.execute('ChatSendServerMessage', message)
-
-	async def update_widgets(self):
-		for player in self.instance.player_manager.online:
-			await self.widget.display(player=player)
