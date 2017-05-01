@@ -1,5 +1,8 @@
+import logging
+
 from pyplanet.contrib import CoreContrib
-from pyplanet.contrib.command import Command
+
+logger = logging.getLogger(__name__)
 
 
 class ModeManager(CoreContrib):
@@ -33,13 +36,15 @@ class ModeManager(CoreContrib):
 		self._current_script = await self.get_current_script()
 
 		# Listeners.
-		self._instance.signal_manager.listen('maniaplanet:map_start', self._map_begin)
+		self._instance.signal_manager.listen('maniaplanet:server_start', self._on_change)
 
-	async def _map_begin(self, *args, **kwargs):
+	async def _on_change(self, *args, **kwargs):
 		if len(self._next_settings_update.keys()) > 0:
+			logger.debug('Setting mode settings right now!')
 			await self.update_settings(self._next_settings_update)
 			self._next_settings_update = dict()
 		if len(self._next_variables_update.keys()) > 0:
+			logger.debug('Setting mode variables right now!')
 			await self.update_variables(self._next_variables_update)
 			self._next_variables_update = dict()
 		await self.get_current_script(refresh=True)
