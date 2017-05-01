@@ -220,8 +220,12 @@ class GbxRemote:
 				await self.handle_scripted(handle_nr, method, data)
 			else:
 				await self.handle_callback(handle_nr, method, data)
+		elif fault is not None:
+			raise TransportException('Handle payload got invalid parameters, see fault exception! {}'.format(fault)) from fault
 		else:
-			raise TransportException('Handle payload got invalid parameters, see fault exception!') from fault
+			logging.warning('Received gbx data, but handle wasn\'t known or payload invalid: handle_nr: {}, method: {}'.format(
+				handle_nr, method,
+			))
 
 	async def handle_response(self, handle_nr, data=None, fault=None):
 		logger.debug('GBX: Received response to handler {}'.format(handle_nr))
