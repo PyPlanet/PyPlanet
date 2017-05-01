@@ -1,3 +1,5 @@
+import textwrap
+
 from pyplanet.contrib import CoreContrib
 from pyplanet.contrib.command.command import Command
 
@@ -100,6 +102,17 @@ class CommandManager(CoreContrib):
 		# All commands.
 		commands = [c for c in self._commands if c.admin is filter_admin]
 		commands_string = ', '.join([str(c) for c in commands])
+		commands_lines = textwrap.wrap(commands_string, 100)
+
+		calls = list()
+		for line in commands_lines:
+			calls.append(
+				self._instance.gbx.prepare(
+					'ChatSendServerMessageToLogin',
+					'$z$s >> {}'.format(line),
+					player.login
+				)
+			)
 
 		await self._instance.gbx.multicall(
 			self._instance.gbx.prepare(
@@ -107,9 +120,5 @@ class CommandManager(CoreContrib):
 				'$z$s >> Command list. Help per command: /{}help [command]'.format('/' if filter_admin else ''),
 				player.login
 			),
-			self._instance.gbx.prepare(
-				'ChatSendServerMessageToLogin',
-				'$z$s >> {}'.format(commands_string),
-				player.login
-			)
+			*calls
 		)
