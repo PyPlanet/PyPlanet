@@ -42,8 +42,13 @@ class LocalRecordsWidget(TimesWidgetView):
 			custom_start_index = None
 			if player_index > len(self.app.current_records):
 				# No personal record, get the last records
-				records += list(self.app.current_records[(len(self.app.current_records) - record_amount + self.top_entries):])
-				custom_start_index = (len(self.app.current_records) - record_amount + self.top_entries + 1)
+				records_start = (len(self.app.current_records) - record_amount + self.top_entries)
+				# If start of current slice is in the top entries, add more records below
+				if records_start < self.top_entries:
+					records_start = (self.top_entries)
+
+				records += list(self.app.current_records[records_start:])
+				custom_start_index = (records_start + 1)
 			else:
 				if player_index <= self.top_entries:
 					# Player record is in top X, get following records (top entries + 1 onwards)
