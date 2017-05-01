@@ -19,7 +19,8 @@ from pyplanet.contrib.map import MapManager
 from pyplanet.contrib.player import PlayerManager
 from pyplanet.contrib.command import CommandManager
 from pyplanet.contrib.permission import PermissionManager
-from pyplanet.contrib.setting.manager import GlobalSettingManager
+from pyplanet.contrib.setting import GlobalSettingManager
+from pyplanet.contrib.mode import ModeManager
 
 logger = logging.getLogger(__name__)
 
@@ -70,6 +71,7 @@ class Instance:
 		self.permission_manager =	PermissionManager(self)
 		self.command_manager =		CommandManager(self)
 		self.setting_manager =		GlobalSettingManager(self)
+		self.mode_manager =			ModeManager(self)
 
 		# Populate apps.
 		self.apps.populate(settings.MANDATORY_APPS, in_order=True)
@@ -132,6 +134,7 @@ class Instance:
 		await self.permission_manager.on_start()
 		await self.command_manager.on_start()
 		await self.setting_manager.on_start()
+		await self.mode_manager.on_start()
 
 		# Start the apps, call the on_ready, resulting in apps user logic to be started.
 		await self.print_header()
