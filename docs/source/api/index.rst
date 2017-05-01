@@ -19,3 +19,4 @@ Modules:
     contrib_command
     contrib_permission
     contrib_setting
+    contrib_mode
