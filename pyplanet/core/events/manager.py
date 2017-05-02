@@ -100,7 +100,7 @@ class _SignalManager:
 		if key in self.signals:
 			return self.signals[key]
 		else:
-			raise KeyError('No such signal!')
+			raise KeyError('No such signal {}!'.format(key))
 
 	def finish_reservations(self):
 		"""

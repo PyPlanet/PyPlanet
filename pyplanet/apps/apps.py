@@ -34,6 +34,9 @@ class Apps:
 		# Set a lock for threading.
 		self._lock = threading.Lock()
 
+		# Listen to events
+		self.instance.signal_manager.listen('contrib.mode:script_mode_changed', self._on_mode_change)
+
 	def populate(self, apps, in_order=False):
 		"""
 		Loads application into the apps registry. Once you populate, the order isn't yet been decided.
@@ -120,3 +123,7 @@ class Apps:
 			await app.on_start()
 			logging.debug('App is ready: {}'.format(label))
 		logging.info('Apps successfully started!')
+
+	async def _on_mode_change(self, unloaded_script, loaded_script, **kwargs):
+		# TODO: (Un)load apps according to the mode dependencies.
+		pass
