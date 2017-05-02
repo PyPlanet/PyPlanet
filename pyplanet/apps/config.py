@@ -6,6 +6,10 @@ from pyplanet.core.exceptions import ImproperlyConfigured, InvalidAppModule
 
 
 class _AppContext:
+	"""
+	The app context holds instances of core/contrib components that must be managed on a per app base. Such as the UI
+	registration and distribution.
+	"""
 	def __init__(self, app):
 		"""
 		Initiate the App Context. Used by several core and contribs to have it's own manager instance per app.
@@ -15,7 +19,14 @@ class _AppContext:
 		:type app: pyplanet.apps.config.AppConfig
 		"""
 		self.ui = app.instance.ui_manager.create_app_manager(app)
+		"""
+		UI Component. See :doc:`UI Classes </api/core_ui>`.
+		"""
+
 		self.setting = app.instance.setting_manager.create_app_manager(app)
+		"""
+		Setting Contrib Component. See :doc:`Setting Classes </api/contrib_setting>`.
+		"""
 
 
 class AppConfig:
@@ -115,6 +126,10 @@ class AppConfig:
 
 	@property
 	def ui(self):
+		"""
+		.. deprecated:: 0.0.1
+			Use ``context.ui`` instead.
+		"""
 		logging.warning(DeprecationWarning(
 			'AppConfig.ui is deprecated, use AppConfig.context.ui instead.'
 			'This is done to prevent collisions in future changes or feature adding.'

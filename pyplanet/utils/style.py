@@ -2,11 +2,34 @@ import re
 
 
 STRIP_ALL = dict(letters='wnoitsgz<>', part=r'\$[lh]\[.+\]|\$[lh]|\$[0-9a-f]{3}')
+"""
+Strip all custom maniaplanet styles + formatting.
+"""
+
 STRIP_COLORS = dict(letters='g', part=r'\$[0-9a-f]{3}')
+"""
+Strip colors from your input (including $g, color reset).
+"""
+
 STRIP_SIZES = dict(letters='wnoiz')
+"""
+Strip all size and adjustments styles ($w $n $o $i $z).
+"""
+
 STRIP_SHADOWS = dict(letters='s')
+"""
+Strip shadow style ($s).
+"""
+
 STRIP_CAPITALS = dict(letters='t')
+"""
+Strip capital style ($t).
+"""
+
 STRIP_LINKS = dict(part=r'\$[lh]\[.+\]|\$[lh]')
+"""
+Strip links ($h and $l).
+"""
 
 
 def style_strip(text, *strip_methods, strip_styling_blocks=True, keep_reset=False, keep_color_reset=False):
@@ -15,23 +38,27 @@ def style_strip(text, *strip_methods, strip_styling_blocks=True, keep_reset=Fals
 
 	Examples:
 	
-	>>>	print("--- Strip: colours ---")
-	>>>	print(style_strip("$i$fffMax$06fSmurf$f00.$fffes$$l$09f.$fffm$08f$a5x$n$w$o", STRIP_COLORS))
-	>>>	print(style_strip("$l[some link]$i$FFFMax$06fSmurf$f00.$fffesl$09f.$fffm$08fx$l", STRIP_COLORS))
-	>>>	print(style_strip("$l[some link]$i$fffMax$06fSmurf$f00.$fffesl$09f.$fffm$08fx", STRIP_COLORS))
-	>>>	print("--- Strip: links ---")
-	>>>	print(style_strip("$l$i$fffMax$06fSmurf$f00.$fffesl$09f.$fffm$08f$a5x$l", STRIP_LINKS))
-	>>>	print(style_strip("$i$fffMax$06fSmurf$f00.$fffesl$09f.$fffm$08f$a5x", STRIP_LINKS))
-	>>>	print(style_strip("$l[some link]$i$fffMax$06fSmurf$f00.$fffes$$l$09f.$fffm$08fx$l", STRIP_LINKS))
-	>>>	print(style_strip("$l[some link]$i$fffMax$06fSmurf$f00.$fffesl$09f.$fffm$08fx", STRIP_LINKS))
-	>>>	print("--- Strip: sizes ---")
-	>>>	print(style_strip("$i$n$fffMax$06fSmurf$f00.$w$o$fffe$$nsl$09f.$w$fffm$08f$a5$ox", STRIP_SIZES))
-	>>>	print("--- Strip: everything ---")
-	>>>	print(style_strip("$h$i$fffMax$06fSmurf$f00.$fffesl$09f.$fffm$08f$a5x$h", STRIP_ALL))
-	>>>	print(style_strip("$l[some link]$i$fffMax$06fSmur$$f$f00.$fffesl$09f.$fffm$08fx$l"))
-	>>>	print(style_strip("$l[some link]$i$fffMax$06fSmu$nrf$f00.$fffesl$09f.$fffm$08fx"))
-	>>> # Other stuff.:
-	>>>	print(style_strip("$l[some link]$i$fffMax$06fSmu$nrf$f00.$fffesl$09f.$fffm$08fx", STRIP_CAPITALS, STRIP_SHADOWS))
+	.. code-block:: python
+
+		print("--- Strip: colours ---")
+		print(style_strip("$i$fffMax$06fSmurf$f00.$fffes$$l$09f.$fffm$08f$a5x$n$w$o", STRIP_COLORS))
+		print(style_strip("$l[some link]$i$FFFMax$06fSmurf$f00.$fffesl$09f.$fffm$08fx$l", STRIP_COLORS))
+		print(style_strip("$l[some link]$i$fffMax$06fSmurf$f00.$fffesl$09f.$fffm$08fx", STRIP_COLORS))
+		print("--- Strip: links ---")
+		print(style_strip("$l$i$fffMax$06fSmurf$f00.$fffesl$09f.$fffm$08f$a5x$l", STRIP_LINKS))
+		print(style_strip("$i$fffMax$06fSmurf$f00.$fffesl$09f.$fffm$08f$a5x", STRIP_LINKS))
+		print(style_strip("$l[some link]$i$fffMax$06fSmurf$f00.$fffes$$l$09f.$fffm$08fx$l", STRIP_LINKS))
+		print(style_strip("$l[some link]$i$fffMax$06fSmurf$f00.$fffesl$09f.$fffm$08fx", STRIP_LINKS))
+		print("--- Strip: sizes ---")
+		print(style_strip("$i$n$fffMax$06fSmurf$f00.$w$o$fffe$$nsl$09f.$w$fffm$08f$a5$ox", STRIP_SIZES))
+		print("--- Strip: everything ---")
+		print(style_strip("$h$i$fffMax$06fSmurf$f00.$fffesl$09f.$fffm$08f$a5x$h", STRIP_ALL))
+		print(style_strip("$l[some link]$i$fffMax$06fSmur$$f$f00.$fffesl$09f.$fffm$08fx$l"))
+		print(style_strip("$l[some link]$i$fffMax$06fSmu$nrf$f00.$fffesl$09f.$fffm$08fx"))
+		# Other stuff.:
+		print(style_strip("$l[some link]$i$fffMax$06fSmu$nrf$f00.$fffesl$09f.$fffm$08fx", STRIP_CAPITALS, STRIP_SHADOWS))
+
+	.
 
 	:param text: The input string text.
 	:param strip_methods: Methods for stripping, use one of the STRIP_* constants or leave undefined to strip everything.

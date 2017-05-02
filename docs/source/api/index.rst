@@ -13,6 +13,9 @@ Modules:
     core_exceptions
     core_instance
     core_ui
+    core_storage
+    core_events
+    god
 
     contrib_map
     contrib_player
@@ -20,3 +23,6 @@ Modules:
     contrib_permission
     contrib_setting
     contrib_mode
+    contrib_converter
+
+    utils

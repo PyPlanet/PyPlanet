@@ -8,6 +8,11 @@ from pyplanet.core.storage import StorageDriver
 
 
 class LocalDriver(StorageDriver):
+	"""
+	Local storage driver is using the Python build-in file access utilities for accessing a local storage-like system.
+	
+	:option BASE_PATH: Override the maniaplanet given base path.
+	"""
 
 	def __init__(self, instance, config: dict = None):
 		super().__init__(instance, config)

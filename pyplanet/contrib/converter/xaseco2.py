@@ -7,6 +7,13 @@ from pyplanet.contrib.converter.base import BaseConverter
 
 
 class Xaseco2Converter(BaseConverter):
+	"""
+	The Xaseco2 Converter uses MySQL to convert the data to the new PyPlanet structure.
+	
+	Please take a look at :doc:`Migrating from other controllers </convert/index>` pages for information on how to use
+	this.
+	"""
+
 	async def migrate(self, _):
 		print('Migrating players...')
 		await self.migrate_players()

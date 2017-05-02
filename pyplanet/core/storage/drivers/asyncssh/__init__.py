@@ -10,6 +10,22 @@ logger = logging.getLogger(__name__)
 
 
 class SFTPDriver(StorageDriver):
+	"""
+	SFTP storage driver is using the asyncssh module to access storage that is situated remotely.
+	
+	.. warning::
+	
+		This driver is not ready for production use!!
+	
+	:option HOST: Hostname of destinotion server.
+	:option PORT: Port destinotion server.
+	:option USERNAME: Username of the user account.
+	:option PASSWORD: Password of the user account. (optional if you use public/private keys).
+	:option KNOWN_HOSTS: File to the Known Hosts file.
+	:option CLIENT_KEYS: Array with client private keys.
+	:option PASSPHRASE: Passphrase to unlock private key(s).
+	:option KWARGS: Any other options that will be passed to ``asyncssh``.
+	"""
 
 	def __init__(self, instance, config: dict = None):
 		super().__init__(instance, config)
@@ -42,6 +58,7 @@ class SFTPDriver(StorageDriver):
 	async def connect_sftp(self):
 		"""
 		Get sftp client.
+		
 		:return: Sftp client.
 		:rtype: asyncssh.SFTPClient
 		"""

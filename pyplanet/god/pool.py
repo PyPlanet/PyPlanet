@@ -12,6 +12,15 @@ logger = logging.getLogger(__name__)
 
 
 class EnvironmentPool:
+	"""
+	This class manages the pool instances for the current environment/installation.
+	
+	.. warning::
+	
+		You should not have to use this class in any moment!
+		
+	"""
+
 	def __init__(self, pool_names, max_restarts=0):
 		self.names = pool_names
 		self.queue = multiprocessing.Queue()
@@ -22,22 +31,33 @@ class EnvironmentPool:
 		self.dog_handler = LiveReload(self)
 		self.dog_observer = Observer()
 		self.dog_observer.schedule(self.dog_handler, self.dog_path, recursive=True)
+
 		# TODO: Find out how to get the watchdog + livereload working on a later moment.
 		# self.dog_observer.start()
 
 		self._restarts = dict()
 
 	def populate(self):
+		"""
+		Populate the pool instance processes, (prepares the processes).
+		"""
 		for name in self.names:
 			self.pool[name] = process.InstanceProcess(queue=self.queue, environment_name=name)
 			self._restarts[name] = 0
 		return self
 
 	def start(self):
+		"""
+		Start all processes.
+		"""
 		for name, proc in self.pool.items():
 			proc.process.start()
 
 	def shutdown(self):
+		"""
+		Shutdown all processes.
+		"""
+
 		for name, proc in self.pool.items():
 			proc.shutdown()
 		self.dog_observer.stop()
@@ -57,6 +77,9 @@ class EnvironmentPool:
 				self.restart(name)
 
 	def watchdog(self):
+		"""
+		Watch all the processes. (Blocking method!).
+		"""
 		logger.debug('Starting watchdog... watching {} instances'.format(len(self.pool)))
 
 		while True:

@@ -24,6 +24,14 @@ def _run(name, queue):
 
 
 class InstanceProcess:
+	"""
+	The InstanceProcess is the encapsulation around the real controller instance.
+	
+	.. warning::
+		
+		This code is still being executed at the main process!!
+
+	"""
 
 	def __init__(self, queue, environment_name='default', pool=None):
 		"""
@@ -51,6 +59,9 @@ class InstanceProcess:
 
 	@property
 	def did_die(self):
+		"""
+		Boolean determinating if the process did die.
+		"""
 		if not self.is_alive() and self.__last_state:
 			self.__last_state = False
 			return True
@@ -58,13 +69,25 @@ class InstanceProcess:
 
 	@property
 	def will_restart(self):
+		"""
+		Boolean: Is the process able to restart (not reached max_restarts). 
+		"""
 		return self.restarts < self.max_restarts
 
 	def is_alive(self):
+		"""
+		Call process method is_alive()
+		"""
 		return self.process.is_alive()
 
 	def start(self):
+		"""
+		Start the process.
+		"""
 		return self.process.start()
 
 	def shutdown(self):
+		"""
+		Shutdown (terminate) process.
+		"""
 		return self.process.terminate()

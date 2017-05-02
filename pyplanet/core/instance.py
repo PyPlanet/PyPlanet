@@ -37,13 +37,14 @@ class Instance:
 	:ivar db: Database component.
 	:ivar storage: Storage component.
 	:ivar signal_manager: Signal Manager.
-	:ivar ui_manager: UI Manager (global).
+	:ivar ui_manager: UI Manager (global). Please use the APP context UI manager instead!
 	
 	:ivar map_manager: Contrib: Map Manager.
 	:ivar player_manager: Contrib: Player Manager.
 	:ivar permission_manager: Contrib: Permission Manager.
 	:ivar command_manager: Contrib: Command Manager.
-	:ivar setting_manager: Contrib: Setting Manager.
+	:ivar setting_manager: Contrib: Setting Manager. Please use the APP context setting manager instead!
+	:ivar mode_manager: Contrib. Mode Manager.
 	"""
 
 	def __init__(self, process_name):

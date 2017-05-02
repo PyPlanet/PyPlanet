@@ -9,6 +9,14 @@ from pyplanet.core.storage import StorageDriver, StorageInterface
 
 
 class Storage(StorageInterface):
+	"""
+	The storage component manager is managing the storage access trough drivers that can be customized.
+	
+	.. warning::
+	
+		Some drivers are work in progress!
+
+	"""
 	MAP_FOLDER = 'UserData/Maps'
 	MATCHSETTINGS_FOLDER = 'UserData/Maps/MatchSettings'
 

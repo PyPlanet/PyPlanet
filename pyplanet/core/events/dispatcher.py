@@ -24,6 +24,10 @@ logger = logging.getLogger(__name__)
 
 
 class Signal:
+	"""
+	A signal is a destination tho distribute to where multiple listeners get the message. (event distribution).
+	"""
+
 	def __init__(self, code=None, namespace=None, process_target=None, use_caching=False):
 		"""
 		Create a new signal.
@@ -54,6 +58,11 @@ class Signal:
 		"""
 		The meta-class contains the code of the signal, used for string notation.
 		An optional namespace could be given to override the app label namespace.
+		
+		.. warning::
+		
+			Only change or access this if you override the ``Signal`` class in your own class.
+		
 		"""
 		code = None
 		namespace = None
@@ -80,6 +89,8 @@ class Signal:
 		"""
 		Set the self instance on a receiver.
 		
+		.. deprecated:: 0.0.1
+		
 		:param receiver: Receiver function.
 		:param slf: Self instance
 		"""
@@ -98,17 +109,17 @@ class Signal:
 		Connect receiver to sender for signal.
 		
 		:param receiver: A function or an instance method which is to receive signals. Receivers must be hashable objects.
-		If weak is True, then receiver must be weak referenceable.Receivers must be able to accept keyword arguments.
-		If a receiver is connected with a dispatch_uid argument, it
-		will not be added if another receiver was already connected with that dispatch_uid.
+			If weak is True, then receiver must be weak referenceable.Receivers must be able to accept keyword arguments.
+			If a receiver is connected with a dispatch_uid argument, it
+			will not be added if another receiver was already connected with that dispatch_uid.
 					
 		:param weak: Whether to use weak references to the receiver. By default, the
-		module will attempt to use weak references to the receiver
-		objects. If this parameter is false, then strong references will
-		be used.
+			module will attempt to use weak references to the receiver
+			objects. If this parameter is false, then strong references will
+			be used.
 		
 		:param dispatch_uid: An identifier used to uniquely identify a particular instance of
-		a receiver. This will usually be a string, though it may be anything hashable.
+			a receiver. This will usually be a string, though it may be anything hashable.
 		"""
 		if dispatch_uid:
 			lookup_key = dispatch_uid
@@ -219,8 +230,8 @@ class Signal:
 		:param raw: Optional bool parameter to just send the source to the receivers without any processing.
 
 		:return: Return a list of tuple pairs [(receiver, response), ... ].
-		If any receiver raises an error (specifically any subclass of
-		Exception), return the error instance as the result for that receiver.
+			If any receiver raises an error (specifically any subclass of Exception), 
+			return the error instance as the result for that receiver.
 		"""
 		if not raw:
 			try:

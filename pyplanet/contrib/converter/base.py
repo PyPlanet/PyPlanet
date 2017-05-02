@@ -3,6 +3,11 @@ import pymysql.cursors
 
 
 class BaseConverter:
+	"""
+	Base Converter is the abstract converter class.
+	
+	Please take a look at the other classes bellow.
+	"""
 	def __init__(
 		self, instance, db_type, db_host, db_name, db_user=None, db_password=None, db_port=None, prefix=None,
 		charset='utf8'

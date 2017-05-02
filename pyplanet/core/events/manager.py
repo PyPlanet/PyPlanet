@@ -14,6 +14,15 @@ from pyplanet.core.events import Signal
 
 
 class _SignalManager:
+	"""
+	Signal Manager class.
+	
+	.. note::
+	
+		Access this via ``instance.signal_manager``.
+	
+	"""
+
 	def __init__(self):
 		self.signals = dict()
 		self.callbacks = dict()
@@ -81,6 +90,7 @@ class _SignalManager:
 	def get_callback(self, call_name):
 		"""
 		Get signal by XML-RPC (script) callback.
+		
 		:param call_name: Callback name.
 		:return: Signal class or nothing.
 		:rtype: pyplanet.core.events.Signal
@@ -93,6 +103,7 @@ class _SignalManager:
 	def get_signal(self, key):
 		"""
 		Get signal by key (namespace:code).
+		
 		:param key: namespace:code key.
 		:return: signal or none
 		:rtype: pyplanet.core.events.Signal
@@ -104,7 +115,7 @@ class _SignalManager:
 
 	def finish_reservations(self):
 		"""
-		The method will copy all reservations to the actual signals.
+		The method will copy all reservations to the actual signals. (PRIVATE)
 		"""
 		for sig_name, recs in self.reserved.items():
 			for func, kwargs in recs:
@@ -130,6 +141,7 @@ class _SignalManager:
 	def init_app(self, app):
 		"""
 		Initiate app, load all signal/callbacks files. (just import, they should register with decorators).
+		
 		:param app: App instance
 		:type app: pyplanet.apps.AppConfig
 		"""
@@ -150,7 +162,7 @@ class _SignalManager:
 
 	async def finish_start(self, *args, **kwargs):
 		"""
-		Finish startup the core, this will copy reservations.
+		Finish startup the core, this will copy reservations. (PRIVATE).
 		"""
 		self.finish_reservations()
 
