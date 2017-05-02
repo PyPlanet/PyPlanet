@@ -1,6 +1,7 @@
 import logging
 
 from pyplanet.contrib import CoreContrib
+from pyplanet.contrib.mode.signals import script_mode_changed
 
 logger = logging.getLogger(__name__)
 
@@ -33,21 +34,37 @@ class ModeManager(CoreContrib):
 		"""
 		Handle startup, just before the apps will start. We will make sure we are ready to get requests for permissions.
 		"""
-		self._current_script = await self.get_current_script()
+		self._current_script = await self.get_current_script(refresh=True)
 
 		# Listeners.
 		self._instance.signal_manager.listen('maniaplanet:server_start', self._on_change)
 
 	async def _on_change(self, *args, **kwargs):
+		# Making sure we set the settings + variables.
 		if len(self._next_settings_update.keys()) > 0:
 			logger.debug('Setting mode settings right now!')
-			await self.update_settings(self._next_settings_update)
+			try:
+				await self.update_settings(self._next_settings_update)
+			except Exception as e:
+				logging.error('Can\'t set the script mode settings! Error: {}'.format(str(e)))
 			self._next_settings_update = dict()
 		if len(self._next_variables_update.keys()) > 0:
 			logger.debug('Setting mode variables right now!')
-			await self.update_variables(self._next_variables_update)
+			try:
+				await self.update_variables(self._next_variables_update)
+			except Exception as e:
+				logging.error('Can\'t set the script mode variables! Error: {}'.format(str(e)))
 			self._next_variables_update = dict()
+
+		# Make sure we send to the signal when mode is been changed.
+		current_script = self._current_script
+		next_script = self._next_script
 		await self.get_current_script(refresh=True)
+
+		if current_script != self._current_script and next_script == self._current_script:
+			await script_mode_changed.send_robust({
+				'unloaded_script': current_script, 'loaded_script': next_script
+			})
 
 	async def get_current_script(self, refresh=False):
 		"""
