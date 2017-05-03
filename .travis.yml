@@ -74,5 +74,6 @@ script:
   - tox -e $TOXENV -- --with-coverage --cover-package=pyplanet --cover-xml --cover-xml-file=coverage.xml
 
 after_success:
-  - codecov
+  - tests/_scripts/travis_coverage.sh
+#  - codecov
 #  - python-codacy-coverage -r coverage.xml
