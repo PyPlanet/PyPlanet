@@ -82,8 +82,8 @@ class ListView(TemplateView):
 
 		self.provide_search = True
 
-		if self.single_list:
-			self.id = 'pyplanet__generics_list'
+		#if self.single_list:
+			#self.id = 'pyplanet__generics_list'
 
 		# Setup the receivers.
 		self.subscribe('list_button_close', self.close)
@@ -120,7 +120,7 @@ class ListView(TemplateView):
 				fields = await self.get_fields()
 				field = fields[col]
 			except Exception as e:
-				logger.warning('Got invalid result in list column click: {}'.format(str(e)))
+				logger.error('Got invalid result in list column click: {}'.format(e))
 				return
 
 			# Check if sorting is defined + true.
