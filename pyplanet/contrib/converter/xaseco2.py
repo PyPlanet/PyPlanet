@@ -3,12 +3,13 @@ import datetime
 from pyplanet.apps.contrib.karma.models import Karma
 from pyplanet.apps.contrib.local_records.models import LocalRecord
 from pyplanet.apps.core.maniaplanet.models import Player, Map
+from pyplanet.apps.core.statistics.models import Score
 from pyplanet.contrib.converter.base import BaseConverter
 
 
 class Xaseco2Converter(BaseConverter):
 	"""
-	The Xaseco2 Converter uses MySQL to convert the data to the new PyPlanet structure.
+	The XAseco2 Converter uses MySQL to convert the data to the new PyPlanet structure.
 	
 	Please take a look at :doc:`Migrating from other controllers </convert/index>` pages for information on how to use
 	this.
@@ -26,6 +27,9 @@ class Xaseco2Converter(BaseConverter):
 
 		print('Migrating karma...')
 		await self.migrate_karma()
+
+		print('Migrating times...')
+		await self.migrate_times()
 
 	async def migrate_players(self):
 		with self.connection.cursor() as cursor:
@@ -122,4 +126,37 @@ class Xaseco2Converter(BaseConverter):
 					await Karma.create(
 						map=map, player=player, score=-1 if s_karma['Score'] < 0 else 1,
 						updated_at=datetime.datetime.now()
+					)
+
+	async def migrate_times(self):
+		with self.connection.cursor() as cursor:
+			cursor.execute(
+				'SELECT rs_times.*, maps.Uid, players.Login '
+				'FROM rs_times, maps, players '
+				'WHERE rs_times.MapId = maps.Id AND rs_times.PlayerId = players.Id'
+			)
+			for s_time in cursor.fetchall():
+				# Get map + player
+				try:
+					map = await Map.get(uid=s_time['Uid'])
+					player = await Player.get(login=s_time['Login'])
+				except:
+					# Skip.
+					print('Can\'t convert time, map or player not found. Skipping...')
+					continue
+
+				if s_time['Score'] == 0:
+					continue
+
+				try:
+					await Score.get(
+						map=map, player=player, score=s_time['Score'], created_at=datetime.datetime.fromtimestamp(s_time['Date'])
+					)
+					print('Score with uid \'{}\', player \'{}\', score \'{}\' at \'{}\' already exists, skipping..'.format(
+						map.uid, player.login, s_time['Score'], s_time['Date'],
+					))
+				except:
+					await Score.create(
+						map=map, player=player, score=s_time['Score'], checkpoints=s_time['Checkpoints'],
+						created_at=datetime.datetime.fromtimestamp(s_time['Date']),
 					)

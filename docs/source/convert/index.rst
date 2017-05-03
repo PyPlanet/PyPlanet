@@ -8,12 +8,14 @@ Migrating from Xaseco2
 
 We provide a basic convert procedure to convert your database from XAseco2 to PyPlanet. You will keep these data:
 
-* Player basic information. (**Not statistics!**).
+* Player basic information.
+* Driven times by players.
 * Map basic information.
 * Local records. (``records`` table).
 * Karma.
 
-As we don't have anything yet that can hold statistics, we cannot convert these unfortunately.
+As we don't have anything yet that can hold statistics except the times table (``rs_times``), we cannot convert these unfortunately.
+We will soon have a store for player stats, like donations, total played time, etc.
 
 Command to convert, Change the parameters:
 
