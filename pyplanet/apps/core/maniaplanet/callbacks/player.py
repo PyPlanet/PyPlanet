@@ -35,11 +35,14 @@ async def handle_player_info_changed(source, signal, **kwargs):
 	is_pure_spectator =		(source['SpectatorStatus'] / 100)	% 10
 	auto_target =			(source['SpectatorStatus'] / 1000)	% 10
 	target_id =				(source['SpectatorStatus'] / 10000)
-	player = await Controller.instance.player_manager.get_player(login=source['Login'])
+	try:
+		player = await Controller.instance.player_manager.get_player(login=source['Login'])
+	except:
+		player = None
 	return dict(
 		is_spectator=is_spectator, is_temp_spectator=is_temp_spectator, is_pure_spectator=is_pure_spectator,
 		auto_target=auto_target, target_id=target_id, flags=source['Flags'], spectator_status=source['SpectatorStatus'],
-		team_id=source['TeamId'], player_id=source['PlayerId']
+		team_id=source['TeamId'], player_id=source['PlayerId'], player=player, player_login=source['Login'],
 	)
 
 
