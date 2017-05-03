@@ -90,6 +90,11 @@ class Jukebox(AppConfig):
 			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
 			return
 
+		if map.get_id() == self.instance.map_manager.current_map.get_id():
+			message = '$z$s$fff» $i$f00You can\'t add the current map to the jukebox!'
+			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+			return
+
 		if not any(item['map'] == map for item in self.jukebox):
 			self.jukebox.append({'player': player, 'map': map})
 			message = '$z$s$fff»» $fff{}$z$s$fa0 was added to the jukebox by $fff{}$z$s$fa0.'.format(map.name, player.nickname)
