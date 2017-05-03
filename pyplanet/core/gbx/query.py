@@ -72,13 +72,15 @@ class ScriptQuery(Query):
 
 		# Make sure we generate a response_id.
 		if response_id is True:
-			self.response_id = uuid.uuid4().hex # id(self)
+			self.response_id = uuid.uuid4().hex
 		else:
 			self.response_id = None
 
 		# Encode to json if args are given, and encode_json is true (default).
 		if encode_json and len(args) > 0:
-			gbx_args.append(json.dumps(args[0]))
+			gbx_args.append(json.dumps(args))
+		elif not encode_json and len(args) > 0:
+			gbx_args.extend(args)
 
 		# Add the response_id to the end of the argument list.
 		if self.response_id:
@@ -100,7 +102,6 @@ class ScriptQuery(Query):
 
 		# Execute the call itself and register the callback script handler.
 		gbx_res = await self._client.execute(self.method, *self.args)
-		# TODO: Do we have to do anything with the gbx result maybe?
 
 		if self.response_id:
 			return await asyncio.wait_for(future, 15.0) # Timeout after 15 seconds!
