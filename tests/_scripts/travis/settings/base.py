@@ -41,7 +41,7 @@ MYSQL = {
 	'NAME': 'pyplanet',
 	'OPTIONS': {
 		'host': 'localhost',
-		'user': 'root',
+		'user': 'travis',
 		'password': '',
 		'charset': 'utf8',
 	}
