@@ -27,7 +27,6 @@ async def handle_waypoint(source, signal, **kwargs):
 		)
 	elif len(flow.run_cps) >= source['checkpointinlap']:
 		# End flow and call the other signal.
-		# TODO: Find out if lap or race time is the best to use.
 		flow.end_run(source['laptime'])
 
 		await finish.send_robust(source=dict(

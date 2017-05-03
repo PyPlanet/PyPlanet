@@ -92,6 +92,7 @@ class PlayerFlow:
 		self.in_run = False
 		self.run_cps = list()
 		self.run_time = None
+		self.other = dict()
 
 	def start_run(self):
 		self.in_run = True

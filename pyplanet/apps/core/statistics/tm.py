@@ -2,6 +2,7 @@
 Trackmania app component.
 """
 from pyplanet.apps.core.statistics.models import Score
+from pyplanet.apps.core.trackmania.callbacks import finish
 
 
 class TrackmaniaComponent:
@@ -19,13 +20,13 @@ class TrackmaniaComponent:
 
 	async def on_start(self):
 		# Listen to signals.
-		self.app.instance.signal_manager.listen('trackmania:finish', self.on_finish)
+		self.app.instance.signal_manager.listen(finish, self.on_finish)
 
 	async def on_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
 		# Register the score of the player.
-		Score.objects.create({
-			'player': player,
-			'map': self.app.instance.map_manager.current_map,
-			'score': race_time,
-			'checkpoints': ','.join(cps)
-		})
+		await Score(
+			player=player,
+			map=self.app.instance.map_manager.current_map,
+			score=race_time,
+			checkpoints=','.join([str(cp) for cp in cps])
+		).save()
