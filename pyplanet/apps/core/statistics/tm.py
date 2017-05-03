@@ -21,7 +21,7 @@ class TrackmaniaComponent:
 		# Listen to signals.
 		self.app.instance.signal_manager.listen('trackmania:finish', self.on_finish)
 
-	async def player_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
+	async def on_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
 		# Register the score of the player.
 		Score.objects.create({
 			'player': player,
