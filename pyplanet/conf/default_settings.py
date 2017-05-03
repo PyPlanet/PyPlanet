@@ -136,6 +136,7 @@ MANDATORY_APPS = [
 	'pyplanet.apps.core.maniaplanet.app.ManiaplanetConfig',
 	'pyplanet.apps.core.trackmania.app.TrackmaniaConfig',
 	'pyplanet.apps.core.shootmania.app.ShootmaniaConfig',
+	'pyplanet.apps.core.statistics.app.StatisticsConfig',
 ]
 
 ##########################################
