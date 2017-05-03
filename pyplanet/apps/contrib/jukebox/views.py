@@ -17,7 +17,7 @@ class JukeboxListView(ManualListView):
 	def __init__(self, app):
 		super().__init__(self)
 		self.app = app
-		self.manager = app.ui
+		self.manager = app.context.ui
 
 	async def get_fields(self):
 		return [
@@ -60,7 +60,7 @@ class MapListView(ManualListView):
 	def __init__(self, app):
 		super().__init__(self)
 		self.app = app
-		self.manager = app.ui
+		self.manager = app.context.ui
 
 	async def get_data(self):
 		return [model_to_dict(m) for m in self.app.instance.map_manager.maps]
