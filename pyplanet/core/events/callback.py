@@ -46,7 +46,11 @@ async def handle_generic(source, signal, **kwargs):
 	The handle_generic is a simple handle (`processing glue`) for just forwarding the payload from the maniaplanet
 	server into the signal payload.
 	"""
-
+	if not isinstance(source, dict):
+		raise Exception(
+			'The handle_generic method doesn\'t support non-dictionary responses from the gbx server.'
+			'You must create your own handler!'
+		)
 	if 'login' in source:
 		source['player'] = await Player.get_by_login(source['login'])
 	return source
