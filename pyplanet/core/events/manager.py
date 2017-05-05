@@ -113,7 +113,7 @@ class _SignalManager:
 		else:
 			raise KeyError('No such signal {}!'.format(key))
 
-	def finish_reservations(self):
+	def finish_reservations(self):  # pragma: no cover
 		"""
 		The method will copy all reservations to the actual signals. (PRIVATE)
 		"""
