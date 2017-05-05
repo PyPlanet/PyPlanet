@@ -93,12 +93,13 @@ class PlayerManager(CoreContrib):
 
 		return player
 
-	async def get_player(self, login=None, pk=None):
+	async def get_player(self, login=None, pk=None, lock=True):
 		"""
 		Get player by login or primary key.
 		
 		:param login: Login.
 		:param pk: Primary Key identifier.
+		:param lock: Lock for a sec when receiving.
 		:return: Player or exception if not found
 		:rtype: pyplanet.apps.core.maniaplanet.models.Player
 		"""
@@ -110,7 +111,11 @@ class PlayerManager(CoreContrib):
 			else:
 				raise PlayerNotFound('Player not found.')
 		except DoesNotExist:
-			raise PlayerNotFound('Player not found.')
+			if lock:
+				await asyncio.sleep(1)
+				return self.get_player(login=login, pk=pk, lock=False)
+			else:
+				raise PlayerNotFound('Player not found.')
 
 	@property
 	def online(self):
