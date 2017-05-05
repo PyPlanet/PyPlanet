@@ -1,15 +1,18 @@
 import asyncio
 
-from pyplanet.apps.core.maniaplanet.models import Player
+from pyplanet.core import Controller
 from pyplanet.core.events import Callback
 
 
 async def handle_on_shoot(source, signal, **kwargs):
-	shooter = await Player.get_by_login(source['shooter'])
+	shooter = await Controller.instance.player_manager.get_player(login=source['shooter'])
 	return dict(shooter=shooter, time=source['time'], weapon=source['weapon'])
 
 async def handle_on_hit(source, signal, **kwargs):
-	shooter, victim = await asyncio.gather(*[Player.get_by_login(source['shooter']), Player.get_by_login(source['victim'])])
+	shooter, victim = await asyncio.gather(*[
+		Controller.instance.player_manager.get_player(login=source['shooter']),
+		Controller.instance.player_manager.get_player(login=source['victim']),
+	])
 	return dict(
 		shooter=shooter, time=source['time'], weapon=source['weapon'], victim=victim, damage=source['damage'],
 		points=source['points'], distance=source['distance'],
@@ -17,31 +20,43 @@ async def handle_on_hit(source, signal, **kwargs):
 	)
 
 async def handle_on_near_miss(source, signal, **kwargs):
-	shooter, victim = await asyncio.gather(*[Player.get_by_login(source['shooter']), Player.get_by_login(source['victim'])])
+	shooter, victim = await asyncio.gather(*[
+		Controller.instance.player_manager.get_player(login=source['shooter']),
+		Controller.instance.player_manager.get_player(login=source['victim']),
+	])
 	return dict(
 		shooter=shooter, time=source['time'], weapon=source['weapon'], victim=victim, distance=source['distance'],
 		shooter_position=source['shooterposition'], victim_position=source['victimposition'],
 	)
 
 async def handle_armor_empty(source, signal, **kwargs):
-	shooter, victim = await asyncio.gather(*[Player.get_by_login(source['shooter']), Player.get_by_login(source['victim'])])
+	shooter, victim = await asyncio.gather(*[
+		Controller.instance.player_manager.get_player(login=source['shooter']),
+		Controller.instance.player_manager.get_player(login=source['victim']),
+	])
 	return dict(
 		shooter=shooter, time=source['time'], weapon=source['weapon'], victim=victim, distance=source['distance'],
 		shooter_position=source['shooterposition'], victim_position=source['victimposition'],
 	)
 
 async def handle_on_capture(source, signal, **kwargs):
-	players = await asyncio.gather(*[Player.get_by_login(p) for p in source['players']])
+	players = await asyncio.gather(*[
+		Controller.instance.player_manager.get_player(login=p)
+		for p in source['players']
+	])
 	return dict(time=source['time'], players=players, landmark=source['landmark'])
 
 async def handle_on_shot_deny(source, signal, **kwargs):
-	shooter, victim = await asyncio.gather(*[Player.get_by_login(source['shooter']), Player.get_by_login(source['victim'])])
+	shooter, victim = await asyncio.gather(*[
+		Controller.instance.player_manager.get_player(login=source['shooter']),
+		Controller.instance.player_manager.get_player(login=source['victim']),
+	])
 	return dict(
 		time=source['time'], shooter=shooter, victim=victim, shooter_weapon=source['shooterweapon'], shooter_victim=source['victimweapon']
 	)
 
 async def handle_on_fall_damage(source, signal, **kwargs):
-	victim = await Player.get_by_login(source['victim'])
+	victim = await Controller.instance.player_manager.get_player(login=source['victim'])
 	return dict(time=source['time'], victim=victim)
 
 

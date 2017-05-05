@@ -1,12 +1,12 @@
 import asyncio
 
-from pyplanet.apps.core.maniaplanet.models import Player
+from pyplanet.core import Controller
 from pyplanet.core.events import Callback, Signal, handle_generic
 from pyplanet.core.exceptions import SignalGlueStop
 
 
 async def handle_start_line(source, signal, **kwargs):
-	player = await Player.get_by_login(source['login'])
+	player = await Controller.instance.player_manager.get_player(login=source['login'])
 	flow = player.flow
 	flow.start_run()
 	return dict(
@@ -14,7 +14,7 @@ async def handle_start_line(source, signal, **kwargs):
 	)
 
 async def handle_waypoint(source, signal, **kwargs):
-	player = await Player.get_by_login(source['login'])
+	player = await Controller.instance.player_manager.get_player(login=source['login'])
 	flow = player.flow
 
 	if not flow.in_run:
@@ -36,12 +36,12 @@ async def handle_waypoint(source, signal, **kwargs):
 	raise SignalGlueStop()
 
 async def handle_give_up(source, signal, **kwargs):
-	player = await Player.get_by_login(source['login'])
+	player = await Controller.instance.player_manager.get_player(login=source['login'])
 	player.flow.end_run()
 	return dict(player=player, flow=player.flow, time=source['time'])
 
 async def handle_respawn(source, signal, **kwargs):
-	player = await Player.get_by_login(source['login'])
+	player = await Controller.instance.player_manager.get_player(login=source['login'])
 	return dict(
 		player=player, flow=player.flow, race_cp=source['checkpointinrace'], lap_cp=source['checkpointinlap'],
 		race_time=source['racetime'], lap_time=source['laptime']
@@ -49,7 +49,7 @@ async def handle_respawn(source, signal, **kwargs):
 
 async def handle_scores(source, signal, **kwargs):
 	async def get_player_scores(data):
-		player = await Player.get_by_login(data['login'])
+		player = await Controller.instance.player_manager.get_player(login=data['login'])
 		return dict(
 			player=player, stunts_score=data['stuntsscore'], best_lap_checkpoints=data['bestlapcheckpoints'],
 			match_points=data['mappoints'], rank=data['rank'], best_lap_time=data['bestlaptime'],
