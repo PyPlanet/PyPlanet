@@ -87,7 +87,8 @@ class PlayerManager(CoreContrib):
 		:rtype: pyplanet.apps.core.maniaplanet.models.Player 
 		"""
 		player = await Player.get(login=login)
-		self._online.remove(player)
+		if player in self._online:
+			self._online.remove(player)
 		player.last_seen = datetime.datetime.now()
 		await player.save()
 
