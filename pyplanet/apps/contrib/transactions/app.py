@@ -12,6 +12,8 @@ class Transactions(AppConfig):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
+		self.current_bills = []
+
 	async def on_start(self):
 		await self.instance.permission_manager.register('pay', 'Pay planets to players', app=self, min_level=3)
 		await self.instance.permission_manager.register('planets', 'Display amount of planets', app=self, min_level=3)
@@ -33,9 +35,8 @@ class Transactions(AppConfig):
 	async def donate(self, player, data, **kwargs):
 		try:
 			amount = int(data.amount)
-
 			billid = await self.instance.gbx.execute('SendBill', player.login, amount, 'Donating {} planets to our server!'.format(amount), '')
-			print(billid)
+			self.current_bills.append(dict(bill=billid, player=player, amount=amount))
 		except ValueError:
 			message = '$z$s$fff» $i$f00The amount should be a numeric value.'
 			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
@@ -43,11 +44,15 @@ class Transactions(AppConfig):
 	async def pay_to_player(self, player, data, **kwargs):
 		try:
 			amount = int(data.amount)
-
-			await self.instance.gbx.execute('Pay', player.login, amount, 'Payment from the server')
+			billid = await self.instance.gbx.execute('Pay', player.login, amount, 'Payment from the server')
+			self.current_bills.append(dict(bill=billid, player=player, amount=-amount))
 		except ValueError:
 			message = '$z$s$fff» $i$f00The amount should be a numeric value.'
 			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
 
 	async def bill_updated(self, bill_id, state, state_name, transaction_id, **kwargs):
-		print(bill_id, state, state_name, transaction_id)
+		if bill_id in self.current_bills:
+			print('BillUpdated for BillId {} {} (TxId {})'.format(bill_id, state_name, transaction_id))
+		else:
+			print('BillUpdated for unknown BillId {} {} (TxId {})'.format(bill_id, state_name, transaction_id))
+			print(self.current_bills)
