@@ -57,9 +57,10 @@ class PlayerManager(CoreContrib):
 		ip, _, port = info['IPAddress'].rpartition(':')
 		is_owner = login in settings.OWNERS[self._instance.process_name]
 		try:
-			player = await Player.get(login=login)
+			player = await Player.get_by_login(login)
 			player.last_ip = ip
 			player.last_seen = datetime.datetime.now()
+			player.nickname = info['NickName']
 			if is_owner:
 				player.level = Player.LEVEL_MASTER
 			await player.save()

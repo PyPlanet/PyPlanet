@@ -3,6 +3,7 @@ Maniaplanet Core Models. This models are used in several apps and should be cons
 """
 from peewee import *
 from pyplanet.core.db import TimedModel
+from pyplanet.utils.functional import empty
 
 
 class Player(TimedModel):
@@ -68,16 +69,23 @@ class Player(TimedModel):
 			self.CACHE[self.login] = self
 
 	@classmethod
-	async def get_by_login(cls, login):
+	async def get_by_login(cls, login, default=empty):
 		"""
 		Get player by login.
+		
 		:param login: Login.
+		:param default: Optional default if not exist.
 		:return: Player instance
 		:rtype: pyplanet.apps.core.maniaplanet.models.player.Player
 		"""
 		if login in cls.CACHE:
 			return cls.CACHE[login]
-		cls.CACHE[login] = player = await cls.get(login=login)
+		try:
+			cls.CACHE[login] = player = await cls.get(login=login)
+		except DoesNotExist:
+			if default is not empty:
+				return default
+			raise
 		return player
 
 	def get_level_string(self):

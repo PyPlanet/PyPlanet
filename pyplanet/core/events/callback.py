@@ -47,10 +47,7 @@ async def handle_generic(source, signal, **kwargs):
 	server into the signal payload.
 	"""
 	if not isinstance(source, dict):
-		raise Exception(
-			'The handle_generic method doesn\'t support non-dictionary responses from the gbx server.'
-			'You must create your own handler!'
-		)
+		source = dict(raw=source)
 	if 'login' in source:
 		source['player'] = await Player.get_by_login(source['login'])
 	return source
