@@ -2,6 +2,7 @@ import textwrap
 
 from pyplanet.contrib import CoreContrib
 from pyplanet.contrib.command.command import Command
+from pyplanet.utils.functional import batch
 
 
 class CommandManager(CoreContrib):
@@ -101,15 +102,13 @@ class CommandManager(CoreContrib):
 
 		# All commands.
 		commands = [c for c in self._commands if c.admin is filter_admin]
-		commands_string = ', '.join([str(c) for c in commands])
-		commands_lines = textwrap.wrap(commands_string, 100)
-
 		calls = list()
-		for line in commands_lines:
+		for cmds in batch(commands, 6):
+			help_texts = [str(c) for c in cmds]
 			calls.append(
 				self._instance.gbx.prepare(
 					'ChatSendServerMessageToLogin',
-					'$z$s >> {}'.format(line),
+					'$z$s >> {}'.format(' | '.join(help_texts)),
 					player.login
 				)
 			)
