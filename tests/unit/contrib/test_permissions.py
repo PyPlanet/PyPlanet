@@ -22,6 +22,7 @@ class TestPermissions(asynctest.TestCase):
 		instance = Controller.prepare(name='default').instance
 		await instance.db.connect()
 		await instance.apps.discover()
+		await instance.db.initiate()
 
 		from pyplanet.apps.core.maniaplanet.models import Player
 		await instance.permission_manager.register(

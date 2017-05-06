@@ -11,6 +11,7 @@ class TestCommands(asynctest.TestCase):
 		instance = Controller.prepare(name='default').instance
 		await instance.db.connect()
 		await instance.apps.discover()
+		await instance.db.initiate()
 
 		self.target_called = 0
 
