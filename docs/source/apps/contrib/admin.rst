@@ -28,7 +28,7 @@ Maps
 Skip map
 ~~~~~~~~
 Command:
-  ``/admin next``
+  ``//next``
 Parameters:
   None.
 Functionality:
@@ -39,7 +39,7 @@ Required permission:
 Restart map
 ~~~~~~~~~~~
 Command:
-  ``/admin restart`` / ``/admin res`` / ``/admin rs``
+  ``//restart`` / ``//res`` / ``//rs``
 Parameters:
   None.
 Functionality:
@@ -47,13 +47,57 @@ Functionality:
 Required permission:
   ``admin:restart``, requires admin level 1.
 
+Add Local map
+~~~~~~~~~~~~~
+Command:
+  ``//add local``
+Parameters:
+  * Local file name or path.
+Functionality:
+  Add map from local server disk.
+Required permission:
+  ``admin:add_local``, requires admin level 2.
+
+Write Map list
+~~~~~~~~~~~~~~
+Command:
+  ``//writemaplist`` / ``//wml``
+Parameters:
+  * Optional match settings file. Will use the file from your settings if not provided!
+Functionality:
+  Write maplist to match settings file.
+Required permission:
+  ``admin:write_map_list``, requires admin level 2.
+
+Remove Map
+~~~~~~~~~~
+Command:
+  ``//remove``
+Parameters:
+  * Map number given, the ID column from database. If not given, the current map will be removed!
+Functionality:
+  Remove map from loadedd map list. (Doesn't write the maplist to disk!). This command doesn't remove the actual map file!
+Required permission:
+  ``admin:remove_map``, requires admin level 2.
+
+Erase Map
+~~~~~~~~~
+Command:
+  ``//erase``
+Parameters:
+  * Map number given, the ID column from database. If not given, the current map will be removed!
+Functionality:
+  Remove map from loadedd map list. (Doesn't write the maplist to disk!). Also removes the map file from the disk!
+Required permission:
+  ``admin:remove_map``, requires admin level 2.
+
 Players
 ^^^^^^^
 
 Mute player
 ~~~~~~~~~~~
 Command:
-  ``/admin mute`` / ``/admin ignore``
+  ``//mute`` / ``//ignore``
 Parameters:
   * Player login.
 Functionality:
@@ -64,7 +108,7 @@ Required permission:
 Unmute player
 ~~~~~~~~~~~~~
 Command:
-  ``/admin unmute`` / ``/admin unignore``
+  ``//unmute`` / ``//unignore``
 Parameters:
   * Player login.
 Functionality:
@@ -75,7 +119,7 @@ Required permission:
 Kick player
 ~~~~~~~~~~~
 Command:
-  ``/admin kick``
+  ``//kick``
 Parameters:
   * Player login.
 Functionality:
@@ -86,7 +130,7 @@ Required permission:
 Ban player
 ~~~~~~~~~~
 Command:
-  ``/admin ban``
+  ``//ban``
 Parameters:
   * Player login.
 Functionality:
@@ -97,7 +141,7 @@ Required permission:
 Unban player
 ~~~~~~~~~~~~
 Command:
-  ``/admin unban``
+  ``//unban``
 Parameters:
   * Player login.
 Functionality:
@@ -111,7 +155,7 @@ Server
 Set server password
 ~~~~~~~~~~~~~~~~~~~
 Command:
-  ``/admin setpassword`` / ``/admin srvpass``
+  ``//setpassword`` / ``//srvpass``
 Parameters:
   * Server password (none or empty for no password).
 Functionality:
@@ -122,7 +166,7 @@ Required permission:
 Set server password
 ~~~~~~~~~~~~~~~~~~~
 Command:
-  ``/admin setspecpassword`` / ``/admin spectpass``
+  ``//setspecpassword`` / ``//spectpass``
 Parameters:
   * Spectator password (none or empty for no password).
 Functionality:
