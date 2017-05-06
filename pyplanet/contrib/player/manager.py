@@ -114,7 +114,7 @@ class PlayerManager(CoreContrib):
 		except DoesNotExist:
 			if lock:
 				await asyncio.sleep(1)
-				return self.get_player(login=login, pk=pk, lock=False)
+				return await self.get_player(login=login, pk=pk, lock=False)
 			else:
 				raise PlayerNotFound('Player not found.')
 
