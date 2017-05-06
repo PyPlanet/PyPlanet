@@ -121,7 +121,7 @@ class MapAdmin:
 
 	async def erase_map(self, player, data, **kwargs):
 		kwargs['erase'] = True
-		self.remove_map(player, data, **kwargs)
+		return await self.remove_map(player, data, **kwargs)
 
 	async def remove_map(self, player, data, **kwargs):
 		map_nr = getattr(data, 'nr', None)
