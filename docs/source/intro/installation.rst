@@ -12,7 +12,7 @@ preinstalled. To be 100% sure you have to check if you have Python 3 and your ve
 
 * Python 3.5+ and pip 9+
 * Virtualenv (see: http://pythoncentral.io/how-to-install-virtualenv-python/ )
-* MySQL Server or PostgreSQL Server or None (If using SQLite).
+* MySQL Server or PostgreSQL Server.
 * Maniaplanet Dedicated MP4+, local or remote.
 
 .. note::

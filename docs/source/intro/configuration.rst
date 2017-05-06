@@ -72,7 +72,6 @@ Database configuration (base.py)
 The database configuration is mostly the first setting you will adjust to your needs. Currently PyPlanet has support for
 these *database drivers*:
 
-* ``peewee.SqliteDatabase``: Using SQLite from Python. This can reduce the performance as it's not using async calls!
 * ``peewee_async.MySQLDatabase``: Using PyMySQL, a full Python based driver. (Supports MariaDB and PerconaDB).
 * ``peewee_async.PostgresqlDatabase``: Using a full native Python driver.
 
@@ -104,13 +103,6 @@ Configuration can follow the following examples:
         'password': 'pyplanet',
         'charset': 'utf8',
       }
-    }
-  }
-
-  DATABASES = { # Using SQLite, not recommended for large installations.
-    'default': {
-      'ENGINE': 'peewee.SqliteDatabase',
-      'NAME': 'database.db'
     }
   }
 

@@ -39,7 +39,7 @@ Create migrations
 5.  Make sure you can upgrade at least. Downgrading is not yet included in the scope, but it's better to implement the
     downgrade as well.
 
-6.  Test, make sure it's able to migrate on at least these engines: MySQL, SQLite, PostgreSQL.
+6.  Test, make sure it's able to migrate on at least these engines: MySQL or PostgreSQL.
 
 `More information about migrations will appear here as it develops.`
 
