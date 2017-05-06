@@ -17,3 +17,4 @@ global-exclude .tox
 prune env
 prune settings
 prune apps
+prune docs/build

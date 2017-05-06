@@ -123,8 +123,13 @@ class Model(PeeweeModel):
 
 class TimedModel(Model):
 	created_at = DateTimeField(default=datetime.datetime.now)
-	updated_at = DateTimeField()
+	updated_at = DateTimeField(default=datetime.datetime.now)
 
 	async def save(self, *args, **kwargs):
 		self.updated_at = datetime.datetime.now()
 		return await super().save(*args, **kwargs)
+
+	@classmethod
+	async def create(cls, **insert):
+		insert['updated_at'] = datetime.datetime.now()
+		return await super().create(**insert)
