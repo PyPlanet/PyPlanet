@@ -9,6 +9,9 @@ class TestCommands(asynctest.TestCase):
 
 	async def test_registering(self):
 		instance = Controller.prepare(name='default').instance
+		await instance.db.connect()
+		await instance.apps.discover()
+
 		self.target_called = 0
 
 		from pyplanet.apps.core.maniaplanet.models import Player

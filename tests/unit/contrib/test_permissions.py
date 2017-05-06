@@ -7,6 +7,8 @@ from pyplanet.core import Controller
 class TestPermissions(asynctest.TestCase):
 	async def test_registration(self):
 		instance = Controller.prepare(name='default').instance
+		await instance.db.connect()
+		await instance.apps.discover()
 
 		from pyplanet.apps.core.maniaplanet.models import Player
 		await instance.permission_manager.register(
@@ -18,6 +20,8 @@ class TestPermissions(asynctest.TestCase):
 
 	async def test_checking(self):
 		instance = Controller.prepare(name='default').instance
+		await instance.db.connect()
+		await instance.apps.discover()
 
 		from pyplanet.apps.core.maniaplanet.models import Player
 		await instance.permission_manager.register(
