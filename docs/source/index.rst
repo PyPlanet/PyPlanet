@@ -52,7 +52,7 @@ Information about development of apps and the core is also available under:
 .. _app-docs:
 
 ..  toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     :glob:
     :caption: Apps Documentation
 
