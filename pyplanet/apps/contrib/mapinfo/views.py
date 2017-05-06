@@ -4,10 +4,10 @@ from pyplanet.utils import times
 
 class MapInfoWidget(WidgetView):
 	widget_x = 124
-	widget_y = 88
+	widget_y = 90.5
 	size_x = 38
-	size_y = 17
-	title = 'Current map'
+	size_y = 14
+	title = None  # 'Current map'
 	icon_style = 'Icons128x128_1'
 	icon_substyle = 'Challenge'
 
