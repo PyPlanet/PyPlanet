@@ -47,6 +47,7 @@ Information about development of apps and the core is also available under:
     apps/contrib/local_records
     apps/contrib/mapinfo
     apps/contrib/players
+    apps/contrib/mx
 
 
 .. _dev-docs:
