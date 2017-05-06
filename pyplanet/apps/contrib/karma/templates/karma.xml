@@ -12,7 +12,7 @@
 
     <label pos="16.5 -6.3" size="5 2" text="$s$o{{ karma_text_color }}{{ current_karma }}" textsize="0.9" halign="center" />
     <label pos="5 -10.2" size="5 2" text="$s$f66{{ negative_votes }}" textsize="0.8" halign="center" />
-    <label pos="16.5 -10.2" size="10 2" text="$s{{ current_karma_percentage }}%" textsize="0.8" halign="center" />
+    <label pos="16.5 -10.2" size="10 2" text="$s{{ karma_percentage }}%" textsize="0.8" halign="center" />
     <label pos="28 -10.2" size="5 2" text="$s$3f3{{ positive_votes }}" textsize="0.8" halign="center" />
 
     {% if player_vote == 1 %}
