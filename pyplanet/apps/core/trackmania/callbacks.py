@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 from pyplanet.core import Controller
 from pyplanet.core.events import Callback, Signal, handle_generic
@@ -20,24 +21,28 @@ async def handle_waypoint(source, signal, **kwargs):
 	if not flow.in_run:
 		raise SignalGlueStop()
 
-	if not source['isendlap']:
-		flow.add_waypoint(source['racetime'])
+	if not source['isendlap'] and not source['isendrace']:
 		return dict(
 			player=player, race_time=source['racetime'], flow=flow, raw=source
 		)
-	elif len(flow.run_cps) >= source['checkpointinlap']:
+	elif source['isendlap'] or source['isendrace']:
 		# End flow and call the other signal.
-		flow.end_run(source['laptime'])
+		flow.reset_run()
+		if source['isendlap'] and not source['isendrace']:
+			flow.start_run()
 
 		await finish.send_robust(source=dict(
-			player=player, race_time=source['racetime'], lap_time=source['laptime'], cps=flow.run_cps,
-			flow=flow, raw=source
+			player=player, race_time=source['racetime'], lap_time=source['laptime'],
+			cps=source['curlapcheckpoints'], lap_cps=source['curlapcheckpoints'], race_cps=source['curracecheckpoints'],
+			flow=flow, is_end_race=source['isendrace'], is_end_lap=source['isendlap'], raw=source,
 		), raw=True)
+	else:
+		logging.warning('Not isendlap!')
 	raise SignalGlueStop()
 
 async def handle_give_up(source, signal, **kwargs):
 	player = await Controller.instance.player_manager.get_player(login=source['login'])
-	player.flow.end_run()
+	player.flow.reset_run()
 	return dict(player=player, flow=player.flow, time=source['time'])
 
 async def handle_respawn(source, signal, **kwargs):

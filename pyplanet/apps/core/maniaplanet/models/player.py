@@ -98,20 +98,11 @@ class Player(TimedModel):
 class PlayerFlow:
 	def __init__(self):
 		self.in_run = False
-		self.run_cps = list()
-		self.run_time = None
 		self.other = dict()
 
 	def start_run(self):
 		self.in_run = True
-		self.run_cps = list()
-		self.run_time = None
 
-	def end_run(self, time=None):
+	def reset_run(self):
 		if self.in_run:
-			self.run_time = time
 			self.in_run = False
-
-	def add_waypoint(self, time):
-		if self.in_run:
-			self.run_cps.append(time)
