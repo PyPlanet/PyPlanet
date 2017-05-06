@@ -21,18 +21,32 @@ preinstalled. To be 100% sure you have to check if you have Python 3 and your ve
     Instructions on how to install PyEnv are in the github page <https://github.com/pyenv/pyenv-installer#github-way-recommended>.
 
     After installing you can install the desired python version with: ``pyenv install 3.6.1``.
-    Also, you can't use `virtualenv` when using PyEnv. Use its alternative: ``pyenv virtualenv 3.6.1 env``
+    Also, you can't use `virtualenv` when using PyEnv. Use its alternative: ``pyenv virtualenv 3.6.1 pyplanet``
+
+1. System (CLI) Installation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+PyPlanet is published through the Python Package Index (PyPi) and is easy to install with ``pip``. To install PyPlanet
+on your system you need root rights. You can however install PyPlanet in the users pip context.
+
+.. warning::::
+
+    We don't recommend installing PyPlanet as root. Please use the ``--user`` parameter when installing the CLI tool.
+
+.. code-block:: bash
+
+    # Install as root:
+    sudo -H pip install PyPlanet -U
+
+    # Install in ~/.local
+    pip --user install PyPlanet -U
 
 
-Installing PyPlanet
-~~~~~~~~~~~~~~~~~~~
-
-We recommend using a virtualenv to manage multiple versions at the same time. Virtual environments are basically abstracting
-the global module installations of python, and doesn't require root rights on some platforms.
+After installing it on your system you can use the pyplanet cli commands. To get help about commands, use ``pyplanet help``.
 
 
-Virtual Environment
-```````````````````
+2. Virtual Environment in your project
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We recommend using a `virtualenv` to install PyPlanet, and keep the version separate for multiple projects/dedicated servers.
 With this method you won't have to upgrade all servers at the same time and don't have any issues with system managed python
@@ -64,35 +78,15 @@ To activate, use the following commands:
     # Linux
     source env/bin/activate
 
+    # PyEnv
+    pyenv activate pyplanet
+
     # Windows (cmd)
     env\Scripts\Activate.bat
 
 
-System Installation
-```````````````````
-
-
-PyPlanet is published through the Python Package Index (PyPi) and is easy to install with ``pip``. To install PyPlanet
-on your system you need root rights. You can however install PyPlanet in the users pip context.
-
-.. warning::::
-
-    We don't recommend installing PyPlanet globally, instead take a look at the virtualenv installation instructions instead.
-
-.. code-block:: bash
-
-    # Install as root:
-    sudo -H pip install PyPlanet -U
-
-    # Install in ~/.local
-    pip --user install PyPlanet -U
-
-
-After installing it on your system you can use the pyplanet cli commands. To get help about commands, use ``pyplanet help``.
-
-
-Setup Project
-~~~~~~~~~~~~~
+2. Setup Project
+~~~~~~~~~~~~~~~~
 
 After installing PyPlanet on your system, you can't yet start any instances because starting requires you to give up an
 settings module. You could either provide this with the start command or create a project directory with skeleton files.
@@ -108,5 +102,15 @@ and skeleton files will be copied.
 
     pyplanet init_project canyon_server
 
+After setup your project, you have to install or update your dependencies from your local ``requirements.txt``.
+You should also use this command to **upgrade your installation**.
 
-After setting up your project environment your ready to :doc:`configure your application <configuration>`.
+.. code-block:: bash
+
+    pip install -r requirements.txt --upgrade
+
+After setting up your project environment your ready to go the the next section bellow.
+
+.. warning::
+
+  If you use `virtualenv` or `pyenv`, make sure you activate it **before you install or update dependencies**!
