@@ -8,6 +8,7 @@ class _Game:
 	dedicated_build = None
 	dedicated_version = None
 	dedicated_api_version = None
+	dedicated_title = None
 
 	server_is_dedicated = None
 	server_is_server = None
@@ -21,5 +22,12 @@ class _Game:
 	server_data_dir = None
 	server_map_dir = None
 	server_skin_dir = None
+
+	game = None  # tm / sm
+
+	def game_from_environment(self, environment):
+		if environment in ['Canyon', 'Stadium', 'Valley', 'Lagoon']:
+			return 'tm'
+		return 'sm'
 
 Game = _Game()
