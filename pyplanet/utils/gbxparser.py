@@ -1,5 +1,6 @@
 import io
 import struct
+from asyncio import iscoroutinefunction
 
 import aiofiles
 
@@ -100,12 +101,19 @@ class GbxParser:
 		:type file: str
 		"""
 		super().__init__()
-		if buffer and not isinstance(buffer, io.BufferedIOBase):
-			raise Exception('Buffer given should be a io.BufferedIOBase extended type.')
 		if file and not isinstance(file, str):
 			raise Exception('File should be a string, pointing to the file you want to load.')
+		if not file and not buffer:
+			raise Exception('File or buffer is required!')
 		self.file = file
-		self.buffer = _AsyncBufferProxy(buffer)
+
+		if buffer:
+			if iscoroutinefunction(buffer.read):
+				self.buffer = buffer
+			else:
+				self.buffer = _AsyncBufferProxy(buffer)
+		else:
+			self.buffer = _AsyncBufferProxy(buffer)
 		self.strings = _LookBackUtils(self.buffer)
 
 		self.result = dict()
