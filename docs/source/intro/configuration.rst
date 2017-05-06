@@ -141,10 +141,14 @@ Some of these settings are required to be able to save match settings for exampl
 
   # Map configuration is a set of configuration options related to match settings etc.
   # Matchsettings filename.
-  MAP_MATCHSETTINGS = 'autosave.txt'
+  MAP_MATCHSETTINGS = {
+    'default': 'autosave.txt',
+  }
 
   # You can set this to a automatically generated name:
-  MAP_MATCHSETTINGS = '{server_login}.txt'
+  MAP_MATCHSETTINGS = {
+    'default': '{server_login}.txt',
+  }
 
 
 Storage (base.py)

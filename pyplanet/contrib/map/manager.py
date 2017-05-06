@@ -278,13 +278,13 @@ class MapManager(CoreContrib):
 		:raise: pyplanet.contrib.map.exceptions.MapException
 		:raise: pyplanet.core.storage.exceptions.StorageException
 		"""
-		if not filename and settings.MAP_MATCHSETTINGS is None:
+		if not filename and (settings.MAP_MATCHSETTINGS is None or self._instance.process_name not in settings.MAP_MATCHSETTINGS):
 			raise ImproperlyConfigured(
 				'The setting \'MAP_MATCHSETTINGS\' is not configured for this server! We can\'t save the Match Settings!'
 			)
 		if not filename:
 			filename = 'MatchSettings/{}'.format(
-				settings.MAP_MATCHSETTINGS.format(server_login=self._instance.game.server_player_login)
+				settings.MAP_MATCHSETTINGS[self._instance.process_name].format(server_login=self._instance.game.server_player_login)
 			)
 
 		try:
