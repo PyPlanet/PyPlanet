@@ -14,5 +14,7 @@ APPS = {
 		'pyplanet.apps.contrib.karma.app.Karma',
 		'pyplanet.apps.contrib.local_records.app.LocalRecords',
 		'pyplanet.apps.contrib.players.app.Players',
+		'pyplanet.apps.contrib.mapinfo.app.MapInfo',
+		'pyplanet.apps.contrib.mx.app.MX',
 	]
 }
