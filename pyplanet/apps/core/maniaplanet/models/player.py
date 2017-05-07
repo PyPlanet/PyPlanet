@@ -98,6 +98,8 @@ class Player(TimedModel):
 class PlayerFlow:
 	def __init__(self):
 		self.in_run = False
+		self.player_id = None
+		self.team_id = None
 		self.other = dict()
 
 	def start_run(self):

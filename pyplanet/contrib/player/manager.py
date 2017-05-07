@@ -74,6 +74,9 @@ class PlayerManager(CoreContrib):
 				level=Player.LEVEL_MASTER if is_owner else Player.LEVEL_PLAYER,
 			)
 
+		player.flow.player_id = info['PlayerId']
+		player.flow.team_id = info['TeamId']
+
 		self._online.add(player)
 
 		return player
@@ -117,6 +120,12 @@ class PlayerManager(CoreContrib):
 				return await self.get_player(login=login, pk=pk, lock=False)
 			else:
 				raise PlayerNotFound('Player not found.')
+
+	async def get_player_by_id(self, identifier):
+		for player in self._online:
+			if player.flow.player_id == identifier:
+				return player
+		return None
 
 	@property
 	def online(self):
