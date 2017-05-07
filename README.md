@@ -17,6 +17,8 @@ Only bug fixes are accepted to be merged into the release/* branches, name these
 After releasing (from the release branch) it gets a version tag. From this point there is no way back, new bug releases will be crafted
 from the release/version branch (`release/v0.1.0` -> `release/v0.1.2` and is accepting merges from `bugfix/*`).
 
+Visualization of our current release schedule can be found here: [Release Schedule](https://github.com/tomvlk/PyPlanet/projects/3)
+
 ## Versioning
 
 All PyPlanet versions bellow 1.0.0 are not using semantic versioning. 
