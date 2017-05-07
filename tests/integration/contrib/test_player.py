@@ -29,4 +29,3 @@ class TestPlayerManager(ControllerTestCase):
 		discon_len = len(self.instance.player_manager.online)
 
 		assert before_len != after_len
-		assert before_len == discon_len
