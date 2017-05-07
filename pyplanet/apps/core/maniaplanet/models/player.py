@@ -63,10 +63,12 @@ class Player(TimedModel):
 		return self.__flow
 
 	async def save(self, *args, **kwargs):
-		await super().save(*args, **kwargs)
-		if self.login in self.CACHE and id(self) != id(self.CACHE[self.login]):
-			self.__flow = self.CACHE[self.login].flow
+		res = await super().save(*args, **kwargs)
+		if self.login not in self.CACHE or (self.login in self.CACHE and id(self) != id(self.CACHE[self.login])):
+			if self.login in self.CACHE and id(self) != id(self.CACHE[self.login]):
+				self.__flow = self.CACHE[self.login].flow
 			self.CACHE[self.login] = self
+		return res
 
 	@classmethod
 	async def get_by_login(cls, login, default=empty):
