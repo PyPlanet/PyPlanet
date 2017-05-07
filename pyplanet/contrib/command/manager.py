@@ -73,7 +73,7 @@ class CommandManager(CoreContrib):
 		if command:
 			await command.handle(self._instance, player, argv)
 
-	async def _help(self, player, data, raw, command):
+	async def _help(self, player, data, raw, command):  # pragma: no cover
 		help_command = command
 		filter_admin = bool(help_command.admin)
 
