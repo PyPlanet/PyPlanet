@@ -14,7 +14,7 @@ http://pypla.net/
 Git Structure
 -------------
 
-Master is always the latest development environment. We develop features in different branches ``feature/*` or ``app/*``.
+Master is always the latest development environment. We develop features in different branches ``feature/*`` or ``app/*``.
 
 Crafting releases is done at the ``release/vX.X.X`` branches. The branch is created from the master at the moment the freeze moment goes in.
 Only bug fixes are accepted to be merged into the release/* branches, name these branches ``bugfix/ISSUE-ID``.
