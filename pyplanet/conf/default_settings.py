@@ -107,7 +107,7 @@ LOGGING = {
 		}
 	},
 	'root': {
-		'handlers': ['console', 'console-debug'], # TODO: Add file (rotating) logger.
+		'handlers': ['console', 'console-debug'],  # TODO: Add file (rotating) logger.
 		'level': logging.DEBUG,
 	}
 }
