@@ -1,11 +1,6 @@
-|
-|
-|
-|
-|
 
 Contrib + Core access
----------------------
+=====================
 
 Inside of your app you can access the instance and it's contribution- and core components.
 To access the instance you can simply use this code statement:

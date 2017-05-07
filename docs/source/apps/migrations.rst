@@ -5,13 +5,13 @@
 |
 
 Migrations
-----------
+==========
 
 Migrations of models are handled with the .migrations module contents. It works quite like `Django` migrations work,
 except it automatically executes the migrations at first boot.
 
 Create migrations
-~~~~~~~~~~~~~~~~~
+-----------------
 
 1.  To create a migration, go to your app base folder and create a folder (if not yet exist), name the folder ``'migrations'``.
 
@@ -40,6 +40,4 @@ Create migrations
     downgrade as well.
 
 6.  Test, make sure it's able to migrate on at least these engines: MySQL or PostgreSQL.
-
-`More information about migrations will appear here as it develops.`
 

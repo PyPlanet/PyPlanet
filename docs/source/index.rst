@@ -72,8 +72,9 @@ Information about development of apps and the core is also available under:
     :maxdepth: 2
     :caption: Developer Documentation
 
-    core/index
+    architecture/index
     apps/index
+    signals/index
 
     api/index
 

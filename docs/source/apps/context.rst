@@ -1,11 +1,6 @@
-|
-|
-|
-|
-|
 
 Context (UI + Settings)
------------------------
+=======================
 
 Every app has some special access to components such as settings and UI. This is needed to be able to `unregister` the
 apps things when it's unloaded/stopped, such as hiding all manialinks.

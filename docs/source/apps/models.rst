@@ -1,11 +1,6 @@
-|
-|
-|
-|
-|
 
 Models
-------
+======
 
 Models are defined in either the ``app/models.py`` file or the ``app/models/`` folder (with loading from the ``app/models/__init__.py``)
 
@@ -14,7 +9,7 @@ To adjust models you should create migrations.
 
 
 Define models
-~~~~~~~~~~~~~
+-------------
 
 You have two base classes where your model class could inherit from, we recommend to use the ``TimedModel`` most of the times.
 There are a few exceptions where we recommend the base ``Model``, for example glue models. Or very data-intensive or data where
@@ -77,8 +72,8 @@ Fields
 Please take a look at: http://peewee.readthedocs.io/en/latest/peewee/models.html#fields
 
 
-Operations
-~~~~~~~~~~
+Operations on models
+--------------------
 
 **Create new object instance in the database**
 
@@ -108,3 +103,13 @@ Operations
 
 
 `More examples will follow, feel free to ask for help on this topic in the meantime`.
+
+
+.. warning::
+
+  We use a customized version of the `Peewee` library to have support for async access to database.
+  Because this reason we had to override some methods or create our own. Please don't take not that if you get a
+  sync code exception that it's not *yet* supported by PyPlanet async wrapper.
+
+  Please contact us on Github if you think you have an issue with the Database Layer. It's one of the most important
+  parts of PyPlanet!

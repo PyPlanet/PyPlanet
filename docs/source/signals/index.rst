@@ -1,6 +1,7 @@
 
-App Development
-===============
+Signals (callbacks)
+===================
+
 
 .. contents::
 .. toctree::
