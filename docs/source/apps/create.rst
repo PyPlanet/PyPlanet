@@ -24,9 +24,6 @@ You have to create a file named ``app.py`` in your app module containing the imp
 .. code-block:: python
 
   class Admin(AppConfig):
-    name = 'pyplanet.apps.contrib.admin'
-    # The name is the full path of the module. If not provided, it will be auto detected based on the user configuration input.
-
     game_dependencies = ['trackmania', 'shootmania']
     # Game dependencies. We will check if the current game is in the list (or).
     # Leave undeclared for everything
@@ -45,3 +42,45 @@ You have to create a file named ``app.py`` in your app module containing the imp
       self.property = 'anything here'
 
     # Implement the life cycle method if you need them. Make sure you call the super in the methods!
+
+
+2. Create models
+----------------
+
+In the same App module you can either create a single models file calling ``models.py`` or a module ``models``. When
+you are using the module method, you need to import all the model files in the ``models/__init__.py``.
+
+Please take a look at the page :doc:`Define models </apps/models>` on how to create model declarations.
+
+
+3. Add to configuration
+-----------------------
+
+Make sure you add your new App to your configuration.
+
+.. code-block:: python
+
+  APPS = {
+    'default': [
+      '...',
+      'my_app.app.MyApp',
+      '...',
+  }
+
+4. Enable debug
+---------------
+
+Make sure you enable the `DEBUG` mode during development, this prevents the PyPlanet team from thinking that your App
+is giving issues in production environments.
+
+You can enable debug either with using the environment variable ``PYPLANET_DEBUG`` or by editing the configuration:
+
+.. code-block:: python
+
+  DEBUG = True
+
+
+5. Start PyPlanet
+-----------------
+
+Your ready to get started. Start PyPlanet!
