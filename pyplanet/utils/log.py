@@ -1,15 +1,16 @@
 import logging
 import logging.config
-
 import sys
+
 from raven import Client
+from logging.handlers import QueueHandler as BaseQueueHandler
 
 from pyplanet import __version__ as version
 from pyplanet.conf import settings
 from pyplanet.core.exceptions import ImproperlyConfigured
 
 
-class Raven:
+class Raven:  # pragma: no cover
 	CLIENT = None
 
 	@classmethod
@@ -24,12 +25,12 @@ class Raven:
 		return cls.CLIENT
 
 
-def initiate_logger():
+def initiate_logger():  # pragma: no cover
 	if settings.LOGGING_CONFIG == 'logging.config.dictConfig':
 		logging.config.dictConfig(settings.LOGGING)
 
 
-def handle_exception(exception=None, module_name=None, func_name=None, extra_data=None):
+def handle_exception(exception=None, module_name=None, func_name=None, extra_data=None):  # pragma: no cover
 	# Test for ignored exceptions
 	if exception and isinstance(exception, (ImproperlyConfigured,)):
 		return
@@ -78,3 +79,13 @@ class RequireDebugTrue(logging.Filter):
 class RequireException(logging.Filter):
 	def filter(self, record):
 		return bool(record.exc_info)
+
+
+class QueueHandler(BaseQueueHandler):  # pragma: no cover
+	def prepare(self, record):
+		# Override due to bug
+		self.format(record)
+		record.msg = record.msg or record.message
+		record.args = None
+		record.exc_info = None
+		return record

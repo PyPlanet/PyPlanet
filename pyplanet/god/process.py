@@ -1,6 +1,7 @@
 import threading
+import multiprocessing
 
-from multiprocessing import Process
+from colorlog import ColoredFormatter
 
 
 def _run(name, queue):
@@ -11,7 +12,19 @@ def _run(name, queue):
 	:type name: str
 	"""
 	from pyplanet.core.instance import Controller
+	from pyplanet.utils.log import initiate_logger, QueueHandler
 	import logging
+
+	# Logging to queue.
+	if multiprocessing.get_start_method() != 'fork':  # pragma: no cover
+		initiate_logger()
+		root_logger = logging.getLogger()
+		formatter = ColoredFormatter(
+			'%(log_color)s%(levelname)-8s%(reset)s %(yellow)s[%(threadName)s][%(name)s]%(reset)s %(blue)s%(message)s'
+		)
+		queue_handler = QueueHandler(queue)
+		queue_handler.setFormatter(formatter)
+		root_logger.addHandler(queue_handler)
 
 	logging.getLogger(__name__).info('Starting pool process for \'{}\'...'.format(name))
 
@@ -20,6 +33,7 @@ def _run(name, queue):
 
 	# Start instance.
 	instance = Controller.prepare(name).instance
+	instance._queue = queue
 	instance.start()
 
 
@@ -50,7 +64,7 @@ class InstanceProcess:
 		self.max_restarts = 1
 		self.restarts = 0
 
-		self.process = Process(target=_run, kwargs=dict(
+		self.process = multiprocessing.Process(target=_run, kwargs=dict(
 			name=self.name,
 			queue=self.queue
 		))
