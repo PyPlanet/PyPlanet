@@ -174,10 +174,14 @@ class AppConfig:
 	###################################################################################################
 
 	def is_mode_supported(self, mode):
-		return self.mode_dependencies or mode in self.mode_dependencies
+		if self.mode_dependencies:
+			return mode in self.mode_dependencies
+		return True
 
 	def is_game_supported(self, game):
-		return self.game_dependencies or game in self.game_dependencies
+		if self.game_dependencies:
+			return game in self.game_dependencies
+		return True
 
 	def _path_from_module(self, module):
 		"""Attempt to determine app's filesystem path from its module."""

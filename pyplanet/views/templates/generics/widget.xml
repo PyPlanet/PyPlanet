@@ -1,6 +1,6 @@
 <frame pos="{{ widget_x }} {{ widget_y }} 0">
   <label pos="0.5 -0.5" size="{{ (size_x - 1) }} {{ (size_y - 1) }}" z-index="-42" text=" " focusareacolor1="3341" focusareacolor2="{{ hover_color }}" action="{{ id }}__open_widget" />
-  <quad pos="-0.2 0.2" size="{{ (size_x + 0.2) }} {{ (size_y + 0.2) }}" z-index="-41" style="EnergyBar" substyle="BgText" opacity="0.8" />
+  <quad pos="-0.2 0.2" size="{{ (size_x + 0.2) }} {{ (size_y + 0.2) }}" z-index="-41" style="EnergyBar" substyle="BgText" opacity="0.7" />
   {% if title %}
     <frame pos="1 -1" z-index="0">
       <quad pos="0 0" size="{{ (size_x - 2) }} 3.5" z-index="0" style="BgsPlayerCard" substyle="BgRacePlayerName" />

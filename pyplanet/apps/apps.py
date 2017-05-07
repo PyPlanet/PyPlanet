@@ -93,6 +93,29 @@ class Apps:
 				else:
 					raise Exception('One of the apps depends on a non existing app: {}'.format(label))
 
+	async def check(self):
+		"""
+		Check and remove unsupported apps based on the current game and script mode. 
+		"""
+		apps_dict = OrderedDict()
+		for label, app in self.apps.items():
+			if not app.is_game_supported('trackmania' if self.instance.game.game == 'tm' else 'shootmania'):
+				logging.info('Unloading app {}. Doesn\'t support the current game!'.format(label))
+				await app.on_stop()
+				await app.on_destroy()
+				del app
+
+			elif not app.is_mode_supported(await self.instance.mode_manager.get_current_script()):
+				logging.info('Unloading app {}. Doesn\'t support the current script mode!'.format(label))
+				await app.on_stop()
+				await app.on_destroy()
+				del app
+
+			else:
+				apps_dict[label] = app
+
+		self.apps = apps_dict
+
 	async def discover(self):
 		"""
 		The discover function will discover all models, signals and more
@@ -125,5 +148,4 @@ class Apps:
 		logging.info('Apps successfully started!')
 
 	async def _on_mode_change(self, unloaded_script, loaded_script, **kwargs):
-		# TODO: (Un)load apps according to the mode dependencies.
-		pass
+		await self.check()
