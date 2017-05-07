@@ -1,6 +1,3 @@
-import asyncio
-import os
-
 import asynctest
 
 from pyplanet.core.instance import Controller

@@ -29,6 +29,7 @@ wget https://v4.live.maniaplanet.com/ingame/public/titles/download/TMCanyon@nade
 
 # Prepare maps.
 cp tests/_files/maps/canyon-mp4-1.gbx dedicated/UserData/Maps/canyon1.Map.Gbx
+cp tests/_files/maps/canyon-mp4-2.gbx dedicated/UserData/Maps/canyon2.Map.Gbx
 
 # Prepare configuration files.
 cp tests/_scripts/travis/dedicated/dedicated_cfg.txt dedicated/UserData/Config/dedicated_cfg.txt

@@ -43,6 +43,9 @@
 
 	<startindex>0</startindex>
 	<map>
-		<file>canyon1.Map.Gbx</file>
-	</map>
+    <file>canyon1.Map.Gbx</file>
+  </map>
+  <map>
+    <file>canyon2.Map.Gbx</file>
+  </map>
 </playlist>
