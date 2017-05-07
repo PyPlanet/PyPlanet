@@ -66,8 +66,8 @@ class LocalRecordsWidget(TimesWidgetView):
 						end_difference = (end_point - len(self.app.current_records))
 						start_point = (start_point - end_difference)
 					# If start of current slice is in the top entries, add more records below
-					if start_point <= self.top_entries:
-						start_point = (self.top_entries + 1)
+					if start_point < self.top_entries:
+						start_point = self.top_entries
 
 					records += self.app.current_records[start_point:(start_point + records_to_fill)]
 					custom_start_index = (start_point + 1)
