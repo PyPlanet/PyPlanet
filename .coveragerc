@@ -1,6 +1,8 @@
 [run]
 omit =
   apps/*
+  docs/*
+  settings/*
   pyplanet/utils/codeutils.py
   pyplanet/utils/memleak.py
   pyplanet/utils/termcolors.py

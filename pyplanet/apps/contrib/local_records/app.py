@@ -88,14 +88,15 @@ class LocalRecords(AppConfig):
 
 	async def player_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
 		current_records = [x for x in self.current_records if x.player_id == player.get_id()]
+		score = lap_time
 		if len(current_records) > 0:
 			current_record = current_records[0]
 			previous_index = self.current_records.index(current_record) + 1
 
-			if race_time < current_record.score:
+			if score < current_record.score:
 				previous_time = current_record.score
 
-				current_record.score = race_time
+				current_record.score = score
 				current_record.checkpoints = ','.join([str(cp) for cp in cps])
 				await current_record.save()
 				self.current_records.sort(key=lambda x: x.score)
@@ -104,21 +105,21 @@ class LocalRecords(AppConfig):
 
 				if new_index < previous_index:
 					message = '$z$s$fff»» $fff{}$z$s$0f3 gained the $fff{}.$0f3 Local Record, with a time of $fff\uf017 {}$0f3 ($fff{}.$0f3 $fff-{}$0f3).'.format(
-						player.nickname, new_index, times.format_time(race_time), previous_index,
-						times.format_time((previous_time - race_time))
+						player.nickname, new_index, times.format_time(score), previous_index,
+						times.format_time((previous_time - score))
 					)
 				else:
 					message = '$z$s$fff»» $fff{}$z$s$0f3 improved the $fff{}.$0f3 Local Record, with a time of $fff\uf017 {}$0f3 ($fff-{}$0f3).'.format(
-						player.nickname, new_index, times.format_time(race_time),
-						times.format_time((previous_time - race_time))
+						player.nickname, new_index, times.format_time(score),
+						times.format_time((previous_time - score))
 					)
 
 				await self.instance.gbx.execute('ChatSendServerMessage', message)
 				await self.widget.display()
 
-			elif race_time == current_record.score:
+			elif score == current_record.score:
 				message = '$z$s$fff»» $fff{}$z$s$0f3 equalled the $fff{}.$0f3 Local Record, with a time of $fff\uf017 {}$0f3.'.format(
-					player.nickname, previous_index, times.format_time(race_time)
+					player.nickname, previous_index, times.format_time(score)
 				)
 				await self.instance.gbx.execute('ChatSendServerMessage', message)
 
@@ -126,7 +127,7 @@ class LocalRecords(AppConfig):
 			new_record = LocalRecord(
 				map=self.instance.map_manager.current_map,
 				player=player,
-				score=race_time,
+				score=score,
 				checkpoints=','.join([str(cp) for cp in cps])
 			)
 			await new_record.save()
@@ -136,7 +137,7 @@ class LocalRecords(AppConfig):
 			new_index = self.current_records.index(new_record) + 1
 
 			message = '$z$s$fff»» $fff{}$z$s$0f3 drove the $fff{}.$0f3 Local Record, with a time of $fff\uf017 {}$0f3.'.format(
-				player.nickname, new_index, times.format_time(race_time)
+				player.nickname, new_index, times.format_time(score)
 			)
 			await self.instance.gbx.execute('ChatSendServerMessage', message)
 			await self.widget.display()

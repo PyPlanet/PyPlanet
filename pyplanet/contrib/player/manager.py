@@ -74,6 +74,9 @@ class PlayerManager(CoreContrib):
 				level=Player.LEVEL_MASTER if is_owner else Player.LEVEL_PLAYER,
 			)
 
+		player.flow.player_id = info['PlayerId']
+		player.flow.team_id = info['TeamId']
+
 		self._online.add(player)
 
 		return player
@@ -87,18 +90,20 @@ class PlayerManager(CoreContrib):
 		:rtype: pyplanet.apps.core.maniaplanet.models.Player 
 		"""
 		player = await Player.get(login=login)
-		self._online.remove(player)
+		if player in self._online:
+			self._online.remove(player)
 		player.last_seen = datetime.datetime.now()
 		await player.save()
 
 		return player
 
-	async def get_player(self, login=None, pk=None):
+	async def get_player(self, login=None, pk=None, lock=True):
 		"""
 		Get player by login or primary key.
 		
 		:param login: Login.
 		:param pk: Primary Key identifier.
+		:param lock: Lock for a sec when receiving.
 		:return: Player or exception if not found
 		:rtype: pyplanet.apps.core.maniaplanet.models.Player
 		"""
@@ -110,7 +115,17 @@ class PlayerManager(CoreContrib):
 			else:
 				raise PlayerNotFound('Player not found.')
 		except DoesNotExist:
-			raise PlayerNotFound('Player not found.')
+			if lock:
+				await asyncio.sleep(1)
+				return await self.get_player(login=login, pk=pk, lock=False)
+			else:
+				raise PlayerNotFound('Player not found.')
+
+	async def get_player_by_id(self, identifier):
+		for player in self._online:
+			if player.flow.player_id == identifier:
+				return player
+		return None
 
 	@property
 	def online(self):

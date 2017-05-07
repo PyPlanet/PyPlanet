@@ -85,7 +85,7 @@ class Signal:
 		"""
 		return bool(self._live_receivers())
 
-	def set_self(self, receiver, slf):
+	def set_self(self, receiver, slf):  # pragma: no cover
 		"""
 		Set the self instance on a receiver.
 		

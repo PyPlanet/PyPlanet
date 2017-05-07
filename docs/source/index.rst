@@ -2,12 +2,28 @@ Welcome to PyPlanet's documentation!
 ====================================
 
 ..  image:: /_static/logo/pyplanet-sm.png
-    :scale: 50%
+    :scale: 30%
     :align: right
 
 PyPlanet is a Maniaplanet Dedicated Server Controller that works on Python 3.5 and later.
 Because Maniaplanet is using an system that can be event based we use AsyncIO to provide
 a event loop and have simultaneously processing of received events from the dedicated server.
+
+**Features**:
+
+* Core: Super fast and 'event' driven based on Python 3.5 ``asyncio`` eventloop.
+* Core: Stable and well designed core and apps system. (Inspired by Django).
+* Core: All apps will handle the game experience.
+* Core: Adjustable settings for all your apps.
+* Core: Supports Trackmania and Shootmania, Scripted only!
+* App: Local Records, including widget.
+* App: Admin Commands, Providing with basic commands and control for maintaining your server.
+* App: Karma, Let your players vote on your maps!
+* App: Jukebox, Let your players 'juke' the next map.
+* App: ManiaExchange, Simply add your maps directly from Mania-Exchange.
+* App: Players, This app shows messages when players join and leave.
+
+Do you want to install PyPlanet, head towards our :doc:`Getting Started Manual </intro/index>`
 
 The code is open source, and `available on GitHub`_.
 
@@ -37,7 +53,7 @@ Information about development of apps and the core is also available under:
 .. _app-docs:
 
 ..  toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     :glob:
     :caption: Apps Documentation
 
@@ -47,6 +63,7 @@ Information about development of apps and the core is also available under:
     apps/contrib/local_records
     apps/contrib/mapinfo
     apps/contrib/players
+    apps/contrib/mx
 
 
 .. _dev-docs:
@@ -55,8 +72,9 @@ Information about development of apps and the core is also available under:
     :maxdepth: 2
     :caption: Developer Documentation
 
-    core/index
+    architecture/index
     apps/index
+    signals/index
 
     api/index
 

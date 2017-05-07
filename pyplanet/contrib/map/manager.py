@@ -177,6 +177,18 @@ class MapManager(CoreContrib):
 		await self._instance.gbx.execute('JumpToMapIdent', map.uid)
 		self._next_map = map
 
+	def playlist_has_map(self, uid):
+		"""
+		Check if our current playlist has a map with the UID given.
+
+		:param uid: UID String
+		:return: Boolean, True if it's in our current playlist (match settings in our session).
+		"""
+		for map_instance in self.maps:
+			if map_instance.uid == uid:
+				return True
+		return False
+
 	async def add_map(self, filename, insert=False):
 		"""
 		Add or insert map to current online playlist.
@@ -197,7 +209,7 @@ class MapManager(CoreContrib):
 				raise MapNotFound('Map is not found on the server.')
 			elif 'already' in e.faultString:
 				raise MapException('Map already added to server.')
-			raise MapException('Unknown error when adding map')
+			raise MapException(e.faultString)
 
 	async def upload_map(self, fh, filename, insert=False, overwrite=False):
 		"""
@@ -266,13 +278,13 @@ class MapManager(CoreContrib):
 		:raise: pyplanet.contrib.map.exceptions.MapException
 		:raise: pyplanet.core.storage.exceptions.StorageException
 		"""
-		if not filename and settings.MAP_MATCHSETTINGS is None:
+		if not filename and (settings.MAP_MATCHSETTINGS is None or self._instance.process_name not in settings.MAP_MATCHSETTINGS):
 			raise ImproperlyConfigured(
 				'The setting \'MAP_MATCHSETTINGS\' is not configured for this server! We can\'t save the Match Settings!'
 			)
 		if not filename:
 			filename = 'MatchSettings/{}'.format(
-				settings.MAP_MATCHSETTINGS.format(server_login=self._instance.game.server_player_login)
+				settings.MAP_MATCHSETTINGS[self._instance.process_name].format(server_login=self._instance.game.server_player_login)
 			)
 
 		try:

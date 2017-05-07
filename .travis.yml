@@ -20,10 +20,8 @@ env:
     - secure: YVLk1UNFWvL83kM9FzT7E2i84iHeJyVG20Fdd4B/E9sIhzq+S9K4xQZWjnTKdYOqXvPLU26cXDGZB9RmETkd32/fBPPFjYwHB4k77xLm401fI/JGWmr4NWvTPGa3ad4Nzp+kW1QPZMK4vAAom40Ok2LSoDxMCY6fl1q8lkh/DAs6s2b0yiOMQlnbf3w9HjyPKckVd1eqkoRJ5JUyVkoEwLWgdfKaITmB7SVVfgwpv6F/li48tCFOIm5hJrXQzQkww1YdmKMX3JW+yoA1GROYkrWd8u+DpJg/wxd4stkvP/D6qFgCFLuKNIWuUqUZxSSs05oSpTxtsnWXMhr/nXo1dwWz00B6zDApz10YouM4tbHQ0ROF4XAQmUDSS1ubgGqyKK20FCfqQ+2r4c7ASKufnjyf8EJrLdw036/AkYDhH/kO6zwVtj9xAEMU6aFkSMOdkagGqZIN1bwbo001gJXLMJcFm5iZSn/CrnVgTUoIg8JNM6v2dS59NdXAtSm6pihSN00vHFGsjWrHESvCXBKfICBg4x6wiyyTt9chAu2euzJiOGnAejIsMK/+7L/tEabVnfRWFPiZhkGYw/C7fUCPbYumcpjudXuAD1bbfdBi+gujlO5Tq0i0kVnCzqmwzRYL5tI9x5Dei/uZrRbJ55HnT92rYGWMVWzKuNmYo4aPE6M=
   matrix:
     # Unit tests.
-    - TOXENV=py35-unit-sqlite
     - TOXENV=py35-unit-mysql
     - TOXENV=py35-unit-postgresql
-    - TOXENV=py36-unit-sqlite
     - TOXENV=py36-unit-mysql
     - TOXENV=py36-unit-postgresql
     - TOXENV=py35-integration-mysql
@@ -32,30 +30,21 @@ env:
 matrix:
   exclude:
     - python: 3.6
-      env: TOXENV=py35-unit-sqlite
-    - python: 3.6
       env: TOXENV=py35-unit-mysql
     - python: 3.6
       env: TOXENV=py35-unit-postgresql
-    - python: 3.6
-      env: TOXENV=py35-integration-sqlite
     - python: 3.6
       env: TOXENV=py35-integration-mysql
     - python: 3.6
       env: TOXENV=py35-integration-postgresql
     - python: 3.5
-      env: TOXENV=py36-unit-sqlite
-    - python: 3.5
       env: TOXENV=py36-unit-mysql
     - python: 3.5
       env: TOXENV=py36-unit-postgresql
     - python: 3.5
-      env: TOXENV=py36-integration-sqlite
-    - python: 3.5
       env: TOXENV=py36-integration-mysql
     - python: 3.5
       env: TOXENV=py36-integration-postgresql
-
 
   last_finish: true
 

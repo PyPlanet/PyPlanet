@@ -19,22 +19,17 @@ class SettingComponent:
 		self.app = app
 
 	async def on_init(self):
-		await self.app.instance.command_manager.register(
-			# Command('settings', self.player_settings, admin=False),
-			Command('settings', self.admin_settings, admin=True),
-		)
+		pass
 
 	async def on_start(self):
-		asyncio.ensure_future(self.call_later())
-		pass
+		await self.app.instance.permission_manager.register(
+			'edit_server_settings', 'Edit server global settings.', app=self.app, min_level=3
+		)
 
-	async def call_later(self):
-		await asyncio.sleep(1.5)
-		await self.display_test()
-
-	async def display_test(self):
-		# await self.admin_settings(player=await self.app.instance.player_manager.get_player(login='tomvalk'))
-		pass
+		await self.app.instance.command_manager.register(
+			# Command('settings', self.player_settings, admin=False),
+			Command('settings', self.admin_settings, perms='core.pyplanet:edit_server_settings', admin=True),
+		)
 
 	async def player_settings(self, player, *args, **kwargs):
 		pass

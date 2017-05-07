@@ -7,11 +7,11 @@ from pyplanet.utils import times
 
 class LocalRecordsWidget(TimesWidgetView):
 	widget_x = 124
-	widget_y = 48
+	widget_y = 55.5
 	size_x = 38
 	size_y = 55.5
 	top_entries = 5
-	title = 'Local Records'
+	title = None  # 'Local Records'
 	icon_style = 'BgRaceScore2'
 	icon_substyle = 'LadderRank'
 

@@ -126,7 +126,8 @@ class Instance:
 		await self.db.connect()		# Connect and initial state.
 		await self.apps.discover() 	# Discover apps models.
 		await self.db.initiate() 	# Execute migrations and initial tasks.
-		await self.apps.init()
+		await self.apps.check()     # Check for incompatible apps and remove them.
+		await self.apps.init()		# Initiate apps
 		await self.__fire_signal(signals.pyplanet_start_db_after)
 
 		# Start the core contribs.

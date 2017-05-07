@@ -15,6 +15,11 @@ class Xaseco2Converter(BaseConverter):
 	this.
 	"""
 
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.player_cache = dict()
+		self.map_cache = dict()
+
 	async def migrate(self, _):
 		print('Migrating players...')
 		await self.migrate_players()
@@ -37,15 +42,17 @@ class Xaseco2Converter(BaseConverter):
 			for s_player in cursor.fetchall():
 				# Check if we already have this player in our database. If we have, ignore and print message.
 				try:
-					await Player.get_by_login(s_player['Login'])
+					player = await Player.get_by_login(s_player['Login'])
+					self.player_cache[player.login] = player
 
 					print('Player with login \'{}\' already exists, skipping..'.format(s_player['Login']))
 					continue
 				except:
 					# Not found, create it:
-					await Player.create(
+					player = await Player.create(
 						login=s_player['Login'], nickname=s_player['NickName']
 					)
+					self.player_cache[player.login] = player
 
 	async def migrate_maps(self):
 		with self.connection.cursor() as cursor:
@@ -53,17 +60,19 @@ class Xaseco2Converter(BaseConverter):
 			for s_map in cursor.fetchall():
 				# Check if we already have this player in our database. If we have, ignore and print message.
 				try:
-					await Map.get_by_uid(s_map['Uid'])
+					map_instance = await Map.get_by_uid(s_map['Uid'])
+					self.map_cache[map_instance.uid] = map_instance
 
 					print('Map with uid \'{}\' already exists, skipping..'.format(s_map['Uid']))
 					continue
 				except:
 					# Not found, create it:
 					# HACK: We don't know the file yet. Empty string to fill until pyplanet has started next time.
-					await Map.create(
+					map_instance = await Map.create(
 						uid=s_map['Uid'], name=s_map['Name'], file='', author_login=s_map['Author'],
 						environment=s_map['Environment']
 					)
+					self.map_cache[map_instance.uid] = map_instance
 
 	async def migrate_local_records(self):
 		if 'local_records' not in self.instance.apps.apps:
@@ -79,8 +88,8 @@ class Xaseco2Converter(BaseConverter):
 			for s_record in cursor.fetchall():
 				# Get map + player
 				try:
-					map = await Map.get(uid=s_record['Uid'])
-					player = await Player.get(login=s_record['Login'])
+					map = self.map_cache[s_record['Uid']] if s_record['Uid'] in self.map_cache else await Map.get(uid=s_record['Uid'])
+					player = self.player_cache[s_record['Login']] if s_record['Login'] in self.player_cache else await Player.get(login=s_record['Login'])
 				except:
 					# Skip.
 					print('Can\'t convert record, map or player not found. Skipping...')
@@ -109,8 +118,8 @@ class Xaseco2Converter(BaseConverter):
 			for s_karma in cursor.fetchall():
 				# Get map + player
 				try:
-					map = await Map.get(uid=s_karma['Uid'])
-					player = await Player.get(login=s_karma['Login'])
+					map = self.map_cache[s_karma['Uid']] if s_karma['Uid'] in self.map_cache else await Map.get(uid=s_karma['Uid'])
+					player = self.player_cache[s_karma['Login']] if s_karma['Login'] in self.player_cache else await Player.get(login=s_karma['Login'])
 				except:
 					# Skip.
 					print('Can\'t convert karma, map or player not found. Skipping...')
@@ -138,8 +147,8 @@ class Xaseco2Converter(BaseConverter):
 			for s_time in cursor.fetchall():
 				# Get map + player
 				try:
-					map = await Map.get(uid=s_time['Uid'])
-					player = await Player.get(login=s_time['Login'])
+					map = self.map_cache[s_time['Uid']] if s_time['Uid'] in self.map_cache else await Map.get(uid=s_time['Uid'])
+					player = self.player_cache[s_time['Login']] if s_time['Login'] in self.player_cache else await Player.get(login=s_time['Login'])
 				except:
 					# Skip.
 					print('Can\'t convert time, map or player not found. Skipping...')

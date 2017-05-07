@@ -140,11 +140,13 @@ class GbxClient(GbxRemote):
 			self.prepare('GameDataDirectory'),
 			self.prepare('GetMapsDirectory'),
 			self.prepare('GetSkinsDirectory'),
+			self.prepare('GetCurrentMapInfo'),
 		)
 		version_info = res[0]
 		self.game.dedicated_version = version_info['Version']
 		self.game.dedicated_build = version_info['Build']
 		self.game.dedicated_api_version = version_info['ApiVersion']
+		self.game.dedicated_title = version_info['TitleId']
 
 		# System Information
 		system_info = res[1]
@@ -161,3 +163,5 @@ class GbxClient(GbxRemote):
 		self.game.server_data_dir = res[2]
 		self.game.server_map_dir = res[3]
 		self.game.server_skin_dir = res[4]
+
+		self.game.game = self.game.game_from_environment(res[5]['Environnement'])

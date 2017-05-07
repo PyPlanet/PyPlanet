@@ -19,3 +19,26 @@ manialink_answer = Callback(
 	code='manialink_answer',
 	target=handle_manialink_answer,
 )
+
+"""
+:Signal: 
+	Player has raised an action on the Manialink.
+:Code:
+	``maniaplanet:manialink_answer``
+:Description:
+	Callback sent when a player clicks on an event of a manialink.
+:Original Callback:
+	`Native` Maniaplanet.PlayerManialinkPageAnswer
+
+:param player: Player instance
+:param action: Action name
+:param values: Values (in dictionary).
+:type player: pyplanet.apps.core.maniaplanet.models.player.Player
+
+.. warning ::
+
+	**Don't use this callback directly, use the abstraction of ``View`` and ``StaticManialink`` to handle events of your
+	manialink**!
+
+"""
+

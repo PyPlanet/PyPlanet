@@ -1,5 +1,3 @@
-import asyncio
-
 import asynctest
 
 from pyplanet.core.instance import Controller
@@ -17,4 +15,9 @@ class TestInstanceInit(asynctest.TestCase):
 		instance = Controller.prepare(name='default').instance
 		await instance._start()
 		self.assertGreater(len(instance.gbx.gbx_methods), 0)
+		await instance.gbx.disconnect()
+		try:
+			await instance.db.engine.disconnect()
+		except:
+			pass
 		del instance
