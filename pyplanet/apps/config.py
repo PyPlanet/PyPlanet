@@ -86,8 +86,8 @@ class AppConfig:
 		:type app_module: str
 		:type instance: pyplanet.core.instance.Instance
 		"""
-		# The full python module path. The postfix `*.app.*Config` is always the same!
-		# Example: pyplanet.contrib.apps.games.trackmania.app.TrackmaniaConfig
+		# The full python module path. The postfix `*.app` is always the same!
+		# Example: pyplanet.contrib.apps.games.trackmania.app
 		self.name = app_name
 
 		# The apps root module.
@@ -212,7 +212,7 @@ class AppConfig:
 	@staticmethod
 	def import_app(entry, instance):
 		# Import the module, we need to strip down the path into namespace, file and class.
-		module_path, _, cls_name = entry.rpartition('.')
+		module_path, app_glue, cls_name = entry.rpartition('.')
 		if not module_path:
 			raise ImproperlyConfigured('Module for your app {} can\'t be found!'.format(entry))
 
@@ -234,14 +234,7 @@ class AppConfig:
 			raise InvalidAppModule('Your required app {} couldn\'t be loaded!'.format(entry))
 
 		# Get name and other attributes.
-		try:
-			app_name = module.name
-			if app_name is None:
-				raise AttributeError()
-		except AttributeError:
-			raise ImproperlyConfigured(
-				'App {} must supply a name attribute.'.format(entry)
-			)
+		app_name = module_path.rpartition('.')[0]
 
 		# Ensure app_name points to a valid module.
 		try:

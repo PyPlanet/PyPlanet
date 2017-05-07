@@ -5,7 +5,6 @@ from pyplanet.apps.contrib.admin.server import ServerAdmin
 
 
 class Admin(AppConfig):
-	name = 'pyplanet.apps.contrib.admin'
 	game_dependencies = ['trackmania', 'shootmania']
 	app_dependencies = ['core.maniaplanet']
 

@@ -4,7 +4,6 @@ from pyplanet.apps.core.pyplanet.views.logo import LogoView
 
 
 class PyPlanetConfig(AppConfig):
-	name = 'pyplanet.apps.core.pyplanet'
 	core = True
 
 	def __init__(self, *args, **kwargs):
