@@ -4,7 +4,15 @@ Changelog
 0.1.0 (unreleased)
 ------------------
 
+0.0.3
+-----
 
+Contrib Apps
+~~~~~~~~~~~~
+
+**Local records** `pyplanet.apps.contrib.local_records`
+
+* Bugfix #107: Widget showing wrong offset of records. (Not showing own record if just in the first part of >5 recs).
 
 
 0.0.2
