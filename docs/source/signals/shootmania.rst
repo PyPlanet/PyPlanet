@@ -19,3 +19,9 @@ Joust
 
 .. automodule:: pyplanet.apps.core.shootmania.callbacks.joust
   :members:
+
+Royal
+~~~~~
+
+.. automodule:: pyplanet.apps.core.shootmania.callbacks.royal
+  :members:
