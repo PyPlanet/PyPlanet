@@ -154,8 +154,10 @@ class Instance:
 		await self.gbx.execute('ChatSendServerMessage', '$fff$o$w⏳$z$fff Loading...')
 
 	async def print_footer(self):  # pragma: no cover
-		await self.gbx.execute('ChatSendServerMessage', '\uf1e6 $o$FD4Py$369Planet$z$o$s$fff v{}, {}\uf013'.format(version, len(self.apps.apps)))
-		await self.gbx.execute('ChatSendServerMessage', '$o$FD4$l[http://pypla.net]Site$l $369|$FD4 $l[https://github.com/PyPlanet]Github$l $369|$FD4 $l[http://pypla.net]Docs$l')
+		await self.gbx.execute('ChatSendServerMessage', '\uf1e6 $o$FD4Py$369Planet$z$o$s$fff v{}, {}\uf013 $z$s $369|$FD4 '
+														'$l[http://pypla.net]Site$l $369|$FD4 '
+														'$l[https://github.com/PyPlanet]Github$l $369|$FD4 '
+														'$l[http://pypla.net]Docs$l'.format(version, len(self.apps.apps)))
 
 
 class _Controller:
