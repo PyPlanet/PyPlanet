@@ -152,7 +152,10 @@ class LocalRecords(AppConfig):
 			await self.instance.gbx.execute('ChatSendServerMessage', message)
 
 			for player in self.instance.player_manager.online:
-				await self.chat_personal_record(player)
+				try:
+					await self.chat_personal_record(player)
+				except:
+					pass
 		else:
 			message = '$z$s$fff»» $0f3There is no Local Record on this map yet.'
 			await self.instance.gbx.execute('ChatSendServerMessage', message)
