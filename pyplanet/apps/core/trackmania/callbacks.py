@@ -62,7 +62,8 @@ async def handle_scores(source, signal, **kwargs):
 			round_points=data['roundpoints'], best_race_checkpoints=data['bestracecheckpoints'],
 			best_race_respawns=data['bestracerespawns']
 		)
-	async def get_team_scores(data):
+
+	def get_team_scores(data):
 		return dict(
 			map_points=data['mappoints'], name=data['name'], id=data['id'], match_points=data['matchpoints'],
 			round_points=data['roundpoints'],
@@ -71,9 +72,9 @@ async def handle_scores(source, signal, **kwargs):
 	player_scores = await asyncio.gather(*[
 		get_player_scores(d) for d in source['players']
 	])
-	team_scores = await asyncio.gather(*[
+	team_scores = [
 		get_team_scores(d) for d in source['teams']
-	])
+	]
 	return dict(
 		players=player_scores,
 		teams=team_scores,
