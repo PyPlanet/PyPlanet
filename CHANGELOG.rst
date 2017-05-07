@@ -1,8 +1,25 @@
 Changelog
 =========
 
-0.0.1 (unreleased)
+0.1.0 (unreleased)
 ------------------
+
+
+
+
+0.0.2
+-----
+
+Contrib Apps
+~~~~~~~~~~~~
+
+**Local records** `pyplanet.apps.contrib.local_records`
+
+* Bugfix #106: Widget not updating when map changed. Login not found exception.
+
+
+0.0.1
+-----
 
 Core
 ~~~~
