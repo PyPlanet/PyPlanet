@@ -103,5 +103,5 @@ Links
 =====
 
 | Documentation: http://pypla.net/
-| GitHub: https://github.com/PyPlanet
-| PyPi:
+| GitHub: https://github.com/PyPlanet/PyPlanet
+| PyPi: https://pypi.python.org/pypi/pyplanet
