@@ -4,6 +4,21 @@ Changelog
 0.1.0 (unreleased)
 ------------------
 
+Core
+~~~~
+
+* Add new fields to the ``game`` state class.
+* Refresh the ``game`` infos every minute.
+
+
+Contrib Apps
+~~~~~~~~~~~~
+
+**Dedimania** `pyplanet.apps.contrib.dedimania`
+
+* Adding dedimania integration and widget.
+
+
 0.0.3
 -----
 

@@ -12,18 +12,27 @@ class _Game:
 
 	server_is_dedicated = None
 	server_is_server = None
+	server_is_private = None
 	server_ip = None
 	server_p2p_port = None
 	server_port = None
 	server_player_login = None
 	server_player_id = None
-	server_download_rate = None # TODO: Update on set.
-	server_upload_rate = None # TODO: Update on set.
+	server_download_rate = None
+	server_upload_rate = None
 	server_data_dir = None
 	server_map_dir = None
 	server_skin_dir = None
+	server_language = None
+	server_name = None
+	server_path = None
+	server_password = None
+	server_spec_password = None
+	server_max_players = None
+	server_max_specs = None
 
 	game = None  # tm / sm
+	#  game_long = None  # trackmania / shootmania
 
 	def game_from_environment(self, environment):
 		if environment in ['Canyon', 'Stadium', 'Valley', 'Lagoon']:

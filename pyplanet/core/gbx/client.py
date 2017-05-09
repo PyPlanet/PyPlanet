@@ -20,6 +20,7 @@ class GbxClient(GbxRemote):
 		super().__init__(*args, **kwargs)
 		self.script_api_version = script_api_version
 		self.game = self.instance.game
+		self.refresh_task = None
 
 	def prepare(self, method, *args, **kwargs):
 		"""
@@ -133,6 +134,17 @@ class GbxClient(GbxRemote):
 		except Exception as e:
 			logger.info('Can\'t set the script API Version! {}'.format(str(e)))
 
+		await self.refresh_info()
+
+		# Schedule refresh every minute!
+		self.refresh_task = asyncio.ensure_future(self.__refresh_info_call())
+
+	async def __refresh_info_call(self):
+		while True:
+			await asyncio.sleep(60)
+			await self.refresh_info()
+
+	async def refresh_info(self):
 		# Version Information
 		res = await self.multicall(
 			self.prepare('GetVersion'),
@@ -141,6 +153,11 @@ class GbxClient(GbxRemote):
 			self.prepare('GetMapsDirectory'),
 			self.prepare('GetSkinsDirectory'),
 			self.prepare('GetCurrentMapInfo'),
+			self.prepare('GetServerPassword'),
+			self.prepare('GetServerPasswordForSpectator'),
+			self.prepare('GetMaxPlayers'),
+			self.prepare('GetMaxSpectators'),
+			self.prepare('GetHideServer'),
 		)
 		version_info = res[0]
 		self.game.dedicated_version = version_info['Version']
@@ -165,3 +182,16 @@ class GbxClient(GbxRemote):
 		self.game.server_skin_dir = res[4]
 
 		self.game.game = self.game.game_from_environment(res[5]['Environnement'])
+
+		self.game.server_password = res[6]
+		self.game.server_spec_password = res[7]
+		self.game.server_max_players = res[8]
+		self.game.server_max_specs = res[9]
+		self.game.server_is_private = res[10]
+
+		# Detailed server player infos.
+		server_player_info = await self.execute('GetDetailedPlayerInfo', self.game.server_player_login)
+
+		self.game.server_language = server_player_info['Language']
+		self.game.server_name = server_player_info['NickName']
+		self.game.server_path = server_player_info['Path']
