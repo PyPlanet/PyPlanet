@@ -13,7 +13,7 @@ from pyplanet.core.gbx import GbxClient
 from pyplanet.core.exceptions import ImproperlyConfigured
 from pyplanet.core.storage.storage import Storage
 from pyplanet.core.ui import GlobalUIManager
-from pyplanet.utils import memleak
+from pyplanet.utils import memleak, releases
 
 from pyplanet.contrib.map import MapManager
 from pyplanet.contrib.player import PlayerManager
@@ -158,6 +158,12 @@ class Instance:
 														'$l[http://pypla.net]Site$l $369|$FD4 '
 														'$l[https://github.com/PyPlanet]Github$l $369|$FD4 '
 														'$l[http://pypla.net]Docs$l'.format(version, len(self.apps.apps)))
+
+		# Check for update.
+		try:
+			asyncio.ensure_future(releases.check_latest_version(self))
+		except:
+			pass  # Completely ignore errors while checking for the latest version.
 
 
 class _Controller:
