@@ -149,6 +149,18 @@ Functionality:
 Required permission:
   ``admin:unban``, requires admin level 2.
 
+Change user admin level
+~~~~~~~~~~~~~~~~~~~~~~~
+Command:
+  ``//level``
+Parameters:
+  * Player login.
+  * (Optional) Level: 0 = player, 1 = operator, 2 = admin, 3 = master admin. Leave empty to remove level (0).
+Functionality:
+  Changes the admin permission level of the player.
+Required permission:
+  ``admin:manage_admins``, requires admin level 2.
+
 Server
 ^^^^^^
 
