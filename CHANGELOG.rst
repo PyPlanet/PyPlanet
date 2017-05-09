@@ -1,8 +1,17 @@
 Changelog
 =========
 
-0.1.0 (unreleased)
-------------------
+0.1.1
+-----
+
+Core
+~~~~
+
+* Fixing issue with creating migrations folder when no permission.
+
+
+0.1.0
+-----
 
 Core
 ~~~~
