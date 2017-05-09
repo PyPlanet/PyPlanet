@@ -10,7 +10,7 @@ preinstalled. To be 100% sure you have to check if you have Python 3 and your ve
 
 **Summary of requirements:**
 
-* Python 3.5+ and pip 9+
+* Python 3.5+ and pip 9+ (see bellow for upgrading pip).
 * Virtualenv (see: http://pythoncentral.io/how-to-install-virtualenv-python/ )
 * MySQL Server or PostgreSQL Server.
 * Maniaplanet Dedicated MP4+, local or remote.
@@ -22,6 +22,19 @@ preinstalled. To be 100% sure you have to check if you have Python 3 and your ve
 
     After installing you can install the desired python version with: ``pyenv install 3.6.1``.
     Also, you can't use `virtualenv` when using PyEnv. Use its alternative: ``pyenv virtualenv 3.6.1 pyplanet``
+
+**Installing operating system requirements**
+
+For some libraries, like crypto are some native libraries and build tools required.
+
+* Ubuntu: ``sudo apt-get install build-essential libssl-dev libffi-dev python3-dev``
+* Fedora/RHEL: ``sudo yum install gcc libffi-devel python-devel openssl-devel`` maybe you have to use ``python34-devel`` and ``python34-pip`` as well.
+* Windows: Run as Admin: ``pip install cryptography``
+
+.. tip::
+
+  If you still get errors with installing with pip, please take a look at: https://cryptography.io/en/latest/installation/#building-cryptography-on-linux
+
 
 1. System (CLI) Installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -39,7 +52,7 @@ on your system you need root rights. You can however install PyPlanet in the use
     sudo -H pip install PyPlanet -U
 
     # Install in ~/.local
-    pip --user install PyPlanet -U
+    pip install --user PyPlanet -U
 
 
 After installing it on your system you can use the pyplanet cli commands. To get help about commands, use ``pyplanet help``.
