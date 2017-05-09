@@ -54,6 +54,12 @@ on your system you need root rights. You can however install PyPlanet in the use
     # Install in ~/.local
     pip install --user PyPlanet -U
 
+.. tip::
+
+  If you are on Debian or Ubuntu you can also use our wrapper bash script that automatically installs required os packages.
+
+  ``bash <(curl -s https://raw.githubusercontent.com/PyPlanet/PyPlanet/master/docs/scripts/setup.sh)``
+
 
 After installing it on your system you can use the pyplanet cli commands. To get help about commands, use ``pyplanet help``.
 
