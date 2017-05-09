@@ -16,7 +16,8 @@ a event loop and have simultaneously processing of received events from the dedi
 * Core: All apps will handle the game experience.
 * Core: Adjustable settings for all your apps.
 * Core: Supports Trackmania and Shootmania, Scripted only!
-* App: Local Records, including widget.
+* App: Local Records, including widget + list.
+* App: Dedimania Records, including widget + list.
 * App: Admin Commands, Providing with basic commands and control for maintaining your server.
 * App: Karma, Let your players vote on your maps!
 * App: Jukebox, Let your players 'juke' the next map.
@@ -61,6 +62,7 @@ Information about development of apps and the core is also available under:
     apps/contrib/jukebox
     apps/contrib/karma
     apps/contrib/local_records
+    apps/contrib/dedimania
     apps/contrib/mapinfo
     apps/contrib/players
     apps/contrib/mx

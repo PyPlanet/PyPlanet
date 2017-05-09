@@ -17,7 +17,6 @@ logger = logging.getLogger(__name__)
 class Dedimania(AppConfig):
 	game_dependencies = ['trackmania']
 	app_dependencies = ['core.maniaplanet', 'core.trackmania']
-	#  mode_dependencies = ['Rounds', 'TimeAttack']
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -42,6 +41,9 @@ class Dedimania(AppConfig):
 		)
 
 		self.login = self.code = self.server_version = self.pack_mask = None
+
+	def is_mode_supported(self, mode):
+		return mode.startswith('TimeAttack') or mode.startswith('Rounds')
 
 	async def on_start(self):
 		# Init settings.
