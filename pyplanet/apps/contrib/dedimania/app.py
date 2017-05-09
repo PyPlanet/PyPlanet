@@ -43,7 +43,8 @@ class Dedimania(AppConfig):
 		self.login = self.code = self.server_version = self.pack_mask = None
 
 	def is_mode_supported(self, mode):
-		return mode.startswith('TimeAttack') or mode.startswith('Rounds')
+		return mode.startswith('TimeAttack') or mode.startswith('Rounds') or mode.startswith('Team') or \
+			   mode.startswith('Laps') or mode.startswith('Cup')
 
 	async def on_start(self):
 		# Init settings.
@@ -136,14 +137,14 @@ class Dedimania(AppConfig):
 
 		# Get data, prepare for sending.
 		await self.api.set_map_times(
-			map, 'Rounds' if 'Rounds' in await self.instance.mode_manager.get_current_script() else 'TA',
+			map, 'TA' if 'TimeAttack' in await self.instance.mode_manager.get_current_script() else 'Rounds',
 			self.current_records
 		)
 
 	async def refresh_records(self):
 		self.server_max_rank, modes, player_infos, self.current_records = await self.api.get_map_details(
 			self.instance.map_manager.current_map,
-			'Rounds' if 'Rounds' in await self.instance.mode_manager.get_current_script() else 'TA',
+			'TA' if 'TimeAttack' in await self.instance.mode_manager.get_current_script() else 'Rounds',
 			server_name=self.instance.game.server_name, server_comment='', is_private=self.instance.game.server_is_private,
 			max_players=self.instance.game.server_max_players['CurrentValue'], max_specs=self.instance.game.server_max_specs['CurrentValue'],
 			players=await self.instance.gbx.execute('GetPlayerList', -1, 0),

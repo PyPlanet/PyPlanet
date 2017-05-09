@@ -99,7 +99,7 @@ class DedimaniaAPI:
 			num_players = len(player_list) - num_specs
 			max_players = self.instance.game.server_max_players['CurrentValue']
 			max_specs = self.instance.game.server_max_specs['CurrentValue']
-			mode = 'Rounds' if 'Rounds' in await self.instance.mode_manager.get_current_script() else 'TA',
+			mode = 'TA' if 'TimeAttack' in await self.instance.mode_manager.get_current_script() else 'Rounds',
 			try:
 				response = await self.multicall(
 					('dedimania.UpdateServerPlayers', self.session_id, {
