@@ -75,6 +75,12 @@ these *database drivers*:
 * ``peewee_async.MySQLDatabase``: Using PyMySQL, a full Python based driver. (Supports MariaDB and PerconaDB).
 * ``peewee_async.PostgresqlDatabase``: Using a full native Python driver.
 
+**Creating database**:
+
+You will have to create the database scheme yourself. Make sure you create it with a database collate that is based on
+UTF-8. We recommend for MySQL: ``utf8_generic_ci``.
+
+**Configuration**
 
 Configuration can follow the following examples:
 

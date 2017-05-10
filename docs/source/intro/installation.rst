@@ -15,57 +15,71 @@ preinstalled. To be 100% sure you have to check if you have Python 3 and your ve
 * MySQL Server or PostgreSQL Server.
 * Maniaplanet Dedicated MP4+, local or remote.
 
-.. note::
-
-    If your OS does't have Python 3.5 or older provided. You could either compile Python for yourself or use PyEnv.
-    Instructions on how to install PyEnv are in the github page <https://github.com/pyenv/pyenv-installer#github-way-recommended>.
-
-    After installing you can install the desired python version with: ``pyenv install 3.6.1``.
-    Also, you can't use `virtualenv` when using PyEnv. Use its alternative: ``pyenv virtualenv 3.6.1 pyplanet``
-
 **Installing operating system requirements**
 
 For some libraries, like crypto are some native libraries and build tools required.
 
-* Ubuntu: ``sudo apt-get install build-essential libssl-dev libffi-dev python3-dev``
-* Fedora/RHEL: ``sudo yum install gcc libffi-devel python-devel openssl-devel`` maybe you have to use ``python34-devel`` and ``python34-pip`` as well.
+* Ubuntu: ``sudo apt-get install build-essential libssl-dev libffi-dev python3-dev zlib1g-dev``
+* Fedora/RHEL: ``sudo yum install gcc libffi-devel python3-devel openssl-devel zlib``.
 * Windows: Run as Admin: ``pip install cryptography``
 
 .. tip::
 
   If you still get errors with installing with pip, please take a look at: https://cryptography.io/en/latest/installation/#building-cryptography-on-linux
 
-
-1. System (CLI) Installation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-PyPlanet is published through the Python Package Index (PyPi) and is easy to install with ``pip``. To install PyPlanet
-on your system you need root rights. You can however install PyPlanet in the users pip context.
-
-.. warning::::
-
-    We don't recommend installing PyPlanet as root. Please use the ``--user`` parameter when installing the CLI tool.
-
-.. code-block:: bash
-
-    # Install as root:
-    sudo -H pip install PyPlanet -U
-
-    # Install in ~/.local
-    pip install --user PyPlanet -U
-
-.. tip::
-
-  If you are on Debian or Ubuntu you can also use our wrapper bash script that automatically installs required os packages.
+  If you are on Ubuntu 16.04 or later you can also use our wrapper bash script that automatically installs required os packages.
 
   ``bash <(curl -s https://raw.githubusercontent.com/PyPlanet/PyPlanet/master/docs/scripts/setup.sh)``
 
 
-After installing it on your system you can use the pyplanet cli commands. To get help about commands, use ``pyplanet help``.
+1. Check your Python and PIP version
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+First of all you have to check if your operating system has Python 3.5 or higher installed. To find out, type the following
+commands in the command shell.
+
+.. code-block:: bash
+
+  python3 --version
+  # OR
+  python --version
+
+The output should show this ``Python 3.5.2`` and the version number should be **3.5 or higher**!
+If this is not the case you could check if your operating system has Python 3.5 support from it's package manager.
+Ubuntu 16.04 and higher has Python 3.5, Debian 8 has no 3.5.
+
+Windows, download Python 3.6 from the site: https://www.python.org/downloads/
+
+**PyEnv**
+
+If your operating system doesn't provide you 3.5 or higher, you have to use PyEnv. To install PyEnv execute the following
+commands:
+
+.. code-block:: bash
+
+  # Execute this as the user you want to install PyPlanet for
+  curl -L https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer | bash
+
+After installing you would have to edit your ~/.bashrc file and add the following lines:
+
+.. code-block:: bash
+
+  export PATH="~/.pyenv/bin:$PATH"
+  eval "$(pyenv init -)"
+  eval "$(pyenv virtualenv-init -)"
+
+Restart your SSH session right now to activate the PyEnv installation.
+
+Next up is the installation of Python 3.6 with PyEnv, you can do this by executing the following shell commands.
+This can take some time
+
+.. code-block:: bash
+
+  pyenv install 3.6.1
 
 
-2. Virtual Environment in your project
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2. Virtual Environment for your installation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We recommend using a `virtualenv` to install PyPlanet, and keep the version separate for multiple projects/dedicated servers.
 With this method you won't have to upgrade all servers at the same time and don't have any issues with system managed python
@@ -73,9 +87,14 @@ packages.
 
 In order to create a virtualenv you need to have the virtualenv tools installed. To install virtualenv, execute the following command:
 
+**Using `virtualenv`**:
+
 .. code-block:: bash
 
-    # Linux
+    # Ubuntu + Debian
+    sudo apt-get install virtualenv
+
+    # Generic Other Linux
     sudo -H pip install virtualenv
 
     # Windows (run cmd as administrator)
@@ -104,7 +123,41 @@ To activate, use the following commands:
     env\Scripts\Activate.bat
 
 
-2. Setup Project
+**Using PyEnv**
+
+With PyEnv it's slightly different, you have to create a virtualenv, but this virtualenv is not located in the same
+folder as you are in now.
+
+Create virtualenv with the following command:
+
+.. code-block:: bash
+
+  pyenv virtualenv 3.6.1 pyplanet
+  # 3.6.1 = your installed python version
+  # pyplanet = name you will give your virtualenv. Can be anything. remember it of course!
+
+Activating the virtualenv is pretty easy with PyEnv:
+
+.. code-block:: bash
+
+  pyenv activate pyplanet
+  # Where pyplanet is your virtualenv name.
+
+
+3. PyPlanet Installation
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+PyPlanet is published through the Python Package Index (PyPi) and is easy to install with ``pip``. **Make sure you activated
+your virtualenv first!**
+
+.. code-block:: bash
+
+    # Install as root:
+    pip install pyplanet -U
+
+After installing it on your system you can use the pyplanet cli commands. To get help about commands, use ``pyplanet help``.
+
+4. Setup Project
 ~~~~~~~~~~~~~~~~
 
 After installing PyPlanet on your system, you can't yet start any instances because starting requires you to give up an

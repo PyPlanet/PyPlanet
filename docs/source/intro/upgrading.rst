@@ -64,6 +64,7 @@ Now you can run the ``pip`` command that will upgrade your installation.
 .. warning::
 
   You may find errors during installation, make sure you have ``openssl, gcc, python development`` installed on your os!
+  See the installation manual on how to install this.
 
 
 4. Upgrade settings

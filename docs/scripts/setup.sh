@@ -123,13 +123,10 @@ fi
 # Install dependencies.
 if [ "$platform" = "ubuntu" ] || [ "$platform" = "debian" ]; then
   $SUDO apt-get update || error apt-get update hit problems but continuing anyway...
-  $SUDO apt-get install python python3 python3-dev virtualenv build-essential libssl-dev libffi-dev python-dev python3-pip
+  $SUDO apt-get install python python3 python3-dev virtualenv build-essential libssl-dev libffi-dev python3-pip zlib1g-dev
 
 fi
 
-# Install PyPlanet via pip
-$SUDO pip install pyplanet --upgrade
-
-echo "You can now use pyplanet from your command line! Create your new server now with pyplanet init_project my-folder"
+echo "You are now ready to continue step 1 of the installation manual"
 echo "More information: http://pypla.net/"
 exit
