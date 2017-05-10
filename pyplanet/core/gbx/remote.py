@@ -7,6 +7,7 @@ import logging
 import struct
 
 from xmlrpc.client import dumps, loads, Fault
+from xml.parsers.expat import ExpatError
 
 from pyplanet.core.exceptions import TransportException
 from pyplanet.core.events.manager import SignalManager
@@ -188,6 +189,10 @@ class GbxRemote:
 					data, method = loads(body, use_builtin_types=True)
 				except Fault as e:
 					fault = e
+				except ExpatError as e:
+					# See #121 for this solution.
+					handle_exception(exception=e, module_name=__name__, func_name='listen', extra_data={'body': body})
+					continue
 
 				if data and len(data) == 1:
 					data = data[0]

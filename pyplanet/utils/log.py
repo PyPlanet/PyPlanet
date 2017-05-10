@@ -36,9 +36,9 @@ def handle_exception(exception=None, module_name=None, func_name=None, extra_dat
 		return
 
 	from pyplanet.core import Controller
-	if settings.DEBUG:
-		return
-	if settings.LOGGING_REPORTING == 0:
+	if settings.DEBUG or settings.LOGGING_REPORTING == 0:
+		if exception:
+			logging.exception(exception)
 		return
 
 	if not extra_data:
