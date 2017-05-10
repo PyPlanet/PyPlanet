@@ -37,7 +37,6 @@ class PlayerManager(CoreContrib):
 
 		# Online contains all currently online players.
 		self._online = set()
-		self._online_logins = set()
 
 	async def on_start(self):
 		"""
@@ -68,7 +67,6 @@ class PlayerManager(CoreContrib):
 		ip, _, port = info['IPAddress'].rpartition(':')
 		is_owner = login in settings.OWNERS[self._instance.process_name]
 
-
 		try:
 			player = await Player.get_by_login(login)
 			player.last_ip = ip
@@ -92,7 +90,6 @@ class PlayerManager(CoreContrib):
 
 		async with self.lock:
 			self._online.add(player)
-			self._online_logins.add(player.login)
 
 		return player
 
