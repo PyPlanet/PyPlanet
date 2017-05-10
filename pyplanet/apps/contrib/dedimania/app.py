@@ -4,6 +4,7 @@ import uuid
 
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.dedimania.api import DedimaniaAPI, DedimaniaRecord
+from pyplanet.apps.contrib.dedimania.exceptions import DedimaniaException
 from pyplanet.apps.core.trackmania import callbacks as tm_signals
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 from pyplanet.contrib.setting import Setting
@@ -125,7 +126,13 @@ class Dedimania(AppConfig):
 			await self.map_begin(map)
 
 	async def map_begin(self, map):
+		# Reset retries.
+		self.api.retries = 0
+
+		# Set map status.
 		self.map_status = map.time_author > 6200 or map.num_checkpoints > 0
+
+		# Fetch records + update widget.
 		await self.refresh_records()
 		await self.chat_current_record()
 		await self.widget.display()
@@ -198,16 +205,19 @@ class Dedimania(AppConfig):
 					logger.debug('Ignore time, not within server or player max_rank.')
 					return
 
-				if new_rank == 1:
-					# We need the ghost replay too.
-					current_record.ghost_replay = await self.get_ghost(player.login)
-				# Get virtual replay.
-				current_record.virtual_replay = await self.instance.gbx.execute('GetValidationReplay', current_record.login)
+				try:
+					if new_rank == 1:
+						# We need the ghost replay too.
+						current_record.ghost_replay, current_record.virtual_replay = await self.get_replays(player.login, ghost=True, virtual=True)
+					else:
+						# Get virtual replay.
+						_, current_record.virtual_replay = await self.get_replays(current_record.login, ghost=False, virtual=True)
+				except:
+					return
 
 				# Update score + infos.
 				current_record.score = score
 				current_record.cps = lap_cps
-				print(lap_cps)
 				self.current_records.sort(key=lambda x: x.score)
 
 				if new_rank < previous_index:
@@ -250,9 +260,13 @@ class Dedimania(AppConfig):
 				logger.debug('Ignore time, not within server or player max_rank.')
 				return
 
-			new_record.virtual_replay = await self.instance.gbx.execute('GetValidationReplay', player.login)
-			if new_rank == 1:
-				new_record.ghost_replay = await self.get_ghost(player.login)
+			try:
+				if new_rank == 1:
+					new_record.ghost_replay, new_record.virtual_replay = await self.get_replays(player.login, ghost=True, virtual=True)
+				else:
+					_, new_record.virtual_replay = await self.get_replays(player.login, ghost=False, virtual=True)
+			except:
+				return
 
 			self.current_records.append(new_record)
 			self.current_records.sort(key=lambda x: x.score)
@@ -265,11 +279,38 @@ class Dedimania(AppConfig):
 				self.widget.display()
 			)
 
-	async def get_ghost(self, player_login):
+	async def get_replays(self, player_login, ghost=False, virtual=True):
 		replay_name = 'dedimania_{}.Replay.Gbx'.format(uuid.uuid4().hex)
-		await self.instance.gbx.execute('SaveBestGhostsReplay', player_login, replay_name)
-		async with self.instance.storage.open('UserData/Replays/{}'.format(replay_name)) as ghost_file:
-			return await ghost_file.read()
+		calls = list()
+		if virtual:
+			calls.append(self.instance.gbx.prepare('GetValidationReplay', player_login))
+		if ghost:
+			calls.append(self.instance.gbx.prepare('SaveBestGhostsReplay', player_login, replay_name))
+
+		results = await self.instance.gbx.multicall(*calls)
+
+		if ghost:
+			try:
+				async with self.instance.storage.open('UserData/Replays/{}'.format(replay_name)) as ghost_file:
+					ghost_base = ghost_file.read()
+					if virtual:
+						return ghost_base, results[0]
+					return ghost_base, None
+			except FileNotFoundError as e:
+				message = '$z$s$fff»» $f00Error: Dedimania requires you to have file access on the server. We can\'t fetch' \
+						  'the driven replay!'
+				logger.error('Please make sure we can access the dedicated files. Configure your storage driver correctly! '
+							 '{}'.format(str(e)))
+				await self.instance.gbx.execute('ChatSendServerMessage', message)
+				raise DedimaniaException('Can\'t access files')
+			except PermissionError as e:
+				message = '$z$s$fff»» $f00Error: Dedimania requires you to have file access on the server. We can\'t fetch' \
+						  'the driven replay because of an permission problem!'
+				logger.error('We can\'t read files in the dedicated folder, your permissions don\'t allow us to read it! '
+							 '{}'.format(str(e)))
+				await self.instance.gbx.execute('ChatSendServerMessage', message)
+				raise DedimaniaException('Can\'t access files due to permission problems')
+		return None, results[0]
 
 	async def chat_current_record(self):
 		records_amount = len(self.current_records)

@@ -4,9 +4,11 @@ import logging
 import requests
 
 from pprint import pprint
-from xmlrpc.client import dumps, loads
+from xmlrpc.client import dumps, loads, Fault
 
 from pyplanet import __version__ as version
+from pyplanet.apps.contrib.dedimania.exceptions import DedimaniaTransportException
+from pyplanet.utils.log import handle_exception
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +53,7 @@ class DedimaniaAPI:
 
 		self.update_task = None
 		self.session_id = None
+		self.retries = 0
 
 	async def on_start(self):
 		pass
@@ -58,8 +61,20 @@ class DedimaniaAPI:
 	async def execute(self, method, *args):
 		payload = dumps(args, methodname=method, allow_none=True)
 		body = gzip.compress(payload.encode('utf8'))
-		res = await self.loop.run_in_executor(None, self.client.request, 'POST', self.API_URL, None, body, self.headers)
-		return loads(res.text, use_datetime=True)[0]
+		try:
+			res = await self.loop.run_in_executor(None, self.client.request, 'POST', self.API_URL, None, body, self.headers)
+			return loads(res.text, use_datetime=True)[0]
+		except ConnectionError as e:
+			# Try to setup new session.
+			self.retries += 1
+			if self.retries > 5:
+				raise DedimaniaTransportException('Dedimania didn\'t gave the right answer after few retries!')
+			self.client = requests.session()
+			await self.authenticate()
+		except Fault as e:
+			logger.error('XML Decode error in dedimania response!')
+			handle_exception(e, __name__)
+			raise DedimaniaTransportException('Could not retrieve data from dedimania!')
 
 	async def multicall(self, *queries):
 		queries = queries + (
