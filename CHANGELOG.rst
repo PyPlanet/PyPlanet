@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.1.4
+-----
+
+Core
+~~~~
+
+* Bugfix: Undo locking, causing freeze.
+
 0.1.3
 -----
 
