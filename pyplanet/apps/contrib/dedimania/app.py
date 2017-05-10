@@ -169,9 +169,11 @@ class Dedimania(AppConfig):
 	async def player_connect(self, player, is_spectator, **kwargs):
 		await self.widget.display(player=player)
 		res = await self.instance.gbx.execute('GetDetailedPlayerInfo', player.login)
-		self.player_info[player.login] = await self.api.player_connect(
+		p_info = await self.api.player_connect(
 			player.login, player.nickname, res['Path'], is_spectator
 		)
+		if p_info:
+			self.player_info[player.login] = p_info
 
 	async def player_disconnect(self, player, **kwargs):
 		try:

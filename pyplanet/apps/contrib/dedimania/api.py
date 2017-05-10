@@ -6,15 +6,17 @@ import requests
 from pprint import pprint
 from xmlrpc.client import dumps, loads, Fault
 
+from requests import ConnectTimeout
+
 from pyplanet import __version__ as version
-from pyplanet.apps.contrib.dedimania.exceptions import DedimaniaTransportException
+from pyplanet.apps.contrib.dedimania.exceptions import DedimaniaTransportException, DedimaniaFault
 from pyplanet.utils.log import handle_exception
 
 logger = logging.getLogger(__name__)
 
 
 class DedimaniaAPI:
-	API_URL = 'http://dedimania.net:8082/Dedimania'
+	API_URL = 'http://dedimania.net:8081/Dedimania'
 
 	def __init__(self, instance, server_login, dedi_code, path, pack_mask, server_version, server_build, game='TM2'):
 		"""
@@ -58,22 +60,30 @@ class DedimaniaAPI:
 	async def on_start(self):
 		pass
 
+	def __request(self, body):
+		return self.client.request('POST', self.API_URL, None, body, self.headers, timeout=10)
+
 	async def execute(self, method, *args):
 		payload = dumps(args, methodname=method, allow_none=True)
 		body = gzip.compress(payload.encode('utf8'))
 		try:
-			res = await self.loop.run_in_executor(None, self.client.request, 'POST', self.API_URL, None, body, self.headers)
-			return loads(res.text, use_datetime=True)[0]
-		except ConnectionError as e:
+			res = await self.loop.run_in_executor(None, self.__request, body)
+			data, _ = loads(res.text, use_datetime=True)
+			if isinstance(data, (tuple, list)) and len(data) > 0 and len(data[0]) > 0:
+				if isinstance(data[0][0], dict) and 'faultCode' in data[0][0]:
+					raise DedimaniaFault(faultCode=data[0][0]['faultCode'], faultString=data[0][0]['faultString'])
+				return data[0]
+			raise DedimaniaTransportException('Invalid response from dedimania!')
+		except ConnectTimeout as e:
 			# Try to setup new session.
 			self.retries += 1
 			if self.retries > 5:
 				raise DedimaniaTransportException('Dedimania didn\'t gave the right answer after few retries!')
 			self.client = requests.session()
 			await self.authenticate()
-		except Fault as e:
-			logger.error('XML Decode error in dedimania response!')
-			handle_exception(e, __name__)
+		except DedimaniaFault as e:
+			logger.error('XML-RPC Fault retrieved from Dedimania: {}'.format(str(e)))
+			handle_exception(e, __name__, 'execute')
 			raise DedimaniaTransportException('Could not retrieve data from dedimania!')
 
 	async def multicall(self, *queries):
@@ -85,14 +95,18 @@ class DedimaniaAPI:
 		return await self.execute('system.multicall', [{'methodName': c[0], 'params': c[1:]} for c in queries])
 
 	async def authenticate(self):
-		result = await self.multicall(
-			('dedimania.OpenSession', {
-				'Game': self.game, 'Login': self.server_login, 'Code': self.dedimania_code, 'Path': self.path,
-				'Packmask': self.pack_mask, 'ServerVersion': self.server_version, 'ServerBuild': self.server_build,
-				'Tool': 'PyPlanet', 'Version': str(version)
-			})
-		)
-		self.session_id = result[0][0][0]['SessionId']
+		try:
+			result = await self.multicall(
+				('dedimania.OpenSession', {
+					'Game': self.game, 'Login': self.server_login, 'Code': self.dedimania_code, 'Path': self.path,
+					'Packmask': self.pack_mask, 'ServerVersion': self.server_version, 'ServerBuild': self.server_build,
+					'Tool': 'PyPlanet', 'Version': str(version)
+				})
+			)
+		except DedimaniaTransportException as e:
+			return
+
+		self.session_id = result[0][0]['SessionId']
 
 		if not self.update_task:
 			self.update_task = asyncio.ensure_future(self.update_loop())
@@ -121,23 +135,26 @@ class DedimaniaAPI:
 						'SrvName': self.instance.game.server_name, 'Comment': '', 'Private': self.instance.game.server_is_private, 'NumPlayers': num_players,
 						'MaxPlayers': max_players, 'NumSpecs': num_specs, 'MaxSpecs': max_specs
 					}, {
-						'UId': self.instance.map_manager.current_map.uid, 'GameMode': mode,
-					}, player_list)
+						 'UId': self.instance.map_manager.current_map.uid, 'GameMode': mode,
+					 }, player_list)
 				)
-				assert response[0][0][0] is True
-			except:
-				logger.warning('Dedimania update call failed!')
+				assert response[0][0] is True
+			except DedimaniaTransportException as e:
+				logger.warning('Dedimania update call failed! {}'.format(str(e)))
 
 	async def player_connect(
 		self, login, nickname, path, is_spec
 	):
-		response = await self.multicall(
-			('dedimania.PlayerConnect', self.session_id, login, nickname, path, is_spec)
-		)
-		response = response[0][0][0]
-		return dict(
-			banned=bool(response['Banned']), login=response['Login'], max_rank=response['MaxRank'],
-		)
+		try:
+			response = await self.multicall(
+				('dedimania.PlayerConnect', self.session_id, login, nickname, path, is_spec)
+			)
+			response = response[0][0]
+			return dict(
+				banned=bool(response['Banned']), login=response['Login'], max_rank=response['MaxRank'],
+			)
+		except DedimaniaTransportException:
+			return None
 
 	async def player_disconnect(self, login, tool_option):
 		await self.multicall(
@@ -179,11 +196,12 @@ class DedimaniaAPI:
 				'UId': map.uid, 'Name': map.name, 'Environment': map.environment, 'Author': map.author_login,
 				'NbCheckpoints': map.num_checkpoints, 'NbLaps': map.num_laps,
 			}, game_mode, {
-				'SrvName': server_name, 'Comment': server_comment, 'Private': is_private, 'NumPlayers': num_players,
-				'MaxPlayers': max_players, 'NumSpecs': num_specs, 'MaxSpecs': max_specs
-			}, player_list)
+				 'SrvName': server_name, 'Comment': server_comment, 'Private': is_private, 'NumPlayers': num_players,
+				 'MaxPlayers': max_players, 'NumSpecs': num_specs, 'MaxSpecs': max_specs
+			 }, player_list)
 		)
-		result = result[0][0][0]
+
+		result = result[0][0]
 		allowed_modes = result['AllowedGameModes']
 		server_max_rank = result['ServerMaxRank']
 		response_players = result['Players']
@@ -220,7 +238,7 @@ class DedimaniaAPI:
 		)
 
 		try:
-			return bool(isinstance(result[0][0][0]['Records'], list))
+			return bool(isinstance(result[0][0]['Records'], list))
 		except Exception as e:
 			pprint(result)
 			logger.error('Sending times to dedimania failed. Info: {}'.format(result))
