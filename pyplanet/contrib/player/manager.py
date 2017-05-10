@@ -33,7 +33,7 @@ class PlayerManager(CoreContrib):
 		:type instance: pyplanet.core.instance.Instance
 		"""
 		self._instance = instance
-		self.lock = asyncio.Lock()
+		# self.lock = asyncio.Lock()
 
 		# Online contains all currently online players.
 		self._online = set()
@@ -88,8 +88,8 @@ class PlayerManager(CoreContrib):
 		player.flow.player_id = info['PlayerId']
 		player.flow.team_id = info['TeamId']
 
-		async with self.lock:
-			self._online.add(player)
+		#async with self.lock:
+		self._online.add(player)
 
 		return player
 
@@ -106,13 +106,13 @@ class PlayerManager(CoreContrib):
 		except:
 			return
 
-		async with self.lock:
-			if player in self._online:
-				self._online.remove(player)
-			try:
-				del Player.CACHE[login]
-			except:
-				pass
+		#async with self.lock:
+		if player in self._online:
+			self._online.remove(player)
+		try:
+			del Player.CACHE[login]
+		except:
+			pass
 		player.last_seen = datetime.datetime.now()
 		await player.save()
 
@@ -128,26 +128,26 @@ class PlayerManager(CoreContrib):
 		:return: Player or exception if not found
 		:rtype: pyplanet.apps.core.maniaplanet.models.Player
 		"""
-		async with self.lock:
-			try:
-				if login:
-					return await Player.get_by_login(login)
-				elif pk:
-					return await Player.get(pk=pk)
-				else:
-					raise PlayerNotFound('Player not found.')
-			except DoesNotExist:
-				if lock:
-					await asyncio.sleep(1)
-					return await self.get_player(login=login, pk=pk, lock=False)
-				else:
-					raise PlayerNotFound('Player not found.')
+		#async with self.lock:
+		try:
+			if login:
+				return await Player.get_by_login(login)
+			elif pk:
+				return await Player.get(pk=pk)
+			else:
+				raise PlayerNotFound('Player not found.')
+		except DoesNotExist:
+			if lock:
+				await asyncio.sleep(1)
+				return await self.get_player(login=login, pk=pk, lock=False)
+			else:
+				raise PlayerNotFound('Player not found.')
 
 	async def get_player_by_id(self, identifier):
-		async with self.lock:
-			for player in self._online:
-				if player.flow.player_id == identifier:
-					return player
+		#async with self.lock:
+		for player in self._online:
+			if player.flow.player_id == identifier:
+				return player
 		return None
 
 	@property
