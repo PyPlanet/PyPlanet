@@ -164,6 +164,10 @@ class Instance:
 			asyncio.ensure_future(releases.check_latest_version(self))
 		except:
 			pass  # Completely ignore errors while checking for the latest version.
+		# await self.gbx.multicall(*[
+		# 	self.gbx.prepare('ConnectFakePlayer')
+		# 	for _ in range(0, 50)
+		# ])
 
 
 class _Controller:

@@ -33,6 +33,7 @@ class MapManager(CoreContrib):
 		:type instance: pyplanet.core.instance.Instance
 		"""
 		self._instance = instance
+		self.lock = asyncio.Lock()
 
 		# The matchsettings contains the name of the current loaded matchsettings file.
 		self._matchsettings = None
@@ -91,19 +92,21 @@ class MapManager(CoreContrib):
 			) for details in raw_list]
 
 			maps = await asyncio.gather(*coroutines)
-			self._maps = maps
+			async with self.lock:
+				self._maps = maps
 		else:
 			# Only update/insert the changed bits, (not checking for removed maps!!).
-			for details in raw_list:
-				if not any(m.uid == details['UId'] for m in self._maps):
-					# Map not yet in self._maps. Add it.
-					map_instance = await Map.get_or_create_from_info(
-						details['UId'], details['FileName'], details['Name'], details['Author'],
-						environment=details['Environnement'], time_gold=details['GoldTime'],
-						price=details['CopperPrice'], map_type=details['MapType'], map_style=details['MapStyle']
-					)
-					self._maps.append(map_instance)
-					updated.append(map_instance)
+			async with self.lock:
+				for details in raw_list:
+					if not any(m.uid == details['UId'] for m in self._maps):
+						# Map not yet in self._maps. Add it.
+						map_instance = await Map.get_or_create_from_info(
+							details['UId'], details['FileName'], details['Name'], details['Author'],
+							environment=details['Environnement'], time_gold=details['GoldTime'],
+							price=details['CopperPrice'], map_type=details['MapType'], map_style=details['MapStyle']
+						)
+						self._maps.append(map_instance)
+						updated.append(map_instance)
 		return updated
 
 	async def get_map(self, uid=None):
