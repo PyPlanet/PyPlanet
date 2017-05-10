@@ -1,6 +1,27 @@
 Changelog
 =========
 
+0.1.2
+-----
+
+Core
+~~~~
+
+* Bugfix: Filter out XML parse error of Dedicated Server (#121).
+* Bugfix: Give copy of connected players instead of a reference to prevent change of list when looping (#117).
+* Bugfix: Fixing issue when player rapidly connects and disconnects, giving error (#126 & #116).
+
+
+Apps
+~~~~
+
+* Bugfix Karma: Fixing whokarma list not displaying due to error (#122 & #118).
+* Bugfix Dedimania: Reconnection issues (#130).
+* Improvement Local Records: Improve performance on sending information (chat message) on large servers. (#139).
+* Improvement Dedimania Records: Improve performance on sending information (chat message) on large servers. (#139).
+* Improvement Dedimania Records: Improve the error reporting and implement shorter timeout + retry procedure (#139).
+
+
 0.1.1
 -----
 
@@ -23,9 +44,7 @@ Core
 Contrib Apps
 ~~~~~~~~~~~~
 
-**Dedimania** `pyplanet.apps.contrib.dedimania`
-
-* Adding dedimania integration and widget.
+* NEW: Dedimania App: Adding dedimania integration and widget.
 
 
 0.0.3
@@ -34,9 +53,7 @@ Contrib Apps
 Contrib Apps
 ~~~~~~~~~~~~
 
-**Local records** `pyplanet.apps.contrib.local_records`
-
-* Bugfix #107: Widget showing wrong offset of records. (Not showing own record if just in the first part of >5 recs).
+* Bugfix Local Records: Widget showing wrong offset of records. (Not showing own record if just in the first part of >5 recs) (#107).
 
 
 0.0.2
@@ -45,9 +62,7 @@ Contrib Apps
 Contrib Apps
 ~~~~~~~~~~~~
 
-**Local records** `pyplanet.apps.contrib.local_records`
-
-* Bugfix #106: Widget not updating when map changed. Login not found exception.
+* Bugfix Local Records: Widget not updating when map changed. Login not found exception. (#106).
 
 
 0.0.1
