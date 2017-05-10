@@ -60,19 +60,13 @@ class Dedimania(AppConfig):
 			await self.instance.gbx.execute('ChatSendServerMessage', message)
 			return
 
-		# Init API.
+		# Init API (execute this in a non waiting future).
 		self.api = DedimaniaAPI(
 			self.instance,
 			self.login, self.code, self.instance.game.server_path, self.instance.map_manager.current_map.environment,
 			self.instance.game.dedicated_version, self.instance.game.dedicated_build
 		)
-		await self.api.on_start()
-		try:
-			await self.api.authenticate()
-		except Exception as e:
-			logger.exception(e)
-			logger.error('Dedimania plugin unloaded!')
-			return
+		asyncio.ensure_future(self.initiate_api())
 
 		# Register signals
 		self.instance.signal_manager.listen(mp_signals.map.map_begin, self.map_begin)
@@ -86,6 +80,15 @@ class Dedimania(AppConfig):
 		# Load initial data.
 		self.widget = DedimaniaRecordsWidget(self)
 		await self.map_begin(self.instance.map_manager.current_map)
+
+	async def initiate_api(self):
+		await self.api.on_start()
+		try:
+			await self.api.authenticate()
+		except Exception as e:
+			logger.exception(e)
+			logger.error('Dedimania plugin unloaded!')
+			return
 
 	async def show_records_list(self, player, data = None, **kwargs):
 		"""

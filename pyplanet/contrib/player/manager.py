@@ -1,12 +1,16 @@
 import asyncio
 import datetime
+import logging
 
 from peewee import DoesNotExist
+from async_generator import yield_
 
 from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.conf import settings
 from pyplanet.contrib import CoreContrib
 from pyplanet.contrib.player.exceptions import PlayerNotFound
+
+logger = logging.getLogger(__name__)
 
 
 class PlayerManager(CoreContrib):
@@ -29,9 +33,11 @@ class PlayerManager(CoreContrib):
 		:type instance: pyplanet.core.instance.Instance
 		"""
 		self._instance = instance
+		self.lock = asyncio.Lock()
 
 		# Online contains all currently online players.
 		self._online = set()
+		self._online_logins = set()
 
 	async def on_start(self):
 		"""
@@ -56,6 +62,8 @@ class PlayerManager(CoreContrib):
 		info = await self._instance.gbx.execute('GetDetailedPlayerInfo', login)
 		ip, _, port = info['IPAddress'].rpartition(':')
 		is_owner = login in settings.OWNERS[self._instance.process_name]
+
+
 		try:
 			player = await Player.get_by_login(login)
 			player.last_ip = ip
@@ -77,7 +85,9 @@ class PlayerManager(CoreContrib):
 		player.flow.player_id = info['PlayerId']
 		player.flow.team_id = info['TeamId']
 
-		self._online.add(player)
+		async with self.lock:
+			self._online.add(player)
+			self._online_logins.add(player.login)
 
 		return player
 
@@ -89,9 +99,18 @@ class PlayerManager(CoreContrib):
 		:return: Database Player instance.
 		:rtype: pyplanet.apps.core.maniaplanet.models.Player 
 		"""
-		player = await Player.get(login=login)
-		if player in self._online:
-			self._online.remove(player)
+		try:
+			player = await Player.get_by_login(login=login)
+		except:
+			return
+
+		async with self.lock:
+			if player in self._online:
+				self._online.remove(player)
+			try:
+				del Player.CACHE[login]
+			except:
+				pass
 		player.last_seen = datetime.datetime.now()
 		await player.save()
 
@@ -107,24 +126,26 @@ class PlayerManager(CoreContrib):
 		:return: Player or exception if not found
 		:rtype: pyplanet.apps.core.maniaplanet.models.Player
 		"""
-		try:
-			if login:
-				return await Player.get_by_login(login)
-			elif pk:
-				return await Player.get(pk=pk)
-			else:
-				raise PlayerNotFound('Player not found.')
-		except DoesNotExist:
-			if lock:
-				await asyncio.sleep(1)
-				return await self.get_player(login=login, pk=pk, lock=False)
-			else:
-				raise PlayerNotFound('Player not found.')
+		async with self.lock:
+			try:
+				if login:
+					return await Player.get_by_login(login)
+				elif pk:
+					return await Player.get(pk=pk)
+				else:
+					raise PlayerNotFound('Player not found.')
+			except DoesNotExist:
+				if lock:
+					await asyncio.sleep(1)
+					return await self.get_player(login=login, pk=pk, lock=False)
+				else:
+					raise PlayerNotFound('Player not found.')
 
 	async def get_player_by_id(self, identifier):
-		for player in self._online:
-			if player.flow.player_id == identifier:
-				return player
+		async with self.lock:
+			for player in self._online:
+				if player.flow.player_id == identifier:
+					return player
 		return None
 
 	@property
@@ -132,4 +153,4 @@ class PlayerManager(CoreContrib):
 		"""
 		Online player list.
 		"""
-		return self._online
+		return self._online.copy()
