@@ -1,3 +1,7 @@
+import asyncio
+
+import logging
+
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.local_records.views import LocalRecordsListView, LocalRecordsWidget
 from pyplanet.contrib.command import Command
@@ -149,25 +153,23 @@ class LocalRecords(AppConfig):
 			message = '$z$s$fff»» $0f3Current Local Record: $fff\uf017 {}$z$s$0f3 by $fff{}$z$s$0f3 ($fff{}$0f3 records)'.format(
 				times.format_time(first_record.score), (await first_record.player).nickname, records_amount
 			)
-			await self.instance.gbx.execute('ChatSendServerMessage', message)
-
+			calls = list()
+			calls.append(self.instance.gbx.prepare('ChatSendServerMessage', message))
 			for player in self.instance.player_manager.online:
-				try:
-					await self.chat_personal_record(player)
-				except:
-					pass
+				calls.append(self.chat_personal_record(player))
+			await self.instance.gbx.multicall(*calls)
 		else:
 			message = '$z$s$fff»» $0f3There is no Local Record on this map yet.'
 			await self.instance.gbx.execute('ChatSendServerMessage', message)
 
-	async def chat_personal_record(self, player):
+	def chat_personal_record(self, player):
 		record = [x for x in self.current_records if x.player_id == player.get_id()]
 
 		if len(record) > 0:
 			message = '$z$s$fff» $0f3You currently hold the $fff{}.$0f3 Local Record: $fff\uf017 {}'.format(
 				self.current_records.index(record[0]) + 1, times.format_time(record[0].score)
 			)
-			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+			return self.instance.gbx.prepare('ChatSendServerMessageToLogin', message, player.login)
 		else:
 			message = '$z$s$fff» $0f3You don\'t have a Local Record on this map yet.'
-			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+			return self.instance.gbx.prepare('ChatSendServerMessageToLogin', message, player.login)
