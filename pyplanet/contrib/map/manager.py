@@ -192,12 +192,12 @@ class MapManager(CoreContrib):
 				return True
 		return False
 
-	async def add_map(self, filename, insert=False):
+	async def add_map(self, filename, insert=True):
 		"""
 		Add or insert map to current online playlist.
 		
 		:param filename: Load from filename relative to the 'Maps' directory on the dedicated host server.
-		:param insert: Insert after the current map, this will make it play directly after the current map. False by default.
+		:param insert: Insert after the current map, this will make it play directly after the current map. True by default.
 		:type filename: str
 		:type insert: bool
 		:raise: pyplanet.contrib.map.exceptions.MapIncompatible
@@ -214,13 +214,13 @@ class MapManager(CoreContrib):
 				raise MapException('Map already added to server.')
 			raise MapException(e.faultString)
 
-	async def upload_map(self, fh, filename, insert=False, overwrite=False):
+	async def upload_map(self, fh, filename, insert=True, overwrite=False):
 		"""
 		Upload and add/insert the map to the current online playlist.
 		
 		:param fh: File handler, bytesio object or any readable context.
 		:param filename: The filename when saving on the server. Must include the map.gbx! Relative to 'Maps' folder.
-		:param insert: Insert after the current map, this will make it play directly after the current map. False by default.
+		:param insert: Insert after the current map, this will make it play directly after the current map. True by default.
 		:param overwrite: Overwrite current file if exists? Default False.
 		:type filename: str
 		:type insert: bool
