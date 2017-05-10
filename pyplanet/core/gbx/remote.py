@@ -255,7 +255,8 @@ class GbxRemote:
 		try:
 			payload = json.loads(raw)
 		except Exception as e:
-			logger.debug('GBX: JSON Parsing of script callback failed! {}'.format(str(e)))
+			handle_exception(exception=e, module_name=__name__, func_name='handle_scripted')
+			logger.warning('GBX: JSON Parsing of script callback failed! {}'.format(str(e)))
 			payload = raw
 
 		# Check if payload contains a responseid, when it does, we call the scripted handler future object.
