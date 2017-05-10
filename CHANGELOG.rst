@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.1.3
+-----
+
+Apps
+~~~~
+
+* Bugfix: Fixing issue in dedimania causing crash.
+
 0.1.2
 -----
 

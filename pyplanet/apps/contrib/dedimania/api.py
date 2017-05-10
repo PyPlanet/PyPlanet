@@ -105,6 +105,8 @@ class DedimaniaAPI:
 			)
 		except DedimaniaTransportException as e:
 			return
+		if not result:
+			return
 
 		self.session_id = result[0][0]['SessionId']
 
