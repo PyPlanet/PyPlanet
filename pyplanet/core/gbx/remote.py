@@ -219,7 +219,7 @@ class GbxRemote:
 		:param fault: Fault object.
 		"""
 		if handle_nr in self.handlers:
-			await self.handle_response(handle_nr, data, fault)
+			await self.handle_response(handle_nr, method, data, fault)
 		elif method and data:
 			if method == 'ManiaPlanet.ModeScriptCallbackArray':
 				await self.handle_scripted(handle_nr, method, data)
@@ -232,8 +232,8 @@ class GbxRemote:
 				handle_nr, method,
 			))
 
-	async def handle_response(self, handle_nr, data=None, fault=None):
-		logger.debug('GBX: Received response to handler {}'.format(handle_nr))
+	async def handle_response(self, handle_nr, method=None, data=None, fault=None):
+		logger.debug('GBX: Received response to handler {}, method: {}'.format(handle_nr, method))
 		handler = self.handlers.pop(handle_nr)
 		if not fault:
 			handler.set_result(data)

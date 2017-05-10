@@ -169,9 +169,11 @@ class Dedimania(AppConfig):
 	async def player_connect(self, player, is_spectator, **kwargs):
 		await self.widget.display(player=player)
 		res = await self.instance.gbx.execute('GetDetailedPlayerInfo', player.login)
-		self.player_info[player.login] = await self.api.player_connect(
+		p_info = await self.api.player_connect(
 			player.login, player.nickname, res['Path'], is_spectator
 		)
+		if p_info:
+			self.player_info[player.login] = p_info
 
 	async def player_disconnect(self, player, **kwargs):
 		try:
@@ -322,25 +324,23 @@ class Dedimania(AppConfig):
 			message = '$z$s$fff»» $0f3Current Dedimania Record: $fff\uf017 {}$z$s$0f3 by $fff{}$z$s$0f3 ($fff{}$0f3 records)'.format(
 				times.format_time(first_record.score), first_record.nickname, records_amount
 			)
-			await self.instance.gbx.execute('ChatSendServerMessage', message)
-
+			calls = list()
+			calls.append(self.instance.gbx.prepare('ChatSendServerMessage', message))
 			for player in self.instance.player_manager.online:
-				try:
-					await self.chat_personal_record(player)
-				except:
-					pass
+				calls.append(self.chat_personal_record(player))
+			await self.instance.gbx.multicall(*calls)
 		else:
 			message = '$z$s$fff»» $0f3There is no Dedimania Record on this map yet.'
 			await self.instance.gbx.execute('ChatSendServerMessage', message)
 
-	async def chat_personal_record(self, player):
+	def chat_personal_record(self, player):
 		record = [x for x in self.current_records if x.login == player.login]
 
 		if len(record) > 0:
 			message = '$z$s$fff» $0f3You currently hold the $fff{}.$0f3 Dedimania Record: $fff\uf017 {}'.format(
 				self.current_records.index(record[0]) + 1, times.format_time(record[0].score)
 			)
-			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+			return self.instance.gbx.prepare('ChatSendServerMessageToLogin', message, player.login)
 		else:
 			message = '$z$s$fff» $0f3You don\'t have a Dedimania Record on this map yet.'
-			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+			return self.instance.gbx.prepare('ChatSendServerMessageToLogin', message, player.login)
