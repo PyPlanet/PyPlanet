@@ -9,6 +9,7 @@ omit =
   pyplanet/utils/livereload.py
   pyplanet/utils/log.py
   pyplanet/core/storage/drivers/asyncssh/*
+  pyplanet/apps/contrib/*
 
 [report]
 exclude_lines =
