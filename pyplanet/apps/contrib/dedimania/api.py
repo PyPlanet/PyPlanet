@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 class DedimaniaAPI:
-	API_URL = 'http://dedimania.net:8081/Dedimania'
+	API_URL = 'http://dedimania.net:8082/Dedimania'
 
 	def __init__(self, instance, server_login, dedi_code, path, pack_mask, server_version, server_build, game='TM2'):
 		"""
