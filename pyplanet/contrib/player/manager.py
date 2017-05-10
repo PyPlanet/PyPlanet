@@ -59,7 +59,12 @@ class PlayerManager(CoreContrib):
 		if self._instance.game.server_is_dedicated and self._instance.game.server_player_login == login:
 			return
 
-		info = await self._instance.gbx.execute('GetDetailedPlayerInfo', login)
+		try:
+			info = await self._instance.gbx.execute('GetDetailedPlayerInfo', login)
+		except:
+			# Most likely too late, did disconnect directly after connecting..
+			# See #126
+			return
 		ip, _, port = info['IPAddress'].rpartition(':')
 		is_owner = login in settings.OWNERS[self._instance.process_name]
 
