@@ -1,6 +1,8 @@
 """
 Dev app component.
 """
+import json
+
 from pyplanet.contrib.command import Command
 
 
@@ -33,9 +35,17 @@ class DevComponent:
 		args = data.args
 		if not isinstance(args, list):
 			args = list()
+		if len(args) == 1:
+			try:
+				args = json.loads(args[0])
+			except:
+				pass
 
-		result = await self.app.instance.gbx.execute(method, *args)
-		message = '$z$s$fff» $ff0Result: {}'.format(result)
+		try:
+			result = await self.app.instance.gbx.execute(method, *args)
+			message = '$z$s$fff» $ff0Result: {}'.format(result)
+		except Exception as e:
+			message = '$z$s$fff» $ff0Error: {}'.format(str(e))
 		await self.app.instance.gbx.execute(
 			'ChatSendServerMessageToLogin',
 			message,

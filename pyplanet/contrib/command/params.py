@@ -102,7 +102,9 @@ class ParameterParser:
 
 			for i in range(0, len(input)):
 				try:
-					value.append(self.parse_parameter(nparam, input, position + i))
+					extra_value = self.parse_parameter(nparam, input, position + i)
+					if extra_value is not None:
+						value.append(extra_value)
 				except ParamException:
 					# We will stop here.
 					break
