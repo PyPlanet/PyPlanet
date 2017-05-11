@@ -72,16 +72,36 @@ class DedimaniaAPI:
 			if isinstance(data, (tuple, list)) and len(data) > 0 and len(data[0]) > 0:
 				if isinstance(data[0][0], dict) and 'faultCode' in data[0][0]:
 					raise DedimaniaFault(faultCode=data[0][0]['faultCode'], faultString=data[0][0]['faultString'])
+				self.retries = 0
 				return data[0]
 			raise DedimaniaTransportException('Invalid response from dedimania!')
+		except ConnectionError as e:
+			raise DedimaniaTransportException(e) from e
 		except ConnectTimeout as e:
+			raise DedimaniaTransportException(e) from e
+		except DedimaniaTransportException:
 			# Try to setup new session.
 			self.retries += 1
 			if self.retries > 5:
 				raise DedimaniaTransportException('Dedimania didn\'t gave the right answer after few retries!')
 			self.client = requests.session()
-			await self.authenticate()
+			try:
+				await self.authenticate()
+				return await self.execute(method, *args)
+			except Exception as e:
+				logger.error('XML-RPC Fault retrieved from Dedimania: {}'.format(str(e)))
+				handle_exception(e, __name__, 'execute')
+				raise DedimaniaTransportException('Could not retrieve data from dedimania!')
 		except DedimaniaFault as e:
+			if 'Bad SessionId' in e.faultString:
+				try:
+					self.retries += 1
+					if self.retries > 5:
+						raise DedimaniaTransportException('Max retries reached for reauthenticating with dedimania!')
+					await self.authenticate()
+					return await self.execute(method, *args)
+				except:
+					return
 			logger.error('XML-RPC Fault retrieved from Dedimania: {}'.format(str(e)))
 			handle_exception(e, __name__, 'execute')
 			raise DedimaniaTransportException('Could not retrieve data from dedimania!')
@@ -202,6 +222,8 @@ class DedimaniaAPI:
 				 'MaxPlayers': max_players, 'NumSpecs': num_specs, 'MaxSpecs': max_specs
 			 }, player_list)
 		)
+		if not result or not isinstance(result, list):
+			raise DedimaniaTransportException('Result seems to be empty!')
 
 		result = result[0][0]
 		allowed_modes = result['AllowedGameModes']

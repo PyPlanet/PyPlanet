@@ -172,7 +172,7 @@ class GbxRemote:
 		# Send to server.
 		self.writer.write(length_bytes + handler_bytes + request_bytes)
 
-		return await asyncio.wait_for(future, 30.0) # Wait for maximum of 30 seconds, then force complete future.
+		return await asyncio.wait_for(future, 45.0)  # Wait for maximum of 45 seconds, then force complete future.
 
 	async def listen(self):
 		"""

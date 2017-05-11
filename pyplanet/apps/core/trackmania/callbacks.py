@@ -8,6 +8,8 @@ from pyplanet.core.exceptions import SignalGlueStop
 
 async def handle_start_line(source, signal, **kwargs):
 	player = await Controller.instance.player_manager.get_player(login=source['login'])
+	if not player:
+		raise SignalGlueStop()
 	flow = player.flow
 	flow.start_run()
 	return dict(

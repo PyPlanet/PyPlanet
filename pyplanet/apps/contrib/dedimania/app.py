@@ -2,6 +2,8 @@ import asyncio
 import logging
 import uuid
 
+from requests.exceptions import ConnectionError as RequestsConnectionError
+
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.dedimania.api import DedimaniaAPI, DedimaniaRecord
 from pyplanet.apps.contrib.dedimania.exceptions import DedimaniaException
@@ -79,16 +81,24 @@ class Dedimania(AppConfig):
 
 		# Load initial data.
 		self.widget = DedimaniaRecordsWidget(self)
-		await self.map_begin(self.instance.map_manager.current_map)
 
 	async def initiate_api(self):
 		await self.api.on_start()
 		try:
 			await self.api.authenticate()
+		except RequestsConnectionError as e:
+			logger.error('Can\'t connect to dedimania! Dedimania down or blocked by your host? {}'.format(str(e)))
+			return
+		except ConnectionRefusedError as e:
+			logger.error('Can\'t connect to dedimania! Dedimania down or blocked by your host? {}'.format(str(e)))
+			return
 		except Exception as e:
 			logger.exception(e)
-			logger.error('Dedimania plugin unloaded!')
+			logger.error('Dedimania app unloaded!')
+			print(type(e))
 			return
+
+		await self.map_begin(self.instance.map_manager.current_map)
 
 	async def show_records_list(self, player, data = None, **kwargs):
 		"""
@@ -152,14 +162,22 @@ class Dedimania(AppConfig):
 		)
 
 	async def refresh_records(self):
-		self.server_max_rank, modes, player_infos, self.current_records = await self.api.get_map_details(
-			self.instance.map_manager.current_map,
-			'TA' if 'TimeAttack' in await self.instance.mode_manager.get_current_script() else 'Rounds',
-			server_name=self.instance.game.server_name, server_comment='', is_private=self.instance.game.server_is_private,
-			max_players=self.instance.game.server_max_players['CurrentValue'], max_specs=self.instance.game.server_max_specs['CurrentValue'],
-			players=await self.instance.gbx.execute('GetPlayerList', -1, 0),
-			server_login=self.instance.game.server_player_login
-		)
+		try:
+			self.server_max_rank, modes, player_infos, self.current_records = await self.api.get_map_details(
+				self.instance.map_manager.current_map,
+				'TA' if 'TimeAttack' in await self.instance.mode_manager.get_current_script() else 'Rounds',
+				server_name=self.instance.game.server_name, server_comment='', is_private=self.instance.game.server_is_private,
+				max_players=self.instance.game.server_max_players['CurrentValue'], max_specs=self.instance.game.server_max_specs['CurrentValue'],
+				players=await self.instance.gbx.execute('GetPlayerList', -1, 0),
+				server_login=self.instance.game.server_player_login
+			)
+		except ConnectionRefusedError:
+			message = '$z$s$fff»» $f00Error: Dedimania seems down?'
+			await self.instance.gbx.execute('ChatSendServerMessage', message)
+		except Exception as e:
+			logger.exception(e)
+			self.current_records = []
+			return
 
 		for info in player_infos:
 			self.player_info[info['Login']] = dict(
@@ -167,20 +185,30 @@ class Dedimania(AppConfig):
 			)
 
 	async def player_connect(self, player, is_spectator, **kwargs):
-		await self.widget.display(player=player)
-		res = await self.instance.gbx.execute('GetDetailedPlayerInfo', player.login)
-		p_info = await self.api.player_connect(
-			player.login, player.nickname, res['Path'], is_spectator
-		)
-		if p_info:
-			self.player_info[player.login] = p_info
+		try:
+			await self.widget.display(player=player)
+			res = await self.instance.gbx.execute('GetDetailedPlayerInfo', player.login)
+			p_info = await self.api.player_connect(
+				player.login, player.nickname, res['Path'], is_spectator
+			)
+			if p_info:
+				self.player_info[player.login] = p_info
+		except ConnectionRefusedError:
+			return
+		except TimeoutError:
+			return
+		except DedimaniaException:
+			return
 
 	async def player_disconnect(self, player, **kwargs):
 		try:
 			del self.player_info[player.login]
 		except:
 			pass
-		await self.api.player_disconnect(player.login, '')
+		try:
+			await self.api.player_disconnect(player.login, '')
+		except:
+			pass
 
 	async def player_finish(self, player, race_time, lap_time, lap_cps, flow, raw, **kwargs):
 		if not self.map_status:

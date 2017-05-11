@@ -1,6 +1,20 @@
 Changelog
 =========
 
+0.1.5
+-----
+
+Core
+~~~~
+
+* Bugfix: Fixing several issues related to the connection and parsing of the payload.
+
+Apps
+~~~~
+
+* Bugfix: Fixing several issues with the dedimania app.
+
+
 0.1.4
 -----
 
