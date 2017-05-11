@@ -88,6 +88,9 @@ class Migrator:
 				# Apply migration..
 				self.run_migration(name, app, app_module)
 
+				# Log message.
+				logger.info('Successfully executed migration: {}'.format(name))
+
 	def run_migration(self, name, app_label, app_module, save_migration=True):
 		"""
 		Run + apply migration to the actual database.
