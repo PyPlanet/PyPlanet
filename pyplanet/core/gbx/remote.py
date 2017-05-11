@@ -220,7 +220,7 @@ class GbxRemote:
 		"""
 		if handle_nr in self.handlers:
 			await self.handle_response(handle_nr, method, data, fault)
-		elif method and data:
+		elif method and data is not None:
 			if method == 'ManiaPlanet.ModeScriptCallbackArray':
 				await self.handle_scripted(handle_nr, method, data)
 			else:
@@ -228,6 +228,7 @@ class GbxRemote:
 		elif fault is not None:
 			raise TransportException('Handle payload got invalid parameters, see fault exception! {}'.format(fault)) from fault
 		else:
+			print(method, handle_nr, data)
 			logging.warning('Received gbx data, but handle wasn\'t known or payload invalid: handle_nr: {}, method: {}'.format(
 				handle_nr, method,
 			))

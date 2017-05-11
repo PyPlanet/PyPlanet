@@ -155,7 +155,7 @@ class Dedimania(AppConfig):
 
 	async def map_end(self, map):
 		if not self.map_status:
-			logger.warning('Don\'t send dedi records, map not supported!')
+			logger.warning('Don\'t send dedi records, map not supported or we are offline!')
 			return
 
 		# Get data, prepare for sending.
