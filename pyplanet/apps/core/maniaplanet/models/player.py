@@ -63,10 +63,12 @@ class Player(TimedModel):
 		return self.__flow
 
 	async def save(self, *args, **kwargs):
-		await super().save(*args, **kwargs)
-		if self.login in self.CACHE and id(self) != id(self.CACHE[self.login]):
-			self.__flow = self.CACHE[self.login].flow
+		res = await super().save(*args, **kwargs)
+		if self.login not in self.CACHE or (self.login in self.CACHE and id(self) != id(self.CACHE[self.login])):
+			if self.login in self.CACHE and id(self) != id(self.CACHE[self.login]):
+				self.__flow = self.CACHE[self.login].flow
 			self.CACHE[self.login] = self
+		return res
 
 	@classmethod
 	async def get_by_login(cls, login, default=empty):
@@ -98,20 +100,13 @@ class Player(TimedModel):
 class PlayerFlow:
 	def __init__(self):
 		self.in_run = False
-		self.run_cps = list()
-		self.run_time = None
+		self.player_id = None
+		self.team_id = None
 		self.other = dict()
 
 	def start_run(self):
 		self.in_run = True
-		self.run_cps = list()
-		self.run_time = None
 
-	def end_run(self, time=None):
+	def reset_run(self):
 		if self.in_run:
-			self.run_time = time
 			self.in_run = False
-
-	def add_waypoint(self, time):
-		if self.in_run:
-			self.run_cps.append(time)

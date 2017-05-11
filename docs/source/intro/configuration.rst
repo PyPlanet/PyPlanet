@@ -72,10 +72,15 @@ Database configuration (base.py)
 The database configuration is mostly the first setting you will adjust to your needs. Currently PyPlanet has support for
 these *database drivers*:
 
-* ``peewee.SqliteDatabase``: Using SQLite from Python. This can reduce the performance as it's not using async calls!
 * ``peewee_async.MySQLDatabase``: Using PyMySQL, a full Python based driver. (Supports MariaDB and PerconaDB).
 * ``peewee_async.PostgresqlDatabase``: Using a full native Python driver.
 
+**Creating database**:
+
+You will have to create the database scheme yourself. Make sure you create it with a database collate that is based on
+UTF-8. We recommend for MySQL: ``utf8_generic_ci``.
+
+**Configuration**
 
 Configuration can follow the following examples:
 
@@ -107,13 +112,6 @@ Configuration can follow the following examples:
     }
   }
 
-  DATABASES = { # Using SQLite, not recommended for large installations.
-    'default': {
-      'ENGINE': 'peewee.SqliteDatabase',
-      'NAME': 'database.db'
-    }
-  }
-
 
 Dedicated Server (base.py)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -141,10 +139,14 @@ Some of these settings are required to be able to save match settings for exampl
 
   # Map configuration is a set of configuration options related to match settings etc.
   # Matchsettings filename.
-  MAP_MATCHSETTINGS = 'autosave.txt'
+  MAP_MATCHSETTINGS = {
+    'default': 'autosave.txt',
+  }
 
   # You can set this to a automatically generated name:
-  MAP_MATCHSETTINGS = '{server_login}.txt'
+  MAP_MATCHSETTINGS = {
+    'default': '{server_login}.txt',
+  }
 
 
 Storage (base.py)
@@ -226,10 +228,14 @@ The order doesn't make a difference when starting/loading PyPlanet.
 
   APPS = {
     'default': [
-      'pyplanet.apps.contrib.local_records.app.LocalRecordsConfig',
-      'pyplanet.apps.contrib.jukebox.app.JukeboxConfig',
-      'pyplanet.apps.contrib.karma.app.KarmaConfig',
-      'pyplanet.apps.contrib.admin.app.AdminConfig',
+      'pyplanet.apps.contrib.admin.app.Admin',
+      'pyplanet.apps.contrib.jukebox.app.Jukebox',
+      'pyplanet.apps.contrib.karma.app.Karma',
+      'pyplanet.apps.contrib.local_records.app.LocalRecords',
+      'pyplanet.apps.contrib.dedimania.app.Dedimania',
+      'pyplanet.apps.contrib.players.app.Players',
+      'pyplanet.apps.contrib.mapinfo.app.MapInfo',
+      'pyplanet.apps.contrib.mx.app.MX',
     ],
   }
 
@@ -237,3 +243,4 @@ The order doesn't make a difference when starting/loading PyPlanet.
 .. note::
 
   When new contributed apps will come available, you have to manually enable it in your settings.
+  Please take a look at our :doc:`Change Log </changelog>` for details on changes.

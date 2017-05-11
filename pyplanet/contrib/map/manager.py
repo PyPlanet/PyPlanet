@@ -33,6 +33,7 @@ class MapManager(CoreContrib):
 		:type instance: pyplanet.core.instance.Instance
 		"""
 		self._instance = instance
+		self.lock = asyncio.Lock()
 
 		# The matchsettings contains the name of the current loaded matchsettings file.
 		self._matchsettings = None
@@ -91,19 +92,21 @@ class MapManager(CoreContrib):
 			) for details in raw_list]
 
 			maps = await asyncio.gather(*coroutines)
-			self._maps = maps
+			async with self.lock:
+				self._maps = maps
 		else:
 			# Only update/insert the changed bits, (not checking for removed maps!!).
-			for details in raw_list:
-				if not any(m.uid == details['UId'] for m in self._maps):
-					# Map not yet in self._maps. Add it.
-					map_instance = await Map.get_or_create_from_info(
-						details['UId'], details['FileName'], details['Name'], details['Author'],
-						environment=details['Environnement'], time_gold=details['GoldTime'],
-						price=details['CopperPrice'], map_type=details['MapType'], map_style=details['MapStyle']
-					)
-					self._maps.append(map_instance)
-					updated.append(map_instance)
+			async with self.lock:
+				for details in raw_list:
+					if not any(m.uid == details['UId'] for m in self._maps):
+						# Map not yet in self._maps. Add it.
+						map_instance = await Map.get_or_create_from_info(
+							details['UId'], details['FileName'], details['Name'], details['Author'],
+							environment=details['Environnement'], time_gold=details['GoldTime'],
+							price=details['CopperPrice'], map_type=details['MapType'], map_style=details['MapStyle']
+						)
+						self._maps.append(map_instance)
+						updated.append(map_instance)
 		return updated
 
 	async def get_map(self, uid=None):
@@ -177,12 +180,24 @@ class MapManager(CoreContrib):
 		await self._instance.gbx.execute('JumpToMapIdent', map.uid)
 		self._next_map = map
 
-	async def add_map(self, filename, insert=False):
+	def playlist_has_map(self, uid):
+		"""
+		Check if our current playlist has a map with the UID given.
+
+		:param uid: UID String
+		:return: Boolean, True if it's in our current playlist (match settings in our session).
+		"""
+		for map_instance in self.maps:
+			if map_instance.uid == uid:
+				return True
+		return False
+
+	async def add_map(self, filename, insert=True):
 		"""
 		Add or insert map to current online playlist.
 		
 		:param filename: Load from filename relative to the 'Maps' directory on the dedicated host server.
-		:param insert: Insert after the current map, this will make it play directly after the current map. False by default.
+		:param insert: Insert after the current map, this will make it play directly after the current map. True by default.
 		:type filename: str
 		:type insert: bool
 		:raise: pyplanet.contrib.map.exceptions.MapIncompatible
@@ -197,15 +212,15 @@ class MapManager(CoreContrib):
 				raise MapNotFound('Map is not found on the server.')
 			elif 'already' in e.faultString:
 				raise MapException('Map already added to server.')
-			raise MapException('Unknown error when adding map')
+			raise MapException(e.faultString)
 
-	async def upload_map(self, fh, filename, insert=False, overwrite=False):
+	async def upload_map(self, fh, filename, insert=True, overwrite=False):
 		"""
 		Upload and add/insert the map to the current online playlist.
 		
 		:param fh: File handler, bytesio object or any readable context.
 		:param filename: The filename when saving on the server. Must include the map.gbx! Relative to 'Maps' folder.
-		:param insert: Insert after the current map, this will make it play directly after the current map. False by default.
+		:param insert: Insert after the current map, this will make it play directly after the current map. True by default.
 		:param overwrite: Overwrite current file if exists? Default False.
 		:type filename: str
 		:type insert: bool
@@ -266,13 +281,13 @@ class MapManager(CoreContrib):
 		:raise: pyplanet.contrib.map.exceptions.MapException
 		:raise: pyplanet.core.storage.exceptions.StorageException
 		"""
-		if not filename and settings.MAP_MATCHSETTINGS is None:
+		if not filename and (settings.MAP_MATCHSETTINGS is None or self._instance.process_name not in settings.MAP_MATCHSETTINGS):
 			raise ImproperlyConfigured(
 				'The setting \'MAP_MATCHSETTINGS\' is not configured for this server! We can\'t save the Match Settings!'
 			)
 		if not filename:
 			filename = 'MatchSettings/{}'.format(
-				settings.MAP_MATCHSETTINGS.format(server_login=self._instance.game.server_player_login)
+				settings.MAP_MATCHSETTINGS[self._instance.process_name].format(server_login=self._instance.game.server_player_login)
 			)
 
 		try:

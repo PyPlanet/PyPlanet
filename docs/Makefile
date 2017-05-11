@@ -10,7 +10,7 @@ BUILDDIR      = build
 
 GH_DIR        = build/html
 
-GH_REPO_URL   = git@github.com:tomvlk/PyPlanet.git
+GH_REPO_URL   = git@github.com:PyPlanet/PyPlanet.git
 GH_BRANCH     = gh-pages
 
 # Put it first so that "make" without argument is like "make help".

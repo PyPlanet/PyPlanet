@@ -13,7 +13,7 @@ from pyplanet.core.gbx import GbxClient
 from pyplanet.core.exceptions import ImproperlyConfigured
 from pyplanet.core.storage.storage import Storage
 from pyplanet.core.ui import GlobalUIManager
-from pyplanet.utils import memleak
+from pyplanet.utils import memleak, releases
 
 from pyplanet.contrib.map import MapManager
 from pyplanet.contrib.player import PlayerManager
@@ -126,7 +126,8 @@ class Instance:
 		await self.db.connect()		# Connect and initial state.
 		await self.apps.discover() 	# Discover apps models.
 		await self.db.initiate() 	# Execute migrations and initial tasks.
-		await self.apps.init()
+		await self.apps.check()     # Check for incompatible apps and remove them.
+		await self.apps.init()		# Initiate apps
 		await self.__fire_signal(signals.pyplanet_start_db_after)
 
 		# Start the core contribs.
@@ -153,8 +154,16 @@ class Instance:
 		await self.gbx.execute('ChatSendServerMessage', '$fff$o$w⏳$z$fff Loading...')
 
 	async def print_footer(self):  # pragma: no cover
-		await self.gbx.execute('ChatSendServerMessage', '\uf1e6 $o$FD4Py$369Planet$z$o$s$fff v{}, {}\uf013'.format(version, len(self.apps.apps)))
-		# await self.gbx.execute('ChatSendServerMessage', '$o$FD4$l[http://pypla.net]Site$l $369|$FD4 $l[https://github.com/tomvlk/pyplanet]Github$l $369|$FD4 $l[http://pypla.net]Docs$l')
+		await self.gbx.execute('ChatSendServerMessage', '\uf1e6 $o$FD4Py$369Planet$z$o$s$fff v{}, {}\uf013 $z$s $369|$FD4 '
+														'$l[http://pypla.net]Site$l $369|$FD4 '
+														'$l[https://github.com/PyPlanet]Github$l $369|$FD4 '
+														'$l[http://pypla.net]Docs$l'.format(version, len(self.apps.apps)))
+
+		# Check for update.
+		try:
+			asyncio.ensure_future(releases.check_latest_version(self))
+		except:
+			pass  # Completely ignore errors while checking for the latest version.
 
 
 class _Controller:

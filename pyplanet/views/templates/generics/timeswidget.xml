@@ -1,19 +1,15 @@
 {% extends 'core.views/generics/widget.xml' %}
 
 {% block content %}
-  <quad pos="0 0" size="5 {{ (size_y - 5.5) }}" z-index="0" bgcolor="06F5"/>
-  <quad pos="5 0" size="9 {{ (size_y - 5.5) }}" z-index="0" bgcolor="09F3"/>
-  <quad pos="14 0" size="{{ (size_x - 14 - 1) }} {{ (size_y - 5.5) }}" z-index="0" bgcolor="09F1"/>
-
   {% if top_entries > 0 %}
     <quad pos="0 -0.2" size="{{ (size_x - 2) }} {{ ((top_entries * 3.3) + 0.2) }}" z-index="1" style="BgsPlayerCard" substyle="BgCardSystem"/>
   {% endif %}
 
   {% if times != None %}
     {% for time in times %}
-      <label pos="4.7 -{{ (loop.index0 * 3.3) + 0.7 }}" size="4 2" z-index="2" halign="right" textsize="0.8" text="$s{{ time.index }}."/>
-      <label pos="13.5 -{{ (loop.index0 * 3.3) + 0.7 }}" size="8 2" z-index="2" halign="right" textsize="0.8" text="{{ time.color }}{{ time.score }}"/>
-      <label pos="14.5 -{{ (loop.index0 * 3.3) + 0.7 }}" size="{{ (size_x - 14 - 5) }} 2" z-index="2" halign="left" textsize="0.75" text="$s{{ time.nickname }}"/>
+      <label pos="4 -{{ (loop.index0 * 3.3) + 0.7 }}" size="4 2" z-index="2" halign="right" textsize="0.8" text="$s{{ time.index }}."/>
+      <label pos="4.5 -{{ (loop.index0 * 3.3) + 0.7 }}" size="{{ (size_x - 14 - 5) }} 2" z-index="2" halign="left" textsize="0.75" text="$s{{ time.nickname }}"/>
+      <label pos="35 -{{ (loop.index0 * 3.3) + 0.7 }}" size="8 2" z-index="2" halign="right" textsize="0.8" text="{{ time.color }}{{ time.score }}"/>
     {% endfor %}
   {% endif %}
 {% endblock %}

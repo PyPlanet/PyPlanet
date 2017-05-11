@@ -1,11 +1,6 @@
-|
-|
-|
-|
-|
 
 Life Cycle
-----------
+==========
 
 ..  image:: /_static/apps/lifecycle.png
 

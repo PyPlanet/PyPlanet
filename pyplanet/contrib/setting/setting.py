@@ -16,12 +16,13 @@ class Setting:
 	"""
 
 	CAT_GENERAL = 'General'
+	CAT_KEYS = 'Keys'
 	CAT_DESIGN = 'Design'
 	CAT_POSITION = 'Position'
 	CAT_BEHAVIOUR = 'Behaviour'
 	CAT_FEATURES = 'Features'
 	CAT_OTHER = 'Other'
-	ALL_CATEGORIES = [CAT_GENERAL, CAT_DESIGN, CAT_POSITION, CAT_BEHAVIOUR, CAT_FEATURES, CAT_OTHER]
+	ALL_CATEGORIES = [CAT_GENERAL, CAT_DESIGN, CAT_POSITION, CAT_BEHAVIOUR, CAT_FEATURES, CAT_KEYS, CAT_OTHER]
 
 	def __init__(
 		self, key: str, name: str, category: str, type=str, description: str = None, choices=None, default=None,

@@ -63,7 +63,10 @@ class Registry:
 		# Set paths in the config context.
 		if os.path.exists(models_path):
 			if not os.path.exists(migrations_path):
-				os.mkdir(migrations_path)
+				try:
+					os.mkdir(migrations_path)
+				except:
+					pass
 
 		# Import the model module.
 		self.app_models[app.label] = models = list(get_app_models(app))

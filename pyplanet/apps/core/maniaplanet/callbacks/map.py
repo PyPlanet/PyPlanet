@@ -35,6 +35,19 @@ map_begin = Callback(
 	code='map_begin',
 	target=handle_map_begin,
 )
+"""
+:Signal: 
+	Begin of map.
+:Code:
+	``maniaplanet:map_begin``
+:Description:
+	Callback sent when map begins.
+:Original Callback:
+	`Native` Maniaplanet.BeginMap
+
+:param map: Map instance.
+:type map: pyplanet.apps.core.maniaplanet.models.map.Map
+"""
 
 map_end = Callback(
 	call='ManiaPlanet.EndMap',
@@ -42,6 +55,19 @@ map_end = Callback(
 	code='map_end',
 	target=handle_map_end,
 )
+"""
+:Signal: 
+	End of map.
+:Code:
+	``maniaplanet:map_end``
+:Description:
+	Callback sent when map ends.
+:Original Callback:
+	`Native` Maniaplanet.EndMap
+
+:param map: Map instance.
+:type map: pyplanet.apps.core.maniaplanet.models.map.Map
+"""
 
 playlist_modified = Callback(
 	call='ManiaPlanet.MapListModified',
@@ -49,6 +75,23 @@ playlist_modified = Callback(
 	code='playlist_modified',
 	target=handle_playlist_modified
 )
+"""
+:Signal: 
+	Maplist changes.
+:Code:
+	``maniaplanet:playlist_modified``
+:Description:
+	Callback sent when map list changes.
+:Original Callback:
+	`Native` Maniaplanet.MapListModified
+
+:param 1: Current map index.
+:param 2: Next map index.
+:param 3: Is List Modified.
+:type 1: int
+:type 2: int
+:type 3: bool
+"""
 
 map_start = Callback(
 	call='Script.Maniaplanet.StartMap_Start',
@@ -56,10 +99,43 @@ map_start = Callback(
 	code='map_start',
 	target=handle_map_start
 )
+"""
+:Signal: 
+	Begin of map. (Scripted!)
+:Code:
+	``maniaplanet:map_begin``
+:Description:
+	Callback sent when map starts (same as begin, but scripted).
+:Original Callback:
+	`Script` Maniaplanet.StartMap_Start
+
+:param time: Time when callback has been sent.
+:param count: Counts of the callback that was sent.
+:param restarted: Is the map restarted.
+:param map: Map instance.
+:type map: pyplanet.apps.core.maniaplanet.models.map.Map
+"""
 
 map_start__end = Callback(
 	call='Script.Maniaplanet.StartMap_End',
 	namespace='maniaplanet',
-	code='map_start',
+	code='map_start__end',
 	target=handle_map_start
 )
+"""
+:Signal: 
+	Begin of map, end of event. (Scripted!)
+:Code:
+	``maniaplanet:map_start__end``
+:Description:
+	Callback sent when map starts (same as begin, but scripted). End of the event
+:Original Callback:
+	`Script` Maniaplanet.StartMap_End
+
+:param time: Time when callback has been sent.
+:param count: Counts of the callback that was sent.
+:param restarted: Is the map restarted.
+:param map: Map instance.
+:type map: pyplanet.apps.core.maniaplanet.models.map.Map
+"""
+

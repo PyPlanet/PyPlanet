@@ -7,6 +7,7 @@ import logging
 import struct
 
 from xmlrpc.client import dumps, loads, Fault
+from xml.parsers.expat import ExpatError
 
 from pyplanet.core.exceptions import TransportException
 from pyplanet.core.events.manager import SignalManager
@@ -171,7 +172,7 @@ class GbxRemote:
 		# Send to server.
 		self.writer.write(length_bytes + handler_bytes + request_bytes)
 
-		return await asyncio.wait_for(future, 30.0) # Wait for maximum of 30 seconds, then force complete future.
+		return await asyncio.wait_for(future, 45.0)  # Wait for maximum of 45 seconds, then force complete future.
 
 	async def listen(self):
 		"""
@@ -188,6 +189,10 @@ class GbxRemote:
 					data, method = loads(body, use_builtin_types=True)
 				except Fault as e:
 					fault = e
+				except ExpatError as e:
+					# See #121 for this solution.
+					handle_exception(exception=e, module_name=__name__, func_name='listen', extra_data={'body': body})
+					continue
 
 				if data and len(data) == 1:
 					data = data[0]
@@ -214,7 +219,7 @@ class GbxRemote:
 		:param fault: Fault object.
 		"""
 		if handle_nr in self.handlers:
-			await self.handle_response(handle_nr, data, fault)
+			await self.handle_response(handle_nr, method, data, fault)
 		elif method and data:
 			if method == 'ManiaPlanet.ModeScriptCallbackArray':
 				await self.handle_scripted(handle_nr, method, data)
@@ -227,8 +232,8 @@ class GbxRemote:
 				handle_nr, method,
 			))
 
-	async def handle_response(self, handle_nr, data=None, fault=None):
-		logger.debug('GBX: Received response to handler {}'.format(handle_nr))
+	async def handle_response(self, handle_nr, method=None, data=None, fault=None):
+		logger.debug('GBX: Received response to handler {}, method: {}'.format(handle_nr, method))
 		handler = self.handlers.pop(handle_nr)
 		if not fault:
 			handler.set_result(data)
@@ -251,11 +256,20 @@ class GbxRemote:
 		if len(raw) == 1:
 			raw = raw[0]
 
+		# Show warning when using non-supported modes.
+		try:
+			if 'LibXmlRpc' in method:
+				logger.warning('You are using an older gamemode script that isn\'t supported by PyPlanet (usage of LibXmlRpc_)')
+		except:
+			pass
+
 		# Try to parse JSON, mostly the case.
 		try:
 			payload = json.loads(raw)
 		except Exception as e:
-			logger.debug('GBX: JSON Parsing of script callback failed! {}'.format(str(e)))
+			if not method or not 'LibXmlRpc' in method:
+				handle_exception(exception=e, module_name=__name__, func_name='handle_scripted')
+			logger.warning('GBX: JSON Parsing of script callback failed! {}'.format(str(e)))
 			payload = raw
 
 		# Check if payload contains a responseid, when it does, we call the scripted handler future object.

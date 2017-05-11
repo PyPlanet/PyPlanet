@@ -1,3 +1,7 @@
+import asyncio
+
+import logging
+
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.local_records.views import LocalRecordsListView, LocalRecordsWidget
 from pyplanet.contrib.command import Command
@@ -88,14 +92,15 @@ class LocalRecords(AppConfig):
 
 	async def player_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
 		current_records = [x for x in self.current_records if x.player_id == player.get_id()]
+		score = lap_time
 		if len(current_records) > 0:
 			current_record = current_records[0]
 			previous_index = self.current_records.index(current_record) + 1
 
-			if race_time < current_record.score:
+			if score < current_record.score:
 				previous_time = current_record.score
 
-				current_record.score = race_time
+				current_record.score = score
 				current_record.checkpoints = ','.join([str(cp) for cp in cps])
 				await current_record.save()
 				self.current_records.sort(key=lambda x: x.score)
@@ -104,21 +109,21 @@ class LocalRecords(AppConfig):
 
 				if new_index < previous_index:
 					message = '$z$s$fff»» $fff{}$z$s$0f3 gained the $fff{}.$0f3 Local Record, with a time of $fff\uf017 {}$0f3 ($fff{}.$0f3 $fff-{}$0f3).'.format(
-						player.nickname, new_index, times.format_time(race_time), previous_index,
-						times.format_time((previous_time - race_time))
+						player.nickname, new_index, times.format_time(score), previous_index,
+						times.format_time((previous_time - score))
 					)
 				else:
 					message = '$z$s$fff»» $fff{}$z$s$0f3 improved the $fff{}.$0f3 Local Record, with a time of $fff\uf017 {}$0f3 ($fff-{}$0f3).'.format(
-						player.nickname, new_index, times.format_time(race_time),
-						times.format_time((previous_time - race_time))
+						player.nickname, new_index, times.format_time(score),
+						times.format_time((previous_time - score))
 					)
 
 				await self.instance.gbx.execute('ChatSendServerMessage', message)
 				await self.widget.display()
 
-			elif race_time == current_record.score:
+			elif score == current_record.score:
 				message = '$z$s$fff»» $fff{}$z$s$0f3 equalled the $fff{}.$0f3 Local Record, with a time of $fff\uf017 {}$0f3.'.format(
-					player.nickname, previous_index, times.format_time(race_time)
+					player.nickname, previous_index, times.format_time(score)
 				)
 				await self.instance.gbx.execute('ChatSendServerMessage', message)
 
@@ -126,7 +131,7 @@ class LocalRecords(AppConfig):
 			new_record = LocalRecord(
 				map=self.instance.map_manager.current_map,
 				player=player,
-				score=race_time,
+				score=score,
 				checkpoints=','.join([str(cp) for cp in cps])
 			)
 			await new_record.save()
@@ -136,7 +141,7 @@ class LocalRecords(AppConfig):
 			new_index = self.current_records.index(new_record) + 1
 
 			message = '$z$s$fff»» $fff{}$z$s$0f3 drove the $fff{}.$0f3 Local Record, with a time of $fff\uf017 {}$0f3.'.format(
-				player.nickname, new_index, times.format_time(race_time)
+				player.nickname, new_index, times.format_time(score)
 			)
 			await self.instance.gbx.execute('ChatSendServerMessage', message)
 			await self.widget.display()
@@ -148,22 +153,23 @@ class LocalRecords(AppConfig):
 			message = '$z$s$fff»» $0f3Current Local Record: $fff\uf017 {}$z$s$0f3 by $fff{}$z$s$0f3 ($fff{}$0f3 records)'.format(
 				times.format_time(first_record.score), (await first_record.player).nickname, records_amount
 			)
-			await self.instance.gbx.execute('ChatSendServerMessage', message)
-
+			calls = list()
+			calls.append(self.instance.gbx.prepare('ChatSendServerMessage', message))
 			for player in self.instance.player_manager.online:
-				await self.chat_personal_record(player)
+				calls.append(self.chat_personal_record(player))
+			await self.instance.gbx.multicall(*calls)
 		else:
 			message = '$z$s$fff»» $0f3There is no Local Record on this map yet.'
 			await self.instance.gbx.execute('ChatSendServerMessage', message)
 
-	async def chat_personal_record(self, player):
+	def chat_personal_record(self, player):
 		record = [x for x in self.current_records if x.player_id == player.get_id()]
 
 		if len(record) > 0:
 			message = '$z$s$fff» $0f3You currently hold the $fff{}.$0f3 Local Record: $fff\uf017 {}'.format(
 				self.current_records.index(record[0]) + 1, times.format_time(record[0].score)
 			)
-			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+			return self.instance.gbx.prepare('ChatSendServerMessageToLogin', message, player.login)
 		else:
 			message = '$z$s$fff» $0f3You don\'t have a Local Record on this map yet.'
-			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+			return self.instance.gbx.prepare('ChatSendServerMessageToLogin', message, player.login)

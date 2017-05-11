@@ -1,9 +1,11 @@
 import multiprocessing
+
 import os
 import time
 import logging
 
 from watchdog.observers import Observer
+from logging.handlers import QueueListener
 
 from pyplanet.utils.livereload import LiveReload
 from pyplanet.god import process
@@ -29,8 +31,12 @@ class EnvironmentPool:
 
 		self.dog_path = os.curdir
 		self.dog_handler = LiveReload(self)
-		self.dog_observer = Observer()
-		self.dog_observer.schedule(self.dog_handler, self.dog_path, recursive=True)
+		# self.dog_observer = Observer()
+		# self.dog_observer.schedule(self.dog_handler, self.dog_path, recursive=True)
+
+		if multiprocessing.get_start_method() != 'fork':  # pragma: no cover
+			root_logger = logging.getLogger()
+			self.log_listener = QueueListener(self.queue, *root_logger.handlers)
 
 		# TODO: Find out how to get the watchdog + livereload working on a later moment.
 		# self.dog_observer.start()
@@ -60,7 +66,7 @@ class EnvironmentPool:
 
 		for name, proc in self.pool.items():
 			proc.shutdown()
-		self.dog_observer.stop()
+		# self.dog_observer.stop()
 
 	def restart(self, name=None):
 		"""

@@ -1,5 +1,7 @@
 import re
+import struct
 
+import binascii
 
 STRIP_ALL = dict(letters='wnoitsgz<>', part=r'\$[lh]\[.+\]|\$[lh]|\$[0-9a-f]{3}')
 """
@@ -103,3 +105,12 @@ def style_strip(text, *strip_methods, strip_styling_blocks=True, keep_reset=Fals
 	# Strip and return.
 	return re.sub(regex, '', text, flags=re.IGNORECASE)
 
+
+def percentage_color(percentage):  # pragma: no cover
+	red = (255 * percentage) / 100
+	green = (255 * (100 - percentage)) / 100
+	return int(abs(255-red)), int(abs(255-green)), 0
+
+
+def rgb_to_hex(rgb):  # pragma: no cover
+	return '%02x%02x%02x' % rgb

@@ -80,6 +80,12 @@ class PermissionManager(CoreContrib):
 
 		try:
 			perm = await self.get_perm(namespace=namespace, name=name)
+
+			# TODO: Implement overrides on min_level here.
+			if perm.min_level != min_level:
+				perm.min_level = min_level
+				await perm.save()
+
 		except DoesNotExist:
 			perm = Permission(namespace=namespace, name=name, description=description, min_level=min_level)
 			await perm.save()

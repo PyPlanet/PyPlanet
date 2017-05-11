@@ -21,6 +21,7 @@ class TestModelDiscovery(asynctest.TestCase):
 		instance = Controller.prepare(name='default').instance
 		await instance.db.connect()
 		await instance.apps.discover()
+		await instance.db.initiate()
 
 		assert len(instance.db.registry.models.keys()) > 0
 		assert len(instance.db.registry.app_models.keys()) > 0
@@ -46,7 +47,7 @@ class TestMigrations(asynctest.TestCase):
 		instance = Controller.prepare(name='default').instance
 		await instance.db.connect()
 		await instance.apps.discover()
-		# await drop_tables()
+		await instance.db.initiate()
 
 		with instance.db.allow_sync():
 			migration.Migration.create_table(True)

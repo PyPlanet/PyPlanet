@@ -15,7 +15,7 @@ ready to start up the controller itself.
 Activate virtualenv
 ~~~~~~~~~~~~~~~~~~~
 
-You always have to be in the projects virtualenv if you have enabled this during the installation.
+You always have to be in the projects virtualenv!
 
 **virtualenv**:
 
@@ -28,11 +28,12 @@ You always have to be in the projects virtualenv if you have enabled this during
   env\Scripts\Activate.bat
 
 
-**pyenv**:
+**PyEnv**:
 
 .. code-block:: bash
 
-  pyenv activate my-virtual-env
+  pyenv activate pyplanet
+  # pyplanet is your virtualenv name here!
 
 
 Start PyPlanet

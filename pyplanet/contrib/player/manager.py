@@ -1,12 +1,16 @@
 import asyncio
 import datetime
+import logging
 
 from peewee import DoesNotExist
+from async_generator import yield_
 
 from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.conf import settings
 from pyplanet.contrib import CoreContrib
 from pyplanet.contrib.player.exceptions import PlayerNotFound
+
+logger = logging.getLogger(__name__)
 
 
 class PlayerManager(CoreContrib):
@@ -29,6 +33,7 @@ class PlayerManager(CoreContrib):
 		:type instance: pyplanet.core.instance.Instance
 		"""
 		self._instance = instance
+		# self.lock = asyncio.Lock()
 
 		# Online contains all currently online players.
 		self._online = set()
@@ -53,9 +58,15 @@ class PlayerManager(CoreContrib):
 		if self._instance.game.server_is_dedicated and self._instance.game.server_player_login == login:
 			return
 
-		info = await self._instance.gbx.execute('GetDetailedPlayerInfo', login)
+		try:
+			info = await self._instance.gbx.execute('GetDetailedPlayerInfo', login)
+		except:
+			# Most likely too late, did disconnect directly after connecting..
+			# See #126
+			return
 		ip, _, port = info['IPAddress'].rpartition(':')
 		is_owner = login in settings.OWNERS[self._instance.process_name]
+
 		try:
 			player = await Player.get_by_login(login)
 			player.last_ip = ip
@@ -74,6 +85,10 @@ class PlayerManager(CoreContrib):
 				level=Player.LEVEL_MASTER if is_owner else Player.LEVEL_PLAYER,
 			)
 
+		player.flow.player_id = info['PlayerId']
+		player.flow.team_id = info['TeamId']
+
+		#async with self.lock:
 		self._online.add(player)
 
 		return player
@@ -86,22 +101,34 @@ class PlayerManager(CoreContrib):
 		:return: Database Player instance.
 		:rtype: pyplanet.apps.core.maniaplanet.models.Player 
 		"""
-		player = await Player.get(login=login)
-		self._online.remove(player)
+		try:
+			player = await Player.get_by_login(login=login)
+		except:
+			return
+
+		#async with self.lock:
+		if player in self._online:
+			self._online.remove(player)
+		try:
+			del Player.CACHE[login]
+		except:
+			pass
 		player.last_seen = datetime.datetime.now()
 		await player.save()
 
 		return player
 
-	async def get_player(self, login=None, pk=None):
+	async def get_player(self, login=None, pk=None, lock=True):
 		"""
 		Get player by login or primary key.
 		
 		:param login: Login.
 		:param pk: Primary Key identifier.
+		:param lock: Lock for a sec when receiving.
 		:return: Player or exception if not found
 		:rtype: pyplanet.apps.core.maniaplanet.models.Player
 		"""
+		#async with self.lock:
 		try:
 			if login:
 				return await Player.get_by_login(login)
@@ -110,11 +137,22 @@ class PlayerManager(CoreContrib):
 			else:
 				raise PlayerNotFound('Player not found.')
 		except DoesNotExist:
-			raise PlayerNotFound('Player not found.')
+			if lock:
+				await asyncio.sleep(1)
+				return await self.get_player(login=login, pk=pk, lock=False)
+			else:
+				raise PlayerNotFound('Player not found.')
+
+	async def get_player_by_id(self, identifier):
+		#async with self.lock:
+		for player in self._online:
+			if player.flow.player_id == identifier:
+				return player
+		return None
 
 	@property
 	def online(self):
 		"""
 		Online player list.
 		"""
-		return self._online
+		return self._online.copy()

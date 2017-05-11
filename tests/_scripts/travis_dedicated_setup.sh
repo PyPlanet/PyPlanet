@@ -13,8 +13,7 @@ cd ../../
 # From now we are in the project root.
 
 # Download the latest dedicated server.
-wget http://files.v04.maniaplanet.com/server/ManiaplanetServer_2017-05-03.zip -O ./dedicated.zip
-# wget http://files.maniaplanet.com/ManiaPlanet3Beta/ManiaPlanetBetaServer_latest.zip -O ./dedicated.zip
+wget http://files.v04.maniaplanet.com/server/ManiaplanetServer_2017-05-09.zip -O ./dedicated.zip
 
 # Unzip the dedicated into the subdirectory.
 mkdir -p ./dedicated
@@ -29,6 +28,7 @@ wget https://v4.live.maniaplanet.com/ingame/public/titles/download/TMCanyon@nade
 
 # Prepare maps.
 cp tests/_files/maps/canyon-mp4-1.gbx dedicated/UserData/Maps/canyon1.Map.Gbx
+cp tests/_files/maps/canyon-mp4-2.gbx dedicated/UserData/Maps/canyon2.Map.Gbx
 
 # Prepare configuration files.
 cp tests/_scripts/travis/dedicated/dedicated_cfg.txt dedicated/UserData/Config/dedicated_cfg.txt

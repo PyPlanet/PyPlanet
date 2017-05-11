@@ -1,12 +1,15 @@
 [run]
 omit =
   apps/*
+  docs/*
+  settings/*
   pyplanet/utils/codeutils.py
   pyplanet/utils/memleak.py
   pyplanet/utils/termcolors.py
   pyplanet/utils/livereload.py
   pyplanet/utils/log.py
   pyplanet/core/storage/drivers/asyncssh/*
+  pyplanet/apps/contrib/*
 
 [report]
 exclude_lines =

@@ -51,8 +51,7 @@ class _ManiaLink:
 		self._is_global_shown = False
 		self._is_player_shown = dict() # Holds per player login a boolean if the ml is shown.
 
-		# Register handle
-		SignalManager.listen('maniaplanet:manialink_answer', self.handle)
+		self.__register_listener = False
 
 	async def is_global(self):
 		return not self.player_data or self.player_data.keys() == 0
@@ -102,6 +101,11 @@ class _ManiaLink:
 				self._is_player_shown[login] = True
 		else:
 			self._is_global_shown = True
+
+		if not self.__register_listener:
+			# Register handle
+			SignalManager.listen('maniaplanet:manialink_answer', self.handle)
+			self.__register_listener = True
 
 		return await self.manager.send(self, player_logins, **kwargs)
 

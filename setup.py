@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 def long_description():
 	try:
-		return open(os.path.join(os.path.dirname(__file__), 'README.md')).read()
+		return open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
 	except IOError:
 		return None
 

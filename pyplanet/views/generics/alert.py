@@ -57,7 +57,7 @@ class AlertView(TemplateView):
 	)
 
 	def __init__(
-		self, message, size='md', buttons=None, manager=None, **data
+		self, message, size='md', buttons=None, manager=None, target=None, **data
 	):
 		"""
 		Create an AlertView instance.
@@ -68,6 +68,7 @@ class AlertView(TemplateView):
 					 'sm', 'md' or 'lg. Defaults to 'md'.
 		:param buttons: Buttons to display, Should be an array with dictionary which contain: name.
 		:param manager: UI Manager to use, You should always keep this undefined unless you know what your doing!
+		:param target: Target coroutine method called as handle of button clicks.
 		
 		:type message: str
 		:type title: str
@@ -83,6 +84,8 @@ class AlertView(TemplateView):
 		if not buttons:
 			buttons = [{'name': 'OK'}]
 
+		self.target = target
+
 		self.data = dict(
 			message=message,
 			buttons=buttons,
@@ -92,6 +95,8 @@ class AlertView(TemplateView):
 
 	async def handle(self, player, action, values, **kwargs):  # pragma: no cover
 		await self.close(player)
+		if self.target:
+			await self.target(player, action, values, **kwargs)
 
 	async def close(self, player, **kwargs):  # pragma: no cover
 		"""
