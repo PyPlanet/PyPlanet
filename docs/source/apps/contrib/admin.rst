@@ -175,6 +175,17 @@ Functionality:
 Required permission:
   ``admin:servername``, requires admin level 2.
 
+Set game mode
+~~~~~~~~~~~~~
+Command:
+  ``//mode``
+Parameters:
+  * Game mode 'ta', 'laps', 'rounds', 'cup' or any script name (e.g. 'Rounds.Script.txt')
+Functionality:
+  Changes the server game mode script.
+Required permission:
+  ``admin:mode``, requires admin level 2.
+
 Set server password
 ~~~~~~~~~~~~~~~~~~~
 Command:
