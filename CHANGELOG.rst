@@ -9,6 +9,7 @@ Core
 
 * Bugfix: Fixing several issues related to the connection and parsing of the payload.
 * Bugfix: Fixing issue with the BeginMatch callback.
+* Bugfix: Change issues related to the utf8mb4 unicode collate (max index lengths).
 
 Apps
 ~~~~
