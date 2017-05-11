@@ -8,11 +8,14 @@ Core
 ~~~~
 
 * Bugfix: Fixing several issues related to the connection and parsing of the payload.
+* Bugfix: Fixing issue with the BeginMatch callback.
 
 Apps
 ~~~~
 
 * Bugfix: Fixing several issues with the dedimania app.
+* Bugfix: Fixing issue with local and dedimania records being saved double (2 records for 1 player). (#157).
+* Bugfix: Fixing several exception handling in dedimania app.
 
 
 0.1.4
