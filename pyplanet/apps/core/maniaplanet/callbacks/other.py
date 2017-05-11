@@ -22,7 +22,7 @@ bill_updated = Callback(
 	target=handle_bill_updated
 )
 """
-:Signal: 
+:Signal:
 	Bill has been updated.
 :Code:
 	``maniaplanet:bill_updated``
@@ -48,7 +48,7 @@ vote_updated = Callback(
 	target=handle_vote_updated
 )
 """
-:Signal: 
+:Signal:
 	Vote has been updated.
 :Code:
 	``maniaplanet:vote_updated``
