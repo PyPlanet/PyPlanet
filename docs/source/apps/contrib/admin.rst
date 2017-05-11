@@ -164,6 +164,17 @@ Required permission:
 Server
 ^^^^^^
 
+Set server name
+~~~~~~~~~~~~~~~
+Command:
+  ``//servername``
+Parameters:
+  * Server name.
+Functionality:
+  Changes the server name.
+Required permission:
+  ``admin:servername``, requires admin level 2.
+
 Set server password
 ~~~~~~~~~~~~~~~~~~~
 Command:

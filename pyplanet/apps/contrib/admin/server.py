@@ -15,12 +15,22 @@ class ServerAdmin:
 
 	async def on_start(self):
 		await self.instance.permission_manager.register('password', 'Set the server passwords', app=self.app, min_level=2)
+		await self.instance.permission_manager.register('servername', 'Set the server name', app=self.app, min_level=2)
 
 		await self.instance.command_manager.register(
-			Command(command='setpassword', target=self.set_password, perms='admin:password', admin=True).add_param(name='password', required=False),
-			Command(command='srvpass', target=self.set_password, perms='admin:password', admin=True).add_param(name='password', required=False),
-			Command(command='setspecpassword', target=self.set_spec_password, perms='admin:password', admin=True).add_param(name='password', required=False),
-			Command(command='spectpass', target=self.set_spec_password, perms='admin:password', admin=True).add_param(name='password', required=False)
+			Command(command='setpassword', aliases=['srvpass'], target=self.set_password, perms='admin:password', admin=True).add_param(name='password', required=False),
+			Command(command='setspecpassword', aliases=['spectpass'], target=self.set_spec_password, perms='admin:password', admin=True).add_param(name='password', required=False),
+			Command(command='servername', target=self.set_servername, perms='admin:servername', admin=True).add_param(name='server_name', required=True, nargs='*'),
+		)
+
+	async def set_servername(self, player, data, **kwargs):
+		name = ' '.join(data.server_name)
+		message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has changed the server name into {}'.format(
+			player.nickname, name
+		)
+		await self.instance.gbx.multicall(
+			self.instance.gbx.prepare('SetServerName', name),
+			self.instance.gbx.prepare('ChatSendServerMessageToLogin', message, player.login)
 		)
 
 	async def set_spec_password(self, player, data, **kwargs):
