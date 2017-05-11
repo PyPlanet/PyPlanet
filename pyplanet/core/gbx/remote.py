@@ -256,11 +256,19 @@ class GbxRemote:
 		if len(raw) == 1:
 			raw = raw[0]
 
+		# Show warning when using non-supported modes.
+		try:
+			if 'LibXmlRpc' in method:
+				logger.warning('You are using an older gamemode script that isn\'t supported by PyPlanet (usage of LibXmlRpc_)')
+		except:
+			pass
+
 		# Try to parse JSON, mostly the case.
 		try:
 			payload = json.loads(raw)
 		except Exception as e:
-			handle_exception(exception=e, module_name=__name__, func_name='handle_scripted')
+			if not method or not 'LibXmlRpc' in method:
+				handle_exception(exception=e, module_name=__name__, func_name='handle_scripted')
 			logger.warning('GBX: JSON Parsing of script callback failed! {}'.format(str(e)))
 			payload = raw
 
