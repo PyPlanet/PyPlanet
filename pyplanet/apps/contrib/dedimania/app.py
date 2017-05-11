@@ -6,7 +6,7 @@ from requests.exceptions import ConnectionError as RequestsConnectionError
 
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.dedimania.api import DedimaniaAPI, DedimaniaRecord
-from pyplanet.apps.contrib.dedimania.exceptions import DedimaniaException
+from pyplanet.apps.contrib.dedimania.exceptions import DedimaniaException, DedimaniaTransportException
 from pyplanet.apps.core.trackmania import callbacks as tm_signals
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 from pyplanet.contrib.setting import Setting
@@ -27,6 +27,7 @@ class Dedimania(AppConfig):
 		self.widget = None
 		self.api = None
 
+		self.lock = asyncio.Lock()
 		self.current_records = []
 		self.player_info = dict()
 		self.server_max_rank = None
@@ -119,15 +120,17 @@ class Dedimania(AppConfig):
 		index = 1
 		view = DedimaniaRecordsListView(self)
 		view_data = []
-		first_time = self.current_records[0].score
-		for item in self.current_records:
-			record_time_difference = ''
-			if index > 1:
-				record_time_difference = '$f00 + ' + times.format_time((item.score - first_time))
-			view_data.append({'index': index, 'nickname': item.nickname,
-							  'record_time': times.format_time(item.score),
-							  'record_time_difference': record_time_difference})
-			index += 1
+
+		async with self.lock:
+			first_time = self.current_records[0].score
+			for item in self.current_records:
+				record_time_difference = ''
+				if index > 1:
+					record_time_difference = '$f00 + ' + times.format_time((item.score - first_time))
+				view_data.append({'index': index, 'nickname': item.nickname,
+								  'record_time': times.format_time(item.score),
+								  'record_time_difference': record_time_difference})
+				index += 1
 		view.objects_raw = view_data
 		view.title = 'Dedimania Records on {}'.format(self.instance.map_manager.current_map.name)
 		await view.display(player=player.login)
@@ -156,27 +159,35 @@ class Dedimania(AppConfig):
 			return
 
 		# Get data, prepare for sending.
-		await self.api.set_map_times(
-			map, 'TA' if 'TimeAttack' in await self.instance.mode_manager.get_current_script() else 'Rounds',
-			self.current_records
-		)
+		async with self.lock:
+			await self.api.set_map_times(
+				map, 'TA' if 'TimeAttack' in await self.instance.mode_manager.get_current_script() else 'Rounds',
+				self.current_records
+			)
 
 	async def refresh_records(self):
 		try:
-			self.server_max_rank, modes, player_infos, self.current_records = await self.api.get_map_details(
-				self.instance.map_manager.current_map,
-				'TA' if 'TimeAttack' in await self.instance.mode_manager.get_current_script() else 'Rounds',
-				server_name=self.instance.game.server_name, server_comment='', is_private=self.instance.game.server_is_private,
-				max_players=self.instance.game.server_max_players['CurrentValue'], max_specs=self.instance.game.server_max_specs['CurrentValue'],
-				players=await self.instance.gbx.execute('GetPlayerList', -1, 0),
-				server_login=self.instance.game.server_player_login
-			)
-		except ConnectionRefusedError:
-			message = '$z$s$fff»» $f00Error: Dedimania seems down?'
+			async with self.lock:
+				self.server_max_rank, modes, player_infos, self.current_records = await self.api.get_map_details(
+					self.instance.map_manager.current_map,
+					'TA' if 'TimeAttack' in await self.instance.mode_manager.get_current_script() else 'Rounds',
+					server_name=self.instance.game.server_name, server_comment='', is_private=self.instance.game.server_is_private,
+					max_players=self.instance.game.server_max_players['CurrentValue'], max_specs=self.instance.game.server_max_specs['CurrentValue'],
+					players=await self.instance.gbx.execute('GetPlayerList', -1, 0),
+					server_login=self.instance.game.server_player_login
+				)
+		except DedimaniaTransportException as e:
+			if 'Max retries exceeded' in str(e):
+				message = '$z$s$fff»» $f00Error: Dedimania seems down?'
+			else:
+				message = '$z$s$fff»» $f00Error: Dedimania error occured!'
+				logger.exception(e)
 			await self.instance.gbx.execute('ChatSendServerMessage', message)
+			return
 		except Exception as e:
 			logger.exception(e)
-			self.current_records = []
+			async with self.lock:
+				self.current_records = []
 			return
 
 		for info in player_infos:
@@ -227,11 +238,12 @@ class Dedimania(AppConfig):
 				previous_time = current_record.score
 
 				# Determinate new rank.
-				new_rank = 1
-				for idx, record in enumerate(self.current_records):
-					new_rank = idx + 1
-					if score <= record.score:
-						break
+				async with self.lock:
+					new_rank = 1
+					for idx, record in enumerate(self.current_records):
+						new_rank = idx + 1
+						if score <= record.score:
+							break
 
 				# Check if the player or server allows this player to finish with his max_rank.
 				if new_rank > int(self.server_max_rank) and new_rank > int(player_info['max_rank']):
@@ -249,9 +261,10 @@ class Dedimania(AppConfig):
 					return
 
 				# Update score + infos.
-				current_record.score = score
-				current_record.cps = lap_cps
-				self.current_records.sort(key=lambda x: x.score)
+				async with self.lock:
+					current_record.score = score
+					current_record.cps = lap_cps
+					self.current_records.sort(key=lambda x: x.score)
 
 				if new_rank < previous_index:
 					message = '$z$s$fff»» $fff{}$z$s$0f3 gained the $fff{}.$0f3 Dedimania Record, with a time of $fff\uf017 {}$0f3 ($fff{}.$0f3 $fff-{}$0f3).'.format(
@@ -282,11 +295,12 @@ class Dedimania(AppConfig):
 			)
 
 			# Determinate new rank.
-			new_rank = 1
-			for idx, record in enumerate(self.current_records):
-				new_rank = idx + 1
-				if score <= record.score:
-					break
+			async with self.lock:
+				new_rank = 1
+				for idx, record in enumerate(self.current_records):
+					new_rank = idx + 1
+					if score <= record.score:
+						break
 
 			# Check if the player or server allows this player to finish with his max_rank.
 			if new_rank > int(self.server_max_rank) and new_rank > int(player_info['max_rank']):
@@ -301,9 +315,10 @@ class Dedimania(AppConfig):
 			except:
 				return
 
-			self.current_records.append(new_record)
-			self.current_records.sort(key=lambda x: x.score)
-			new_index = self.current_records.index(new_record) + 1
+			async with self.lock:
+				self.current_records.append(new_record)
+				self.current_records.sort(key=lambda x: x.score)
+				new_index = self.current_records.index(new_record) + 1
 			message = '$z$s$fff»» $fff{}$z$s$0f3 drove the $fff{}.$0f3 Dedimania Record, with a time of $fff\uf017 {}$0f3.'.format(
 				player.nickname, new_index, times.format_time(score)
 			)
@@ -361,8 +376,9 @@ class Dedimania(AppConfig):
 			message = '$z$s$fff»» $0f3There is no Dedimania Record on this map yet.'
 			await self.instance.gbx.execute('ChatSendServerMessage', message)
 
-	def chat_personal_record(self, player):
-		record = [x for x in self.current_records if x.login == player.login]
+	async def chat_personal_record(self, player):
+		async with self.lock:
+			record = [x for x in self.current_records if x.login == player.login]
 
 		if len(record) > 0:
 			message = '$z$s$fff» $0f3You currently hold the $fff{}.$0f3 Dedimania Record: $fff\uf017 {}'.format(
