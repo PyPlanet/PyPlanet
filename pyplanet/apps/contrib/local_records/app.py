@@ -160,7 +160,7 @@ class LocalRecords(AppConfig):
 			calls = list()
 			calls.append(self.instance.gbx.prepare('ChatSendServerMessage', message))
 			for player in self.instance.player_manager.online:
-				calls.append(self.chat_personal_record(player))
+				calls.append(await self.chat_personal_record(player))
 			await self.instance.gbx.multicall(*calls)
 		else:
 			message = '$z$s$fff»» $0f3There is no Local Record on this map yet.'
