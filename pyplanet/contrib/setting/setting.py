@@ -126,7 +126,7 @@ class Setting:
 
 		if self.type == list or self.type == set or self.type == dict:
 			return json.dumps(value)
-		return value
+		return str(value)
 
 	@property
 	def type_name(self):

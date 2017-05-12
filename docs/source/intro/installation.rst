@@ -104,8 +104,11 @@ From now on you can create virtualenv environments.
 
 .. code-block:: bash
 
-    # Linux + windows (cmd)
+    # Linux
     virtualenv -p python3 env
+
+    # Windows:
+    virtualenv -p [full path to python3 executable] env
 
 
 From now you have to activate the virtualenv, every time you want to execute operations with PyPlanet (such as starting, installing, updating, etc).

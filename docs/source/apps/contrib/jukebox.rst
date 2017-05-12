@@ -22,9 +22,10 @@ Display maplist
 Command:
   ``/list``
 Parameters:
-  None.
+  None or search string.
 Functionality:
   Displays a list of maps currently on the server.
+  First parameter added to command will search the list accordingly.
 Required permission:
   None.
 

@@ -78,7 +78,16 @@ these *database drivers*:
 **Creating database**:
 
 You will have to create the database scheme yourself. Make sure you create it with a database collate that is based on
-UTF-8. We recommend for MySQL: ``utf8_generic_ci``.
+UTF-8. We recommend for MySQL: ``utf8mb4_unicode_ci`` to work with the new symbols in Maniaplanet.
+
+Create MySQL Database by running this command:
+
+.. code-block:: sql
+
+  CREATE DATABASE pyplanet
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
+
 
 **Configuration**
 

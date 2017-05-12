@@ -30,3 +30,8 @@ class LocalRecord(TimedModel):
 	"""
 	List of checkpoints of the local record.
 	"""
+
+	class Meta:
+		indexes = (
+			(('player', 'map'), True),
+		)

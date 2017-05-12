@@ -7,7 +7,6 @@ from pyplanet.apps.core.maniaplanet.models import Map
 from pyplanet.conf import settings
 from pyplanet.contrib.command import Command
 from pyplanet.utils import gbxparser
-from pyplanet.views.generics import AlertView
 
 logger = logging.getLogger(__name__)
 

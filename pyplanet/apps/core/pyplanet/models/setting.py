@@ -9,7 +9,7 @@ class Setting(Model):
 	"""
 
 	app = CharField(
-		max_length=255,
+		max_length=150,
 		null=True,
 		index=True,
 		default=None,

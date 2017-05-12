@@ -22,13 +22,29 @@ It's features can be seperated in to these three areas:
 Commands
 --------
 
+
+PyPlanet
+^^^^^^^^
+
+Reboot PyPlanet Pool Process
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Command:
+  ``//reboot``
+Parameters:
+  None.
+Functionality:
+  Reboot pyplanet pool process.
+Required permission:
+  ``admin:reboot``, requires admin level 3.
+
+
 Maps
 ^^^^
 
 Skip map
 ~~~~~~~~
 Command:
-  ``//next``
+  ``//next`` / ``//skip``
 Parameters:
   None.
 Functionality:
@@ -174,6 +190,30 @@ Functionality:
   Changes the server name.
 Required permission:
   ``admin:servername``, requires admin level 2.
+
+Set game mode
+~~~~~~~~~~~~~
+Command:
+  ``//mode``
+Parameters:
+  * Game mode 'ta', 'laps', 'rounds', 'cup' or any script name (e.g. 'Rounds.Script.txt')
+Functionality:
+  Changes the server game mode script.
+Required permission:
+  ``admin:mode``, requires admin level 2.
+
+Get/set game mode settings
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+Command:
+  ``//modesettings``
+Parameters:
+  None, or:
+  * Setting name
+  * New setting value
+Functionality:
+  Displays a list of current mode settings (no parameters) or changes a setting according with the given parameters.
+Required permission:
+  ``admin:mode``, requires admin level 2.
 
 Set server password
 ~~~~~~~~~~~~~~~~~~~

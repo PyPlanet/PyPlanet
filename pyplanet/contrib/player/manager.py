@@ -88,7 +88,6 @@ class PlayerManager(CoreContrib):
 		player.flow.player_id = info['PlayerId']
 		player.flow.team_id = info['TeamId']
 
-		#async with self.lock:
 		self._online.add(player)
 
 		return player
@@ -106,7 +105,6 @@ class PlayerManager(CoreContrib):
 		except:
 			return
 
-		#async with self.lock:
 		if player in self._online:
 			self._online.remove(player)
 		try:
@@ -128,7 +126,6 @@ class PlayerManager(CoreContrib):
 		:return: Player or exception if not found
 		:rtype: pyplanet.apps.core.maniaplanet.models.Player
 		"""
-		#async with self.lock:
 		try:
 			if login:
 				return await Player.get_by_login(login)
@@ -138,13 +135,12 @@ class PlayerManager(CoreContrib):
 				raise PlayerNotFound('Player not found.')
 		except DoesNotExist:
 			if lock:
-				await asyncio.sleep(1)
+				await asyncio.sleep(4)
 				return await self.get_player(login=login, pk=pk, lock=False)
 			else:
 				raise PlayerNotFound('Player not found.')
 
 	async def get_player_by_id(self, identifier):
-		#async with self.lock:
 		for player in self._online:
 			if player.flow.player_id == identifier:
 				return player

@@ -5,13 +5,13 @@ from pyplanet.core.db import Model
 
 class Permission(Model):
 	namespace = CharField(
-		max_length=255,
+		max_length=150,
 		null=False,
 		help_text='Namespace of the permission. Mostly the app.label.'
 	)
 
 	name = CharField(
-		max_length=255,
+		max_length=150,
 		null=False,
 		help_text='Name of permission, in format {app_name|core}:{name}'
 	)

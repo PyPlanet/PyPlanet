@@ -66,7 +66,7 @@ class Storage(StorageInterface):
 		return self._driver
 
 	@asyncio_extras.async_contextmanager
-	async def open(self, file: str, mode: str = 'rb'):
+	async def open(self, file: str, mode: str = 'rb', **kwargs):
 		"""
 		Open a file on the server. Use relative path to the dedicated root. Use the other open methods to relative
 		from another base path.
@@ -75,12 +75,12 @@ class Storage(StorageInterface):
 		:param mode: Mode to open, see the python `open` manual for supported modes.
 		:return: File handler.
 		"""
-		context = self._driver.open(file, mode)
+		context = self._driver.open(file, mode, **kwargs)
 		await yield_(await context.__aenter__())
 		await context.__aexit__(None, None, None)
 
 	@asyncio_extras.async_contextmanager
-	async def open_match_settings(self, file: str, mode: str = 'r'):
+	async def open_match_settings(self, file: str, mode: str = 'r', **kwargs):
 		"""
 		Open a file on the server. Relative to the MatchSettings folder (UserData/Maps/MatchSettings).
 		
@@ -88,12 +88,12 @@ class Storage(StorageInterface):
 		:param mode: Mode to open, see the python `open` manual for supported modes.
 		:return: File handler.
 		"""
-		context = self._driver.open('{}/{}'.format(self.MATCHSETTINGS_FOLDER, file), mode)
+		context = self._driver.open('{}/{}'.format(self.MATCHSETTINGS_FOLDER, file), mode, **kwargs)
 		await yield_(await context.__aenter__())
 		await context.__aexit__(None, None, None)
 
 	@asyncio_extras.async_contextmanager
-	async def open_map(self, file: str, mode: str = 'rb'):
+	async def open_map(self, file: str, mode: str = 'rb', **kwargs):
 		"""
 		Open a file on the server. Relative to the Maps folder (UserData/Maps).
 		
@@ -101,7 +101,7 @@ class Storage(StorageInterface):
 		:param mode: Mode to open, see the python `open` manual for supported modes.
 		:return: File handler.
 		"""
-		context = self._driver.open('{}/{}'.format(self.MAP_FOLDER, file), mode)
+		context = self._driver.open('{}/{}'.format(self.MAP_FOLDER, file), mode, **kwargs)
 		await yield_(await context.__aenter__())
 		await context.__aexit__(None, None, None)
 

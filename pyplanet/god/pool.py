@@ -92,8 +92,11 @@ class EnvironmentPool:
 			num_alive = 0
 			for name, proc in self.pool.items():
 				if proc.did_die:
+					# Process wants a restart! = exit code 50.
+					if proc.exitcode == 50:
+						self.restart(name)
 					# Status changed from 'online' to 'offline'
-					if self._restarts[name] < self.max_restarts:
+					elif self._restarts[name] < self.max_restarts:
 						logger.critical('The instance \'{}\' just died. We will restart the instance!'.format(name))
 						self.restart(name)
 						num_alive += 1

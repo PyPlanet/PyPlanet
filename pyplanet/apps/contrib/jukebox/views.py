@@ -72,6 +72,7 @@ class MapListView(ManualListView):
 				'index': 'name',
 				'sorting': True,
 				'searching': True,
+				'search_strip_styles': True,
 				'width': 100,
 				'type': 'label',
 				'action': self.action_jukebox
@@ -81,6 +82,7 @@ class MapListView(ManualListView):
 				'index': 'author_login',
 				'sorting': True,
 				'searching': True,
+				'search_strip_styles': True,
 				'renderer': lambda row, field:
 					row['author_nickname']
 					if 'author_nickname' in row and row['author_nickname'] and len(row['author_nickname'])
