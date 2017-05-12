@@ -26,7 +26,9 @@ class ServerAdmin:
 			Command(command='setspecpassword', aliases=['spectpass'], target=self.set_spec_password, perms='admin:password', admin=True).add_param(name='password', required=False),
 			Command(command='servername', target=self.set_servername, perms='admin:servername', admin=True).add_param(name='server_name', required=True, nargs='*'),
 			Command(command='mode', target=self.set_mode, perms='admin:mode', admin=True).add_param(name='mode', required=True, nargs='*'),
-			Command(command='modesettings', target=self.mode_settings, perms='admin:mode', admin=True).add_param(name='content', required=False, nargs='*')
+			Command(command='modesettings', target=self.mode_settings, perms='admin:mode', admin=True)
+				.add_param(name='setting', required=False)
+				.add_param(name='content', required=False)
 		)
 
 	async def set_mode(self, player, data, **kwargs):
@@ -55,29 +57,29 @@ class ServerAdmin:
 		await self.instance.gbx.execute('ChatSendServerMessage', message)
 
 	async def mode_settings(self, player, data, **kwargs):
-		setting_name = None
-		if data.content is not None:
-			setting_name = data.content[0]
-
+		setting_name = data.setting
 		if setting_name is None:
 			view = ModeSettingsListView(self.app)
 			await view.display(player=player.login)
 		else:
-			if len(data.content) != 2:
+			if not data.content:
 				message = '$z$s$fff» $i$f00Setting a mode setting requires $fff2$f00 parameters.'
 				await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+				return
 
 			current_settings = await self.instance.mode_manager.get_settings()
-			setting_value = data.content[1]
+			setting_value = data.content
 			if setting_name not in current_settings:
 				message = '$z$s$fff» $i$f00Unknown mode setting "$fff{}$f00".'.format(setting_name)
 				await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+				return
 
 			current_value = current_settings[setting_name]
 			current_type = type(current_value)
+
+			type_setting = None
 			try:
-				type_setting = None
-				if type(current_value) is bool:
+				if isinstance(current_value. bool):
 					lower_setting_value = setting_value.lower()
 					if lower_setting_value == 'true' or setting_value == '1':
 						type_setting = True
