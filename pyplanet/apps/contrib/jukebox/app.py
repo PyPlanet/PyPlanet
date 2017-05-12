@@ -24,7 +24,7 @@ class Jukebox(AppConfig):
 		await self.instance.command_manager.register(
 			Command(command='cjb', target=self.clear_jukebox, perms='jukebox:clear', admin=True),
 			Command(command='clearjukebox', target=self.clear_jukebox, perms='jukebox:clear', admin=True),
-			Command(command='list', target=self.show_map_list),
+			Command(command='list', target=self.show_map_list).add_param(name='search', required=False),
 			Command(command='jukebox', target=self.chat_command).add_param(name='option', required=False)
 		)
 
@@ -33,6 +33,8 @@ class Jukebox(AppConfig):
 
 	async def show_map_list(self, player, data, **kwargs):
 		view = MapListView(self)
+		if data.search is not None:
+			view.search_text = data.search
 		await view.display(player=player.login)
 
 	async def chat_command(self, player, data, **kwargs):
