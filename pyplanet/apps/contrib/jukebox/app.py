@@ -104,8 +104,14 @@ class Jukebox(AppConfig):
 				await self.instance.gbx.execute('ChatSendServerMessage', message)
 
 	async def podium_start(self, **kwargs):
-		if len(self.jukebox) > 0:
-			next = self.jukebox.pop(0)
-			message = '$z$s$fff»» $fa0The next map will be $fff{}$z$s$fa0 as requested by $fff{}$z$s$fa0.'.format(next['map'].name, next['player'].nickname)
-			await self.instance.gbx.execute('ChatSendServerMessage', message)
-			await self.instance.map_manager.set_next_map(next['map'])
+		find_next_jukebox = True
+		while find_next_jukebox:
+			if len(self.jukebox) > 0:
+				next = self.jukebox.pop(0)
+				if next['map'].get_id() != self.instance.map_manager.current_map.get_id():
+					message = '$z$s$fff»» $fa0The next map will be $fff{}$z$s$fa0 as requested by $fff{}$z$s$fa0.'.format(next['map'].name, next['player'].nickname)
+					await self.instance.gbx.execute('ChatSendServerMessage', message)
+					await self.instance.map_manager.set_next_map(next['map'])
+					find_next_jukebox = False
+			else:
+				find_next_jukebox = False
