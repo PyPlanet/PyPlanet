@@ -30,28 +30,6 @@ class _BaseSettingManager:
 		# Register the setting.
 		self._settings.extend(settings)
 
-	async def get_setting(self, key, prefetch_values=True):
-		"""
-		Get setting by key and optionally fetch the value if not yet fetched.
-
-		:param key: Key string
-		:param prefetch_values: Prefetch the values if not yet fetched?
-		:return: Setting instance.
-		:raise: SettingException
-		"""
-		setting = None
-		for s in self._settings:
-			if s.key == key:
-				setting = s
-				break
-
-		if not setting:
-			raise SettingException('Setting with key not found')
-
-		if prefetch_values and setting._value[0] is False:
-			await setting.get_value()
-		return setting
-
 
 class GlobalSettingManager(_BaseSettingManager, CoreContrib):
 	"""
@@ -104,6 +82,18 @@ class GlobalSettingManager(_BaseSettingManager, CoreContrib):
 		for app, manager in self.app_managers.items():
 			for setting in manager._settings:
 				yield setting
+
+	async def get_setting(self, app_label, key, prefetch_values=True):
+		"""
+		Get setting by key and optionally fetch the value if not yet fetched.
+
+		:param app_label: Namespace (mostly app label).
+		:param key: Key string
+		:param prefetch_values: Prefetch the values if not yet fetched?
+		:return: Setting instance.
+		:raise: SettingException
+		"""
+		return await self.get_app_manager(app_label).get_setting(key, prefetch_values)
 
 	async def get_apps(self, prefetch_values=True):
 		"""
@@ -223,6 +213,28 @@ class AppSettingManager(_BaseSettingManager):
 
 		# Register the setting.
 		self._settings.extend(settings)
+
+	async def get_setting(self, key, prefetch_values=True):
+		"""
+		Get setting by key and optionally fetch the value if not yet fetched.
+
+		:param key: Key string
+		:param prefetch_values: Prefetch the values if not yet fetched?
+		:return: Setting instance.
+		:raise: SettingException
+		"""
+		setting = None
+		for s in self._settings:
+			if s.key == key:
+				setting = s
+				break
+
+		if not setting:
+			raise SettingException('Setting with key not found')
+
+		if prefetch_values and setting._value[0] is False:
+			await setting.get_value()
+		return setting
 
 	def get_categories(self):
 		"""
