@@ -26,6 +26,7 @@ Apps
 * Improvement: Changed dedimania record text chat color.
 * Improvement: Changed welcome player nickname default color (white).
 * Improvement: Reduced length of record chat messages.
+* Improvement: Add player level name to the join/leave messages.
 
 * Bugfix: Jukebox current map gives errors and exceptions.
 * Bugfix: Ignore color and style codes inside /list searching.
