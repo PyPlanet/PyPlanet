@@ -1,6 +1,36 @@
 Changelog
 =========
 
+0.2.0
+-----
+
+Core
+~~~~
+
+* Feature: Improved performance with the all new Performance Mode. This will improve performance for a player threshold that is freely configurable.
+* Feature: Technical: Add option to strip styles/colors from searchable column in listviews.
+* Feature: Technical: Add shortcut to get an app setting from global setting manager.
+* Bugfix: Fixing issue with integer or other numeric values and the value 0 in the //settings values.
+
+Apps
+~~~~
+
+* Feature: New app: Transactions: Features donations and payments to players as the actual planets stats. Activate the app now in your apps.py!!
+* Feature: Map info shows nickname of author if the author nickname is known.
+* Feature: //list [search] directly searching in map list.
+* Feature: Implement //modesettings to show and change settings of the current mode script.
+* Feature: Restrict karma voting to count after the player finishes the map for X times (optional).
+* Feature: Apply the performance mode improvements to the local and dedimania records widgets.
+* Feature: Add command to restart PyPlanet pool process. //reboot
+
+* Improvement: Changed dedimania record text chat color.
+* Improvement: Changed welcome player nickname default color (white).
+* Improvement: Reduced length of record chat messages.
+
+* Bugfix: Jukebox current map gives errors and exceptions.
+* Bugfix: Ignore color and style codes inside /list searching.
+* Bugfix: Some small improvements on widgets (black window behind local/dedi removed and more transparent)
+
 0.1.5
 -----
 
