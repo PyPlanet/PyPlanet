@@ -112,12 +112,12 @@ class LocalRecords(AppConfig):
 					new_index = self.current_records.index(current_record) + 1
 
 					if new_index < previous_index:
-						message = '$z$s$fff»» $fff{}$z$s$0f3 gained the $fff{}.$0f3 Local Record, with a time of $fff\uf017 {}$0f3 ($fff{}.$0f3 $fff-{}$0f3).'.format(
+						message = '$z$s$fff»» $fff{}$z$s$0f3 gained the $fff{}.$0f3 Local Record: $fff\uf017 {}$0f3 ($fff{}.$0f3 $fff-{}$0f3).'.format(
 							player.nickname, new_index, times.format_time(score), previous_index,
 							times.format_time((previous_time - score))
 						)
 					else:
-						message = '$z$s$fff»» $fff{}$z$s$0f3 improved the $fff{}.$0f3 Local Record, with a time of $fff\uf017 {}$0f3 ($fff-{}$0f3).'.format(
+						message = '$z$s$fff»» $fff{}$z$s$0f3 improved the $fff{}.$0f3 Local Record: $fff\uf017 {}$0f3 ($fff-{}$0f3).'.format(
 							player.nickname, new_index, times.format_time(score),
 							times.format_time((previous_time - score))
 						)
@@ -126,7 +126,7 @@ class LocalRecords(AppConfig):
 					await self.widget.display()
 
 				elif score == current_record.score:
-					message = '$z$s$fff»» $fff{}$z$s$0f3 equalled the $fff{}.$0f3 Local Record, with a time of $fff\uf017 {}$0f3.'.format(
+					message = '$z$s$fff»» $fff{}$z$s$0f3 equalled the $fff{}.$0f3 Local Record: $fff\uf017 {}$0f3.'.format(
 						player.nickname, previous_index, times.format_time(score)
 					)
 					await self.instance.gbx.execute('ChatSendServerMessage', message)
@@ -144,7 +144,7 @@ class LocalRecords(AppConfig):
 				self.current_records.sort(key=lambda x: x.score)
 				new_index = self.current_records.index(new_record) + 1
 
-				message = '$z$s$fff»» $fff{}$z$s$0f3 drove the $fff{}.$0f3 Local Record, with a time of $fff\uf017 {}$0f3.'.format(
+				message = '$z$s$fff»» $fff{}$z$s$0f3 drove the $fff{}.$0f3 Local Record: $fff\uf017 {}$0f3.'.format(
 					player.nickname, new_index, times.format_time(score)
 				)
 				await self.instance.gbx.execute('ChatSendServerMessage', message)
