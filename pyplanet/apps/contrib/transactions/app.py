@@ -43,7 +43,7 @@ class Transactions(AppConfig):
 	async def donate(self, player, data, **kwargs):
 		try:
 			async with self.lock:
-				amount = int(data.amount)
+				amount = abs(int(data.amount))
 				bill_id = await self.instance.gbx.execute('SendBill', player.login, amount, 'Donating {} planets to our server!'.format(amount), '')
 				self.current_bills[bill_id] = dict(bill=bill_id, player=player, amount=amount)
 		except ValueError:
@@ -52,7 +52,7 @@ class Transactions(AppConfig):
 
 	async def pay_to_player(self, player, data, **kwargs):
 		try:
-			amount = int(data.amount)
+			amount = abs(int(data.amount))
 
 			planets = await self.instance.gbx.execute('GetServerPlanets')
 			if amount <= (planets - 2 - math.floor(amount * 0.05)):
