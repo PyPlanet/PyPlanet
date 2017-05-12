@@ -5,6 +5,7 @@ import logging
 import aiohttp
 
 from pyplanet import __version__ as pyplanet_version
+from pyplanet.apps.contrib.mx.exceptions import MXMapNotFound, MXInvalidResponse
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +41,10 @@ class MXApi:
 		)
 		params = {'key': self.key} if self.key else {}
 		response = await self.session.get(url, params=params)
+		if response.status == 404:
+			raise MXMapNotFound('Map has not been found!')
+		if response.status < 200 or response.status > 399:
+			raise MXInvalidResponse('Got invalid response status from ManiaExchange: {}'.format(response.status))
 		maps = list()
 		for info in await response.json():
 			# Parse some differences between the api game endpoints.
