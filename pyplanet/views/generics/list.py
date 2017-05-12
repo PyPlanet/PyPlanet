@@ -7,6 +7,8 @@ import numpy as np
 from asyncio import iscoroutinefunction
 from peewee import Field
 
+from pyplanet.utils import style
+
 from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.core.db import Model
 from pyplanet.views.template import TemplateView
@@ -398,9 +400,14 @@ class ManualListView(ListView):
 		query = list()
 		for field in await self.get_fields():
 			if 'searching' in field and field['searching']:
-				query.append(
-					frame[field['index']].apply(lambda x: self.search_text.lower() in x.lower())
-				)
+				if 'search_strip_styles' in field and field['search_strip_styles']:
+					query.append(
+						frame[field['index']].apply(lambda x: self.search_text.lower() in style.style_strip(x.lower()))
+					)
+				else:
+					query.append(
+						frame[field['index']].apply(lambda x: self.search_text.lower() in x.lower())
+					)
 		if query:
 			query = np.logical_or.reduce(query)
 			return frame.loc[query]
