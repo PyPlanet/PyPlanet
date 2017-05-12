@@ -22,6 +22,22 @@ It's features can be seperated in to these three areas:
 Commands
 --------
 
+
+PyPlanet
+^^^^^^^^
+
+Reboot PyPlanet Pool Process
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Command:
+  ``//reboot``
+Parameters:
+  None.
+Functionality:
+  Reboot pyplanet pool process.
+Required permission:
+  ``admin:reboot``, requires admin level 3.
+
+
 Maps
 ^^^^
 
