@@ -2,6 +2,7 @@ import asyncio
 
 from pyplanet.apps import AppConfig
 from pyplanet.contrib import CoreContrib
+from pyplanet.contrib.setting.core_settings import performance_mode
 from pyplanet.contrib.setting.exceptions import SettingException
 
 
@@ -30,28 +31,6 @@ class _BaseSettingManager:
 		# Register the setting.
 		self._settings.extend(settings)
 
-	async def get_setting(self, key, prefetch_values=True):
-		"""
-		Get setting by key and optionally fetch the value if not yet fetched.
-
-		:param key: Key string
-		:param prefetch_values: Prefetch the values if not yet fetched?
-		:return: Setting instance.
-		:raise: SettingException
-		"""
-		setting = None
-		for s in self._settings:
-			if s.key == key:
-				setting = s
-				break
-
-		if not setting:
-			raise SettingException('Setting with key not found')
-
-		if prefetch_values and setting._value[0] is False:
-			await setting.get_value()
-		return setting
-
 
 class GlobalSettingManager(_BaseSettingManager, CoreContrib):
 	"""
@@ -68,6 +47,10 @@ class GlobalSettingManager(_BaseSettingManager, CoreContrib):
 	def __init__(self, instance):
 		super().__init__(instance)
 		self.app_managers = dict()
+
+	async def on_start(self):
+		# Register core global settings.
+		await self.register(performance_mode)
 
 	def create_app_manager(self, app_config):
 		"""
@@ -104,6 +87,31 @@ class GlobalSettingManager(_BaseSettingManager, CoreContrib):
 		for app, manager in self.app_managers.items():
 			for setting in manager._settings:
 				yield setting
+
+	async def get_setting(self, app_label, key, prefetch_values=True):
+		"""
+		Get setting by key and optionally fetch the value if not yet fetched.
+
+		:param app_label: Namespace (mostly app label).
+		:param key: Key string
+		:param prefetch_values: Prefetch the values if not yet fetched?
+		:return: Setting instance.
+		:raise: SettingException
+		"""
+		if app_label is None:
+			setting = None
+			for s in self._settings:
+				if s.key == key:
+					setting = s
+					break
+
+			if not setting:
+				raise SettingException('Setting with key not found')
+
+			if prefetch_values and setting._value[0] is False:
+				await setting.get_value()
+			return setting
+		return await self.get_app_manager(app_label).get_setting(key, prefetch_values)
 
 	async def get_apps(self, prefetch_values=True):
 		"""
@@ -223,6 +231,28 @@ class AppSettingManager(_BaseSettingManager):
 
 		# Register the setting.
 		self._settings.extend(settings)
+
+	async def get_setting(self, key, prefetch_values=True):
+		"""
+		Get setting by key and optionally fetch the value if not yet fetched.
+
+		:param key: Key string
+		:param prefetch_values: Prefetch the values if not yet fetched?
+		:return: Setting instance.
+		:raise: SettingException
+		"""
+		setting = None
+		for s in self._settings:
+			if s.key == key:
+				setting = s
+				break
+
+		if not setting:
+			raise SettingException('Setting with key not found')
+
+		if prefetch_values and setting._value[0] is False:
+			await setting.get_value()
+		return setting
 
 	def get_categories(self):
 		"""

@@ -22,11 +22,12 @@ class DedimaniaRecordsWidget(TimesWidgetView):
 		self.id = 'pyplanet__widgets_dedimaniarecords'
 
 		self.action = self.action_recordlist
+		self.record_amount = math.floor((self.size_y - 5.5) / 3.3)
 
 	async def get_player_data(self):
 		data = await super().get_player_data()
-
-		record_amount = math.floor((self.size_y - 5.5) / 3.3)
+		if self.app.instance.performance_mode:
+			return data
 
 		widget_times = dict()
 
@@ -42,7 +43,7 @@ class DedimaniaRecordsWidget(TimesWidgetView):
 			custom_start_index = None
 			if player_index > len(self.app.current_records):
 				# No personal record, get the last records
-				records_start = (len(self.app.current_records) - record_amount + self.top_entries)
+				records_start = (len(self.app.current_records) - self.record_amount + self.top_entries)
 				# If start of current slice is in the top entries, add more records below
 				if records_start < self.top_entries:
 					records_start = (self.top_entries)
@@ -52,12 +53,12 @@ class DedimaniaRecordsWidget(TimesWidgetView):
 			else:
 				if player_index <= self.top_entries:
 					# Player record is in top X, get following records (top entries + 1 onwards)
-					records += self.app.current_records[(self.top_entries + 1):(record_amount + 1)]
+					records += self.app.current_records[(self.top_entries + 1):(self.record_amount + 1)]
 					custom_start_index = (self.top_entries + 1)
 				else:
 					# Player record is not in top X, get records around player record
 					# Same amount above the record as below, except when not possible (favors above)
-					records_to_fill = (record_amount - self.top_entries)
+					records_to_fill = (self.record_amount - self.top_entries)
 					start_point = ((player_index - math.ceil((records_to_fill - 1) / 2)) - 1)
 					end_point = ((player_index + math.floor((records_to_fill - 1) / 2)) - 1)
 
@@ -106,6 +107,27 @@ class DedimaniaRecordsWidget(TimesWidgetView):
 		context.update({
 			'top_entries': self.top_entries
 		})
+
+		if self.app.instance.performance_mode:
+			list_records = list()
+			records = list(self.app.current_records[:self.record_amount])
+
+			index = 1
+			for record in records:
+				record_player = await record.get_related('player')
+				list_record = dict()
+				list_record['index'] = index
+				list_record['color'] = '$fff'
+				if index <= self.top_entries:
+					list_record['color'] = '$ff0'
+				list_record['nickname'] = record_player.nickname
+				list_record['score'] = times.format_time(int(record.score))
+				index += 1
+				list_records.append(list_record)
+
+			context.update({
+				'times': list_records
+			})
 
 		return context
 
