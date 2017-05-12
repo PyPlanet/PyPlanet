@@ -3,6 +3,8 @@ Server Admin methods and functions.
 """
 from pyplanet.contrib.command import Command
 
+from pyplanet.apps.contrib.admin.views import ModeSettingsListView
+
 
 class ServerAdmin:
 	def __init__(self, app):
@@ -22,7 +24,8 @@ class ServerAdmin:
 			Command(command='setpassword', aliases=['srvpass'], target=self.set_password, perms='admin:password', admin=True).add_param(name='password', required=False),
 			Command(command='setspecpassword', aliases=['spectpass'], target=self.set_spec_password, perms='admin:password', admin=True).add_param(name='password', required=False),
 			Command(command='servername', target=self.set_servername, perms='admin:servername', admin=True).add_param(name='server_name', required=True, nargs='*'),
-			Command(command='mode', target=self.set_mode, perms='admin:mode', admin=True).add_param(name='mode', required=True, nargs='*')
+			Command(command='mode', target=self.set_mode, perms='admin:mode', admin=True).add_param(name='mode', required=True, nargs='*'),
+			Command(command='modesettings', target=self.get_mode_settings, perms='admin:mode', admin=True)#.add_param(name='mode', required=True, nargs='*')
 		)
 
 	async def set_mode(self, player, data, **kwargs):
@@ -49,6 +52,10 @@ class ServerAdmin:
 			player.nickname, mode
 		)
 		await self.instance.gbx.execute('ChatSendServerMessage', message)
+
+	async def get_mode_settings(self, player, data, **kwargs):
+		view = ModeSettingsListView(self.app)
+		await view.display(player=player.login)
 
 	async def set_servername(self, player, data, **kwargs):
 		name = ' '.join(data.server_name)
