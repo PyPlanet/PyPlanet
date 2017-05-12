@@ -9,6 +9,8 @@ from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.conf import settings
 from pyplanet.contrib import CoreContrib
 from pyplanet.contrib.player.exceptions import PlayerNotFound
+from pyplanet.contrib.setting.core_settings import performance_mode
+from pyplanet.core.signals import pyplanet_performance_mode_begin, pyplanet_performance_mode_end
 
 logger = logging.getLogger(__name__)
 
@@ -33,10 +35,32 @@ class PlayerManager(CoreContrib):
 		:type instance: pyplanet.core.instance.Instance
 		"""
 		self._instance = instance
+		self._performance_mode = False
 		# self.lock = asyncio.Lock()
 
 		# Online contains all currently online players.
 		self._online = set()
+
+	@property
+	def performance_mode(self):
+		return self._performance_mode
+
+	@performance_mode.setter
+	def performance_mode(self, new_value):
+		if self._performance_mode != new_value:
+			if new_value:
+				asyncio.ensure_future(
+					pyplanet_performance_mode_begin.send_robust(source=dict(
+						old_value=self._performance_mode, new_value=new_value
+					))
+				)
+			else:
+				asyncio.ensure_future(
+					pyplanet_performance_mode_end.send_robust(source=dict(
+						old_value=self._performance_mode, new_value=new_value
+					))
+				)
+		self._performance_mode = new_value
 
 	async def on_start(self):
 		"""
@@ -89,6 +113,7 @@ class PlayerManager(CoreContrib):
 		player.flow.team_id = info['TeamId']
 
 		self._online.add(player)
+		self.performance_mode = len(self._online) >= await performance_mode.get_value()
 
 		return player
 
@@ -113,6 +138,8 @@ class PlayerManager(CoreContrib):
 			pass
 		player.last_seen = datetime.datetime.now()
 		await player.save()
+
+		self.performance_mode = len(self._online) >= await performance_mode.get_value()
 
 		return player
 

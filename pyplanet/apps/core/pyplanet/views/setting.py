@@ -46,9 +46,7 @@ class SettingMenuView(ManualListView):
 			return
 
 		# Getting the setting itself.
-		setting = await self.app.instance.setting_manager\
-			.get_app_manager(row['app_label'])\
-			.get_setting(row['key'], prefetch_values=True)
+		setting = await self.app.instance.setting_manager.get_setting(row['app_label'], row['key'], prefetch_values=True)
 
 		# Show edit view.
 		self.child = SettingEditView(self, self.player, setting)

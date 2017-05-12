@@ -102,6 +102,15 @@ class Instance:
 			logger.exception(e)
 			raise
 
+	@property
+	def performance_mode(self):
+		"""
+		Gives back a boolean, True if we are in performance mode.
+		
+		:return: Performance mode boolean.
+		"""
+		return self.player_manager.performance_mode
+
 	async def __fire_signal(self, signal):  # pragma: no cover
 		"""
 		Fire signal with given name to all listeners.
@@ -131,11 +140,11 @@ class Instance:
 		await self.__fire_signal(signals.pyplanet_start_db_after)
 
 		# Start the core contribs.
+		await self.setting_manager.on_start()
 		await self.map_manager.on_start()
 		await self.player_manager.on_start()
 		await self.permission_manager.on_start()
 		await self.command_manager.on_start()
-		await self.setting_manager.on_start()
 		await self.mode_manager.on_start()
 
 		# Start the apps, call the on_ready, resulting in apps user logic to be started.

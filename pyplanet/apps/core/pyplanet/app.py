@@ -18,22 +18,12 @@ class PyPlanetConfig(AppConfig):
 		# Initiate logo view.
 		self.logo = LogoView(manager=self.context.ui)
 
-		# Performance mode setting
-		self.setting_performance_mode = Setting(
-			'performance_mode', 'Performance mode playercount', Setting.CAT_BEHAVIOUR, type=int,
-			description='Above this amount of players the performance mode will be enabled.',
-			default=30
-		)
-
 	async def on_init(self):
 		# Call components.
 		await self.setting.on_init()
 		await self.dev.on_init()
 
 	async def on_start(self):
-		# Register performance mode setting
-		await self.context.setting.register(self.setting_performance_mode)
-
 		# Call components.
 		await self.setting.on_start()
 		await self.dev.on_start()
