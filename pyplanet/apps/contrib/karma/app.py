@@ -1,6 +1,8 @@
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.karma.views import KarmaListView
 from pyplanet.contrib.command import Command
+from pyplanet.contrib.setting import Setting
+from pyplanet.apps.core.statistics.models import Score
 
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 from pyplanet.apps.contrib.karma.views import KarmaWidget
@@ -22,6 +24,12 @@ class Karma(AppConfig):
 		self.current_negative_votes = 0
 		self.widget = None
 
+		self.setting_finishes_before_voting = Setting(
+			'finishes_before_voting', 'Finishes before voting', Setting.CAT_BEHAVIOUR, type=int,
+			description='Amount of times a player should finish before being allowed to vote.',
+			default=0
+		)
+
 	async def on_start(self):
 		# Register commands.
 		await self.instance.command_manager.register(Command(command='whokarma', target=self.show_map_list))
@@ -30,6 +38,8 @@ class Karma(AppConfig):
 		self.instance.signal_manager.listen(mp_signals.map.map_begin, self.map_begin)
 		self.instance.signal_manager.listen(mp_signals.player.player_chat, self.player_chat)
 		self.instance.signal_manager.listen(mp_signals.player.player_connect, self.player_connect)
+
+		await self.context.setting.register(self.setting_finishes_before_voting)
 
 		# Load initial data.
 		await self.get_votes_list(self.instance.map_manager.current_map)
@@ -65,6 +75,14 @@ class Karma(AppConfig):
 
 	async def player_chat(self, player, text, cmd):
 		if not cmd:
+			if self.instance.game.game == 'tm':
+				finishes_required = await self.setting_finishes_before_voting.get_value()
+				player_finishes = len(await Score.objects.execute(Score.select().where(Score.map_id == self.instance.map_manager.current_map.get_id()).where(Score.player_id == player.get_id())))
+				if player_finishes < finishes_required:
+					message = '$z$s$fff» $i$f00You have to finish this map at least $fff{}$f00 times before voting!'.format(finishes_required)
+					await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+					return
+
 			if text == '++' or text == '--':
 				score = (1 if text == '++' else -1)
 				player_votes = [x for x in self.current_votes if x.player_id == player.get_id()]
