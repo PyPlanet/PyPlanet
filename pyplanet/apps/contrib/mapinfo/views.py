@@ -22,18 +22,13 @@ class MapInfoWidget(WidgetView):
 
 	async def get_context_data(self):
 		map = self.app.instance.map_manager.current_map
-
-		author = None
+		map_author = map.author_login
 		try:
 			author = await self.app.instance.player_manager.get_player(map.author_login)
-		except PlayerNotFound:
-			pass
-
-		map_author = map.author_login
-		if author is not None:
 			map_author = author.nickname
-		elif map.author_nickname is not None:
-			map_author = map.author_nickname
+		except PlayerNotFound:
+			if map.author_nickname:
+				map_author = map.author_nickname
 
 		context = await super().get_context_data()
 		context.update({
