@@ -204,6 +204,7 @@ class MapManager(CoreContrib):
 		:raise: pyplanet.contrib.map.exceptions.MapException
 		"""
 		gbx_method = 'InsertMap' if insert else 'AddMap'
+		# matches = await self._instance.gbx.execute('CheckMapForCurrentServerParams', filename)
 
 		try:
 			return await self._instance.gbx.execute(gbx_method, filename)
