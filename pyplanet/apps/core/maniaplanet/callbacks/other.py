@@ -2,6 +2,12 @@ from pyplanet.core import Controller
 from pyplanet.core.events import Callback, handle_generic
 
 
+async def handle_bill_updated(source, signal, **kwargs):
+	bill_id, state, state_name, transaction_id = source
+	return dict(
+		bill_id=bill_id, state=state, state_name=state_name, transaction_id=transaction_id
+	)
+
 async def handle_vote_updated(source, signal, **kwargs):
 	state, login, cmd_name, cmd_param = source
 	player = await Controller.instance.player_manager.get_player(login)
@@ -9,15 +15,14 @@ async def handle_vote_updated(source, signal, **kwargs):
 		player=player, state=state, cmd_name=cmd_name, cmd_param=cmd_param
 	)
 
-
 bill_updated = Callback(
 	call='ManiaPlanet.BillUpdated',
 	namespace='maniaplanet',
 	code='bill_updated',
-	target=handle_generic
+	target=handle_bill_updated
 )
 """
-:Signal: 
+:Signal:
 	Bill has been updated.
 :Code:
 	``maniaplanet:bill_updated``
@@ -43,7 +48,7 @@ vote_updated = Callback(
 	target=handle_vote_updated
 )
 """
-:Signal: 
+:Signal:
 	Vote has been updated.
 :Code:
 	``maniaplanet:vote_updated``
