@@ -19,6 +19,7 @@ class Transactions(AppConfig):
 		super().__init__(*args, **kwargs)
 
 		self.current_bills = dict()
+		self.min_donation = 10
 		self.public_appreciation = 100
 		self.lock = asyncio.Lock()
 
@@ -44,8 +45,12 @@ class Transactions(AppConfig):
 		try:
 			async with self.lock:
 				amount = abs(int(data.amount))
-				bill_id = await self.instance.gbx.execute('SendBill', player.login, amount, 'Donating {} planets to our server!'.format(amount), '')
-				self.current_bills[bill_id] = dict(bill=bill_id, player=player, amount=amount)
+				if amount >= self.min_donation:
+					bill_id = await self.instance.gbx.execute('SendBill', player.login, amount, 'Donating {} planets to our server!'.format(amount), '')
+					self.current_bills[bill_id] = dict(bill=bill_id, player=player, amount=amount)
+				else:
+					message = '$z$s$fff» $i$f00You need to donate at least $fff{}$f00 planets.'.format(self.min_donation)
+					await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
 		except ValueError:
 			message = '$z$s$fff» $i$f00The amount should be a numeric value.'
 			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
@@ -83,7 +88,7 @@ class Transactions(AppConfig):
 						message = '$z$s$fff» $f0fYou made a donation of $fff{}$f0f planets. Thank You!'.format(current_bill['amount'])
 						await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, current_bill['player'].login)
 				else:
-					message = '$z$s$fff» $f0fPayment of $fff{}$f0f planets to $fff{}$f0f confirmed!'.format(current_bill['amount'], current_bill['player'])
+					message = '$z$s$fff» $f0fPayment of $fff{}$f0f planets to $fff{}$f0f confirmed!'.format(-current_bill['amount'], current_bill['player'])
 					await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, current_bill['admin'].login)
 
 				del self.current_bills[bill_id]
