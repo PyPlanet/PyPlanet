@@ -58,7 +58,7 @@ class Dedimania(AppConfig):
 		self.login = await self.setting_server_login.get_value(refresh=True) or self.instance.game.server_player_login
 		self.code = await self.setting_dedimania_code.get_value(refresh=True)
 		if not self.code:
-			message = '$z$s$fff»» $0f3Error: No dedimania code was provided, please edit the settings and restart PyPlanet (//settings)'
+			message = '$z$s$fff»» $0b3Error: No dedimania code was provided, please edit the settings and restart PyPlanet (//settings)'
 			logger.error('Dedimania Code not configured! Please configure with //settings and restart PyPlanet!')
 			await self.instance.gbx.execute('ChatSendServerMessage', message)
 			return
@@ -267,12 +267,12 @@ class Dedimania(AppConfig):
 					self.current_records.sort(key=lambda x: x.score)
 
 				if new_rank < previous_index:
-					message = '$z$s$fff»» $fff{}$z$s$0f3 gained the $fff{}.$0f3 Dedimania Record, with a time of $fff\uf017 {}$0f3 ($fff{}.$0f3 $fff-{}$0f3).'.format(
+					message = '$z$s$fff»» $fff{}$z$s$0b3 gained the $fff{}.$0b3 Dedimania Record, with a time of $fff\uf017 {}$0b3 ($fff{}.$0b3 $fff-{}$0b3).'.format(
 						player.nickname, new_rank, times.format_time(score), previous_index,
 						times.format_time((previous_time - score))
 					)
 				else:
-					message = '$z$s$fff»» $fff{}$z$s$0f3 improved the $fff{}.$0f3 Dedimania Record, with a time of $fff\uf017 {}$0f3 ($fff-{}$0f3).'.format(
+					message = '$z$s$fff»» $fff{}$z$s$0b3 improved the $fff{}.$0b3 Dedimania Record, with a time of $fff\uf017 {}$0b3 ($fff-{}$0b3).'.format(
 						player.nickname, new_rank, times.format_time(score),
 						times.format_time((previous_time - score))
 					)
@@ -283,7 +283,7 @@ class Dedimania(AppConfig):
 				)
 
 			elif score == current_record.score:
-				message = '$z$s$fff»» $fff{}$z$s$0f3 equalled the $fff{}.$0f3 Dedimania Record, with a time of $fff\uf017 {}$0f3.'.format(
+				message = '$z$s$fff»» $fff{}$z$s$0b3 equalled the $fff{}.$0b3 Dedimania Record, with a time of $fff\uf017 {}$0b3.'.format(
 					player.nickname, previous_index, times.format_time(score)
 				)
 				await self.instance.gbx.execute('ChatSendServerMessage', message)
@@ -319,7 +319,7 @@ class Dedimania(AppConfig):
 				self.current_records.append(new_record)
 				self.current_records.sort(key=lambda x: x.score)
 				new_index = self.current_records.index(new_record) + 1
-			message = '$z$s$fff»» $fff{}$z$s$0f3 drove the $fff{}.$0f3 Dedimania Record, with a time of $fff\uf017 {}$0f3.'.format(
+			message = '$z$s$fff»» $fff{}$z$s$0b3 drove the $fff{}.$0b3 Dedimania Record, with a time of $fff\uf017 {}$0b3.'.format(
 				player.nickname, new_index, times.format_time(score)
 			)
 			await asyncio.gather(
@@ -364,7 +364,7 @@ class Dedimania(AppConfig):
 		records_amount = len(self.current_records)
 		if records_amount > 0:
 			first_record = self.current_records[0]
-			message = '$z$s$fff»» $0f3Current Dedimania Record: $fff\uf017 {}$z$s$0f3 by $fff{}$z$s$0f3 ($fff{}$0f3 records)'.format(
+			message = '$z$s$fff»» $0b3Current Dedimania Record: $fff\uf017 {}$z$s$0b3 by $fff{}$z$s$0b3 ($fff{}$0b3 records)'.format(
 				times.format_time(first_record.score), first_record.nickname, records_amount
 			)
 			calls = list()
@@ -373,7 +373,7 @@ class Dedimania(AppConfig):
 				calls.append(self.chat_personal_record(player))
 			await self.instance.gbx.multicall(*calls)
 		else:
-			message = '$z$s$fff»» $0f3There is no Dedimania Record on this map yet.'
+			message = '$z$s$fff»» $0b3There is no Dedimania Record on this map yet.'
 			await self.instance.gbx.execute('ChatSendServerMessage', message)
 
 	async def chat_personal_record(self, player):
@@ -381,10 +381,10 @@ class Dedimania(AppConfig):
 			record = [x for x in self.current_records if x.login == player.login]
 
 		if len(record) > 0:
-			message = '$z$s$fff» $0f3You currently hold the $fff{}.$0f3 Dedimania Record: $fff\uf017 {}'.format(
+			message = '$z$s$fff» $0b3You currently hold the $fff{}.$0b3 Dedimania Record: $fff\uf017 {}'.format(
 				self.current_records.index(record[0]) + 1, times.format_time(record[0].score)
 			)
 			return self.instance.gbx.prepare('ChatSendServerMessageToLogin', message, player.login)
 		else:
-			message = '$z$s$fff» $0f3You don\'t have a Dedimania Record on this map yet.'
+			message = '$z$s$fff» $0b3You don\'t have a Dedimania Record on this map yet.'
 			return self.instance.gbx.prepare('ChatSendServerMessageToLogin', message, player.login)
