@@ -77,7 +77,7 @@ class Karma(AppConfig):
 		if not cmd:
 			if self.instance.game.game == 'tm':
 				finishes_required = await self.setting_finishes_before_voting.get_value()
-				player_finishes = len(await Score.objects.execute(Score.select().where(Score.map_id == self.instance.map_manager.current_map.get_id()).where(Score.player_id == player.get_id())))
+				player_finishes = await Score.objects.execute(Score.select().where(Score.map_id == self.instance.map_manager.current_map.get_id()).where(Score.player_id == player.get_id()).count())
 				if player_finishes < finishes_required:
 					message = '$z$s$fff» $i$f00You have to finish this map at least $fff{}$f00 times before voting!'.format(finishes_required)
 					await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
