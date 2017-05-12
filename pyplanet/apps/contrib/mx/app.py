@@ -95,11 +95,11 @@ class MX(AppConfig):  # pragma: no cover
 				map_filename = os.path.join('PyPlanet-MX', '{}-{}.Map.Gbx'.format(
 					self.instance.game.game.upper(), mx_id
 				))
-				async with self.instance.storage.driver.open(self.instance.game.server_map_dir + map_filename, 'wb+') as map_file:
+				async with self.instance.storage.open_map(map_filename, 'wb+') as map_file:
 					await map_file.write(await resp.read())
 					await map_file.close()
 				if os.name == 'nt':
-					await self.instance.storage.driver.chmod(self.instance.game.server_map_dir + map_filename, 0o777)
+					await self.instance.storage.driver.chmod(self.instance.storage.MAP_FOLDER + '\\' + map_filename, 0o777)
 
 				# Insert map to server.
 				result = await self.instance.map_manager.add_map(map_filename)
