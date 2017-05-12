@@ -28,7 +28,7 @@ Maps
 Skip map
 ~~~~~~~~
 Command:
-  ``//next``
+  ``//next`` / ``//skip``
 Parameters:
   None.
 Functionality:
@@ -183,6 +183,19 @@ Parameters:
   * Game mode 'ta', 'laps', 'rounds', 'cup' or any script name (e.g. 'Rounds.Script.txt')
 Functionality:
   Changes the server game mode script.
+Required permission:
+  ``admin:mode``, requires admin level 2.
+
+Get/set game mode settings
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+Command:
+  ``//modesettings``
+Parameters:
+  None, or:
+  * Setting name
+  * New setting value
+Functionality:
+  Displays a list of current mode settings (no parameters) or changes a setting according with the given parameters.
 Required permission:
   ``admin:mode``, requires admin level 2.
 
