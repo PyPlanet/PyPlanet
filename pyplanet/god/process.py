@@ -82,6 +82,15 @@ class InstanceProcess:
 		return False
 
 	@property
+	def exitcode(self):
+		"""
+		Exit code of process.
+		
+		:return: Exit code.
+		"""
+		return self.process.exitcode
+
+	@property
 	def will_restart(self):
 		"""
 		Boolean: Is the process able to restart (not reached max_restarts). 
