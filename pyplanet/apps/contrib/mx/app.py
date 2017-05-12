@@ -50,6 +50,8 @@ class MX(AppConfig):  # pragma: no cover
 
 		try:
 			infos = await self.api.map_info(*mx_ids)
+			if len(infos) == 0:
+				raise MXMapNotFound()
 		except MXMapNotFound:
 			message = '$z$s$fff» $ff0Error: Can\'t add map from MX. Map not found on ManiaExchange!'
 			await self.instance.gbx.execute(

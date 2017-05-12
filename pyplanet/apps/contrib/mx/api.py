@@ -60,4 +60,9 @@ class MXApi:
 			id=mx_id,
 		)
 		params = {'key': self.key} if self.key else {}
-		return await self.session.get(url, params=params)
+		response = await self.session.get(url, params=params)
+		if response.status == 404:
+			raise MXMapNotFound('Map has not been found!')
+		if response.status < 200 or response.status > 399:
+			raise MXInvalidResponse('Got invalid response status from ManiaExchange: {}'.format(response.status))
+		return response
