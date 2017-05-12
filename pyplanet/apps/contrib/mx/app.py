@@ -1,7 +1,9 @@
 import logging
+import os
 
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.mx.api import MXApi
+from pyplanet.apps.contrib.mx.exceptions import MXMapNotFound, MXInvalidResponse
 from pyplanet.contrib.command import Command
 from pyplanet.contrib.setting import Setting
 
@@ -45,9 +47,39 @@ class MX(AppConfig):  # pragma: no cover
 
 		# Prepare and fetch information about the maps from MX.
 		mx_ids = data.maps
-		infos = await self.api.map_info(*mx_ids)
-		if not await self.instance.storage.driver.exists('UserData/Maps/PyPlanet-MX'):
-			await self.instance.storage.driver.mkdir('UserData/Maps/PyPlanet-MX')
+
+		try:
+			infos = await self.api.map_info(*mx_ids)
+			if len(infos) == 0:
+				raise MXMapNotFound()
+		except MXMapNotFound:
+			message = '$z$s$fff» $ff0Error: Can\'t add map from MX. Map not found on ManiaExchange!'
+			await self.instance.gbx.execute(
+				'ChatSendServerMessageToLogin',
+				message,
+				player.login,
+			)
+			return
+		except MXInvalidResponse as e:
+			message = '$z$s$fff» $ff0Error: Got invalid response from ManiaExchange: {}'.format(str(e))
+			await self.instance.gbx.execute(
+				'ChatSendServerMessageToLogin',
+				message,
+				player.login,
+			)
+			return
+
+		try:
+			if not await self.instance.storage.driver.exists(os.path.join('UserData', 'Maps')):
+				await self.instance.storage.driver.mkdir(os.path.join('UserData', 'Maps'))
+		except Exception as e:
+			message = '$z$s$fff» $ff0Error: Can\'t check or create folder: {}'.format(str(e))
+			await self.instance.gbx.execute(
+				'ChatSendServerMessageToLogin',
+				message,
+				player.login,
+			)
+			return
 
 		for mx_id, mx_info in infos:
 			if 'Name' not in mx_info:
@@ -60,15 +92,14 @@ class MX(AppConfig):  # pragma: no cover
 
 				# Download file + save
 				resp = await self.api.download(mx_id)
-				map_filename = 'PyPlanet-MX/{}-{}.Map.Gbx'.format(
+				map_filename = os.path.join('PyPlanet-MX', '{}-{}.Map.Gbx'.format(
 					self.instance.game.game.upper(), mx_id
-				)
+				))
 				async with self.instance.storage.open_map(map_filename, 'wb+') as map_file:
-					while True:
-						chunk = await resp.content.read(16*1024)
-						if not chunk:
-							break
-						await map_file.write(chunk)
+					await map_file.write(await resp.read())
+					await map_file.close()
+				if os.name == 'nt':
+					await self.instance.storage.driver.chmod(self.instance.storage.MAP_FOLDER + '\\' + map_filename, 0o777)
 
 				# Insert map to server.
 				result = await self.instance.map_manager.add_map(map_filename)
