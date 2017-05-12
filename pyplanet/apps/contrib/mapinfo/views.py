@@ -1,5 +1,6 @@
 from pyplanet.views.generics.widget import WidgetView
 from pyplanet.utils import times
+from pyplanet.contrib.player.exceptions import PlayerNotFound
 
 
 class MapInfoWidget(WidgetView):
@@ -22,10 +23,22 @@ class MapInfoWidget(WidgetView):
 	async def get_context_data(self):
 		map = self.app.instance.map_manager.current_map
 
+		author = None
+		try:
+			author = await self.app.instance.player_manager.get_player(map.author_login)
+		except PlayerNotFound:
+			pass
+
+		map_author = map.author_login
+		if author is not None:
+			map_author = author.nickname
+		elif map.author_nickname is not None:
+			map_author = map.author_nickname
+
 		context = await super().get_context_data()
 		context.update({
 			'map_name': map.name,
-			'map_author': map.author_nickname if map.author_nickname is not None else map.author_login,
+			'map_author': map_author,
 			'map_authortime': times.format_time(map.time_author),
 			'map_environment': map.environment,
 		})
