@@ -41,8 +41,6 @@ class LocalRecords(AppConfig):
 		self.widget = LocalRecordsWidget(self)
 		await self.widget.display()
 
-		await self.instance.setting_manager.get_setting()
-
 	async def refresh_locals(self):
 		record_list = await LocalRecord.objects.execute(
 			LocalRecord.select().where(
