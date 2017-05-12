@@ -19,7 +19,7 @@ from pyplanet.contrib.map import MapManager
 from pyplanet.contrib.player import PlayerManager
 from pyplanet.contrib.command import CommandManager
 from pyplanet.contrib.permission import PermissionManager
-from pyplanet.contrib.setting import GlobalSettingManager, Setting
+from pyplanet.contrib.setting import GlobalSettingManager
 from pyplanet.contrib.mode import ModeManager
 
 logger = logging.getLogger(__name__)
@@ -73,13 +73,6 @@ class Instance:
 		self.command_manager =		CommandManager(self)
 		self.setting_manager =		GlobalSettingManager(self)
 		self.mode_manager =			ModeManager(self)
-
-		# Build in settings.
-		self.performance_mode = Setting(
-			'performance_mode', 'Performance mode playercount', Setting.CAT_BEHAVIOUR, type=int,
-			description='Above this amount of players the performance mode will be enabled.',
-			default=30
-		)
 
 		# Populate apps.
 		self.apps.populate(settings.MANDATORY_APPS, in_order=True)
