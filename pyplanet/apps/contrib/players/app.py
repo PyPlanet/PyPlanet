@@ -43,7 +43,7 @@ class Players(AppConfig):
 			return
 		await self.instance.gbx.execute(
 			'ChatSendServerMessage',
-			'$z$s$fff»» $ff0Player {}$z$s$ff0 joined the server!'.format(player.nickname)
+			'$z$s$fff»» $ff0Player $fff{}$z$s$ff0 joined the server!'.format(player.nickname)
 		)
 
 	async def player_disconnect(self, player, **kwargs):
@@ -51,5 +51,5 @@ class Players(AppConfig):
 			return
 		await self.instance.gbx.execute(
 			'ChatSendServerMessage',
-			'$z$s$fff»» $ff0Player {}$z$s$ff0 left the server!'.format(player.nickname)
+			'$z$s$fff»» $ff0Player $fff{}$z$s$ff0 left the server!'.format(player.nickname)
 		)
