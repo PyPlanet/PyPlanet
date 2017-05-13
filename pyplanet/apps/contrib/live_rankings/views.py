@@ -124,6 +124,8 @@ class LiveRankingsWidget(TimesWidgetView):
 
 					if record['finish']:
 						list_record['score'] = '$i' + list_record['score']
+					elif record['giveup']:
+						list_record['score'] = '$iDNF'
 				else:
 					list_record['cp_difference'] = None
 

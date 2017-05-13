@@ -21,6 +21,7 @@ class LiveRankings(AppConfig):
 		self.instance.signal_manager.listen(tm_signals.finish, self.player_finish)
 		self.instance.signal_manager.listen(tm_signals.waypoint, self.player_waypoint)
 		self.instance.signal_manager.listen(mp_signals.player.player_connect, self.player_connect)
+		self.instance.signal_manager.listen(tm_signals.give_up, self.player_giveup)
 		self.instance.signal_manager.listen(tm_signals.scores, self.scores)
 
 		self.widget = LiveRankingsWidget(self)
@@ -77,6 +78,17 @@ class LiveRankings(AppConfig):
 	async def player_connect(self, player, is_spectator, source, signal):
 		await self.widget.display(player=player)
 
+	async def player_giveup(self, time, player, flow):
+		if 'Laps' not in await self.instance.mode_manager.get_current_script():
+			return
+
+		current_rankings = [x for x in self.current_rankings if x['nickname'] == player.nickname]
+		if len(current_rankings) > 0:
+			current_ranking = current_rankings[0]
+			current_ranking['giveup'] = True
+
+		await self.widget.display()
+
 	async def player_waypoint(self, player, race_time, flow, raw):
 		if 'Laps' not in await self.instance.mode_manager.get_current_script():
 			return
@@ -89,11 +101,12 @@ class LiveRankings(AppConfig):
 			current_ranking['best_cps'] = (self.current_rankings[0]['cps'])
 			current_ranking['finish'] = raw['isendrace']
 			current_ranking['cp_times'] = raw['curracecheckpoints']
+			current_ranking['giveup'] = False
 		else:
 			best_cps = 0
 			if len(self.current_rankings) > 0:
 				best_cps = (self.current_rankings[0]['cps'])
-			new_ranking = dict(nickname=player.nickname, score=raw['racetime'], cps=(raw['checkpointinrace'] + 1), best_cps=best_cps, cp_times=raw['curracecheckpoints'], finish=raw['isendrace'])
+			new_ranking = dict(nickname=player.nickname, score=raw['racetime'], cps=(raw['checkpointinrace'] + 1), best_cps=best_cps, cp_times=raw['curracecheckpoints'], finish=raw['isendrace'], giveup=False)
 			self.current_rankings.append(new_ranking)
 
 		self.current_rankings.sort(key=lambda x: (-x['cps'], x['score']))
