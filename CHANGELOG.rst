@@ -21,7 +21,7 @@ Apps
 
 * Feature: New app: Transactions: Features donations and payments to players as the actual planets stats. Activate the app now in your apps.py!!
 * Feature: Map info shows nickname of author if the author nickname is known.
-* Feature: //list [search] directly searching in map list.
+* Feature: /list [search] directly searching in map list.
 * Feature: Implement //modesettings to show and change settings of the current mode script.
 * Feature: Restrict karma voting to count after the player finishes the map for X times (optional).
 * Feature: Apply the performance mode improvements to the local and dedimania records widgets.
