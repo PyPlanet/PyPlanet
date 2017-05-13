@@ -1,5 +1,5 @@
 from pyplanet.core import Controller
-from pyplanet.core.events import Callback, handle_generic
+from pyplanet.core.events import Callback, handle_generic, Signal
 
 
 async def handle_bill_updated(source, signal, **kwargs):
@@ -62,4 +62,20 @@ vote_updated = Callback(
 :param cmd_name: Command name
 :param cmd_param: Parameter given with command.
 :type player: pyplanet.apps.core.maniaplanet.models.player.Player
+"""
+
+
+server_chat = Signal(
+	namespace='maniaplanet',
+	code='server_chat'
+)
+"""
+:Signal:
+	Server send a chat message.
+:Code:
+	``maniaplanet:server_chat``
+:Description:
+	Custom signal called when the server outputs a message.
+:Origin Callback:
+	None (via Chat callback).
 """

@@ -1,3 +1,6 @@
+import asyncio
+
+from pyplanet.apps.core.maniaplanet.callbacks.other import server_chat
 from pyplanet.core.events import Callback
 from pyplanet.core.exceptions import SignalGlueStop
 from pyplanet.core.instance import Controller
@@ -24,6 +27,8 @@ async def handle_player_disconnect(source, signal, **kwargs):
 async def handle_player_chat(source, signal, **kwargs):
 	player_uid, player_login, text, cmd = source
 	if Controller.instance.game.server_player_login == player_login and Controller.instance.game.server_is_dedicated:
+		# Inform our server_chat signal.
+		asyncio.ensure_future(server_chat.send_robust(dict(text=text, cmd=cmd)))
 		raise SignalGlueStop('We won\'t inform anything about the chat we send ourself!')
 	try:
 		player = await Controller.instance.player_manager.get_player(login=player_login, lock=True)
