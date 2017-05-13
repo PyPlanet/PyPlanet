@@ -10,7 +10,11 @@ Core
 * Feature: Improved performance with the all new Performance Mode. This will improve performance for a player threshold that is freely configurable.
 * Feature: Technical: Add option to strip styles/colors from searchable column in listviews.
 * Feature: Technical: Add shortcut to get an app setting from global setting manager.
+
+* Improvement: Improve log color for readability.
+
 * Bugfix: Fixing issue with integer or other numeric values and the value 0 in the //settings values.
+* Bugfix: Replace invalid UTF-8 from the dedicated response to hotfix (dirty fix) the bug in client with dedicated communication.
 
 Apps
 ~~~~
