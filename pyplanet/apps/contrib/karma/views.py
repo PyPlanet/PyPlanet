@@ -117,5 +117,5 @@ class KarmaListView(ManualListView):
 				.where(Karma.map_id == self.map.id)
 		)
 		return [
-			{'nickname': item.player.nickname, 'vote': '++' if item.score else '--'} for item in karma
+			{'nickname': item.player.nickname, 'vote': '++' if item.score == 1 else '--'} for item in karma
 		]
