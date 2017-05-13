@@ -20,9 +20,6 @@ async def handle_waypoint(source, signal, **kwargs):
 	player = await Controller.instance.player_manager.get_player(login=source['login'])
 	flow = player.flow
 
-	if not flow.in_run:
-		raise SignalGlueStop()
-
 	if not source['isendlap'] and not source['isendrace']:
 		return dict(
 			player=player, race_time=source['racetime'], flow=flow, raw=source

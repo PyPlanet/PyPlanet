@@ -1,6 +1,9 @@
 """
 Server Admin methods and functions.
 """
+import asyncio
+
+from pyplanet.apps.core.maniaplanet.callbacks.player import player_chat
 from pyplanet.contrib.command import Command
 from xmlrpc.client import Fault
 
@@ -16,10 +19,13 @@ class ServerAdmin:
 		self.app = app
 		self.instance = app.instance
 
+		self.chat_redirection = False
+
 	async def on_start(self):
 		await self.instance.permission_manager.register('password', 'Set the server passwords', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('servername', 'Set the server name', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('mode', 'Set the server game mode', app=self.app, min_level=2)
+		await self.instance.permission_manager.register('chat_toggle', 'Turn the public chat on or off', app=self.app, min_level=2)
 
 		await self.instance.command_manager.register(
 			Command(command='setpassword', aliases=['srvpass'], target=self.set_password, perms='admin:password', admin=True).add_param(name='password', required=False),
@@ -28,8 +34,31 @@ class ServerAdmin:
 			Command(command='mode', target=self.set_mode, perms='admin:mode', admin=True).add_param(name='mode', required=True, nargs='*'),
 			Command(command='modesettings', target=self.mode_settings, perms='admin:mode', admin=True)
 				.add_param(name='setting', required=False)
-				.add_param(name='content', required=False)
+				.add_param(name='content', required=False),
+			Command(command='chat', target=self.chat_toggle, perms='admin:chat_toggle', admin=True)
+				.add_param(name='enable', required=False),
 		)
+
+		# Register signal receivers.
+		player_chat.register(self.on_chat)
+
+	async def chat_toggle(self, player, data, **kwargs):
+		if data.enable:
+			self.chat_redirection = bool(data.enable.lower() == 'on')
+		else:
+			self.chat_redirection = bool(not self.chat_redirection)
+		await self.instance.gbx.execute('ChatEnableManualRouting', self.chat_redirection, True)
+		await self.instance.gbx.execute('ChatSendServerMessage', '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 {} public chat'.format(
+			player.nickname, 'disabled' if self.chat_redirection else 'enabled'
+		))
+
+	async def on_chat(self, player, text, cmd, **kwargs):
+		if not cmd and self.chat_redirection:
+			if player.level > 0:
+				asyncio.ensure_future(self.instance.gbx.execute(
+					'ChatSendServerMessage',
+					'$z[{}$z$s] {}'.format(player.nickname, text)
+				))
 
 	async def set_mode(self, player, data, **kwargs):
 		mode = ' '.join(data.mode)
