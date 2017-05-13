@@ -79,7 +79,7 @@ class ServerAdmin:
 
 			type_setting = None
 			try:
-				if isinstance(current_value. bool):
+				if isinstance(current_value, bool):
 					lower_setting_value = setting_value.lower()
 					if lower_setting_value == 'true' or setting_value == '1':
 						type_setting = True
