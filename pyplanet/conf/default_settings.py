@@ -79,7 +79,7 @@ LOGGING = {
 	'formatters': {
 		'colored': {
 			'()': 'colorlog.ColoredFormatter',
-			'format': "%(log_color)s%(levelname)-8s%(reset)s %(yellow)s[%(threadName)s][%(name)s]%(reset)s %(blue)s%(message)s",
+			'format': "%(log_color)s%(levelname)-8s%(reset)s %(yellow)s[%(threadName)s][%(name)s]%(reset)s %(white)s%(message)s",
 		},
 		'timestamped': {
 			'format': '[%(asctime)s][%(levelname)s][%(threadName)s] %(name)s: %(message)s (%(filename)s:%(lineno)d)',
