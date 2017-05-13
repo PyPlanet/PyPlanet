@@ -265,7 +265,7 @@ class MapManager(CoreContrib):
 		except Fault as e:
 			if 'unknown' in e.faultString:
 				raise MapNotFound('Dedicated can\'t find map. Already removed?')
-			raise MapException('Unknown error when removing map from playlist.')
+			raise MapException('Error when removing map from playlist: {}'.format(e.faultString))
 
 		if delete_file:
 			try:
