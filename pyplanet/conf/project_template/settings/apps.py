@@ -17,5 +17,6 @@ APPS = {
 		'pyplanet.apps.contrib.players.app.Players',
 		'pyplanet.apps.contrib.mapinfo.app.MapInfo',
 		'pyplanet.apps.contrib.mx.app.MX',
+		'pyplanet.apps.contrib.transactions.app.Transactions',
 	]
 }

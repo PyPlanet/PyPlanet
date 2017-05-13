@@ -245,6 +245,7 @@ The order doesn't make a difference when starting/loading PyPlanet.
       'pyplanet.apps.contrib.players.app.Players',
       'pyplanet.apps.contrib.mapinfo.app.MapInfo',
       'pyplanet.apps.contrib.mx.app.MX',
+      'pyplanet.apps.contrib.transactions.app.Transactions',
     ],
   }
 

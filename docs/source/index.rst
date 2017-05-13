@@ -67,6 +67,7 @@ Information about development of apps and the core is also available under:
     apps/contrib/mapinfo
     apps/contrib/players
     apps/contrib/mx
+    apps/contrib/transactions
 
 
 .. _dev-docs:
