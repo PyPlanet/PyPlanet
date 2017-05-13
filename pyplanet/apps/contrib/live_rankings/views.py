@@ -80,10 +80,10 @@ class LiveRankingsWidget(TimesWidgetView):
 					custom_start_index = (start_point + 1)
 
 			index = 1
-			best_cp = None
+			best = None
 			for record in records:
 				if self.display_cpdifference and index == 1:
-					best_cp = record['cps']
+					best = record
 
 				list_record = dict()
 				list_record['index'] = index
@@ -106,7 +106,22 @@ class LiveRankingsWidget(TimesWidgetView):
 					list_record['score'] = int(record['score'])
 
 				if self.display_cpdifference:
-					list_record['cp_difference'] = (best_cp - record['cps'])
+					list_record['cp_difference'] = (best['cps'] - record['cps'])
+
+					if index > 1 and not record['finish']:
+						# Calculate difference to first player
+						best_cp = best['cp_times'][(record['cps'] - 1)]
+						current_diff = (best['cp_times'][(record['best_cps'] - 1)] - best_cp) + (record['score'] - best_cp)
+						print("best_cp", best_cp,
+							  "first on last cp", best['cp_times'][(record['best_cps'] - 1)],
+							  "score", record['score'],
+							  "current_diff", current_diff)
+
+						if current_diff < 0:
+							current_diff = -current_diff
+
+						list_record['score'] = '+ ' + times.format_time(int(current_diff))
+
 					if record['finish']:
 						list_record['score'] = '$i' + list_record['score']
 				else:

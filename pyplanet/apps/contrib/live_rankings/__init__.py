@@ -17,7 +17,7 @@ class LiveRankings(AppConfig):
 
 	async def on_start(self):
 		# Register signals
-		self.instance.signal_manager.listen(mp_signals.map.map_begin, self.map_begin)
+		self.instance.signal_manager.listen(mp_signals.map.map_start, self.map_start)
 		self.instance.signal_manager.listen(tm_signals.finish, self.player_finish)
 		self.instance.signal_manager.listen(tm_signals.waypoint, self.player_waypoint)
 		self.instance.signal_manager.listen(mp_signals.player.player_connect, self.player_connect)
@@ -70,7 +70,7 @@ class LiveRankings(AppConfig):
 		else:
 			self.current_rankings = []
 
-	async def map_begin(self, map):
+	async def map_start(self, map):
 		self.current_rankings = []
 		await self.widget.display()
 
@@ -81,16 +81,19 @@ class LiveRankings(AppConfig):
 		if 'Laps' not in await self.instance.mode_manager.get_current_script():
 			return
 
-		print("waypoint", raw)
-
 		current_rankings = [x for x in self.current_rankings if x['nickname'] == player.nickname]
 		if len(current_rankings) > 0:
 			current_ranking = current_rankings[0]
 			current_ranking['score'] = raw['racetime']
 			current_ranking['cps'] = (raw['checkpointinrace'] + 1)
+			current_ranking['best_cps'] = (self.current_rankings[0]['cps'])
 			current_ranking['finish'] = raw['isendrace']
+			current_ranking['cp_times'] = raw['curracecheckpoints']
 		else:
-			new_ranking = dict(nickname=player.nickname, score=raw['racetime'], cps=(raw['checkpointinrace'] + 1), cp_times=raw['curracecheckpoints'], finish=raw['isendrace'])
+			best_cps = 0
+			if len(self.current_rankings) > 0:
+				best_cps = (self.current_rankings[0]['cps'])
+			new_ranking = dict(nickname=player.nickname, score=raw['racetime'], cps=(raw['checkpointinrace'] + 1), best_cps=best_cps, cp_times=raw['curracecheckpoints'], finish=raw['isendrace'])
 			self.current_rankings.append(new_ranking)
 
 		self.current_rankings.sort(key=lambda x: (-x['cps'], x['score']))
