@@ -111,7 +111,7 @@ class LiveRankingsWidget(TimesWidgetView):
 					if index > 1 and not record['finish']:
 						# Calculate difference to first player
 						best_cp = best['cp_times'][(record['cps'] - 1)]
-						current_diff = (best['cp_times'][(record['best_cps'] - 1)] - best_cp) + (record['score'] - best_cp)
+						current_diff = (record['score'] - best['cp_times'][(record['cps'] - 1)])
 						print("best_cp", best_cp,
 							  "first on last cp", best['cp_times'][(record['best_cps'] - 1)],
 							  "score", record['score'],
