@@ -71,7 +71,14 @@ class CommandManager(CoreContrib):
 
 		# Let the command handle the logic it needs.
 		if command:
-			await command.handle(self._instance, player, argv)
+			return await command.handle(self._instance, player, argv)
+		# Send command not found message.
+		await self._instance.gbx.execute(
+			'ChatSendServerMessageToLogin',
+			'$z$s >> Command unknown. For all commands type /help or //help. '
+			'Powered by $l[http://pypla.net]$FD4Py$369Planet',
+			player.login
+		),
 
 	async def _help(self, player, data, raw, command):  # pragma: no cover
 		help_command = command
