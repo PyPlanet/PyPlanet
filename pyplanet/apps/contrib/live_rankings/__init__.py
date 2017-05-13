@@ -70,7 +70,7 @@ class LiveRankings(AppConfig):
 		else:
 			self.current_rankings = []
 
-	async def map_start(self, map):
+	async def map_start(self, map, restarted, **kwargs):
 		self.current_rankings = []
 		await self.widget.display()
 
@@ -101,12 +101,12 @@ class LiveRankings(AppConfig):
 		await self.widget.display()
 
 	async def player_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
-		current_script = self.instance.mode_manager.get_current_script()
-		if 'Laps' in await current_script:
+		current_script = await self.instance.mode_manager.get_current_script()
+		if 'Laps' in current_script:
 			await self.player_waypoint(player, race_time, flow, raw)
 			return
 
-		if 'TimeAttack' not in await current_script:
+		if 'TimeAttack' not in current_script:
 			return
 
 		current_rankings = [x for x in self.current_rankings if x['nickname'] == player.nickname]
