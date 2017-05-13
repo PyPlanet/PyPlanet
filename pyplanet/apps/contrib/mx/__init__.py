@@ -70,8 +70,8 @@ class MX(AppConfig):  # pragma: no cover
 			return
 
 		try:
-			if not await self.instance.storage.driver.exists(os.path.join('UserData', 'Maps')):
-				await self.instance.storage.driver.mkdir(os.path.join('UserData', 'Maps'))
+			if not await self.instance.storage.driver.exists(os.path.join('UserData', 'Maps', 'PyPlanet-MX')):
+				await self.instance.storage.driver.mkdir(os.path.join('UserData', 'Maps', 'PyPlanet-MX'))
 		except Exception as e:
 			message = '$z$s$fff» $ff0Error: Can\'t check or create folder: {}'.format(str(e))
 			await self.instance.gbx.execute(
