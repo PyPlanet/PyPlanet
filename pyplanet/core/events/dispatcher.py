@@ -175,65 +175,47 @@ class Signal:
 
 		return disconnected
 
-	async def send(self, source, raw=False):
+	@staticmethod
+	async def execute_receiver(receiver, args, kwargs, ignore_exceptions=False):
+		try:
+			if asyncio.iscoroutinefunction(receiver):
+				if len(args) > 0:
+					return receiver, await receiver(*args, **kwargs)
+				return receiver, await receiver(**kwargs)
+
+			if len(args) > 0:
+				return receiver, receiver(*args, **kwargs)
+			return receiver, receiver(**kwargs)
+		except Exception as exc:
+			if not ignore_exceptions:
+				raise
+
+			logger.exception(SignalException(
+				'Signal receiver \'{}\' => {} thrown an exception!'.format(receiver.__module__, receiver.__name__)
+			), exc_info=False)
+
+			# Handle, will send to sentry if it's related to the core/contrib apps.
+			handle_exception(exc, receiver.__module__, receiver.__name__)
+
+			# Log the actual exception.
+			logger.exception(exc)
+			return receiver, exc
+
+	async def send(self, source, raw=False, catch_exceptions=False, gather=True):
 		"""
 		Send signal with source.
 		If any receiver raises an error, the error propagates back through send,
 		terminating the dispatch loop. So it's possible that all receivers
 		won't be called if an error is raised.
-		
+
 		:param source: The data to be send to the processor which produces data that will be send to the receivers.
 		:param raw: Optional bool parameter to just send the source to the receivers without any processing.
-		
-		:return: Return a list of tuple pairs [(receiver, response), ... ].
-		"""
-		if not raw:
-			try:
-				kwargs = await self.process_target(signal=self, source=source)
-			except SignalGlueStop:
-				# Stop calling the receivers when our glue says we should!
-				return []
-		else:
-			kwargs = dict(source=source, signal=self)
-
-		if not self.receivers:
-			return []
-
-		# Call each receiver with whatever arguments it can accept.
-		# Return a list of tuple pairs [(receiver, response), ... ].
-		responses = []
-		for key, receiver in self._live_receivers():
-			slf = self.self_refs.get(key, None)
-			if slf and isinstance(slf, weakref.ReferenceType):
-				# Dereference the weak reference.
-				slf = slf()
-
-			if slf is not None:
-				if asyncio.iscoroutinefunction(receiver):
-					response = await receiver(slf, **kwargs)
-				else:
-					response = receiver(slf, **kwargs)
-			else:
-				if asyncio.iscoroutinefunction(receiver):
-					response = await receiver(**kwargs)
-				else:
-					response = receiver(**kwargs)
-
-			responses.append((receiver, response))
-		return responses
-
-	async def send_robust(self, source=None, raw=False):
-		"""
-		Send signal from sender to all connected receivers catching errors.
-		
-		:param source: The data to be send to the processor which produces data that will be send to the receivers.
-		:param raw: Optional bool parameter to just send the source to the receivers without any processing.
+		:param catch_exceptions: Catch and return the exceptions.
+		:param gather: Execute multiple receivers at the same time (parallel). On by default!
 
 		:return: Return a list of tuple pairs [(receiver, response), ... ].
-			If any receiver raises an error (specifically any subclass of Exception), 
-			return the error instance as the result for that receiver.
 		"""
-		if not raw:
+		if raw is False:
 			try:
 				kwargs = await self.process_target(signal=self, source=source)
 			except SignalGlueStop:
@@ -245,40 +227,43 @@ class Signal:
 		if not self.receivers:
 			return []
 
-		# Call each receiver with whatever arguments it can accept.
-		# Return a list of tuple pairs [(receiver, response), ... ].
+		# Prepare the responses from the calls.
 		responses = []
+		gather_list = []
 		for key, receiver in self._live_receivers():
-			try:
-				slf = self.self_refs.get(key, None)
-				if slf and isinstance(slf, weakref.ReferenceType):
-					# Dereference the weak reference.
-					slf = slf()
+			# Dereference the weak reference.
+			slf = self.self_refs.get(key, None)
+			if slf and isinstance(slf, weakref.ReferenceType):
+				slf = slf()
+			args = [slf] if slf else []
 
-				if slf is not None:
-					if asyncio.iscoroutinefunction(receiver):
-						response = await receiver(slf, **kwargs)
-					else:
-						response = receiver(slf, **kwargs)
-				else:
-					if asyncio.iscoroutinefunction(receiver):
-						response = await receiver(**kwargs)
-					else:
-						response = receiver(**kwargs)
-			except Exception as err:
-				logger.exception(SignalException(
-					'Signal receiver \'{}\' => {} thrown an exception!'.format(receiver.__module__, receiver.__name__)
-				), exc_info=False)
-
-				# Handle, will send to sentry if it's related to the core/contrib apps.
-				handle_exception(err, receiver.__module__, receiver.__name__)
-
-				# Log the actual exception.
-				logger.exception(err)
-				responses.append((receiver, err))
+			# Execute the receiver.
+			coro = self.execute_receiver(receiver, args, kwargs, ignore_exceptions=catch_exceptions)
+			if gather:
+				gather_list.append(coro)
 			else:
-				responses.append((receiver, response))
+				responses.append(await coro)
+
+		# If gather, wait on the asyncio.gather operation and return the responses from there.
+		if gather:
+			return await asyncio.gather(*gather_list)
+
+		# Done, respond with all the results
 		return responses
+
+	async def send_robust(self, source=None, raw=False, gather=True):
+		"""
+		Send signal from sender to all connected receivers catching errors.
+		
+		:param source: The data to be send to the processor which produces data that will be send to the receivers.
+		:param raw: Optional bool parameter to just send the source to the receivers without any processing.
+		:param gather: Execute multiple receivers at the same time (parallel). On by default!
+
+		:return: Return a list of tuple pairs [(receiver, response), ... ].
+			If any receiver raises an error (specifically any subclass of Exception), 
+			return the error instance as the result for that receiver.
+		"""
+		return await self.send(source, raw, catch_exceptions=True, gather=gather)
 
 	def _clear_dead_receivers(self):
 		if self._dead_receivers:
