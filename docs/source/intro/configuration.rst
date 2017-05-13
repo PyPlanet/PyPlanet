@@ -237,15 +237,15 @@ The order doesn't make a difference when starting/loading PyPlanet.
 
   APPS = {
     'default': [
-      'pyplanet.apps.contrib.admin.app.Admin',
-      'pyplanet.apps.contrib.jukebox.app.Jukebox',
-      'pyplanet.apps.contrib.karma.app.Karma',
-      'pyplanet.apps.contrib.local_records.app.LocalRecords',
-      'pyplanet.apps.contrib.dedimania.app.Dedimania',
-      'pyplanet.apps.contrib.players.app.Players',
-      'pyplanet.apps.contrib.mapinfo.app.MapInfo',
-      'pyplanet.apps.contrib.mx.app.MX',
-      'pyplanet.apps.contrib.transactions.app.Transactions',
+      'pyplanet.apps.contrib.admin',
+      'pyplanet.apps.contrib.jukebox',
+      'pyplanet.apps.contrib.karma',
+      'pyplanet.apps.contrib.local_records',
+      'pyplanet.apps.contrib.dedimania',
+      'pyplanet.apps.contrib.players',
+      'pyplanet.apps.contrib.mapinfo',
+      'pyplanet.apps.contrib.mx',
+      'pyplanet.apps.contrib.transactions',
     ],
   }
 

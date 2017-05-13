@@ -11,7 +11,7 @@ class Command(TemplateCommand):
 	requires_migrations_checks = False
 
 	template_files = [
-		'app.py',
+		'__init__.py',
 		'models.py',
 	]
 

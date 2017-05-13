@@ -19,7 +19,7 @@ your own module folder in your development project root.
 
 The main entry is the applications config class itself. It is an extended class of the base :class:`pyplanet.apps.AppConfig`.
 
-You have to create a file named ``app.py`` in your app module containing the implementation of the config class. Example is bellow.
+You have to create a file named ``__init__.py`` in your app module containing the implementation of the config class. Example is bellow.
 
 .. code-block:: python
 
@@ -63,7 +63,7 @@ Make sure you add your new App to your configuration.
   APPS = {
     'default': [
       '...',
-      'my_app.app.MyApp',
+      'my_app',
       '...',
   }
 

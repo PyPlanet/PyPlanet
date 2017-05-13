@@ -8,15 +8,16 @@ Please copy the default file to: apps.py
 # The mandatory defaults are specific per version, refer to the documentation:
 APPS = {
 	'default': [
-		'pyplanet.apps.contrib.admin.app.Admin',
+		'pyplanet.apps.contrib.admin',
 		'pyplanet.apps.contrib.jukebox.app.Jukebox',
-		'pyplanet.apps.contrib.karma.app.Karma',
+		'pyplanet.apps.contrib.karma',
 		'pyplanet.apps.contrib.local_records.app.LocalRecords',
-		'pyplanet.apps.contrib.dedimania.app.Dedimania',
+		'pyplanet.apps.contrib.dedimania',
 		'pyplanet.apps.contrib.players.app.Players',
-		'pyplanet.apps.contrib.mapinfo.app.MapInfo',
-		'pyplanet.apps.contrib.mx.app.MX',
+		'pyplanet.apps.contrib.mapinfo',
+		'pyplanet.apps.contrib.mx',
+		'pyplanet.apps.contrib.transactions',
 		'tests.apps.migration_test.app.MigrationTest',
+		'tests.apps.new_import_style',
 	],
-	#'test2': [],
 }
