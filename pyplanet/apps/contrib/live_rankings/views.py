@@ -7,7 +7,7 @@ from pyplanet.utils import times
 class LiveRankingsWidget(TimesWidgetView):
 	widget_x = -161
 	widget_y = 55.5
-	size_x = 43
+	size_x = 38
 	size_y = 55.5
 	top_entries = 5
 	title = None  # 'Live Rankings'
@@ -23,10 +23,16 @@ class LiveRankingsWidget(TimesWidgetView):
 		self.id = 'pyplanet__widgets_liverankings'
 
 		self.record_amount = math.floor((self.size_y - 5.5) / 3.3)
+		self.original_size_x = self.size_x
 		self.format_times = True
 		self.display_cpdifference = False
 
 	async def get_player_data(self):
+		if self.display_cpdifference:
+			self.size_x = self.original_size_x + 5
+		else:
+			self.size_x = self.original_size_x
+
 		data = await super().get_player_data()
 		widget_times = dict()
 
@@ -81,6 +87,7 @@ class LiveRankingsWidget(TimesWidgetView):
 
 				list_record = dict()
 				list_record['index'] = index
+
 				list_record['color'] = '$fff'
 				if index < player_index:
 					list_record['color'] = '$f00'
@@ -90,19 +97,26 @@ class LiveRankingsWidget(TimesWidgetView):
 					list_record['color'] = '$bbb'
 				if index == player_index:
 					list_record['color'] = '$0f3'
+
 				list_record['nickname'] = record['nickname']
-				if self.display_cpdifference:
-					list_record['cp_difference'] = (best_cp - record['cps'])
-				else:
-					list_record['cp_difference'] = None
+
 				if self.format_times:
 					list_record['score'] = times.format_time(int(record['score']))
 				else:
 					list_record['score'] = int(record['score'])
+
+				if self.display_cpdifference:
+					list_record['cp_difference'] = (best_cp - record['cps'])
+					if record['finish']:
+						list_record['score'] = '$i' + list_record['score']
+				else:
+					list_record['cp_difference'] = None
+
 				if index == self.top_entries:
 					index = custom_start_index
 				else:
 					index += 1
+
 				list_records.append(list_record)
 
 			widget_times[player.login] = {'times': list_records}

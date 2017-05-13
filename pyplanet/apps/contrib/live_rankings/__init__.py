@@ -88,8 +88,9 @@ class LiveRankings(AppConfig):
 			current_ranking = current_rankings[0]
 			current_ranking['score'] = raw['racetime']
 			current_ranking['cps'] = (raw['checkpointinrace'] + 1)
+			current_ranking['finish'] = raw['isendrace']
 		else:
-			new_ranking = dict(nickname=player.nickname, score=raw['racetime'], cps=(raw['checkpointinrace'] + 1), cp_times=raw['curracecheckpoints'])
+			new_ranking = dict(nickname=player.nickname, score=raw['racetime'], cps=(raw['checkpointinrace'] + 1), cp_times=raw['curracecheckpoints'], finish=raw['isendrace'])
 			self.current_rankings.append(new_ranking)
 
 		self.current_rankings.sort(key=lambda x: (-x['cps'], x['score']))
