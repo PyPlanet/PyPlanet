@@ -1,5 +1,4 @@
 import asyncio
-
 import logging
 
 from pyplanet.apps.config import AppConfig
@@ -8,13 +7,13 @@ from pyplanet.contrib.command import Command
 
 from pyplanet.apps.core.trackmania import callbacks as tm_signals
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
+
 from pyplanet.utils import times
 
 from .models import LocalRecord
 
 
 class LocalRecords(AppConfig):
-	name = 'pyplanet.apps.contrib.local_records'
 	game_dependencies = ['trackmania']
 	app_dependencies = ['core.maniaplanet', 'core.trackmania']
 

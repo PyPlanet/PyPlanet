@@ -245,7 +245,7 @@ class AppConfig:
 			# See #109.
 			if cls_name is None:
 				for name, obj in inspect.getmembers(module):
-					if inspect.isclass(obj) and issubclass(obj, AppConfig):
+					if inspect.isclass(obj) and issubclass(obj, AppConfig) and obj.__name__ != 'AppConfig':
 						cls_name = obj.__name__
 						break
 
