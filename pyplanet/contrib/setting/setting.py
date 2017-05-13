@@ -1,4 +1,5 @@
 import json
+from asyncio import iscoroutinefunction
 
 from pyplanet.apps.core.pyplanet.models.setting import Setting as SettingModel
 from pyplanet.contrib.setting.exceptions import TypeUnknownException, SerializationException, SettingException
@@ -9,9 +10,24 @@ class Setting:
 	The setting class is for defining a setting for the end-user. 
 	This setting can be changed with /settings and //settings.
 	
-	.. todo::
+	With this class you can define or manage your setting that is going to be public for all other apps and end-user.
+
+	You can get notified of changes with the ``change_target`` in the init of this class. Point this to a method (async or sync)
+	with the following params: ``old_value`` and ``new_value``.
 	
-		Provide examples.
+	Example:
+		
+	.. code-block:: python
+	
+		my_setting = Setting(
+			'dedimania_code', 'Dedimania Server Code', Setting.CAT_KEYS, type=str,
+			description='The secret dedimania code. Get one at $lhttp://dedimania.net/tm2stats/?do=register',
+			default=None
+		)
+		
+		my_other_setting = Setting(
+			'sample_boolean', 'Booleans for the win!', Setting.CAT_BEHAVIOUR, type=bool, description='Example',
+		)
 	
 	"""
 
@@ -26,6 +42,7 @@ class Setting:
 
 	def __init__(
 		self, key: str, name: str, category: str, type=str, description: str = None, choices=None, default=None,
+		change_target=None
 	):
 		"""
 		Create setting with properties.
@@ -38,6 +55,7 @@ class Setting:
 		:param description: Description to provide help and instructions to the player.
 		:param choices: List or tuple with choices, only when wanting to restrict values to selected options.
 		:param default: Default value if not provided from database. This will be returned. Defaults to None.
+		:param change_target: Target method to call when the setting value has been changed.
 		"""
 		if category not in self.ALL_CATEGORIES:
 			raise SettingException('Invalid category. Must be an category in the Categories static class.')
@@ -50,7 +68,8 @@ class Setting:
 		self.category = category
 		self.default = default
 		self.type = type
-		self.choices = choices # TODO.
+		self.choices = choices
+		self.change_target = change_target
 
 		# Prepare the model instance here. This will be filled once it's fetched for the first time (or inited).
 		self._instance = None
@@ -168,10 +187,19 @@ class Setting:
 		:param value: Python value input.
 		:raise: NotFound / SerializationException
 		"""
+		old_value = self._value[0] if self._value and len(self._value) > 0 else None
+
 		model = await self.get_model()
 		model.value = self.serialize_value(value)
 		self._value = (True, model.value)
 		await model.save()
+
+		# Call the change target.
+		if self.change_target and callable(self.change_target):
+			if iscoroutinefunction(self.change_target):
+				await self.change_target(old_value, model.value)
+			else:
+				self.change_target(old_value, model.value)
 
 	async def clear(self):
 		"""
