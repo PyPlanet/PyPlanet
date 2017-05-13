@@ -31,6 +31,10 @@ class LiveRankings(AppConfig):
 		await self.handle_scores(scores['players'])
 		await self.widget.display()
 
+	def is_mode_supported(self, mode):
+		return mode.startswith('TimeAttack') or mode.startswith('Rounds') or mode.startswith('Team') or \
+			   mode.startswith('Laps') or mode.startswith('Cup')
+
 	async def scores(self, section, players, **kwargs):
 		await self.handle_scores(players)
 		await self.widget.display()
@@ -49,10 +53,8 @@ class LiveRankings(AppConfig):
 						new_ranking = dict(nickname=player['name'], score=player['bestracetime'])
 						self.current_rankings.append(new_ranking)
 
-				self.current_rankings.sort(key=lambda x: x['score'])
-				self.widget.format_times = True
-				self.widget.display_cpdifference = False
-		elif 'Rounds' in current_script or 'Team' in current_script:
+			self.current_rankings.sort(key=lambda x: x['score'])
+		elif 'Rounds' in current_script or 'Team' in current_script or 'Cup' in current_script:
 			self.current_rankings = []
 			for player in players:
 				if 'map_points' in player:
@@ -64,10 +66,8 @@ class LiveRankings(AppConfig):
 						new_ranking = dict(nickname=player['name'], score=player['mappoints'])
 						self.current_rankings.append(new_ranking)
 
-				self.current_rankings.sort(key=lambda x: x['score'])
-				self.current_rankings.reverse()
-				self.widget.format_times = False
-				self.widget.display_cpdifference = False
+			self.current_rankings.sort(key=lambda x: x['score'])
+			self.current_rankings.reverse()
 		else:
 			self.current_rankings = []
 
@@ -110,7 +110,6 @@ class LiveRankings(AppConfig):
 			self.current_rankings.append(new_ranking)
 
 		self.current_rankings.sort(key=lambda x: (-x['cps'], x['score']))
-		self.widget.display_cpdifference = True
 		await self.widget.display()
 
 	async def player_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):

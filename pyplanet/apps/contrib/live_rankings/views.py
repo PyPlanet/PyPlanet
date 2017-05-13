@@ -28,6 +28,17 @@ class LiveRankingsWidget(TimesWidgetView):
 		self.display_cpdifference = False
 
 	async def get_player_data(self):
+		current_script = await self.app.instance.mode_manager.get_current_script()
+		if 'TimeAttack' in current_script:
+			self.format_times = True
+			self.display_cpdifference = False
+		elif 'Laps' in current_script:
+			self.format_times = False
+			self.display_cpdifference = True
+		else:
+			self.format_times = False
+			self.display_cpdifference = False
+
 		if self.display_cpdifference:
 			self.size_x = self.original_size_x + 5
 		else:
@@ -52,7 +63,7 @@ class LiveRankingsWidget(TimesWidgetView):
 				records_start = (len(self.app.current_rankings) - self.record_amount + self.top_entries)
 				# If start of current slice is in the top entries, add more records below
 				if records_start < self.top_entries:
-					records_start = (self.top_entries)
+					records_start = self.top_entries
 
 				records += list(self.app.current_rankings[records_start:])
 				custom_start_index = (records_start + 1)
@@ -112,14 +123,6 @@ class LiveRankingsWidget(TimesWidgetView):
 						# Calculate difference to first player
 						best_cp = best['cp_times'][(record['cps'] - 1)]
 						current_diff = (record['score'] - best['cp_times'][(record['cps'] - 1)])
-						print("best_cp", best_cp,
-							  "first on last cp", best['cp_times'][(record['best_cps'] - 1)],
-							  "score", record['score'],
-							  "current_diff", current_diff)
-
-						if current_diff < 0:
-							current_diff = -current_diff
-
 						list_record['score'] = '+ ' + times.format_time(int(current_diff))
 
 					if record['finish']:
