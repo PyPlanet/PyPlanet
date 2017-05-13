@@ -40,9 +40,10 @@ class LiveRankings(AppConfig):
 		await self.widget.display()
 
 	async def handle_scores(self, players):
+		self.current_rankings = []
+		
 		current_script = await self.instance.mode_manager.get_current_script()
 		if 'TimeAttack' in current_script:
-			self.current_rankings = []
 			for player in players:
 				if 'best_race_time' in player:
 					if player['best_race_time'] != -1:
@@ -55,7 +56,6 @@ class LiveRankings(AppConfig):
 
 			self.current_rankings.sort(key=lambda x: x['score'])
 		elif 'Rounds' in current_script or 'Team' in current_script or 'Cup' in current_script:
-			self.current_rankings = []
 			for player in players:
 				if 'map_points' in player:
 					if player['map_points'] != -1:
@@ -68,8 +68,6 @@ class LiveRankings(AppConfig):
 
 			self.current_rankings.sort(key=lambda x: x['score'])
 			self.current_rankings.reverse()
-		else:
-			self.current_rankings = []
 
 	async def map_start(self, map, restarted, **kwargs):
 		self.current_rankings = []
