@@ -20,7 +20,6 @@ class LocalRecords(AppConfig):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		self.lock = asyncio.Lock()
 		self.current_records = []
 		self.widget = None
 
