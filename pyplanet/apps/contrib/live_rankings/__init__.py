@@ -81,13 +81,15 @@ class LiveRankings(AppConfig):
 		if 'Laps' not in await self.instance.mode_manager.get_current_script():
 			return
 
+		print("waypoint", raw)
+
 		current_rankings = [x for x in self.current_rankings if x['nickname'] == player.nickname]
 		if len(current_rankings) > 0:
 			current_ranking = current_rankings[0]
 			current_ranking['score'] = raw['racetime']
 			current_ranking['cps'] = (raw['checkpointinrace'] + 1)
 		else:
-			new_ranking = dict(nickname=player.nickname, score=raw['racetime'], cps=(raw['checkpointinrace'] + 1))
+			new_ranking = dict(nickname=player.nickname, score=raw['racetime'], cps=(raw['checkpointinrace'] + 1), cp_times=raw['curracecheckpoints'])
 			self.current_rankings.append(new_ranking)
 
 		self.current_rankings.sort(key=lambda x: (-x['cps'], x['score']))
@@ -95,7 +97,12 @@ class LiveRankings(AppConfig):
 		await self.widget.display()
 
 	async def player_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
-		if 'TimeAttack' not in await self.instance.mode_manager.get_current_script():
+		current_script = self.instance.mode_manager.get_current_script()
+		if 'Laps' in await current_script:
+			await self.player_waypoint(player, race_time, flow, raw)
+			return
+
+		if 'TimeAttack' not in await current_script:
 			return
 
 		current_rankings = [x for x in self.current_rankings if x['nickname'] == player.nickname]

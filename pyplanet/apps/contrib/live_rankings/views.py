@@ -7,12 +7,14 @@ from pyplanet.utils import times
 class LiveRankingsWidget(TimesWidgetView):
 	widget_x = -161
 	widget_y = 55.5
-	size_x = 38
+	size_x = 43
 	size_y = 55.5
 	top_entries = 5
 	title = None  # 'Live Rankings'
 	icon_style = 'BgRaceScore2'
 	icon_substyle = 'LadderRank'
+
+	template_name = 'live_rankings/widget.xml'
 
 	def __init__(self, app):
 		super().__init__(self)
@@ -90,8 +92,9 @@ class LiveRankingsWidget(TimesWidgetView):
 					list_record['color'] = '$0f3'
 				list_record['nickname'] = record['nickname']
 				if self.display_cpdifference:
-					if record['cps'] < best_cp:
-						list_record['nickname'] += '$z$s$fff$i(+{} cps)'.format((best_cp - record['cps']))
+					list_record['cp_difference'] = (best_cp - record['cps'])
+				else:
+					list_record['cp_difference'] = None
 				if self.format_times:
 					list_record['score'] = times.format_time(int(record['score']))
 				else:
