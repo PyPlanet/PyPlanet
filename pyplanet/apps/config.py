@@ -1,3 +1,5 @@
+import inspect
+
 import importlib
 import logging
 import os
@@ -33,6 +35,14 @@ class AppConfig:
 	"""
 	This class is the base class for the Applications metadata class. The class holds information and hooks
 	that will be executed after initiation for example.
+	
+	.. code-block:: python
+	
+		class MyApp(AppConfig):
+
+			async def on_start(self):
+				print('we are staring!!')
+	
 	"""
 
 	name = None
@@ -213,12 +223,32 @@ class AppConfig:
 	def import_app(entry, instance):
 		# Import the module, we need to strip down the path into namespace, file and class.
 		module_path, app_glue, cls_name = entry.rpartition('.')
+
+		# The app name (full module path to module, not the app!)
+		app_name = module_path.rpartition('.')[0]
+
 		if not module_path:
 			raise ImproperlyConfigured('Module for your app {} can\'t be found!'.format(entry))
+
+		# The new style definitions works a bit different. We just import the module, search for the first class that is
+		# a subclass of AppConfig.
+		if cls_name.islower():
+			module_path += '.' + cls_name
+			app_name = module_path
+			cls_name = None
 
 		# Try to load the app module, containing the class.
 		try:
 			module = importlib.import_module(module_path)
+
+			# If we have a new-style module, check for the first AppConfig extending class in our module.
+			# See #109.
+			if cls_name is None:
+				for name, obj in inspect.getmembers(module):
+					if inspect.isclass(obj) and issubclass(obj, AppConfig):
+						cls_name = obj.__name__
+						break
+
 			module = getattr(module, cls_name)
 		except ImportError:
 			raise ImproperlyConfigured(
@@ -232,9 +262,6 @@ class AppConfig:
 		# Last check if subclass of appconfig.
 		if not issubclass(module, AppConfig):
 			raise InvalidAppModule('Your required app {} couldn\'t be loaded!'.format(entry))
-
-		# Get name and other attributes.
-		app_name = module_path.rpartition('.')[0]
 
 		# Ensure app_name points to a valid module.
 		try:
