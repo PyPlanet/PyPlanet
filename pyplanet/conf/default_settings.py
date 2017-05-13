@@ -156,7 +156,9 @@ DEDICATED = {
 
 # Map configuration is a set of configuration options related to match settings etc.
 # Matchsettings filename.
-MAP_MATCHSETTINGS = None
+MAP_MATCHSETTINGS = {
+	'default': 'maplist.txt'
+}
 
 # The storage configuration contains the same instance mapping of the dedicated servers and is used
 # to access the filesystem on the dedicated server location.

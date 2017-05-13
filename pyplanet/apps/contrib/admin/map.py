@@ -56,13 +56,18 @@ class MapAdmin:
 		)
 
 	async def write_map_list(self, player, data, **kwargs):
-		if not data.file and (settings.MAP_MATCHSETTINGS is None or self.instance.process_name not in settings.MAP_MATCHSETTINGS):
+		setting = settings.MAP_MATCHSETTINGS
+		if isinstance(setting, dict) and self.instance.process_name in setting:
+			setting = setting[self.instance.process_name]
+
+		if not data.file and not setting:
 			message = '$z$s$fff» $ff0Default match settings file not configured in your settings!'
 			return await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
 		if data.file:
 			file_name = data.file
 		else:
-			file_name = settings.MAP_MATCHSETTINGS[self.instance.process_name].format(server_login=self.instance.game.server_player_login)
+			file_name = setting.format(server_login=self.instance.game.server_player_login)
+
 		file_path = 'MatchSettings/{}'.format(file_name)
 		message = '$z$s$fff» $ff0Match Settings has been saved to the file: {}'.format(file_name)
 		await self.instance.map_manager.save_matchsettings(file_path)
