@@ -185,6 +185,10 @@ class GbxRemote:
 				body = await self.reader.readexactly(size)
 				data = method = fault = None
 
+				# HOTFIX FOR INVALID XML
+				body = body.decode('utf-8', 'ignore')
+				# END HOTFIX
+
 				try:
 					data, method = loads(body, use_builtin_types=True)
 				except Fault as e:

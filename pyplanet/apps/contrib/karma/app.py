@@ -75,15 +75,15 @@ class Karma(AppConfig):
 
 	async def player_chat(self, player, text, cmd):
 		if not cmd:
-			if self.instance.game.game == 'tm':
-				finishes_required = await self.setting_finishes_before_voting.get_value()
-				player_finishes = await Score.objects.count(Score.select().where(Score.map_id == self.instance.map_manager.current_map.get_id()).where(Score.player_id == player.get_id()))
-				if player_finishes < finishes_required:
-					message = '$z$s$fff» $i$f00You have to finish this map at least $fff{}$f00 times before voting!'.format(finishes_required)
-					await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
-					return
-
 			if text == '++' or text == '--':
+				if self.instance.game.game == 'tm':
+					finishes_required = await self.setting_finishes_before_voting.get_value()
+					player_finishes = await Score.objects.count(Score.select().where(Score.map_id == self.instance.map_manager.current_map.get_id()).where(Score.player_id == player.get_id()))
+					if player_finishes < finishes_required:
+						message = '$z$s$fff» $i$f00You have to finish this map at least $fff{}$f00 times before voting!'.format(finishes_required)
+						await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+						return
+
 				score = (1 if text == '++' else -1)
 				player_votes = [x for x in self.current_votes if x.player_id == player.get_id()]
 				if len(player_votes) > 0:
