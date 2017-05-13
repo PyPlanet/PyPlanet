@@ -124,7 +124,7 @@ class MapAdmin:
 
 	async def remove_map(self, player, data, **kwargs):
 		map_nr = getattr(data, 'nr', None)
-		erase = getattr(kwargs, 'erase', False)
+		erase = kwargs.get('erase', False)
 
 		try:
 			# Make sure we get the map instance.
@@ -143,7 +143,7 @@ class MapAdmin:
 			await self.instance.gbx.execute('ChatSendServerMessage', message)
 		except Exception as e:
 			# Handle errors.
-			logger.exception(e)
+			logger.error(str(e))
 			message = '$z$s$fff» $ff0Error: Can\'t remove map, Error: {}'.format(str(e))
 			await self.instance.gbx.execute(
 				'ChatSendServerMessageToLogin',
