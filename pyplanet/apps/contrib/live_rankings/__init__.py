@@ -1,11 +1,8 @@
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.live_rankings.views import LiveRankingsWidget
-from pyplanet.contrib.command import Command
 
 from pyplanet.apps.core.trackmania import callbacks as tm_signals
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
-
-from pyplanet.utils import times
 
 
 class LiveRankings(AppConfig):
@@ -53,6 +50,7 @@ class LiveRankings(AppConfig):
 
 				self.current_rankings.sort(key=lambda x: x['score'])
 				self.widget.format_times = True
+				self.widget.display_cpdifference = False
 		elif 'Rounds' in current_script or 'Team' in current_script:
 			self.current_rankings = []
 			for player in players:
@@ -68,9 +66,9 @@ class LiveRankings(AppConfig):
 				self.current_rankings.sort(key=lambda x: x['score'])
 				self.current_rankings.reverse()
 				self.widget.format_times = False
+				self.widget.display_cpdifference = False
 		else:
 			self.current_rankings = []
-			print(players)
 
 	async def map_begin(self, map):
 		self.current_rankings = []
@@ -83,8 +81,18 @@ class LiveRankings(AppConfig):
 		if 'Laps' not in await self.instance.mode_manager.get_current_script():
 			return
 
-		print("waypoint", raw)
-		await self.widget.display(player=player)
+		current_rankings = [x for x in self.current_rankings if x['nickname'] == player.nickname]
+		if len(current_rankings) > 0:
+			current_ranking = current_rankings[0]
+			current_ranking['score'] = raw['racetime']
+			current_ranking['cps'] = (raw['checkpointinrace'] + 1)
+		else:
+			new_ranking = dict(nickname=player.nickname, score=raw['racetime'], cps=(raw['checkpointinrace'] + 1))
+			self.current_rankings.append(new_ranking)
+
+		self.current_rankings.sort(key=lambda x: (-x['cps'], x['score']))
+		self.widget.display_cpdifference = True
+		await self.widget.display()
 
 	async def player_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
 		if 'TimeAttack' not in await self.instance.mode_manager.get_current_script():

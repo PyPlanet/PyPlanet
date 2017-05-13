@@ -22,6 +22,7 @@ class LiveRankingsWidget(TimesWidgetView):
 
 		self.record_amount = math.floor((self.size_y - 5.5) / 3.3)
 		self.format_times = True
+		self.display_cpdifference = False
 
 	async def get_player_data(self):
 		data = await super().get_player_data()
@@ -71,7 +72,11 @@ class LiveRankingsWidget(TimesWidgetView):
 					custom_start_index = (start_point + 1)
 
 			index = 1
+			best_cp = None
 			for record in records:
+				if self.display_cpdifference and index == 1:
+					best_cp = record['cps']
+
 				list_record = dict()
 				list_record['index'] = index
 				list_record['color'] = '$fff'
@@ -84,6 +89,9 @@ class LiveRankingsWidget(TimesWidgetView):
 				if index == player_index:
 					list_record['color'] = '$0f3'
 				list_record['nickname'] = record['nickname']
+				if self.display_cpdifference:
+					if record['cps'] < best_cp:
+						list_record['nickname'] += '$z$s$fff$i(+{} cps)'.format((best_cp - record['cps']))
 				if self.format_times:
 					list_record['score'] = times.format_time(int(record['score']))
 				else:
