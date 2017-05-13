@@ -118,7 +118,7 @@ class Karma(AppConfig):
 
 	async def chat_current_karma(self):
 		num_current_votes = len(self.current_votes)
-		message = '$z$s$fff»» $ff0Current map karma: $fff{}$ff0 [$fff{}$ff0 votes, ++: $fff{}$ff0 ($fff{}%$ff0), --: $fff{}$ff0 ($fff{}%$ff0)'.format(
+		message = '$z$s$fff»» $ff0Current map karma: $fff{}$ff0 [$fff{}$ff0 votes, ++: $fff{}$ff0 ($fff{}%$ff0), --: $fff{}$ff0 ($fff{}%$ff0)]'.format(
 			self.current_karma, num_current_votes,
 			len(self.current_positive_votes),
 			round((len(self.current_positive_votes) / num_current_votes) * 100, 2) if num_current_votes > 0 else 0,
