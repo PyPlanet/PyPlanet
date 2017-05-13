@@ -128,7 +128,7 @@ class LocalRecords(AppConfig):
 		current_record.checkpoints = ','.join([str(cp) for cp in cps])
 
 		# Add to list when it's a new record!
-		if current_record.is_dirty():
+		if current_record.get_id() is None:
 			self.current_records.append(current_record)
 
 		# (Re)sort the record list.
