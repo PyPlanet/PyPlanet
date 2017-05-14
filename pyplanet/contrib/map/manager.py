@@ -226,6 +226,12 @@ class MapManager(CoreContrib):
 				raise MapException('Map already added to server.')
 			raise MapException(e.faultString)
 
+		# Try to save match settings.
+		try:
+			await self.save_matchsettings()
+		except:
+			pass
+
 	async def upload_map(self, fh, filename, insert=True, overwrite=False):
 		"""
 		Upload and add/insert the map to the current online playlist.
@@ -278,6 +284,13 @@ class MapManager(CoreContrib):
 				raise MapNotFound('Dedicated can\'t find map. Already removed?')
 			raise MapException('Error when removing map from playlist: {}'.format(e.faultString))
 
+		# Try to save match settings.
+		try:
+			await self.save_matchsettings()
+		except:
+			pass
+
+		# Delete the actual file.
 		if delete_file:
 			try:
 				await self._instance.storage.remove_map(map)
