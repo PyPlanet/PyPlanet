@@ -32,16 +32,17 @@ class Dedimania(AppConfig):
 		self.player_info = dict()
 		self.server_max_rank = None
 		self.map_status = False
+		self.ready = False
 
 		self.setting_server_login = Setting(
 			'server_login', 'Dedimania Server Login', Setting.CAT_KEYS, type=str,
 			description='Only fill in when you want to override the auto-detected server login!',
-			default=None
+			default=None, change_target=self.reload_settings
 		)
 		self.setting_dedimania_code = Setting(
 			'dedimania_code', 'Dedimania Server Code', Setting.CAT_KEYS, type=str,
 			description='The secret dedimania code. Get one at $lhttp://dedimania.net/tm2stats/?do=register',
-			default=None
+			default=None, change_target=self.reload_settings
 		)
 
 		self.setting_chat_announce = Setting(
@@ -60,6 +61,22 @@ class Dedimania(AppConfig):
 		# Init settings.
 		await self.context.setting.register(self.setting_server_login, self.setting_dedimania_code, self.setting_chat_announce)
 
+		# Load settings + initiate api.
+		await self.reload_settings()
+
+		# Register signals
+		self.instance.signal_manager.listen(mp_signals.map.map_begin, self.map_begin)
+		self.instance.signal_manager.listen(mp_signals.map.map_start, self.map_start)
+		self.instance.signal_manager.listen(mp_signals.map.map_end, self.map_end)
+
+		self.instance.signal_manager.listen(tm_signals.finish, self.player_finish)
+		self.instance.signal_manager.listen(mp_signals.player.player_connect, self.player_connect)
+		self.instance.signal_manager.listen(mp_signals.player.player_disconnect, self.player_disconnect)
+
+		# Load initial data.
+		self.widget = DedimaniaRecordsWidget(self)
+
+	async def reload_settings(self, *args, **kwargs):
 		# Check setting + return errors if not correct!
 		self.login = await self.setting_server_login.get_value(refresh=True) or self.instance.game.server_player_login
 		self.code = await self.setting_dedimania_code.get_value(refresh=True)
@@ -76,18 +93,6 @@ class Dedimania(AppConfig):
 			self.instance.game.dedicated_version, self.instance.game.dedicated_build
 		)
 		asyncio.ensure_future(self.initiate_api())
-
-		# Register signals
-		self.instance.signal_manager.listen(mp_signals.map.map_begin, self.map_begin)
-		self.instance.signal_manager.listen(mp_signals.map.map_start, self.map_start)
-		self.instance.signal_manager.listen(mp_signals.map.map_end, self.map_end)
-
-		self.instance.signal_manager.listen(tm_signals.finish, self.player_finish)
-		self.instance.signal_manager.listen(mp_signals.player.player_connect, self.player_connect)
-		self.instance.signal_manager.listen(mp_signals.player.player_disconnect, self.player_disconnect)
-
-		# Load initial data.
-		self.widget = DedimaniaRecordsWidget(self)
 
 	async def initiate_api(self):
 		await self.api.on_start()
@@ -156,8 +161,12 @@ class Dedimania(AppConfig):
 
 		# Fetch records + update widget.
 		await self.refresh_records()
-		await self.chat_current_record()
-		await self.widget.display()
+
+		if self.ready:
+			await asyncio.gather(
+				self.chat_current_record(),
+				self.widget.display()
+			)
 
 	async def map_end(self, map):
 		if not self.map_status:
@@ -185,7 +194,10 @@ class Dedimania(AppConfig):
 				players=player_list,
 				server_login=self.instance.game.server_player_login
 			)
+			self.ready = True
 		except DedimaniaTransportException as e:
+			self.ready = False
+
 			if 'Max retries exceeded' in str(e):
 				message = '$f00Error: Dedimania seems down?'
 			else:
@@ -194,6 +206,8 @@ class Dedimania(AppConfig):
 			await self.instance.chat(message)
 			return
 		except Exception as e:
+			self.ready = False
+
 			logger.exception(e)
 			self.current_records = list()
 			return
@@ -231,6 +245,8 @@ class Dedimania(AppConfig):
 
 	async def player_finish(self, player, race_time, lap_time, lap_cps, flow, raw, **kwargs):
 		if not self.map_status:
+			return
+		if not self.ready:
 			return
 		if player.login not in self.player_info:
 			logger.warning('Player info not (yet) retrieved from dedimania for the player {}'.format(player.login))
