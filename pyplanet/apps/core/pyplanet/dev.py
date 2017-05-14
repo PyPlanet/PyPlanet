@@ -42,12 +42,8 @@ class DevComponent:
 				pass
 
 		try:
-			result = await self.app.instance.gbx.execute(method, *args)
-			message = '$z$s$fff» $ff0Result: {}'.format(result)
+			result = await self.app.instance.gbx(method, *args)
+			message = '$ff0Result: {}'.format(result)
 		except Exception as e:
-			message = '$z$s$fff» $ff0Error: {}'.format(str(e))
-		await self.app.instance.gbx.execute(
-			'ChatSendServerMessageToLogin',
-			message,
-			player.login,
-		)
+			message = '$ff0Error: {}'.format(str(e))
+		await self.app.instance.chat(message, player)

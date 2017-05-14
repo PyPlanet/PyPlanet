@@ -1,6 +1,7 @@
 """
 Map Admin methods and functions.
 """
+import asyncio
 import logging
 
 from pyplanet.apps.core.maniaplanet.models import Map
@@ -42,17 +43,17 @@ class MapAdmin:
 		)
 
 	async def next_map(self, player, data, **kwargs):
-		message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has skipped to the next map.'.format(player.nickname)
+		message = '$ff0Admin $fff{}$z$s$ff0 has skipped to the next map.'.format(player.nickname)
 		await self.instance.gbx.multicall(
-			self.instance.gbx.prepare('NextMap'),
-			self.instance.gbx.prepare('ChatSendServerMessage', message)
+			self.instance.gbx('NextMap'),
+			self.instance.chat(message)
 		)
 
 	async def restart_map(self, player, data, **kwargs):
-		message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has restarted the map.'.format(player.nickname)
+		message = '$ff0Admin $fff{}$z$s$ff0 has restarted the map.'.format(player.nickname)
 		await self.instance.gbx.multicall(
-			self.instance.gbx.prepare('RestartMap'),
-			self.instance.gbx.prepare('ChatSendServerMessage', message)
+			self.instance.gbx('RestartMap'),
+			self.instance.chat(message)
 		)
 
 	async def write_map_list(self, player, data, **kwargs):
@@ -61,24 +62,22 @@ class MapAdmin:
 			setting = setting[self.instance.process_name]
 
 		if not data.file and not setting:
-			message = '$z$s$fff» $ff0Default match settings file not configured in your settings!'
-			return await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+			message = '$ff0Default match settings file not configured in your settings!'
+			return await self.instance.chat(message, player)
 		if data.file:
 			file_name = data.file
 		else:
 			file_name = setting.format(server_login=self.instance.game.server_player_login)
 
 		file_path = 'MatchSettings/{}'.format(file_name)
-		message = '$z$s$fff» $ff0Match Settings has been saved to the file: {}'.format(file_name)
+		message = '$ff0Match Settings has been saved to the file: {}'.format(file_name)
 		await self.instance.map_manager.save_matchsettings(file_path)
-		await self.instance.gbx.execute(
-			'ChatSendServerMessageToLogin',
-			message,
-			player.login,
-		)
 
-		# Make sure we reload all the maps after this call.
-		await self.instance.map_manager.update_list(full_update=True)
+		# Send message + reload all maps in memory.
+		await asyncio.gather(
+			self.instance.chat(message, player),
+			self.instance.map_manager.update_list(full_update=True)
+		)
 
 	async def add_local_map(self, player, data, **kwargs):
 		map_file = data.map
@@ -86,12 +85,8 @@ class MapAdmin:
 		if not await self.instance.storage.driver.exists('UserData/Maps/{}'.format(
 			map_file
 		)):
-			message = '$z$s$fff» $ff0Error: Can\'t add map because the file is not found!'
-			await self.instance.gbx.execute(
-				'ChatSendServerMessageToLogin',
-				message,
-				player.login,
-			)
+			message = '$ff0Error: Can\'t add map because the file is not found!'
+			await self.instance.chat(message, player.login)
 			return
 
 		try:
@@ -108,20 +103,16 @@ class MapAdmin:
 			result = await self.instance.map_manager.add_map(map_file)
 
 			if result:
-				message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has added the map $fff{}$z$s$ff0 by $fff{}$z$s$ff0.'.format(
+				message = '$ff0Admin $fff{}$z$s$ff0 has added the map $fff{}$z$s$ff0 by $fff{}$z$s$ff0.'.format(
 					player.nickname, map_info['name'], map_info['author_nickname']
 				)
-				await self.instance.gbx.execute('ChatSendServerMessage', message)
+				await self.instance.chat(message)
 			else:
 				raise Exception('Unknown error while adding the map!')
 		except Exception as e:
 			logger.warning('Error when player {} was adding map from local disk: {}'.format(player.login, str(e)))
-			message = '$z$s$fff» $ff0Error: Can\'t add map, Error: {}'.format(str(e))
-			await self.instance.gbx.execute(
-				'ChatSendServerMessageToLogin',
-				message,
-				player.login,
-			)
+			message = '$ff0Error: Can\'t add map, Error: {}'.format(str(e))
+			await self.instance.chat(message, player.login)
 
 	async def erase_map(self, player, data, **kwargs):
 		kwargs['erase'] = True
@@ -142,16 +133,12 @@ class MapAdmin:
 			await self.instance.map_manager.remove_map(map_instance, delete_file=erase)
 
 			# Send message to all.
-			message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has removed the map $fff{}$z$s$ff0.'.format(
+			message = '$ff0Admin $fff{}$z$s$ff0 has removed the map $fff{}$z$s$ff0.'.format(
 				player.nickname, map_instance.name
 			)
-			await self.instance.gbx.execute('ChatSendServerMessage', message)
+			await self.instance.chat(message)
 		except Exception as e:
 			# Handle errors.
 			logger.error(str(e))
-			message = '$z$s$fff» $ff0Error: Can\'t remove map, Error: {}'.format(str(e))
-			await self.instance.gbx.execute(
-				'ChatSendServerMessageToLogin',
-				message,
-				player.login,
-			)
+			message = '$ff0Error: Can\'t remove map, Error: {}'.format(str(e))
+			await self.instance.chat(message, player)

@@ -2,7 +2,6 @@ from pyplanet.apps.config import AppConfig
 from pyplanet.apps.core.pyplanet.dev import DevComponent
 from pyplanet.apps.core.pyplanet.setting import SettingComponent
 from pyplanet.apps.core.pyplanet.views.logo import LogoView
-from pyplanet.contrib.setting import Setting
 
 
 class PyPlanetConfig(AppConfig):

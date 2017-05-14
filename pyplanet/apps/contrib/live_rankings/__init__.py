@@ -27,7 +27,7 @@ class LiveRankings(AppConfig):
 		self.widget = LiveRankingsWidget(self)
 		await self.widget.display()
 
-		scores = await self.instance.gbx.script('Trackmania.GetScores')
+		scores = await self.instance.gbx('Trackmania.GetScores')
 		await self.handle_scores(scores['players'])
 		await self.widget.display()
 
@@ -41,7 +41,7 @@ class LiveRankings(AppConfig):
 
 	async def handle_scores(self, players):
 		self.current_rankings = []
-		
+
 		current_script = await self.instance.mode_manager.get_current_script()
 		if 'TimeAttack' in current_script:
 			for player in players:

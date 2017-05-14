@@ -1,6 +1,8 @@
 import logging
 import logging.config
 import sys
+import traceback
+from pprint import pprint
 
 from raven import Client
 from logging.handlers import QueueHandler as BaseQueueHandler
@@ -8,6 +10,15 @@ from logging.handlers import QueueHandler as BaseQueueHandler
 from pyplanet import __version__ as version
 from pyplanet.conf import settings
 from pyplanet.core.exceptions import ImproperlyConfigured
+
+
+IGNORED_PATHS = [
+	'aiomysql',
+]
+IGNORED_TEXT = [
+	'InternalError: Packet sequence number wrong',
+	'Lost connection to',
+]
 
 
 class Raven:  # pragma: no cover
@@ -41,6 +52,26 @@ def handle_exception(exception=None, module_name=None, func_name=None, extra_dat
 			logging.exception(exception)
 		return
 
+	# Filter out exceptions.
+	ignore = False
+	try:
+		stack = traceback.extract_stack()
+		for frame in stack:
+			if any(ig in frame.filename for ig in IGNORED_PATHS):
+				ignore = True
+				break
+	except:
+		pass
+	try:
+		if any(ig.lower() in str(exception).lower() for ig in IGNORED_TEXT):
+			ignore = True
+	except:
+		pass
+
+	if ignore:
+		return
+
+	# Extra Data.
 	if not extra_data:
 		extra_data = dict()
 	extra_data = extra_data.copy()
@@ -62,6 +93,7 @@ def handle_exception(exception=None, module_name=None, func_name=None, extra_dat
 	if settings.LOGGING_REPORTING >= 2:
 		Raven.get_client().extra_context(extra_data)
 
+	# Send to sentry.
 	exc_info = sys.exc_info()
 	Raven.get_client().captureException(exc_info=exc_info)
 

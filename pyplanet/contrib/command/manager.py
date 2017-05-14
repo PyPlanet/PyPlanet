@@ -73,9 +73,8 @@ class CommandManager(CoreContrib):
 		if command:
 			return await command.handle(self._instance, player, argv)
 		# Send command not found message.
-		await self._instance.gbx.execute(
-			'ChatSendServerMessageToLogin',
-			'$z$s >> Command unknown. For all commands type /help or //help. '
+		await self._instance.chat(
+			'$z$sCommand unknown. For all commands type /help or //help. '
 			'Powered by $l[http://pypla.net]$FD4Py$369Planet',
 			player.login
 		),
@@ -100,10 +99,9 @@ class CommandManager(CoreContrib):
 					break
 			# If found, show the usage of the command.
 			if cmd_instance:
-				await self._instance.gbx.execute(
-					'ChatSendServerMessageToLogin',
-					'$z$s >> {}'.format(cmd_instance.usage_text),
-					player.login
+				await self._instance.chat(
+					'$z$s{}'.format(cmd_instance.usage_text),
+					player
 				)
 				return
 
@@ -113,17 +111,15 @@ class CommandManager(CoreContrib):
 		for cmds in batch(commands, 6):
 			help_texts = [str(c) for c in cmds]
 			calls.append(
-				self._instance.gbx.prepare(
-					'ChatSendServerMessageToLogin',
-					'$z$s >> {}'.format(' | '.join(help_texts)),
+				self._instance.chat(
+					'$z$s{}'.format(' | '.join(help_texts)),
 					player.login
 				)
 			)
 
 		await self._instance.gbx.multicall(
-			self._instance.gbx.prepare(
-				'ChatSendServerMessageToLogin',
-				'$z$s >> Command list. Help per command: /{}help [command]'.format('/' if filter_admin else ''),
+			self._instance.chat(
+				'$z$sCommand list. Help per command: /{}help [command]'.format('/' if filter_admin else ''),
 				player.login
 			),
 			*calls

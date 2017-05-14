@@ -50,23 +50,23 @@ class Jukebox(AppConfig):
 					view.objects_raw = view_data
 					await view.display(player=player.login)
 				else:
-					message = '$z$s$fff» $i$f00There are currently no maps in the jukebox!'
-					await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+					message = '$i$f00There are currently no maps in the jukebox!'
+					await self.instance.chat(message, player)
 
 			elif data.option == 'drop':
 				first_player = next((item for item in reversed(self.jukebox) if item['player'].login == player.login), None)
 				if first_player is not None:
 					self.jukebox.remove(first_player)
-					message = '$z$s$fff»» $fff{}$z$s$fa0 dropped $fff{}$z$s$fa0 from the jukebox.'.format(first_player['player'].nickname, first_player['map'].name)
-					await self.instance.gbx.execute('ChatSendServerMessage', message)
+					message = '$fff{}$z$s$fa0 dropped $fff{}$z$s$fa0 from the jukebox.'.format(first_player['player'].nickname, first_player['map'].name)
+					await self.instance.chat(message)
 				else:
-					message = '$z$s$fff» $i$f00You currently don\'t have a map in the jukebox.'
-					await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+					message = '$i$f00You currently don\'t have a map in the jukebox.'
+					await self.instance.chat(message, player)
 
 			elif data.option == 'clear':
 				if player.level == 0:
-					message = '$z$s$fff» $i$f00You\'re not allowed to do this!'
-					await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+					message = '$i$f00You\'re not allowed to do this!'
+					await self.instance.chat(message, player)
 				else:
 					await self.clear_jukebox(player, data)
 
@@ -74,43 +74,43 @@ class Jukebox(AppConfig):
 		async with self.lock:
 			if len(self.jukebox) > 0:
 				self.jukebox.clear()
-				message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has cleared the jukebox.'.format(player.nickname)
-				await self.instance.gbx.execute('ChatSendServerMessage', message)
+				message = '$ff0Admin $fff{}$z$s$ff0 has cleared the jukebox.'.format(player.nickname)
+				await self.instance.chat(message)
 			else:
-				message = '$z$s$fff» $i$f00There are currently no maps in the jukebox.'
-				await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+				message = '$i$f00There are currently no maps in the jukebox.'
+				await self.instance.chat(message, player)
 
 	async def add_to_jukebox(self, player, map):
 		async with self.lock:
 			if player.level == 0 and any(item['player'].login == player.login for item in self.jukebox):
-				message = '$z$s$fff» $i$f00You already have a map in the jukebox! Wait till it\'s been played before adding another.'
-				await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+				message = '$i$f00You already have a map in the jukebox! Wait till it\'s been played before adding another.'
+				await self.instance.chat(message, player)
 				return
 
 			if map.get_id() == self.instance.map_manager.current_map.get_id():
-				message = '$z$s$fff» $i$f00You can\'t add the current map to the jukebox!'
-				await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+				message = '$i$f00You can\'t add the current map to the jukebox!'
+				await self.instance.chat(message, player)
 				return
 
 			if not any(item['map'] == map for item in self.jukebox):
 				self.jukebox.append({'player': player, 'map': map})
-				message = '$z$s$fff»» $fff{}$z$s$fa0 was added to the jukebox by $fff{}$z$s$fa0.'.format(map.name, player.nickname)
-				await self.instance.gbx.execute('ChatSendServerMessage', message)
+				message = '$fff{}$z$s$fa0 was added to the jukebox by $fff{}$z$s$fa0.'.format(map.name, player.nickname)
+				await self.instance.chat(message)
 			else:
-				message = '$z$s$fff» $i$f00This map has already been added to the jukebox, pick another one.'
-				await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+				message = '$i$f00This map has already been added to the jukebox, pick another one.'
+				await self.instance.chat(message, player)
 
 	async def drop_from_jukebox(self, player, instance):
 		async with self.lock:
 			if player.level == 0 and instance['player_login'] != player.login:
-				message = '$z$s$fff» $i$f00You can only drop your own jukeboxed maps!'
-				await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+				message = '$i$f00You can only drop your own jukeboxed maps!'
+				await self.instance.chat(message, player)
 			else:
 				drop_map = next((item for item in self.jukebox if item['map'].name == instance['map_name']), None)
 				if drop_map is not None:
 					self.jukebox.remove(drop_map)
-					message = '$z$s$fff»» $fff{}$z$s$fa0 dropped $fff{}$z$s$fa0 from the jukebox.'.format(player.nickname, instance['map_name'])
-					await self.instance.gbx.execute('ChatSendServerMessage', message)
+					message = '$fff{}$z$s$fa0 dropped $fff{}$z$s$fa0 from the jukebox.'.format(player.nickname, instance['map_name'])
+					await self.instance.chat(message)
 
 	async def podium_start(self, **kwargs):
 		while True:
@@ -118,9 +118,9 @@ class Jukebox(AppConfig):
 				break
 			next = self.jukebox.pop(0)
 			if next['map'].get_id() != self.instance.map_manager.current_map.get_id():
-				message = '$z$s$fff»» $fa0The next map will be $fff{}$z$s$fa0 as requested by $fff{}$z$s$fa0.'.format(next['map'].name, next['player'].nickname)
+				message = '$fa0The next map will be $fff{}$z$s$fa0 as requested by $fff{}$z$s$fa0.'.format(next['map'].name, next['player'].nickname)
 				await asyncio.gather(
-					self.instance.gbx.execute('ChatSendServerMessage', message),
+					self.instance.chat(message),
 					self.instance.map_manager.set_next_map(next['map'])
 				)
 				break

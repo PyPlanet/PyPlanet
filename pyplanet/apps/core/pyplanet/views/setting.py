@@ -203,23 +203,22 @@ class SettingEditView(TemplateView):
 		try:
 			await self.setting.set_value(raw_value)
 		except SerializationException as e:
-			await self.parent.app.instance.gbx.execute(
-				'ChatSendServerMessageToLogin',
-				'$z$s$fff» $fa0Error with saving setting: {}'.format(str(e)),
-				player.login
+			await self.parent.app.instance.chat(
+				'$fa0Error with saving setting: {}'.format(str(e)),
+				player
 			)
 		except Exception as e:
-			await self.parent.app.instance.gbx.execute(
-				'ChatSendServerMessageToLogin',
-				'$z$s$fff» $fa0Error with saving setting: {}'.format(str(e)),
-				player.login
+			await self.parent.app.instance.chat(
+				'$fa0Error with saving setting: {}'.format(str(e)),
+				player
 			)
 		finally:
-			await self.parent.app.instance.gbx.execute(
-				'ChatSendServerMessageToLogin',
-				'$z$s$fff» $fa0Setting has been saved \'{}\''.format(self.setting.key),
-				player.login
+			await asyncio.gather(
+				self.parent.app.instance.chat(
+					'$fa0Setting has been saved \'{}\''.format(self.setting.key),
+					player
+				),
+				self.hide([player.login])
 			)
-			await self.hide([player.login])
 			self.response_future.set_result(self.setting)
 			self.response_future.done()

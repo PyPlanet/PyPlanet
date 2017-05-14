@@ -73,7 +73,7 @@ class ModeManager(CoreContrib):
 		:param refresh: Refresh from server.
 		"""
 		if refresh or not self._current_script:
-			payload = await self._instance.gbx.execute('GetScriptName')
+			payload = await self._instance.gbx('GetScriptName')
 			self._current_script = payload['CurrentValue']
 			if 'NextValue' in payload:
 				self._next_script = payload['NextValue']
@@ -86,7 +86,7 @@ class ModeManager(CoreContrib):
 		:param refresh: Refresh from server.
 		"""
 		if refresh or not self._current_script:
-			payload = await self._instance.gbx.execute('GetScriptName')
+			payload = await self._instance.gbx('GetScriptName')
 			self._current_script = payload['CurrentValue']
 			if 'NextValue' in payload:
 				self._next_script = payload['NextValue']
@@ -96,7 +96,7 @@ class ModeManager(CoreContrib):
 		"""
 		Get the script info as a structure containing: Name, CompatibleTypes, Description, Version and the settings available.
 		"""
-		return await self._instance.gbx.execute('GetModeScriptInfo')
+		return await self._instance.gbx('GetModeScriptInfo')
 
 	async def set_next_script(self, name):
 		"""
@@ -104,14 +104,14 @@ class ModeManager(CoreContrib):
 		
 		:param name: Name
 		"""
-		await self._instance.gbx.execute('SetScriptName', name)
+		await self._instance.gbx('SetScriptName', name)
 		self._next_script = name
 
 	async def get_settings(self):
 		"""
 		Get the current mode settings as a dictionary.
 		"""
-		return await self._instance.gbx.execute('GetModeScriptSettings')
+		return await self._instance.gbx('GetModeScriptSettings')
 
 	async def update_settings(self, update_dict):
 		"""
@@ -122,7 +122,7 @@ class ModeManager(CoreContrib):
 		"""
 		current_settings = await self.get_settings()
 		current_settings.update(update_dict)
-		await self._instance.gbx.execute('SetModeScriptSettings', current_settings)
+		await self._instance.gbx('SetModeScriptSettings', current_settings)
 
 	async def update_next_settings(self, update_dict):
 		"""
@@ -138,7 +138,7 @@ class ModeManager(CoreContrib):
 		"""
 		Get the mode script variables.
 		"""
-		return await self._instance.gbx.execute('GetModeScriptVariables')
+		return await self._instance.gbx('GetModeScriptVariables')
 
 	async def update_variables(self, update_dict):
 		"""
@@ -149,7 +149,7 @@ class ModeManager(CoreContrib):
 		"""
 		variables = await self.get_variables()
 		variables.update(update_dict)
-		await self._instance.gbx.execute('SetModeScriptVariables', variables)
+		await self._instance.gbx('SetModeScriptVariables', variables)
 
 	async def update_next_variables(self, update_dict):
 		"""

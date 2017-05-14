@@ -139,7 +139,6 @@ class ChatQuery(Query):
 		# Add the message payload.
 		return message + self._message
 
-	@property
 	def prepare(self):
 		"""
 		Get a prepared gbx query for this chat message.
@@ -147,6 +146,7 @@ class ChatQuery(Query):
 		:return: Prepared GBX query.
 		:rtype: pyplanet.core.gbx.query.Query
 		"""
+		super().prepare()
 		return self.gbx_query
 
 	@property
@@ -165,7 +165,7 @@ class ChatQuery(Query):
 			method = 'ChatSendServerMessageToLogin'
 			args.append(','.join(self._logins))
 
-		return self.instance.gbx.prepare(method, *args)
+		return self.instance.gbx(method, *args)
 
 	async def execute(self):  # pragma: no cover
 		"""
@@ -174,9 +174,3 @@ class ChatQuery(Query):
 		:return: Result of query.
 		"""
 		return await self.gbx_query.execute()
-
-	def __await__(self):
-		"""
-		Execute query directly.
-		"""
-		return self.execute().__await__()
