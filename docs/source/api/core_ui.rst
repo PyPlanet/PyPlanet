@@ -8,6 +8,9 @@ pyplanet.core.ui
 .. automodule:: pyplanet.core.ui
   :members:
 
+.. automodule:: pyplanet.core.ui.custom_ui
+  :members:
+
 .. automodule:: pyplanet.core.ui.components
   :members:
   :inherited-members:

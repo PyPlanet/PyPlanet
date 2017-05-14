@@ -1,3 +1,5 @@
+from pyplanet.core.ui.custom_ui import CustomUI
+
 
 class _BaseUIManager:
 	def __init__(self, instance):
@@ -9,6 +11,9 @@ class _BaseUIManager:
 		"""
 		self.instance = instance
 		self.manialinks = dict()
+
+	async def on_start(self):
+		pass
 
 	async def send(self, manialink, logins=None, **kwargs):
 		"""
@@ -96,6 +101,10 @@ class GlobalUIManager(_BaseUIManager):
 	def __init__(self, instance):
 		super().__init__(instance)
 		self.app_managers = dict()
+		self.custom_ui = CustomUI(self.instance)
+
+	async def on_start(self):
+		await self.custom_ui.on_start()
 
 	def create_app_manager(self, app_config):
 		"""

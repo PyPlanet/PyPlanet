@@ -24,6 +24,9 @@ class LiveRankings(AppConfig):
 		self.instance.signal_manager.listen(tm_signals.give_up, self.player_giveup)
 		self.instance.signal_manager.listen(tm_signals.scores, self.scores)
 
+		# Make sure we don't display the round_scores globally.
+		self.instance.ui_manager.custom_ui.set_global('round_scores', False)
+
 		self.widget = LiveRankingsWidget(self)
 		await self.widget.display()
 
