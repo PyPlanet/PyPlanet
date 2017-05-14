@@ -4,6 +4,7 @@ from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.local_records.views import LocalRecordsListView, LocalRecordsWidget
 from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.contrib.command import Command
+from pyplanet.contrib.setting import Setting
 
 from pyplanet.apps.core.trackmania import callbacks as tm_signals
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
@@ -23,6 +24,12 @@ class LocalRecords(AppConfig):
 		self.current_records = []
 		self.widget = None
 
+		self.setting_chat_announce = Setting(
+			'chat_announce', 'Minimum index for chat announce', Setting.CAT_BEHAVIOUR, type=int,
+			description='Minimum record index needed for public new record/recordchange announcement (0 for disable).',
+			default=50
+		)
+
 	async def on_start(self):
 		# Register commands
 		await self.instance.command_manager.register(Command(command='records', target=self.show_records_list))
@@ -31,6 +38,8 @@ class LocalRecords(AppConfig):
 		self.instance.signal_manager.listen(mp_signals.map.map_begin, self.map_begin)
 		self.instance.signal_manager.listen(tm_signals.finish, self.player_finish)
 		self.instance.signal_manager.listen(mp_signals.player.player_connect, self.player_connect)
+
+		await self.context.setting.register(self.setting_chat_announce)
 
 		# Load initial data.
 		await self.refresh_locals()
@@ -95,6 +104,7 @@ class LocalRecords(AppConfig):
 	async def player_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
 		current_records = [x for x in self.current_records if x.player_id == player.get_id()]
 		score = lap_time
+		chat_announce = await self.setting_chat_announce.get_value()
 
 		previous_index = None
 		previous_time = None
@@ -114,7 +124,11 @@ class LocalRecords(AppConfig):
 				message = '$z$s$fff»» $fff{}$z$s$0f3 equalled the $fff{}.$0f3 Local Record: $fff\uf017 {}$0f3.'.format(
 					player.nickname, previous_index, times.format_time(score)
 				)
-				return await self.instance.gbx.execute('ChatSendServerMessage', message)
+
+				if chat_announce >= previous_index:
+					return await self.instance.gbx.execute('ChatSendServerMessage', message)
+				elif chat_announce != 0:
+					return await self.instance.gbx.execute('ChatSendServerMessageToLogin', message.replace('»»', '»'), player.login)
 
 		else:
 			current_record = LocalRecord(
@@ -154,11 +168,12 @@ class LocalRecords(AppConfig):
 		# Save to database (but don't wait for it).
 		asyncio.ensure_future(current_record.save())
 
-		# Send messages.
-		await asyncio.gather(
-			self.instance.gbx.execute('ChatSendServerMessage', message),
-			self.widget.display()
-		)
+		if chat_announce >= new_index:
+			await self.instance.gbx.execute('ChatSendServerMessage', message)
+		elif chat_announce != 0:
+			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message.replace('»»', '»'), player.login)
+
+		await self.widget.display()
 
 	async def chat_current_record(self):
 		records_amount = len(self.current_records)
