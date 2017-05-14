@@ -270,11 +270,16 @@ class GbxRemote:
 
 		# Try to parse JSON, mostly the case.
 		try:
-			payload = json.loads(raw)
+			if isinstance(raw, list):
+				payload = dict()
+				for idx, part in enumerate(raw):
+					try:
+						payload.update(json.loads(part))
+					except:
+						payload['raw_{}'.format(idx)] = part
+			else:
+				payload = json.loads(raw)
 		except Exception as e:
-			if not method or not 'LibXmlRpc' in method:
-				handle_exception(exception=e, module_name=__name__, func_name='handle_scripted')
-			logger.warning('GBX: JSON Parsing of script callback failed! {}'.format(str(e)))
 			payload = raw
 
 		# Check if payload contains a responseid, when it does, we call the scripted handler future object.
