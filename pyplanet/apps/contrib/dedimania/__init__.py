@@ -64,9 +64,9 @@ class Dedimania(AppConfig):
 		self.login = await self.setting_server_login.get_value(refresh=True) or self.instance.game.server_player_login
 		self.code = await self.setting_dedimania_code.get_value(refresh=True)
 		if not self.code:
-			message = '$z$s$fff»» $0b3Error: No dedimania code was provided, please edit the settings and restart PyPlanet (//settings)'
+			message = '$0b3Error: No dedimania code was provided, please edit the settings and restart PyPlanet (//settings)'
 			logger.error('Dedimania Code not configured! Please configure with //settings and restart PyPlanet!')
-			await self.instance.gbx.execute('ChatSendServerMessage', message)
+			await self.instance.chat(message)
 			return
 
 		# Init API (execute this in a non waiting future).
@@ -118,8 +118,8 @@ class Dedimania(AppConfig):
 		:return: view instance or nothing when there are no records.
 		"""
 		if not len(self.current_records):
-			message = '$z$s$fff» $i$f00There are currently no dedimania records on this map!'
-			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+			message = '$i$f00There are currently no dedimania records on this map!'
+			await self.instance.chat(message, player)
 			return
 
 		# TODO: Move logic to view class.
@@ -173,27 +173,29 @@ class Dedimania(AppConfig):
 
 	async def refresh_records(self):
 		try:
-			async with self.lock:
-				self.server_max_rank, modes, player_infos, self.current_records = await self.api.get_map_details(
-					self.instance.map_manager.current_map,
-					'TA' if 'TimeAttack' in await self.instance.mode_manager.get_current_script() else 'Rounds',
-					server_name=self.instance.game.server_name, server_comment='', is_private=self.instance.game.server_is_private,
-					max_players=self.instance.game.server_max_players['CurrentValue'], max_specs=self.instance.game.server_max_specs['CurrentValue'],
-					players=await self.instance.gbx.execute('GetPlayerList', -1, 0),
-					server_login=self.instance.game.server_player_login
-				)
+			player_list, current_script = await asyncio.gather(
+				self.instance.gbx('GetPlayerList', -1, 0),
+				self.instance.mode_manager.get_current_script(),
+			)
+			self.server_max_rank, modes, player_infos, self.current_records = await self.api.get_map_details(
+				self.instance.map_manager.current_map,
+				'TA' if 'TimeAttack' in current_script else 'Rounds',
+				server_name=self.instance.game.server_name, server_comment='', is_private=self.instance.game.server_is_private,
+				max_players=self.instance.game.server_max_players['CurrentValue'], max_specs=self.instance.game.server_max_specs['CurrentValue'],
+				players=player_list,
+				server_login=self.instance.game.server_player_login
+			)
 		except DedimaniaTransportException as e:
 			if 'Max retries exceeded' in str(e):
-				message = '$z$s$fff»» $f00Error: Dedimania seems down?'
+				message = '$f00Error: Dedimania seems down?'
 			else:
-				message = '$z$s$fff»» $f00Error: Dedimania error occured!'
+				message = '$f00Error: Dedimania error occured!'
 				logger.exception(e)
-			await self.instance.gbx.execute('ChatSendServerMessage', message)
+			await self.instance.chat(message)
 			return
 		except Exception as e:
 			logger.exception(e)
-			async with self.lock:
-				self.current_records = []
+			self.current_records = list()
 			return
 
 		for info in player_infos:
@@ -204,7 +206,7 @@ class Dedimania(AppConfig):
 	async def player_connect(self, player, is_spectator, **kwargs):
 		try:
 			await self.widget.display(player=player)
-			res = await self.instance.gbx.execute('GetDetailedPlayerInfo', player.login)
+			res = await self.instance.gbx('GetDetailedPlayerInfo', player.login)
 			p_info = await self.api.player_connect(
 				player.login, player.nickname, res['Path'], is_spectator
 			)
@@ -279,31 +281,27 @@ class Dedimania(AppConfig):
 						times.format_time((previous_time - score))
 					)
 				else:
-					message = '$z$s$fff»» $fff{}$z$s$0b3 improved the $fff{}.$0b3 Dedimania Record, with a time of $fff\uf017 {}$0b3 ($fff-{}$0b3).'.format(
+					message = '$fff{}$z$s$0b3 improved the $fff{}.$0b3 Dedimania Record, with a time of $fff\uf017 {}$0b3 ($fff-{}$0b3).'.format(
 						player.nickname, new_rank, times.format_time(score),
 						times.format_time((previous_time - score))
 					)
 
+				coros = [self.widget.display()]
 				if chat_announce >= new_rank:
-					await asyncio.gather(
-						self.instance.gbx.execute('ChatSendServerMessage', message),
-						self.widget.display()
-					)
+					coros.append(self.instance.chat(message))
 				elif chat_announce != 0:
-					await asyncio.gather(
-						self.instance.gbx.execute('ChatSendServerMessageToLogin', message.replace('»»', '»'), player.login),
-						self.widget.display()
-					)
+					coros.append(self.instance.chat(message, player))
+				await asyncio.gather(*coros)
 
 			elif score == current_record.score:
-				message = '$z$s$fff»» $fff{}$z$s$0b3 equalled the $fff{}.$0b3 Dedimania Record, with a time of $fff\uf017 {}$0b3.'.format(
+				message = '$fff{}$z$s$0b3 equalled the $fff{}.$0b3 Dedimania Record, with a time of $fff\uf017 {}$0b3.'.format(
 					player.nickname, previous_index, times.format_time(score)
 				)
 
 				if chat_announce >= previous_index:
-					return await self.instance.gbx.execute('ChatSendServerMessage', message)
+					return await self.instance.chat(message)
 				elif chat_announce != 0:
-					return await self.instance.gbx.execute('ChatSendServerMessageToLogin', message.replace('»»', '»'), player.login)
+					return await self.instance.chat(message, player)
 
 		else:
 			new_record = DedimaniaRecord(
@@ -340,7 +338,7 @@ class Dedimania(AppConfig):
 				player.nickname, new_index, times.format_time(score)
 			)
 			await asyncio.gather(
-				self.instance.gbx.execute('ChatSendServerMessage', message),
+				self.instance.chat(message),
 				self.widget.display()
 			)
 
@@ -348,9 +346,9 @@ class Dedimania(AppConfig):
 		replay_name = 'dedimania_{}.Replay.Gbx'.format(uuid.uuid4().hex)
 		calls = list()
 		if virtual:
-			calls.append(self.instance.gbx.prepare('GetValidationReplay', player_login))
+			calls.append(self.instance.gbx('GetValidationReplay', player_login))
 		if ghost:
-			calls.append(self.instance.gbx.prepare('SaveBestGhostsReplay', player_login, replay_name))
+			calls.append(self.instance.gbx('SaveBestGhostsReplay', player_login, replay_name))
 
 		results = await self.instance.gbx.multicall(*calls)
 
@@ -362,18 +360,18 @@ class Dedimania(AppConfig):
 						return ghost_base, results[0]
 					return ghost_base, None
 			except FileNotFoundError as e:
-				message = '$z$s$fff»» $f00Error: Dedimania requires you to have file access on the server. We can\'t fetch' \
+				message = '$f00Error: Dedimania requires you to have file access on the server. We can\'t fetch' \
 						  'the driven replay!'
 				logger.error('Please make sure we can access the dedicated files. Configure your storage driver correctly! '
 							 '{}'.format(str(e)))
-				await self.instance.gbx.execute('ChatSendServerMessage', message)
+				await self.instance.chat(message)
 				raise DedimaniaException('Can\'t access files')
 			except PermissionError as e:
-				message = '$z$s$fff»» $f00Error: Dedimania requires you to have file access on the server. We can\'t fetch' \
+				message = '$f00Error: Dedimania requires you to have file access on the server. We can\'t fetch' \
 						  'the driven replay because of an permission problem!'
 				logger.error('We can\'t read files in the dedicated folder, your permissions don\'t allow us to read it! '
 							 '{}'.format(str(e)))
-				await self.instance.gbx.execute('ChatSendServerMessage', message)
+				await self.instance.chat(message)
 				raise DedimaniaException('Can\'t access files due to permission problems')
 		return None, results[0]
 
@@ -381,27 +379,27 @@ class Dedimania(AppConfig):
 		records_amount = len(self.current_records)
 		if records_amount > 0:
 			first_record = self.current_records[0]
-			message = '$z$s$fff»» $0b3Current Dedimania Record: $fff\uf017 {}$z$s$0b3 by $fff{}$z$s$0b3 ($fff{}$0b3 records)'.format(
+			message = '$0b3Current Dedimania Record: $fff\uf017 {}$z$s$0b3 by $fff{}$z$s$0b3 ($fff{}$0b3 records)'.format(
 				times.format_time(first_record.score), first_record.nickname, records_amount
 			)
 			calls = list()
-			calls.append(self.instance.gbx.prepare('ChatSendServerMessage', message))
+			calls.append(self.instance.chat(message))
 			for player in self.instance.player_manager.online:
 				calls.append(self.chat_personal_record(player))
 			await self.instance.gbx.multicall(*calls)
 		else:
-			message = '$z$s$fff»» $0b3There is no Dedimania Record on this map yet.'
-			await self.instance.gbx.execute('ChatSendServerMessage', message)
+			message = '$0b3There is no Dedimania Record on this map yet.'
+			await self.instance.chat(message)
 
 	async def chat_personal_record(self, player):
 		async with self.lock:
 			record = [x for x in self.current_records if x.login == player.login]
 
 		if len(record) > 0:
-			message = '$z$s$fff» $0b3You currently hold the $fff{}.$0b3 Dedimania Record: $fff\uf017 {}'.format(
+			message = '$0b3You currently hold the $fff{}.$0b3 Dedimania Record: $fff\uf017 {}'.format(
 				self.current_records.index(record[0]) + 1, times.format_time(record[0].score)
 			)
-			return self.instance.gbx.prepare('ChatSendServerMessageToLogin', message, player.login)
+			return self.instance.chat(message, player)
 		else:
-			message = '$z$s$fff» $0b3You don\'t have a Dedimania Record on this map yet.'
-			return self.instance.gbx.prepare('ChatSendServerMessageToLogin', message, player.login)
+			message = '$0b3You don\'t have a Dedimania Record on this map yet.'
+			return self.instance.chat(message, player)

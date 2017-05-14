@@ -35,6 +35,12 @@ class Query:
 		"""
 		return await self._client.execute(self.method, *self.args)
 
+	def __await__(self):
+		"""
+		Execute query directly.
+		"""
+		return self.execute().__await__()
+
 	def prepare(self):
 		"""
 		Prepare the query, marshall the payload, create binary data and calculate length (size).

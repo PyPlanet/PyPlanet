@@ -41,7 +41,7 @@ class _BaseUIManager:
 				body = '<manialink version="{}" id="{}">{}</manialink>'.format(manialink.version, manialink.id, body)
 
 				# Prepare query
-				queries.append(self.instance.gbx.prepare(
+				queries.append(self.instance.gbx(
 					'SendDisplayManialinkPageToLogin', login, body, manialink.timeout, manialink.hide_click
 				))
 
@@ -60,12 +60,12 @@ class _BaseUIManager:
 			if logins and len(logins) > 0:
 				for login in logins:
 					# Prepare query
-					queries.append(self.instance.gbx.prepare(
+					queries.append(self.instance.gbx(
 						'SendDisplayManialinkPageToLogin', login, body, manialink.timeout, manialink.hide_click
 					))
 			else:
 				# Prepare query
-				queries.append(self.instance.gbx.prepare(
+				queries.append(self.instance.gbx(
 					'SendDisplayManialinkPage', body, manialink.timeout, manialink.hide_click
 				))
 
@@ -82,9 +82,9 @@ class _BaseUIManager:
 		"""
 		body = '<manialink id="{}"></manialink>'.format(manialink.id)
 		if logins and len(logins) > 0:
-			await self.instance.gbx.execute('SendDisplayManialinkPageToLogin', ','.join(logins), body, 0, False)
+			await self.instance.gbx('SendDisplayManialinkPageToLogin', ','.join(logins), body, 0, False)
 		else:
-			await self.instance.gbx.execute('SendDisplayManialinkPage', body, 0, False)
+			await self.instance.gbx('SendDisplayManialinkPage', body, 0, False)
 
 	async def destroy(self, manialink, logins=None):
 		if manialink.id in self.manialinks:

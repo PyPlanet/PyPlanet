@@ -53,32 +53,20 @@ class MX(AppConfig):  # pragma: no cover
 			if len(infos) == 0:
 				raise MXMapNotFound()
 		except MXMapNotFound:
-			message = '$z$s$fff» $ff0Error: Can\'t add map from MX. Map not found on ManiaExchange!'
-			await self.instance.gbx.execute(
-				'ChatSendServerMessageToLogin',
-				message,
-				player.login,
-			)
+			message = '$ff0Error: Can\'t add map from MX. Map not found on ManiaExchange!'
+			await self.instance.chat(message, player)
 			return
 		except MXInvalidResponse as e:
-			message = '$z$s$fff» $ff0Error: Got invalid response from ManiaExchange: {}'.format(str(e))
-			await self.instance.gbx.execute(
-				'ChatSendServerMessageToLogin',
-				message,
-				player.login,
-			)
+			message = '$ff0Error: Got invalid response from ManiaExchange: {}'.format(str(e))
+			await self.instance.chat(message, player.login)
 			return
 
 		try:
 			if not await self.instance.storage.driver.exists(os.path.join('UserData', 'Maps', 'PyPlanet-MX')):
 				await self.instance.storage.driver.mkdir(os.path.join('UserData', 'Maps', 'PyPlanet-MX'))
 		except Exception as e:
-			message = '$z$s$fff» $ff0Error: Can\'t check or create folder: {}'.format(str(e))
-			await self.instance.gbx.execute(
-				'ChatSendServerMessageToLogin',
-				message,
-				player.login,
-			)
+			message = '$ff0Error: Can\'t check or create folder: {}'.format(str(e))
+			await self.instance.chat(message, player.login)
 			return
 
 		for mx_id, mx_info in infos:
@@ -103,17 +91,13 @@ class MX(AppConfig):  # pragma: no cover
 				result = await self.instance.map_manager.add_map(map_filename)
 
 				if result:
-					message = '$z$s$fff»» $ff0Admin $fff{}$z$s$ff0 has added the map $fff{}$z$s$ff0 by $fff{}$z$s$ff0 from MX..'.format(
+					message = '$ff0Admin $fff{}$z$s$ff0 has added the map $fff{}$z$s$ff0 by $fff{}$z$s$ff0 from MX..'.format(
 						player.nickname, mx_info['Name'], mx_info['Username']
 					)
-					await self.instance.gbx.execute('ChatSendServerMessage', message)
+					await self.instance.chat(message)
 				else:
 					raise Exception('Unknown error while adding the map!')
 			except Exception as e:
 				logger.warning('Error when player {} was adding map from mx: {}'.format(player.login, str(e)))
-				message = '$z$s$fff» $ff0Error: Can\'t add map {}, Error: {}'.format(mx_info['Name'], str(e))
-				await self.instance.gbx.execute(
-					'ChatSendServerMessageToLogin',
-					message,
-					player.login,
-				)
+				message = '$ff0Error: Can\'t add map {}, Error: {}'.format(mx_info['Name'], str(e))
+				await self.instance.chat(message, player.login)

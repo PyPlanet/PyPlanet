@@ -54,8 +54,8 @@ class MapManager(CoreContrib):
 
 		# Get current and next map.
 		self._current_map, self._next_map = await asyncio.gather(
-			self.handle_map_change(await self._instance.gbx.execute('GetCurrentMapInfo')),
-			self.handle_map_change(await self._instance.gbx.execute('GetNextMapInfo')),
+			self.handle_map_change(await self._instance.gbx('GetCurrentMapInfo')),
+			self.handle_map_change(await self._instance.gbx('GetNextMapInfo')),
 		)
 
 	async def handle_map_change(self, info):
@@ -80,7 +80,7 @@ class MapManager(CoreContrib):
 		return await self.update_list()
 
 	async def update_list(self, full_update=False):
-		raw_list = await self._instance.gbx.execute('GetMapList', -1, 0)
+		raw_list = await self._instance.gbx('GetMapList', -1, 0)
 		updated = list()
 
 		if full_update:
@@ -144,7 +144,7 @@ class MapManager(CoreContrib):
 			map = await self.get_map(map)
 		if not isinstance(map, Map):
 			raise Exception('When setting the map, you should give an Map instance!')
-		await self._instance.gbx.execute('SetNextMapIdent', map.uid)
+		await self._instance.gbx('SetNextMapIdent', map.uid)
 		self._next_map = map
 
 	@property
@@ -177,7 +177,7 @@ class MapManager(CoreContrib):
 		if not isinstance(map, Map):
 			raise Exception('When setting the map, you should give an Map instance!')
 
-		await self._instance.gbx.execute('JumpToMapIdent', map.uid)
+		await self._instance.gbx('JumpToMapIdent', map.uid)
 		self._next_map = map
 
 	def playlist_has_map(self, uid):
@@ -204,10 +204,9 @@ class MapManager(CoreContrib):
 		:raise: pyplanet.contrib.map.exceptions.MapException
 		"""
 		gbx_method = 'InsertMap' if insert else 'AddMap'
-		# matches = await self._instance.gbx.execute('CheckMapForCurrentServerParams', filename)
 
 		try:
-			return await self._instance.gbx.execute(gbx_method, filename)
+			return await self._instance.gbx(gbx_method, filename)
 		except Fault as e:
 			if 'unknown' in e.faultString:
 				raise MapNotFound('Map is not found on the server.')
@@ -257,7 +256,7 @@ class MapManager(CoreContrib):
 			raise ValueError('Map must be instance or string uid!')
 
 		try:
-			success = await self._instance.gbx.execute('RemoveMap', map)
+			success = await self._instance.gbx('RemoveMap', map)
 			if success:
 				for m in self._maps:
 					if m.file == map:
@@ -296,7 +295,7 @@ class MapManager(CoreContrib):
 			)
 
 		try:
-			await self._instance.gbx.execute('SaveMatchSettings', filename)
+			await self._instance.gbx('SaveMatchSettings', filename)
 		except Exception as e:
 			logging.exception(e)
 			raise MapException('Can\'t save matchsettings to \'{}\'!'.format(filename)) from e

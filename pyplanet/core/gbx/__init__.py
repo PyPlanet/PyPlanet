@@ -1,7 +1,6 @@
-from .client import GbxClient
+from .client import GbxClient, multicall
 
 __all__ = [
 	'GbxClient',
+	'multicall'
 ]
-
-

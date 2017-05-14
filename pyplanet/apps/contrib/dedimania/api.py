@@ -4,7 +4,7 @@ import logging
 import requests
 
 from pprint import pprint
-from xmlrpc.client import dumps, loads, Fault
+from xmlrpc.client import dumps, loads
 
 from requests import ConnectTimeout
 
@@ -142,7 +142,7 @@ class DedimaniaAPI:
 			def is_spectator(player):
 				return bool(player['SpectatorStatus'] % 10)
 
-			players = await self.instance.gbx.execute('GetPlayerList', -1, 0)
+			players = await self.instance.gbx('GetPlayerList', -1, 0)
 			player_list = [
 				{'Login': p['Login'], 'IsSpec': is_spectator(p), 'Vote': -1} for p in players if p['Login'] != self.instance.game.server_player_login
 			]

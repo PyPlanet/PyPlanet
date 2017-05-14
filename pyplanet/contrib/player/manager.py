@@ -3,7 +3,6 @@ import datetime
 import logging
 
 from peewee import DoesNotExist
-from async_generator import yield_
 
 from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.conf import settings
@@ -67,7 +66,7 @@ class PlayerManager(CoreContrib):
 		Handle startup, just before the apps will start. We will throw connects for the players so we know that the 
 		current playing players are also initiated correctly!
 		"""
-		player_list = await self._instance.gbx.execute('GetPlayerList', -1, 0)
+		player_list = await self._instance.gbx('GetPlayerList', -1, 0)
 		await asyncio.gather(*[self.handle_connect(player['Login']) for player in player_list])
 
 	async def handle_connect(self, login):
@@ -83,7 +82,7 @@ class PlayerManager(CoreContrib):
 			return
 
 		try:
-			info = await self._instance.gbx.execute('GetDetailedPlayerInfo', login)
+			info = await self._instance.gbx('GetDetailedPlayerInfo', login)
 		except:
 			# Most likely too late, did disconnect directly after connecting..
 			# See #126

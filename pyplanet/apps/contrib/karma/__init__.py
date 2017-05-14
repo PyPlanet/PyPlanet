@@ -1,3 +1,5 @@
+import asyncio
+
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.karma.views import KarmaListView
 from pyplanet.contrib.command import Command
@@ -80,8 +82,8 @@ class Karma(AppConfig):
 					finishes_required = await self.setting_finishes_before_voting.get_value()
 					player_finishes = await Score.objects.count(Score.select().where(Score.map_id == self.instance.map_manager.current_map.get_id()).where(Score.player_id == player.get_id()))
 					if player_finishes < finishes_required:
-						message = '$z$s$fff» $i$f00You have to finish this map at least $fff{}$f00 times before voting!'.format(finishes_required)
-						await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+						message = '$i$f00You have to finish this map at least $fff{}$f00 times before voting!'.format(finishes_required)
+						await self.instance.chat(message, player)
 						return
 
 				score = (1 if text == '++' else -1)
@@ -92,10 +94,12 @@ class Karma(AppConfig):
 						player_vote.score = score
 						await player_vote.save()
 
-						message = '$z$s$fff» $ff0Successfully changed your karma vote to $fff{}$ff0!'.format(text)
-						await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+						message = '$ff0Successfully changed your karma vote to $fff{}$ff0!'.format(text)
 						await self.calculate_karma()
-						await self.widget.display()
+						await asyncio.gather(
+							self.instance.chat(message, player),
+							self.widget.display()
+						)
 				else:
 					new_vote = KarmaModel(map=self.instance.map_manager.current_map, player=player, score=score)
 					await new_vote.save()
@@ -103,9 +107,11 @@ class Karma(AppConfig):
 					self.current_votes.append(new_vote)
 					await self.calculate_karma()
 
-					message = '$z$s$fff» $ff0Successfully voted $fff{}$ff0!'.format(text)
-					await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
-					await self.widget.display()
+					message = '$ff0Successfully voted $fff{}$ff0!'.format(text)
+					await asyncio.gather(
+						self.instance.chat(message, player),
+						self.widget.display()
+					)
 
 	async def get_votes_list(self, map):
 		vote_list = await KarmaModel.objects.execute(KarmaModel.select().where(KarmaModel.map_id == map.get_id()))
@@ -118,11 +124,11 @@ class Karma(AppConfig):
 
 	async def chat_current_karma(self):
 		num_current_votes = len(self.current_votes)
-		message = '$z$s$fff»» $ff0Current map karma: $fff{}$ff0 [$fff{}$ff0 votes, ++: $fff{}$ff0 ($fff{}%$ff0), --: $fff{}$ff0 ($fff{}%$ff0)]'.format(
+		message = '$ff0Current map karma: $fff{}$ff0 [$fff{}$ff0 votes, ++: $fff{}$ff0 ($fff{}%$ff0), --: $fff{}$ff0 ($fff{}%$ff0)]'.format(
 			self.current_karma, num_current_votes,
 			len(self.current_positive_votes),
 			round((len(self.current_positive_votes) / num_current_votes) * 100, 2) if num_current_votes > 0 else 0,
 			len(self.current_negative_votes),
 			round((len(self.current_negative_votes) / num_current_votes) * 100, 2) if num_current_votes > 0 else 0,
 		)
-		await self.instance.gbx.execute('ChatSendServerMessage', message)
+		await self.instance.chat(message)

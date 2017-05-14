@@ -1,11 +1,8 @@
 """
 Setting app component. Is part of the core contrib component 'setting'.
 """
-import asyncio
-
 from pyplanet.apps.core.pyplanet.views.setting import SettingMenuView
 from pyplanet.contrib.command import Command
-from pyplanet.views.generics.alert import PromptView, AlertView
 
 
 class SettingComponent:

@@ -68,8 +68,8 @@ class LocalRecords(AppConfig):
 		:return: view instance or nothing when there are no records.
 		"""
 		if not len(self.current_records):
-			message = '$z$s$fff» $i$f00There are currently no records on this map!'
-			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message, player.login)
+			message = '$i$f00There are currently no records on this map!'
+			await self.instance.chat(message, player)
 			return
 
 		# TODO: Move logic to view class.
@@ -121,14 +121,14 @@ class LocalRecords(AppConfig):
 
 			# If equal, only show message.
 			if score == current_record.score:
-				message = '$z$s$fff»» $fff{}$z$s$0f3 equalled the $fff{}.$0f3 Local Record: $fff\uf017 {}$0f3.'.format(
+				message = '$fff{}$z$s$0f3 equalled the $fff{}.$0f3 Local Record: $fff\uf017 {}$0f3.'.format(
 					player.nickname, previous_index, times.format_time(score)
 				)
 
 				if chat_announce >= previous_index:
-					return await self.instance.gbx.execute('ChatSendServerMessage', message)
+					return await self.instance.chat(message)
 				elif chat_announce != 0:
-					return await self.instance.gbx.execute('ChatSendServerMessageToLogin', message.replace('»»', '»'), player.login)
+					return await self.instance.chat(message, player.login)
 
 		else:
 			current_record = LocalRecord(
@@ -161,7 +161,7 @@ class LocalRecords(AppConfig):
 					times.format_time((previous_time - score))
 				)
 		else:
-			message = '$z$s$fff»» $fff{}$z$s$0f3 drove the $fff{}.$0f3 Local Record: $fff\uf017 {}$0f3.'.format(
+			message = '$fff{}$z$s$0f3 drove the $fff{}.$0f3 Local Record: $fff\uf017 {}$0f3.'.format(
 				player.nickname, new_index, times.format_time(score)
 			)
 
@@ -170,35 +170,35 @@ class LocalRecords(AppConfig):
 
 		coros = [self.widget.display()]
 		if chat_announce >= new_index:
-			coros.append(self.instance.gbx.execute('ChatSendServerMessage', message))
+			coros.append(self.instance.chat(message))
 		elif chat_announce != 0:
-			coros.append(self.instance.gbx.execute('ChatSendServerMessageToLogin', message.replace('»»', '»'), player.login))
+			coros.append(self.instance.chat(message, player))
 		await asyncio.gather(*coros)
 
 	async def chat_current_record(self):
 		records_amount = len(self.current_records)
 		if records_amount > 0:
 			first_record = self.current_records[0]
-			message = '$z$s$fff»» $0f3Current Local Record: $fff\uf017 {}$z$s$0f3 by $fff{}$z$s$0f3 ($fff{}$0f3 records)'.format(
+			message = '$0f3Current Local Record: $fff\uf017 {}$z$s$0f3 by $fff{}$z$s$0f3 ($fff{}$0f3 records)'.format(
 				times.format_time(first_record.score), first_record.player.nickname, records_amount
 			)
 			calls = list()
-			calls.append(self.instance.gbx.prepare('ChatSendServerMessage', message))
+			calls.append(self.instance.chat(message))
 			for player in self.instance.player_manager.online:
 				calls.append(self.chat_personal_record(player))
 			await self.instance.gbx.multicall(*calls)
 		else:
-			message = '$z$s$fff»» $0f3There is no Local Record on this map yet.'
-			await self.instance.gbx.execute('ChatSendServerMessage', message)
+			message = '$0f3There is no Local Record on this map yet.'
+			await self.instance.chat(message)
 
 	def chat_personal_record(self, player):
 		record = [x for x in self.current_records if x.player_id == player.get_id()]
 
 		if len(record) > 0:
-			message = '$z$s$fff» $0f3You currently hold the $fff{}.$0f3 Local Record: $fff\uf017 {}'.format(
+			message = '$0f3You currently hold the $fff{}.$0f3 Local Record: $fff\uf017 {}'.format(
 				self.current_records.index(record[0]) + 1, times.format_time(record[0].score)
 			)
-			return self.instance.gbx.prepare('ChatSendServerMessageToLogin', message, player.login)
+			return self.instance.chat(message, player)
 		else:
-			message = '$z$s$fff» $0f3You don\'t have a Local Record on this map yet.'
-			return self.instance.gbx.prepare('ChatSendServerMessageToLogin', message, player.login)
+			message = '$0f3You don\'t have a Local Record on this map yet.'
+			return self.instance.chat(message, player)

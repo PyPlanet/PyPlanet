@@ -145,10 +145,8 @@ class Command:
 				instance.permission_manager.has_permission(player, perm) for perm in self.perms
 			])
 			if not all(allowed is True for allowed in is_allowed):
-				# TODO: Refactor to exception.
-				await instance.gbx.execute(
-					'ChatSendServerMessageToLogin',
-					'$z$s >> You are not authorized to use this command!',
+				await instance.chat(
+					'$z$sYou are not authorized to use this command!',
 					player.login
 				)
 				return
@@ -159,18 +157,9 @@ class Command:
 		# Parse, validate and show errors if any.
 		self.parser.parse(paramv)
 		if not self.parser.is_valid():
-			# TODO: Refactor to exception.
 			await instance.gbx.multicall(
-				instance.gbx.prepare(
-					'ChatSendServerMessageToLogin',
-					'$z$s >> Command operation got invalid arguments: {}'.format(', '.join(self.parser.errors)),
-					player.login
-				),
-				instance.gbx.prepare(
-					'ChatSendServerMessageToLogin',
-					'$z$s >> {}'.format(self.usage_text),
-					player.login
-				)
+				instance.chat('$z$sCommand operation got invalid arguments: {}'.format(', '.join(self.parser.errors)), player),
+				instance.chat('$z$s >> {}'.format(self.usage_text), player),
 			)
 			return
 

@@ -2,7 +2,6 @@
 Player Admin methods and functions.
 """
 from pyplanet.contrib.command import Command
-from pyplanet.contrib.player.exceptions import PlayerNotFound
 
 
 class PyPlanetAdmin:

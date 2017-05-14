@@ -1,6 +1,8 @@
 import asyncio
 import logging
 
+import collections
+
 from pyplanet.core.gbx.query import Query, ScriptQuery
 from .remote import GbxRemote
 
@@ -21,6 +23,11 @@ class GbxClient(GbxRemote):
 		self.script_api_version = script_api_version
 		self.game = self.instance.game
 		self.refresh_task = None
+
+	def __call__(self, *args, **kwargs):
+		if len(args) <= 0:
+			return
+		return self.prepare(args[0], *args[1:], **kwargs)
 
 	def prepare(self, method, *args, **kwargs):
 		"""
@@ -59,6 +66,10 @@ class GbxClient(GbxRemote):
 		"""
 		if len(queries) == 0:
 			return tuple()
+
+		# If we got a list instead. unpack it.
+		# if len(queries) == 1 and isinstance(queries[0], collections.Iterable):
+		# 	queries = queries[0]
 
 		# We will try to put the maximum possible calls into one multicall, for this we need to calculate the lengths
 		# so we can stay under the maximum allowed package size.
@@ -123,14 +134,14 @@ class GbxClient(GbxRemote):
 		should be stable.
 		"""
 		# Clear the previous created Manialinks.
-		await self.execute('SendHideManialinkPage')
+		await self('SendHideManialinkPage')
 
 		# Try to get the script api_versions.
 		try:
-			api_versions = await self.script('XmlRpc.GetAllApiVersions')
+			api_versions = await self('XmlRpc.GetAllApiVersions')
 			if 'versions' in api_versions and self.script_api_version in api_versions['versions']:
-				await self.script('XmlRpc.SetApiVersion', self.script_api_version, response_id=False)
-			self.script_api_version = await self.script('XmlRpc.GetApiVersion')
+				await self('XmlRpc.SetApiVersion', self.script_api_version, response_id=False)
+			self.script_api_version = await self('XmlRpc.GetApiVersion')
 		except Exception as e:
 			logger.info('Can\'t set the script API Version! {}'.format(str(e)))
 
@@ -147,17 +158,17 @@ class GbxClient(GbxRemote):
 	async def refresh_info(self):
 		# Version Information
 		res = await self.multicall(
-			self.prepare('GetVersion'),
-			self.prepare('GetSystemInfo'),
-			self.prepare('GameDataDirectory'),
-			self.prepare('GetMapsDirectory'),
-			self.prepare('GetSkinsDirectory'),
-			self.prepare('GetCurrentMapInfo'),
-			self.prepare('GetServerPassword'),
-			self.prepare('GetServerPasswordForSpectator'),
-			self.prepare('GetMaxPlayers'),
-			self.prepare('GetMaxSpectators'),
-			self.prepare('GetHideServer'),
+			self('GetVersion'),
+			self('GetSystemInfo'),
+			self('GameDataDirectory'),
+			self('GetMapsDirectory'),
+			self('GetSkinsDirectory'),
+			self('GetCurrentMapInfo'),
+			self('GetServerPassword'),
+			self('GetServerPasswordForSpectator'),
+			self('GetMaxPlayers'),
+			self('GetMaxSpectators'),
+			self('GetHideServer'),
 		)
 		version_info = res[0]
 		self.game.dedicated_version = version_info['Version']
@@ -190,8 +201,21 @@ class GbxClient(GbxRemote):
 		self.game.server_is_private = res[10]
 
 		# Detailed server player infos.
-		server_player_info = await self.execute('GetDetailedPlayerInfo', self.game.server_player_login)
+		server_player_info = await self('GetDetailedPlayerInfo', self.game.server_player_login)
 
 		self.game.server_language = server_player_info['Language']
 		self.game.server_name = server_player_info['NickName']
 		self.game.server_path = server_player_info['Path']
+
+
+async def multicall(*calls):
+	"""
+	Run the queries given async. Will use one or more multicall(s), depends on content.
+	
+	:param queries: Queries to execute in multicall.
+	:return: Results in tuple.
+	:rtype: tuple<any>
+	"""
+	from pyplanet.core import Controller
+	return await Controller.instance.gbx.multicall(*calls)
+
