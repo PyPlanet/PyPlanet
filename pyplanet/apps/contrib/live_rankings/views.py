@@ -33,7 +33,7 @@ class LiveRankingsWidget(TimesWidgetView):
 			self.format_times = True
 			self.display_cpdifference = False
 		elif 'Laps' in current_script:
-			self.format_times = False
+			self.format_times = True
 			self.display_cpdifference = True
 		else:
 			self.format_times = False
@@ -123,6 +123,8 @@ class LiveRankingsWidget(TimesWidgetView):
 						# Calculate difference to first player
 						best_cp = best['cp_times'][(record['cps'] - 1)]
 						current_diff = (record['score'] - best['cp_times'][(record['cps'] - 1)])
+						if current_diff < 0:
+							current_diff = -current_diff
 						list_record['score'] = '+ ' + times.format_time(int(current_diff))
 
 					if record['finish']:

@@ -18,9 +18,11 @@ class LiveRankings(AppConfig):
 	async def on_start(self):
 		# Register signals
 		self.instance.signal_manager.listen(mp_signals.map.map_start, self.map_start)
+		self.instance.signal_manager.listen(mp_signals.flow.round_start, self.round_start)
 		self.instance.signal_manager.listen(tm_signals.finish, self.player_finish)
 		self.instance.signal_manager.listen(tm_signals.waypoint, self.player_waypoint)
 		self.instance.signal_manager.listen(mp_signals.player.player_connect, self.player_connect)
+		self.instance.signal_manager.listen(mp_signals.player.player_disconnect, self.player_disconnect)
 		self.instance.signal_manager.listen(tm_signals.give_up, self.player_giveup)
 		self.instance.signal_manager.listen(tm_signals.scores, self.scores)
 
@@ -35,13 +37,20 @@ class LiveRankings(AppConfig):
 		return mode.startswith('TimeAttack') or mode.startswith('Rounds') or mode.startswith('Team') or \
 			   mode.startswith('Laps') or mode.startswith('Cup')
 
+	async def round_start(self, **kwargs):
+		if 'Laps' not in await self.instance.mode_manager.get_current_script():
+			return
+
+		self.current_rankings = []
+		await self.widget.display()
+
 	async def scores(self, section, players, **kwargs):
 		await self.handle_scores(players)
 		await self.widget.display()
 
 	async def handle_scores(self, players):
 		self.current_rankings = []
-		
+
 		current_script = await self.instance.mode_manager.get_current_script()
 		if 'TimeAttack' in current_script:
 			for player in players:
@@ -75,6 +84,17 @@ class LiveRankings(AppConfig):
 
 	async def player_connect(self, player, is_spectator, source, signal):
 		await self.widget.display(player=player)
+
+	async def player_disconnect(self, player, **kwargs):
+		if 'Laps' not in await self.instance.mode_manager.get_current_script():
+			return
+
+		current_rankings = [x for x in self.current_rankings if x['nickname'] == player.nickname]
+		if len(current_rankings) > 0:
+			current_ranking = current_rankings[0]
+			current_ranking['giveup'] = True
+
+		await self.widget.display()
 
 	async def player_giveup(self, time, player, flow):
 		if 'Laps' not in await self.instance.mode_manager.get_current_script():
