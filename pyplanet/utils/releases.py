@@ -11,5 +11,4 @@ async def check_latest_version(instance):
 		current = version.parse(current_version)
 
 		if latest > current:
-			message = '\uf1e6 $FD4$oPy$369Planet$z$s$fff \uf0e7 new version available: v{}'.format(latest_name)
-			await instance.gbx.execute('ChatSendServerMessage', message)
+			await instance.chat('\uf1e6 $FD4$oPy$369Planet$z$s$fff \uf0e7 new version available: v{}'.format(latest_name))

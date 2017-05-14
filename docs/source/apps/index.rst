@@ -13,6 +13,7 @@ App Development
   access_instance
   models
   migrations
+  chat
 
 
 Useful references

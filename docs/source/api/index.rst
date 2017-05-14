@@ -24,5 +24,6 @@ Modules:
     contrib_setting
     contrib_mode
     contrib_converter
+    contrib_chat
 
     utils
