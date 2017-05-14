@@ -44,6 +44,12 @@ class Dedimania(AppConfig):
 			default=None
 		)
 
+		self.setting_chat_announce = Setting(
+			'chat_announce', 'Minimum index for chat announce', Setting.CAT_BEHAVIOUR, type=int,
+			description='Minimum record index needed for public new record/recordchange announcement (0 for disable).',
+			default=50
+		)
+
 		self.login = self.code = self.server_version = self.pack_mask = None
 
 	def is_mode_supported(self, mode):
@@ -52,7 +58,7 @@ class Dedimania(AppConfig):
 
 	async def on_start(self):
 		# Init settings.
-		await self.context.setting.register(self.setting_server_login, self.setting_dedimania_code)
+		await self.context.setting.register(self.setting_server_login, self.setting_dedimania_code, self.setting_chat_announce)
 
 		# Check setting + return errors if not correct!
 		self.login = await self.setting_server_login.get_value(refresh=True) or self.instance.game.server_player_login
@@ -229,6 +235,7 @@ class Dedimania(AppConfig):
 			return
 		player_info = self.player_info[player.login]
 		current_records = [x for x in self.current_records if x.login == player.login]
+		chat_announce = await self.setting_chat_announce.get_value()
 		score = lap_time
 		if len(current_records) > 0:
 			current_record = current_records[0]
@@ -277,16 +284,22 @@ class Dedimania(AppConfig):
 						times.format_time((previous_time - score))
 					)
 
-				await asyncio.gather(
-					self.instance.gbx.execute('ChatSendServerMessage', message),
-					self.widget.display()
-				)
+				if chat_announce >= new_rank:
+					await self.instance.gbx.execute('ChatSendServerMessage', message)
+				elif chat_announce != 0:
+					await self.instance.gbx.execute('ChatSendServerMessageToLogin', message.replace('»»', '»'), player.login)
+
+				await self.widget.display()
 
 			elif score == current_record.score:
 				message = '$z$s$fff»» $fff{}$z$s$0b3 equalled the $fff{}.$0b3 Dedimania Record, with a time of $fff\uf017 {}$0b3.'.format(
 					player.nickname, previous_index, times.format_time(score)
 				)
-				await self.instance.gbx.execute('ChatSendServerMessage', message)
+
+				if chat_announce >= previous_index:
+					return await self.instance.gbx.execute('ChatSendServerMessage', message)
+				elif chat_announce != 0:
+					return await self.instance.gbx.execute('ChatSendServerMessageToLogin', message.replace('»»', '»'), player.login)
 
 		else:
 			new_record = DedimaniaRecord(
