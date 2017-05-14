@@ -1,6 +1,8 @@
 import asyncio
 import logging
 
+from .controller import Controller as _Controller
+
 from pyplanet import __version__ as version
 
 from pyplanet.apps import Apps
@@ -21,6 +23,7 @@ from pyplanet.contrib.command import CommandManager
 from pyplanet.contrib.permission import PermissionManager
 from pyplanet.contrib.setting import GlobalSettingManager
 from pyplanet.contrib.mode import ModeManager
+from pyplanet.contrib.chat import ChatManager
 
 logger = logging.getLogger(__name__)
 
@@ -67,12 +70,13 @@ class Instance:
 		self.apps = 				Apps(self)
 
 		# Contrib components.
-		self.map_manager =			MapManager(self)
-		self.player_manager =		PlayerManager(self)
-		self.permission_manager =	PermissionManager(self)
-		self.command_manager =		CommandManager(self)
-		self.setting_manager =		GlobalSettingManager(self)
-		self.mode_manager =			ModeManager(self)
+		self.map_manager =				MapManager(self)
+		self.player_manager =			PlayerManager(self)
+		self.permission_manager =		PermissionManager(self)
+		self.command_manager =			CommandManager(self)
+		self.setting_manager =			GlobalSettingManager(self)
+		self.mode_manager =				ModeManager(self)
+		self.chat_manager = self.chat = ChatManager(self)
 
 		# Populate apps.
 		self.apps.populate(settings.MANDATORY_APPS, in_order=True)
@@ -146,6 +150,7 @@ class Instance:
 		await self.permission_manager.on_start()
 		await self.command_manager.on_start()
 		await self.mode_manager.on_start()
+		await self.chat_manager.on_start()
 
 		# Start the apps, call the on_ready, resulting in apps user logic to be started.
 		await self.print_header()
@@ -159,43 +164,30 @@ class Instance:
 		await self.__fire_signal(signals.pyplanet_start_after)
 
 	async def print_header(self):  # pragma: no cover
-		await self.gbx.execute('ChatSendServerMessage', '')
-		await self.gbx.execute('ChatSendServerMessage', '$fff$o$w⏳$z$fff Loading...')
+		await self.chat.execute(
+			self.chat('', raw=True),
+			self.chat('$fff$o$w⏳$z$fff Loading...', raw=True)
+		)
 
 	async def print_footer(self):  # pragma: no cover
-		await self.gbx.execute('ChatSendServerMessage', '\uf1e6 $o$FD4Py$369Planet$z$o$s$fff v{}, {}\uf013 $z$s $369|$FD4 '
-														'$l[http://pypla.net]Site$l $369|$FD4 '
-														'$l[https://github.com/PyPlanet]Github$l $369|$FD4 '
-														'$l[http://pypla.net]Docs$l'.format(version, len(self.apps.apps)))
+		await self.chat(
+			'\uf1e6 $o$FD4Py$369Planet$z$o$s$fff v{}, {}\uf013 $z$s $369|$FD4 '
+			'$l[http://pypla.net]Site$l $369|$FD4 '
+			'$l[https://github.com/PyPlanet]Github$l $369|$FD4 '
+			'$l[http://pypla.net]Docs$l'.format(version, len(self.apps.apps)),
+			raw=True
+		)
 
-		# Check for update.
+		# TODO: Write analytics util for this. Fire every admin connect (random admin connect). Fetch new version x hours.
 		try:
 			asyncio.ensure_future(releases.check_latest_version(self))
 		except:
 			pass  # Completely ignore errors while checking for the latest version.
 
 
-class _Controller:
-	def __init__(self, *args, **kwargs):
-		self.name = None
-		self.__instance = None
-
-	def prepare(self, name):
-		self.name = name
-		self.__instance = Instance(name)
-		return self
-
-	@property
-	def instance(self):
-		"""
-		Get active instance in current process.
-
-		:return: Controller Instance
-		:rtype: pyplanet.core.instance.Instance
-		"""
-		return self.__instance
-
-Controller = _Controller()
+Controller = _Controller
 """
 Controller access point to prevent circular imports. This is a lazy provided way to get the instance from anywhere!
+:type Controller: pyplanet.core.Controller
+:type: pyplanet.core.Controller
 """
