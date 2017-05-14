@@ -79,3 +79,43 @@ server_chat = Signal(
 :Origin Callback:
 	None (via Chat callback).
 """
+
+
+channel_progression_start = Callback(
+	call='Script.ManiaPlanet.ChannelProgression_Start',
+	namespace='maniaplanet',
+	code='channel_progression_start',
+	target=handle_generic
+)
+"""
+:Signal: 
+	Signal sent when channel progression sequence starts.
+:Code:
+	``maniaplanet:channel_progression_start``
+:Description:
+	Callback sent when the channel progression sequence starts.
+:Original Callback:
+	`Script` Maniaplanet.ChannelProgression_Start
+
+:param time: Time when callback has been sent.
+"""
+
+
+channel_progression_end = Callback(
+	call='Script.ManiaPlanet.ChannelProgression_End',
+	namespace='maniaplanet',
+	code='channel_progression_end',
+	target=handle_generic
+)
+"""
+:Signal: 
+	Signal sent when channel progression sequence ends.
+:Code:
+	``maniaplanet:channel_progression_end``
+:Description:
+	Callback sent when the channel progression sequence ends.
+:Original Callback:
+	`Script` Maniaplanet.ChannelProgression_End
+
+:param time: Time when callback has been sent.
+"""

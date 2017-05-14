@@ -74,9 +74,9 @@ class ModeManager(CoreContrib):
 		"""
 		if refresh or not self._current_script:
 			payload = await self._instance.gbx('GetScriptName')
-			self._current_script = payload['CurrentValue']
+			self._current_script = payload['CurrentValue'].partition('.')[0]
 			if 'NextValue' in payload:
-				self._next_script = payload['NextValue']
+				self._next_script = payload['NextValue'].partition('.')[0]
 		return self._current_script
 
 	async def get_next_script(self, refresh=False):

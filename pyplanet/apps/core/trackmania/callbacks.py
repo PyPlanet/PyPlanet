@@ -390,3 +390,27 @@ finish = Signal(
 :type is_end_race: bool
 :type is_end_lap: bool
 """
+
+
+warmup_status = Callback(
+	call='Script.Trackmania.WarmUp.Status',
+	namespace='trackmania',
+	code='warmup_status',
+	target=handle_generic
+)
+"""
+:Signal: 
+	Status of Trackmania warmup. (mostly as response).
+:Code:
+	``trackmania:warmup_status``
+:Description:
+	The status of Trackmania's the warmup.
+:Original Callback:
+	`Script` Trackmania.WarmUp.Status
+
+:param responseid: Internally used. Ignore
+:param available: Is warmup available in the game mode. (Boolean).
+:param active: Is warmup active and ongoing right now.
+:type available: bool
+:type active: bool
+"""
