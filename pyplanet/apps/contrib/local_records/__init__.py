@@ -168,16 +168,12 @@ class LocalRecords(AppConfig):
 		# Save to database (but don't wait for it).
 		asyncio.ensure_future(current_record.save())
 
+		coros = [self.widget.display()]
 		if chat_announce >= new_index:
-			await asyncio.gather(
-				self.instance.gbx.execute('ChatSendServerMessage', message),
-				self.widget.display()
-			)
+			coros.append(self.instance.gbx.execute('ChatSendServerMessage', message))
 		elif chat_announce != 0:
-			await asyncio.gather(
-				self.instance.gbx.execute('ChatSendServerMessageToLogin', message.replace('»»', '»'), player.login),
-				self.widget.display()
-			)
+			coros.append(self.instance.gbx.execute('ChatSendServerMessageToLogin', message.replace('»»', '»'), player.login))
+		await asyncio.gather(*coros)
 
 	async def chat_current_record(self):
 		records_amount = len(self.current_records)
