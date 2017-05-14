@@ -1,0 +1,14 @@
+{% extends 'core.views/generics/widget.xml' %}
+
+{% block content %}
+  {% if times != None %}
+    {% for time in times %}
+      <label pos="4 -{{ (loop.index0 * 3.3) + 0.7 }}" size="4 2" z-index="2" halign="right" textsize="0.8" text="$s{{ time.index }}."/>
+      <label pos="4.5 -{{ (loop.index0 * 3.3) + 0.7 }}" size="{{ (size_x - 14 - 6.5) }} 2" z-index="2" halign="left" textsize="0.75" text="$s{{ time.nickname }}"/>
+      <label pos="35 -{{ (loop.index0 * 3.3) + 0.7 }}" size="8 2" z-index="2" halign="right" textsize="0.8" text="{{ time.color }}{{ time.score }}"/>
+      {% if time.cp_difference != None and time.cp_difference != 0 %}
+        <label pos="40.5 -{{ (loop.index0 * 3.3) + 0.7 }}" size="5 2" z-index="2" halign="right" textsize="0.8" text="$fff+{{ time.cp_difference }} cp"/>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+{% endblock %}
