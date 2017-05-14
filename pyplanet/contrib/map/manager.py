@@ -39,10 +39,11 @@ class MapManager(CoreContrib):
 		self._matchsettings = None
 
 		# The maps contain a list of map instances in the order that are in the current loaded list.
-		self._maps = set()  # TODO: Update list at changes, such as matchsettings load, or insert of a map.
+		self._maps = set()
 
 		# The current map will always be in this variable. The next map will always be here. It will be updated. once
 		# it's updated it should be send to the dedicated to queue the next map.
+		self._previous_map = None
 		self._current_map = None
 		self._next_map = None
 
@@ -57,6 +58,7 @@ class MapManager(CoreContrib):
 			self.handle_map_change(await self._instance.gbx('GetCurrentMapInfo')),
 			self.handle_map_change(await self._instance.gbx('GetNextMapInfo')),
 		)
+		self._previous_map = None
 
 	async def handle_map_change(self, info):
 		"""
@@ -73,6 +75,7 @@ class MapManager(CoreContrib):
 			time_bronze=info['BronzeTime'], time_silver=info['SilverTime'], time_gold=info['GoldTime'],
 			price=info['CopperPrice']
 		)
+		self._previous_map = self._current_map
 		self._current_map = map_info
 		return map_info
 
@@ -155,6 +158,15 @@ class MapManager(CoreContrib):
 		:rtype: pyplanet.apps.core.maniaplanet.models.Map
 		"""
 		return self._current_map
+
+	@property
+	def previous_map(self):
+		"""
+		The previously played map, or None if not known!
+		
+		:rtype: pyplanet.apps.core.maniaplanet.models.Map 
+		"""
+		return self._previous_map
 
 	@property
 	def maps(self):

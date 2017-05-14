@@ -22,6 +22,7 @@ class MapAdmin:
 		self.instance = app.instance
 
 	async def on_start(self):
+		await self.instance.permission_manager.register('previous', 'Skip to the previous map', app=self.app, min_level=1)
 		await self.instance.permission_manager.register('next', 'Skip to the next map', app=self.app, min_level=1)
 		await self.instance.permission_manager.register('restart', 'Restart the maps', app=self.app, min_level=1)
 		await self.instance.permission_manager.register('add_local_map', 'Add map from server disk', app=self.app, min_level=2)
@@ -31,6 +32,7 @@ class MapAdmin:
 		await self.instance.command_manager.register(
 			Command(command='next', target=self.next_map, perms='admin:next', admin=True),
 			Command(command='skip', target=self.next_map, perms='admin:next', admin=True),
+			Command(command='previous', aliases=['prev'], target=self.prev_map, perms='admin:previous', admin=True),
 			Command(command='restart', aliases=['res', 'rs'], target=self.restart_map, perms='admin:restart', admin=True),
 			Command(command='local', namespace='add', target=self.add_local_map, perms='admin:add_local_map', admin=True)
 				.add_param('map', nargs=1, type=str, required=True, help='Map filename (relative to Maps directory).'),
@@ -40,6 +42,28 @@ class MapAdmin:
 				.add_param('nr', required=False, type=int, help='The number from a list window or the unique identifier.'),
 			Command(command='writemaplist', aliases=['wml'], target=self.write_map_list, perms='admin:write_map_list', admin=True)
 				.add_param('file', required=False, type=str, help='Give custom match settings file to save to.')
+		)
+
+	async def prev_map(self, player, data, **kwargs):
+		if not self.instance.map_manager.previous_map:
+			message = '$ff0Error: Previous map is not known'
+			return await self.instance.chat(message, player.login)
+		if self.instance.map_manager.previous_map == self.instance.map_manager.current_map:
+			message = '$ff0Error: Previous map is the same as the current map'
+			return await self.instance.chat(message, player.login)
+
+		if 'jukebox' in self.instance.apps.apps:
+			self.instance.apps.apps['jukebox'].jukebox = [
+				{'player': player, 'map': self.instance.map_manager.previous_map}
+			] + self.instance.apps.apps['jukebox'].jukebox
+			pass
+		else:
+			await self.instance.map_manager.set_next_map(self.instance.map_manager.previous_map)
+
+		message = '$ff0Admin $fff{}$z$s$ff0 has skipped to the previous map.'.format(player.nickname)
+		await self.instance.gbx.multicall(
+			self.instance.gbx('NextMap'),
+			self.instance.chat(message)
 		)
 
 	async def next_map(self, player, data, **kwargs):
