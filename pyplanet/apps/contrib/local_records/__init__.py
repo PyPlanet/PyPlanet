@@ -102,9 +102,9 @@ class LocalRecords(AppConfig):
 		await self.widget.display(player=player)
 
 	async def player_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
+		chat_announce = await self.setting_chat_announce.get_value()
 		current_records = [x for x in self.current_records if x.player_id == player.get_id()]
 		score = lap_time
-		chat_announce = await self.setting_chat_announce.get_value()
 
 		previous_index = None
 		previous_time = None
@@ -169,11 +169,15 @@ class LocalRecords(AppConfig):
 		asyncio.ensure_future(current_record.save())
 
 		if chat_announce >= new_index:
-			await self.instance.gbx.execute('ChatSendServerMessage', message)
+			await asyncio.gather(
+				self.instance.gbx.execute('ChatSendServerMessage', message),
+				self.widget.display()
+			)
 		elif chat_announce != 0:
-			await self.instance.gbx.execute('ChatSendServerMessageToLogin', message.replace('»»', '»'), player.login)
-
-		await self.widget.display()
+			await asyncio.gather(
+				self.instance.gbx.execute('ChatSendServerMessageToLogin', message.replace('»»', '»'), player.login),
+				self.widget.display()
+			)
 
 	async def chat_current_record(self):
 		records_amount = len(self.current_records)

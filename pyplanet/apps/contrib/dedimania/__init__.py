@@ -234,8 +234,8 @@ class Dedimania(AppConfig):
 			logger.warning('Player info not (yet) retrieved from dedimania for the player {}'.format(player.login))
 			return
 		player_info = self.player_info[player.login]
-		current_records = [x for x in self.current_records if x.login == player.login]
 		chat_announce = await self.setting_chat_announce.get_value()
+		current_records = [x for x in self.current_records if x.login == player.login]
 		score = lap_time
 		if len(current_records) > 0:
 			current_record = current_records[0]
@@ -285,11 +285,15 @@ class Dedimania(AppConfig):
 					)
 
 				if chat_announce >= new_rank:
-					await self.instance.gbx.execute('ChatSendServerMessage', message)
+					await asyncio.gather(
+						self.instance.gbx.execute('ChatSendServerMessage', message),
+						self.widget.display()
+					)
 				elif chat_announce != 0:
-					await self.instance.gbx.execute('ChatSendServerMessageToLogin', message.replace('»»', '»'), player.login)
-
-				await self.widget.display()
+					await asyncio.gather(
+						self.instance.gbx.execute('ChatSendServerMessageToLogin', message.replace('»»', '»'), player.login),
+						self.widget.display()
+					)
 
 			elif score == current_record.score:
 				message = '$z$s$fff»» $fff{}$z$s$0b3 equalled the $fff{}.$0b3 Dedimania Record, with a time of $fff\uf017 {}$0b3.'.format(
