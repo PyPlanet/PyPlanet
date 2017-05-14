@@ -53,9 +53,6 @@ class TestChat(asynctest.TestCase):
 		# MOCK:
 		instance.gbx.gbx_methods = ['ChatSendServerMessageToLogin', 'ChatSendServerMessage']
 
-		with self.assertRaises(ChatException):
-			_ = instance.chat.prepare().to_players(['test-1', 'test-2']).gbx_query
-
 		chat = instance.chat.prepare().to_players(['test-1', 'test-2']).message('Test')
 		assert chat.gbx_query.method == 'ChatSendServerMessageToLogin'
 		assert len(chat.gbx_query.args) == 2
@@ -67,3 +64,11 @@ class TestChat(asynctest.TestCase):
 		chat = instance.chat.prepare().to_all().message('Test')
 		assert chat.gbx_query.method == 'ChatSendServerMessage'
 		assert len(chat.gbx_query.args) == 1
+
+	async def test_short_syntax(self):
+		instance = Controller.prepare(name='default').instance
+		# MOCK:
+		instance.gbx.gbx_methods = ['ChatSendServerMessageToLogin', 'ChatSendServerMessage']
+
+		prepared = instance.chat('Test')
+		assert isinstance(prepared, ChatQuery)
