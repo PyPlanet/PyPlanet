@@ -105,7 +105,7 @@ class MapManager(CoreContrib):
 							environment=details['Environnement'], time_gold=details['GoldTime'],
 							price=details['CopperPrice'], map_type=details['MapType'], map_style=details['MapStyle']
 						)
-						self._maps.append(map_instance)
+						self._maps.add(map_instance)
 						updated.append(map_instance)
 		return updated
 
