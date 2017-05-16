@@ -8,7 +8,7 @@ pyplanet.core.ui
 .. automodule:: pyplanet.core.ui
   :members:
 
-.. automodule:: pyplanet.core.ui.custom_ui
+.. automodule:: pyplanet.core.ui.ui_properties
   :members:
 
 .. automodule:: pyplanet.core.ui.components

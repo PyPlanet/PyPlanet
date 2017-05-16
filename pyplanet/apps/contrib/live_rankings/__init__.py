@@ -24,8 +24,9 @@ class LiveRankings(AppConfig):
 		self.instance.signal_manager.listen(tm_signals.give_up, self.player_giveup)
 		self.instance.signal_manager.listen(tm_signals.scores, self.scores)
 
-		# Make sure we don't display the round_scores globally.
-		print(self.instance.ui_manager.properties)
+		# Make sure we hide rounds_scores.
+		self.instance.ui_manager.properties.set_visibility('round_scores', False)
+		self.instance.ui_manager.properties.set_attribute('multilap_info', 'pos', '107., 88., 5.')
 
 		self.widget = LiveRankingsWidget(self)
 		await self.widget.display()

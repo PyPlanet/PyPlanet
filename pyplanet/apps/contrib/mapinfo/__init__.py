@@ -18,6 +18,9 @@ class MapInfo(AppConfig):
 		self.instance.signal_manager.listen(mp_signals.map.map_begin, self.map_begin)
 		self.instance.signal_manager.listen(mp_signals.player.player_connect, self.player_connect)
 
+		# Move the multilapinfo a bit. (Only Trackmania).
+		self.instance.ui_manager.properties.set_attribute('multilap_info', 'pos', '107., 88., 5.')
+
 		self.widget = MapInfoWidget(self)
 		await self.widget.display()
 

@@ -101,14 +101,10 @@ class GlobalUIManager(_BaseUIManager):
 	def __init__(self, instance):
 		super().__init__(instance)
 		self.app_managers = dict()
-		self._properties = UIProperties(self.instance)
+		self.properties = UIProperties(self.instance)
 
 	async def on_start(self):
-		await self._properties.on_start()
-
-	@property
-	def properties(self):
-		return self._properties.properties
+		await self.properties.on_start()
 
 	def create_app_manager(self, app_config):
 		"""
