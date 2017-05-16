@@ -2,6 +2,8 @@
 The database migrator class has logic for migrating existing models and holds some information like actual versions
 and differences.
 """
+import asyncio
+
 import importlib
 import logging
 import peewee
@@ -49,6 +51,34 @@ class Migrator:
 				self.pass_migrations.add(app.label)
 
 		self.db.engine.create_tables(creating, safe=True)
+
+	async def check(self):
+		"""
+		Check the database health.
+		"""
+		try:
+			if isinstance(self.migrator, MySQLMigrator):
+				cursor = self.db.engine.execute_sql(
+					'SELECT DEFAULT_COLLATION_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME LIKE %s;',
+					self.db.engine.database
+				)
+				result = cursor.fetchone()
+				if len(result) == 1:
+					if result[0] != 'utf8mb4_unicode_ci':
+						logger.error(
+							'Your database collate is \'{}\' and it should be \'utf8mb4_unicode_ci\'! '
+							'Please change your database collate right now!'.format(result[0])
+						)
+						logger.warning(
+							'Change with: '
+							'ALTER SCHEMA {} DEFAULT CHARACTER SET utf8mb4  DEFAULT COLLATE utf8mb4_unicode_ci ;'.format(
+								self.db.engine.database
+							)
+						)
+						logger.info('Wait 5 seconds to ignore!... (We strongly advice to change it!)')
+						await asyncio.sleep(5)
+		except:
+			pass  # Totally ignore.
 
 	async def migrate(self):
 		"""

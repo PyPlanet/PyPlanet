@@ -83,6 +83,10 @@ class Database:
 		with self.allow_sync():
 			migration.Migration.create_table(True)
 
+		# Execute checks.
+		with self.allow_sync():
+			await self.migrator.check()
+
 		# Migrate all models.
 		with self.allow_sync():
 			await self.migrator.migrate()
