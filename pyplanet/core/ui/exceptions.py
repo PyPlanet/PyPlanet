@@ -13,3 +13,10 @@ class ManialinkMemoryLeakException(UIException):
 	vanished for the specified player(s).
 	"""
 	pass
+
+
+class UIPropertyDoesNotExist(UIException):
+	"""
+	Thrown when UI Property with element doesn't exist.
+	"""
+	pass

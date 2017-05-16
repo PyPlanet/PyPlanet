@@ -1,4 +1,4 @@
-from pyplanet.core.ui.custom_ui import CustomUI
+from pyplanet.core.ui.ui_properties import UIProperties
 
 
 class _BaseUIManager:
@@ -101,10 +101,10 @@ class GlobalUIManager(_BaseUIManager):
 	def __init__(self, instance):
 		super().__init__(instance)
 		self.app_managers = dict()
-		self.custom_ui = CustomUI(self.instance)
+		self.properties = UIProperties(self.instance)
 
 	async def on_start(self):
-		await self.custom_ui.on_start()
+		await self.properties.on_start()
 
 	def create_app_manager(self, app_config):
 		"""
