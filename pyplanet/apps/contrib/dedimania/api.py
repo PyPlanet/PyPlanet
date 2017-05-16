@@ -9,7 +9,8 @@ from xmlrpc.client import dumps, loads
 from requests import ConnectTimeout
 
 from pyplanet import __version__ as version
-from pyplanet.apps.contrib.dedimania.exceptions import DedimaniaTransportException, DedimaniaFault
+from pyplanet.apps.contrib.dedimania.exceptions import DedimaniaTransportException, DedimaniaFault, \
+	DedimaniaNotSupportedException
 from pyplanet.utils.log import handle_exception
 
 logger = logging.getLogger(__name__)
@@ -59,6 +60,15 @@ class DedimaniaAPI:
 
 	async def on_start(self):
 		pass
+
+	def mode_to_dedi_mode(self, mode):
+		if mode.startswith('TeamAttack') or mode.startswith('Chase'):
+			return False
+		elif mode.startswith('Rounds') or mode.startswith('Team') or mode.startswith('Doppler'):
+			return 'Rounds'
+		elif mode.startswith('TimeAttack') or mode.startswith('Laps') or mode.startswith('Doppler'):
+			return 'TA'
+		return False
 
 	def __request(self, body):
 		return self.client.request('POST', self.API_URL, None, body, self.headers, timeout=10)
@@ -150,7 +160,9 @@ class DedimaniaAPI:
 			num_players = len(player_list) - num_specs
 			max_players = self.instance.game.server_max_players['CurrentValue']
 			max_specs = self.instance.game.server_max_specs['CurrentValue']
-			mode = 'TA' if 'TimeAttack' in await self.instance.mode_manager.get_current_script() else 'Rounds',
+			mode = self.mode_to_dedi_mode(await self.instance.mode_manager.get_current_script())
+			if not mode:
+				continue
 			try:
 				response = await self.multicall(
 					('dedimania.UpdateServerPlayers', self.session_id, {
@@ -213,6 +225,10 @@ class DedimaniaAPI:
 		num_specs = sum(p['IsSpec'] for p in player_list)
 		num_players = len(player_list) - num_specs
 
+		mode = self.mode_to_dedi_mode(game_mode)
+		if not mode:
+			raise DedimaniaNotSupportedException('Mode is not supported!')
+
 		result = await self.multicall(
 			('dedimania.GetChallengeRecords', self.session_id, {
 				'UId': map.uid, 'Name': map.name, 'Environment': map.environment, 'Author': map.author_login,
@@ -236,19 +252,19 @@ class DedimaniaAPI:
 		]
 		return server_max_rank, allowed_modes, response_players, records or []
 
-	async def set_map_times(self, map, game_mode, records):
+	async def set_map_times(self, map, game_mode, records, v_replay=None, v_replay_checks=None, ghost_replay=None):
+		mode = self.mode_to_dedi_mode(game_mode)
+		if not mode:
+			raise DedimaniaNotSupportedException('Mode is not supported!')
+
 		times = [{
 			'Login': r.login, 'Best': r.score, 'Checks': ','.join([str(c) for c in r.cps]),
-		} for r in records if r.virtual_replay]
+		} for r in records if r.updated]
 		replays = {
-			'VReplay': None, 'VReplayChecks': '', 'Top1GReplay': ''
+			'VReplay': v_replay or None,
+			'VReplayChecks': v_replay_checks or '',
+			'Top1GReplay': ghost_replay or ''
 		}
-		for idx, record in enumerate(records):
-			if not replays['VReplay'] and record.virtual_replay:
-				replays['VReplay'] = record.virtual_replay
-			if not replays['Top1GReplay'] and idx == 0 and record.ghost_replay:
-				replays['Top1GReplay'] = record.ghost_replay
-
 		if not replays['VReplay']:
 			# Nothing to update!
 			logger.debug('Dedimania end map, nothing new to update! Skipping set times call!')
@@ -258,7 +274,7 @@ class DedimaniaAPI:
 			('dedimania.SetChallengeTimes', self.session_id, {
 				'UId': map.uid, 'Name': map.name, 'Environment': map.environment, 'Author': map.author_login,
 				'NbCheckpoints': map.num_checkpoints, 'NbLaps': map.num_laps,
-			}, game_mode, times, replays)
+			}, mode, times, replays)
 		)
 
 		try:
@@ -282,6 +298,5 @@ class DedimaniaRecord:
 		self.cps = cps
 		self.vote = vote
 
+		self.updated = False
 		self.new_index = None
-		self.virtual_replay = None
-		self.ghost_replay = ''
