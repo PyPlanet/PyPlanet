@@ -31,9 +31,15 @@ class LiveRankings(AppConfig):
 		self.widget = LiveRankingsWidget(self)
 		await self.widget.display()
 
-		scores = await self.instance.gbx('Trackmania.GetScores')
-		await self.handle_scores(scores['players'])
-		await self.widget.display()
+		scores = None
+		try:
+			scores = await self.instance.gbx('Trackmania.GetScores')
+		except:
+			pass
+
+		if scores:
+			await self.handle_scores(scores['players'])
+			await self.widget.display()
 
 	def is_mode_supported(self, mode):
 		return mode.startswith('TimeAttack') or mode.startswith('Rounds') or mode.startswith('Team') or \
