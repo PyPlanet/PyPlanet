@@ -21,6 +21,7 @@ class PlayerAdmin:
 		await self.instance.permission_manager.register('ban', 'Ban a player', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('unban', 'Unban a player', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('manage_admins', 'Manage admin', app=self.app, min_level=3)
+		await self.instance.permission_manager.register('force_spec', 'Force player into spectate', app=self.app, min_level=1)
 
 		await self.instance.command_manager.register(
 			Command(command='mute', aliases=['ignore'], target=self.ignore_player, perms='admin:ignore', admin=True).add_param(name='login', required=True),
@@ -31,7 +32,25 @@ class PlayerAdmin:
 			Command(command='level', target=self.change_level, perms='admin:manage_admins', description='Change admin level for player.', admin=True)
 				.add_param(name='login', required=True)
 				.add_param(name='level', required=False, help='Level, 0 = player, 1 = operator, 2 = admin, 3 = master admin.', type=int, default=0),
+			Command(command='forcespec', target=self.force_spec, perms='admin:force_spec', description='Force player into spectate', admin=True)
+				.add_param(name='login', required=True),
 		)
+
+	async def force_spec(self, player, data, **kwargs):
+		try:
+			dest_player = [p for p in self.instance.player_manager.online if p.login == data.login]
+			if not len(dest_player) == 1:
+				raise Exception()
+			message = '$ff0Admin $fff{}$z$s$ff0 has forced $fff{}$z$s$ff0 into spectator.'.format(
+				player.nickname, dest_player[0].nickname
+			)
+			await self.instance.gbx.multicall(
+				self.instance.gbx('ForceSpectator', dest_player[0].login, 3),
+				self.instance.chat(message)
+			)
+		except Exception:
+			message = '$i$f00Unknown login!'
+			await self.instance.chat(message, player)
 
 	async def ignore_player(self, player, data, **kwargs):
 		try:
