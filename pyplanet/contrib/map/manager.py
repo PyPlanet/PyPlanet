@@ -1,4 +1,5 @@
 import asyncio
+import os
 
 from xmlrpc.client import Fault
 
@@ -324,3 +325,21 @@ class MapManager(CoreContrib):
 		except Exception as e:
 			logging.exception(e)
 			raise MapException('Can\'t save matchsettings to \'{}\'!'.format(filename)) from e
+
+	async def load_matchsettings(self, filename):
+		"""
+		Load Match Settings file and insert it into the current map playlist.
+		
+		:param filename: File to load, relative to Maps folder.
+		:return: Boolean if loaded.
+		"""
+		try:
+			if not await self._instance.storage.driver.exists(
+				os.path.join(self._instance.storage.MAP_FOLDER, filename)
+			):
+				raise MapException('Can\'t find match settings file. Does it exist?')
+			else:
+				self._instance.gbx('LoadMatchSettings', filename)
+		except Exception as e:
+			logging.warning('Can\'t load match settings!')
+			raise MapException('Can\'t load matchsettings according the dedicated server, tried loading from \'{}\'!'.format(filename)) from e

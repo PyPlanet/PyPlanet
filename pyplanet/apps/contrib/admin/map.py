@@ -28,6 +28,7 @@ class MapAdmin:
 		await self.instance.permission_manager.register('add_local_map', 'Add map from server disk', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('remove_map', 'Remove map from server', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('write_map_list', 'Write Matchsettings to file', app=self.app, min_level=2)
+		await self.instance.permission_manager.register('read_map_list', 'Read and load specific Matchsettings file', app=self.app, min_level=2)
 
 		await self.instance.command_manager.register(
 			Command(command='next', target=self.next_map, perms='admin:next', admin=True),
@@ -41,7 +42,9 @@ class MapAdmin:
 			Command(command='erase', target=self.erase_map, perms='admin:remove_map', admin=True, description='Remove and delete map from maplist and disk.')
 				.add_param('nr', required=False, type=int, help='The number from a list window or the unique identifier.'),
 			Command(command='writemaplist', aliases=['wml'], target=self.write_map_list, perms='admin:write_map_list', admin=True)
-				.add_param('file', required=False, type=str, help='Give custom match settings file to save to.')
+				.add_param('file', required=False, type=str, help='Give custom match settings file to save to.'),
+			Command(command='readmaplist', aliases=['rml'], target=self.read_map_list, perms='admin:read_map_list', admin=True)
+				.add_param('file', required=True, type=str, help='Give custom match settings file to load from.'),
 		)
 
 	async def prev_map(self, player, data, **kwargs):
@@ -96,6 +99,22 @@ class MapAdmin:
 		file_path = 'MatchSettings/{}'.format(file_name)
 		message = '$ff0Match Settings has been saved to the file: {}'.format(file_name)
 		await self.instance.map_manager.save_matchsettings(file_path)
+
+		# Send message + reload all maps in memory.
+		await asyncio.gather(
+			self.instance.chat(message, player),
+			self.instance.map_manager.update_list(full_update=True)
+		)
+
+	async def read_map_list(self, player, data, **kwargs):
+		file_name = data.file
+		file_path = 'MatchSettings/{}'.format(file_name)
+
+		try:
+			await self.instance.map_manager.load_matchsettings(file_path)
+			message = '$ff0Match Settings has been loaded from: {}'.format(file_name)
+		except:
+			message = '$ff0Could not load match settings! Does the file exists? Check log for details.'
 
 		# Send message + reload all maps in memory.
 		await asyncio.gather(
