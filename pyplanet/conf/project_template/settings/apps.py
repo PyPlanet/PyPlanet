@@ -13,10 +13,16 @@ APPS = {
 		'pyplanet.apps.contrib.jukebox',
 		'pyplanet.apps.contrib.karma',
 		'pyplanet.apps.contrib.local_records',
-		'pyplanet.apps.contrib.dedimania',
+		'pyplanet.apps.contrib.dedimania',  # Will be disabled in Shootmania automatically.
 		'pyplanet.apps.contrib.players',
 		'pyplanet.apps.contrib.mapinfo',
 		'pyplanet.apps.contrib.mx',
 		'pyplanet.apps.contrib.transactions',
+
+		# You can optionally enable one of the following apps. Please look at this page for more information:
+		# http://pypla.net/#app-docs
+
+		# Live Ranking App. Useful when playing in Laps, Rounds and all sort of Trackmania game modes.
+		# 'pyplanet.apps.contrib.live_rankings',
 	]
 }

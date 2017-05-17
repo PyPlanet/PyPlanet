@@ -1,17 +1,11 @@
 
 ## Motivation or cause
 
-<!--- 
-Please refer to issue if it's a fix/feature that was already reported
-or
-Please provide motivation for this change if not yet presubmitted as an issue before.
--->
+
 
 ## Change description
 
-<!-- 
-Please describe your changes here. 
--->
+
 
 ## Checklist of pull request
 

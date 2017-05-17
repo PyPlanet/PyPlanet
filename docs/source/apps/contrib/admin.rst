@@ -110,6 +110,17 @@ Required permission:
 Players
 ^^^^^^^
 
+Force player to spec
+~~~~~~~~~~~~~~~~~~~~
+Command:
+  ``//forcespec``
+Parameters:
+  * Player login.
+Functionality:
+  Force player into spectator.
+Required permission:
+  ``admin:force_spec``, requires admin level 1.
+
 Mute player
 ~~~~~~~~~~~
 Command:

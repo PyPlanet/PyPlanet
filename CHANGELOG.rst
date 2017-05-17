@@ -1,6 +1,39 @@
 Changelog
 =========
 
+0.3.0
+-----
+
+Core
+~~~~
+
+* Feature: Refactor the app config class so you can define apps in __init__.py and use shorter configuration, (backward compatible for current contrib apps).
+* Feature: Signals runs with gather mode (parallel) now. Makes this way more faster!
+* Feature: Add save hook to setting object.
+* Feature: Chat contrib component, for shorter syntax at sending and preparing chat messages.
+* Feature: Refactor the GBX component, for shorter syntax at sending and preparing Gbx Methods.
+* Feature: Make it able to change the UI Properties from the games
+* Feature: Add 'suggestion or bug' report button.
+
+* Improvement: Unknown command message.
+* Improvement: Makes it faster to display local records.
+* Improvement: Refactor the local record code.
+
+
+Apps
+~~~~
+
+* Feature: Add Live Rankings app (beta). Add it to your apps.py!
+* Feature: Add chat announce limit in local and dedi records.
+
+* Improvement: Autosave matchsettings on insertion of map.
+* Improvement: Hide dedimania widget on downtime.
+* Improvement: Better error handling in dedimania app.
+
+* Bugfix: Fixing issue with displaying WhoKarma list.
+* Bugfix: Fixing path issues in MX app.
+
+
 0.2.0
 -----
 

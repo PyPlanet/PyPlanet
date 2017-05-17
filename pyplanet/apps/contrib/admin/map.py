@@ -85,7 +85,7 @@ class MapAdmin:
 		if isinstance(setting, dict) and self.instance.process_name in setting:
 			setting = setting[self.instance.process_name]
 
-		if not data.file and not setting:
+		if not setting and not data.file:
 			message = '$ff0Default match settings file not configured in your settings!'
 			return await self.instance.chat(message, player)
 		if data.file:

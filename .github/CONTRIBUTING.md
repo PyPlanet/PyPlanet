@@ -6,6 +6,8 @@ All contributions are welcome.
 
 ## Bugfixing, feature, apps, etc.
 
+If you just want to report an issue or suggestion, go ahead, please describe it as much as possible eventually with screenshots.
+
 Please send a pull request to the master branch. 
 Please include a documentation update and update or add tests for your changes.
 
