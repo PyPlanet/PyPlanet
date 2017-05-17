@@ -10,7 +10,7 @@ from requests import ConnectTimeout
 
 from pyplanet import __version__ as version
 from pyplanet.apps.contrib.dedimania.exceptions import DedimaniaTransportException, DedimaniaFault, \
-	DedimaniaNotSupportedException
+	DedimaniaNotSupportedException, DedimaniaInvalidCredentials
 from pyplanet.utils.log import handle_exception
 
 logger = logging.getLogger(__name__)
@@ -138,6 +138,14 @@ class DedimaniaAPI:
 		if not result:
 			return
 
+		try:
+			if 'Error' in result[0][0] and 'Bad code' in result[0][0]['Error'].lower():
+				raise DedimaniaInvalidCredentials('Bad code or login!')
+		except DedimaniaInvalidCredentials:
+			raise
+		except:
+			pass
+
 		self.session_id = result[0][0]['SessionId']
 
 		if not self.update_task:
@@ -233,7 +241,7 @@ class DedimaniaAPI:
 			('dedimania.GetChallengeRecords', self.session_id, {
 				'UId': map.uid, 'Name': map.name, 'Environment': map.environment, 'Author': map.author_login,
 				'NbCheckpoints': map.num_checkpoints, 'NbLaps': map.num_laps,
-			}, game_mode, {
+			}, mode, {
 				 'SrvName': server_name, 'Comment': server_comment, 'Private': is_private, 'NumPlayers': num_players,
 				 'MaxPlayers': max_players, 'NumSpecs': num_specs, 'MaxSpecs': max_specs
 			 }, player_list)
@@ -297,6 +305,8 @@ class DedimaniaRecord:
 		self.max_rank = max_rank
 		self.cps = cps
 		self.vote = vote
+
+		self.race_cps = list()
 
 		self.updated = False
 		self.new_index = None

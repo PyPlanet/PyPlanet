@@ -22,6 +22,13 @@ class DedimaniaNotSupportedException(DedimaniaException):
 	pass
 
 
+class DedimaniaInvalidCredentials(DedimaniaException):
+	"""
+	Invalid code or player.
+	"""
+	pass
+
+
 class DedimaniaFault(DedimaniaException, Fault):
 	"""
 	Dedimania XMLRPC Fault.

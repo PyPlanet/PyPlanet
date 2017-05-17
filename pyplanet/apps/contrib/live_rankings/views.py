@@ -6,7 +6,7 @@ from pyplanet.utils import times
 
 class LiveRankingsWidget(TimesWidgetView):
 	widget_x = -161
-	widget_y = 55.5
+	widget_y = 70.5
 	size_x = 38
 	size_y = 55.5
 	top_entries = 5
@@ -109,7 +109,7 @@ class LiveRankingsWidget(TimesWidgetView):
 					list_record['score'] = '+ ' + times.format_time(int(current_diff))
 
 				if record['finish']:
-					list_record['score'] = '$i' + list_record['score']
+					list_record['score'] = '$i' + str(list_record['score'])
 				elif record['giveup']:
 					list_record['score'] = '$iDNF'
 			else:
@@ -129,7 +129,7 @@ class LiveRankingsWidget(TimesWidgetView):
 			self.format_times = True
 			self.display_cpdifference = False
 		elif 'Laps' in current_script:
-			self.format_times = False
+			self.format_times = True
 			self.display_cpdifference = True
 		else:
 			self.format_times = False

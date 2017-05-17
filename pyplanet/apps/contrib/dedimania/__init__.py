@@ -7,11 +7,12 @@ from requests.exceptions import ConnectionError as RequestsConnectionError
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.dedimania.api import DedimaniaAPI, DedimaniaRecord
 from pyplanet.apps.contrib.dedimania.exceptions import DedimaniaException, DedimaniaTransportException, \
-	DedimaniaNotSupportedException, DedimaniaFault
+	DedimaniaNotSupportedException, DedimaniaFault, DedimaniaInvalidCredentials
 from pyplanet.apps.core.trackmania import callbacks as tm_signals
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 from pyplanet.contrib.setting import Setting
 from pyplanet.utils import times
+from pyplanet.utils.log import handle_exception
 
 from .views import DedimaniaRecordsWidget, DedimaniaRecordsListView
 
@@ -83,6 +84,8 @@ class Dedimania(AppConfig):
 		self.instance.signal_manager.listen(mp_signals.player.player_connect, self.player_connect)
 		self.instance.signal_manager.listen(mp_signals.player.player_disconnect, self.player_disconnect)
 
+		# Change round results widget location.
+
 		# Load initial data.
 		self.widget = DedimaniaRecordsWidget(self)
 
@@ -111,11 +114,20 @@ class Dedimania(AppConfig):
 		await self.api.on_start()
 		try:
 			await self.api.authenticate()
+			self.ready = True
 		except RequestsConnectionError as e:
 			logger.error('Can\'t connect to dedimania! Dedimania down or blocked by your host? {}'.format(str(e)))
+			self.ready = False
 			return
 		except ConnectionRefusedError as e:
 			logger.error('Can\'t connect to dedimania! Dedimania down or blocked by your host? {}'.format(str(e)))
+			self.ready = False
+			return
+		except DedimaniaInvalidCredentials:
+			logger.error('Can\'t connect to dedimania! Code or login is invalid!')
+			message = '$f00Error: Your dedimania code or login is invalid!'
+			await self.instance.chat(message)
+			self.ready = False
 			return
 		except Exception as e:
 			logger.exception(e)
@@ -123,7 +135,8 @@ class Dedimania(AppConfig):
 			print(type(e))
 			return
 
-		await self.map_begin(self.instance.map_manager.current_map)
+		if self.ready:
+			await self.map_begin(self.instance.map_manager.current_map)
 
 	async def show_records_list(self, player, data = None, **kwargs):
 		"""
@@ -166,14 +179,17 @@ class Dedimania(AppConfig):
 			# await self.podium_start()
 
 			await self.map_end(map)
-			await self.map_begin(map)
+			await self.map_begin(map, send_messages=False)
 
-	async def map_begin(self, map):
+	async def map_begin(self, map, send_messages=True, **kwargs):
 		# Reset.
 		self.api.retries = 0
 
 		# Set map status.
 		self.map_status = map.time_author > 6200 or map.num_checkpoints > 0
+
+		# Refresh script.
+		self.current_script = await self.instance.mode_manager.get_current_script()
 
 		# Fetch records + update widget.
 		async with self.lock:
@@ -187,10 +203,11 @@ class Dedimania(AppConfig):
 		await self.refresh_records()
 
 		if self.ready:
-			await asyncio.gather(
-				self.chat_current_record(),
-				self.widget.display()
-			)
+			calls = list()
+			if send_messages:
+				calls.append(self.chat_current_record())
+			calls.append(self.widget.display())
+			await asyncio.gather(*calls)
 
 	async def podium_start(self, force=False, **kwargs):
 		# Get replays of the players.
@@ -210,11 +227,16 @@ class Dedimania(AppConfig):
 			for pos, record in enumerate(self.current_records):
 				if record.updated:
 					if not self.v_replay:
-						self.v_replay = await self.get_v_replay(record.login)
-					if (not self.v_replay_checks or force) and self.current_script.startswith('Laps'):
-						self.v_replay_checks = ','.join([str(c) for c in record.cps])
+						replay = await self.get_v_replay(record.login)
+						if replay:
+							self.v_replay = replay
 					if pos == 0:
-						self.ghost_replay = await self.get_ghost_replay(record.login)
+						if self.current_script.startswith('Laps'):
+							self.v_replay_checks = ','.join([str(c) for c in record.race_cps])
+
+						replay = await self.get_ghost_replay(record.login)
+						if replay:
+							self.ghost_replay = replay
 
 	async def map_end(self, map):
 		if not self.map_status:
@@ -263,9 +285,18 @@ class Dedimania(AppConfig):
 				logger.exception(e)
 			await self.instance.chat(message)
 			return
-		except Exception as e:
+		except DedimaniaFault as e:
 			self.ready = False
 
+			if 'session' in str(e).lower():
+				handle_exception(e, module_name=__name__, func_name='refresh_records')
+			logger.error('Dedimania gave an Fault: {}'.format(str(e)))
+
+			self.current_records = list()
+			return
+		except Exception as e:
+			self.ready = False
+			handle_exception(e, module_name=__name__, func_name='refresh_records')
 			logger.exception(e)
 			self.current_records = list()
 			return
@@ -302,7 +333,7 @@ class Dedimania(AppConfig):
 		except:
 			pass
 
-	async def player_finish(self, player, race_time, lap_time, lap_cps, flow, raw, **kwargs):
+	async def player_finish(self, player, race_time, lap_time, lap_cps, race_cps, flow, raw, **kwargs):
 		if not self.map_status:
 			return
 		if not self.ready:
@@ -321,6 +352,8 @@ class Dedimania(AppConfig):
 			if score < current_record.score:
 				previous_time = current_record.score
 				current_record.updated = True
+				if self.current_script.startswith('Laps'):
+					current_record.race_cps = race_cps
 
 				# Determinate new rank.
 				async with self.lock:
@@ -380,6 +413,8 @@ class Dedimania(AppConfig):
 				cps=lap_cps, vote=-1
 			)
 			new_record.updated = True
+			if self.current_script.startswith('Laps'):
+				new_record.race_cps = race_cps
 
 			# Determinate new rank.
 			async with self.lock:
@@ -411,11 +446,17 @@ class Dedimania(AppConfig):
 			)
 
 	async def get_v_replay(self, login):
-		return await self.instance.gbx('GetValidationReplay', login)
+		try:
+			return await self.instance.gbx('GetValidationReplay', login)
+		except:
+			return None
 
 	async def get_ghost_replay(self, login):
 		replay_name = 'dedimania_{}.Replay.Gbx'.format(uuid.uuid4().hex)
-		await self.instance.gbx('SaveBestGhostsReplay', login, replay_name)
+		try:
+			await self.instance.gbx('SaveBestGhostsReplay', login, replay_name)
+		except:
+			return None
 		try:
 			async with self.instance.storage.open('UserData/Replays/{}'.format(replay_name)) as ghost_file:
 				return await ghost_file.read()

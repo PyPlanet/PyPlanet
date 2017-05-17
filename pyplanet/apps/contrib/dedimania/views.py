@@ -7,7 +7,7 @@ from pyplanet.utils import times
 
 class DedimaniaRecordsWidget(TimesWidgetView):
 	widget_x = -160.5
-	widget_y = 55.5
+	widget_y = 12.5
 	size_x = 38
 	size_y = 55.5
 	top_entries = 5
