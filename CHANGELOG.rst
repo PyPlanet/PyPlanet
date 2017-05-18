@@ -1,6 +1,17 @@
 Changelog
 =========
 
+0.3.1
+-----
+
+Apps
+~~~~
+
+* Bugfix: Double prefix in leave messages.
+* Bugfix: Dedimania nickname fetching gave error. Sometimes the widget didn't work properly.
+* Bugfix: Improve error handling in Dedimania.
+* Improvement: Make dedimania record message shorter.
+
 0.3.0
 -----
 
