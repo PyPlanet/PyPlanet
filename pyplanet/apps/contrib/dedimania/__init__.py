@@ -183,6 +183,8 @@ class Dedimania(AppConfig):
 
 	async def map_begin(self, map, send_messages=True, **kwargs):
 		# Reset.
+		if not self.api:
+			await self.initiate_api()
 		self.api.retries = 0
 
 		# Set map status.
@@ -308,6 +310,8 @@ class Dedimania(AppConfig):
 
 	async def player_connect(self, player, is_spectator, **kwargs):
 		try:
+			if not self.api:
+				return
 			if self.ready:
 				await self.widget.display(player=player)
 			res = await self.instance.gbx('GetDetailedPlayerInfo', player.login)
@@ -329,6 +333,8 @@ class Dedimania(AppConfig):
 		except:
 			pass
 		try:
+			if not self.api:
+				return
 			await self.api.player_disconnect(player.login, '')
 		except:
 			pass
