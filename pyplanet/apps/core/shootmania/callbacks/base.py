@@ -77,7 +77,7 @@ async def handle_player_added(source, signal, **kwargs):
 	player = await Controller.instance.player_manager.get_player(login=source['login'])
 	return dict(
 		time=source['time'], player=player, team=source['team'], language=source['language'],
-		ladder_rank=source['ladder_rank'], ladder_points=source['ladder_points']
+		ladder_rank=source['ladderrank'], ladder_points=source['ladderpoints']
 	)
 
 async def handle_custom_event(source, signal, **kwargs):
