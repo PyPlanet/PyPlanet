@@ -49,5 +49,12 @@ async def handle_generic(source, signal, **kwargs):
 	if not isinstance(source, dict):
 		source = dict(raw=source)
 	if 'login' in source:
-		source['player'] = await Player.get_by_login(source['login'])
+		try:
+			if source['login']:
+				source['player'] = await Player.get_by_login(source['login'])
+			else:
+				source['player'] = None
+		except:
+			source['player'] = None
+
 	return source

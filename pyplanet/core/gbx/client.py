@@ -4,6 +4,7 @@ import logging
 import collections
 
 from pyplanet.core.gbx.query import Query, ScriptQuery
+from pyplanet.utils.functional import empty
 from .remote import GbxRemote
 
 logger = logging.getLogger(__name__)
@@ -17,10 +18,17 @@ class GbxClient(GbxRemote):
 	"""
 
 	AUTO_RESPONSE_ID = object()
+	SUPPORTED_SCRIPT_API_VERSIONS = [
+		'2.0.0',
+	]
 
-	def __init__(self, *args, script_api_version='2.0.0', **kwargs):
+	def __init__(self, *args, script_api_version=empty, **kwargs):
 		super().__init__(*args, **kwargs)
-		self.script_api_version = script_api_version
+
+		self.script_api_version = self.SUPPORTED_SCRIPT_API_VERSIONS[len(self.SUPPORTED_SCRIPT_API_VERSIONS)-1]
+		if script_api_version != empty and isinstance(script_api_version, str):
+			self.script_api_version = script_api_version
+
 		self.game = self.instance.game
 		self.refresh_task = None
 
