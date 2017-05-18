@@ -79,6 +79,7 @@ class AlertView(TemplateView):
 		from pyplanet.core import Controller
 
 		super().__init__(manager or Controller.instance.ui_manager)
+		self.disable_alt_menu = True
 		sizes = self.SIZES[size]
 
 		if not buttons:
@@ -195,6 +196,7 @@ class PromptView(AlertView):
 
 	def __init__(self, message, size='md', buttons=None, manager=None, default='', validator=None):
 		super().__init__(message, size, buttons, manager)
+		self.disable_alt_menu = True
 
 		self.default = default
 		self.validator = validator or self.validate_input

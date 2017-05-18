@@ -124,6 +124,18 @@ class MapManager(CoreContrib):
 		except DoesNotExist:
 			raise MapNotFound('Map not found.')
 
+	async def get_map_by_index(self, index):
+		"""
+		Get map instance by index id (primary key).
+		
+		:param index: Primary key index.
+		:return: Map instance or raise exception.
+		"""
+		try:
+			return await Map.get(id=index)
+		except DoesNotExist:
+			raise MapNotFound('Map not found.')
+
 	@property
 	def next_map(self):
 		"""
@@ -309,6 +321,8 @@ class MapManager(CoreContrib):
 		setting = settings.MAP_MATCHSETTINGS
 		if isinstance(setting, dict) and self._instance.process_name in setting:
 			setting = setting[self._instance.process_name]
+		if not isinstance(setting, str):
+			setting = None
 
 		if not filename and not setting:
 			raise ImproperlyConfigured(

@@ -34,7 +34,7 @@ class MapInfoWidget(WidgetView):
 		context.update({
 			'map_name': map.name,
 			'map_author': map_author,
-			'map_authortime': times.format_time(map.time_author),
+			'map_authortime': times.format_time(map.time_author) if map.time_author and map.time_author > 0 else '-',
 			'map_environment': map.environment,
 		})
 
