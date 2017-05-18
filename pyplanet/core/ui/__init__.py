@@ -30,7 +30,8 @@ class _BaseUIManager:
 		if manialink.id not in self.manialinks:
 			self.manialinks[manialink.id] = manialink
 
-		if not await manialink.is_global():
+		is_global = await manialink.is_global()
+		if not is_global:
 			for login in for_logins:
 				if login not in manialink.player_data:
 					continue
@@ -62,6 +63,20 @@ class _BaseUIManager:
 			# Add manialink tag to body.
 			body = '<manialink version="{}" id="{}">{}</manialink>'.format(manialink.version, manialink.id, body)
 
+			# Hide ALT menus (shootmania).
+			if self.instance.game.game == 'sm' and manialink.disable_alt_menu:
+				if is_global:
+					queries.extend([
+						self.instance.gbx('Maniaplanet.UI.SetAltScoresTableVisibility', player.login, 'false', encode_json=False, response_id=False)
+						for player in self.instance.player_manager.online
+					])
+				else:
+					queries.extend([
+						self.instance.gbx('Maniaplanet.UI.SetAltScoresTableVisibility', login, 'false', encode_json=False, response_id=False)
+						for login in logins
+					])
+
+			# Add normal queries.
 			if logins and len(logins) > 0:
 				for login in logins:
 					# Prepare query
@@ -86,10 +101,28 @@ class _BaseUIManager:
 		:type manialink: pyplanet.core.ui.components.manialink._ManiaLink
 		"""
 		body = '<manialink id="{}"></manialink>'.format(manialink.id)
+		queries = list()
 		if logins and len(logins) > 0:
-			await self.instance.gbx('SendDisplayManialinkPageToLogin', ','.join(logins), body, 0, False)
+			queries.append(
+				self.instance.gbx('SendDisplayManialinkPageToLogin', ','.join(logins), body, 0, False)
+			)
+
+			# Show alt menu again.
+			if self.instance.game.game == 'sm' and manialink.disable_alt_menu:
+				queries.extend([
+					self.instance.gbx('Maniaplanet.UI.SetAltScoresTableVisibility', login, 'true', encode_json=False, response_id=False)
+					for login in logins
+				])
 		else:
-			await self.instance.gbx('SendDisplayManialinkPage', body, 0, False)
+			queries.append(self.instance.gbx('SendDisplayManialinkPage', body, 0, False))
+			if self.instance.game.game == 'sm' and manialink.disable_alt_menu:
+				queries.extend([
+					self.instance.gbx('Maniaplanet.UI.SetAltScoresTableVisibility', player.login, 'true', encode_json=False, response_id=False)
+					for player in self.instance.player_manager.online
+				])
+
+		# Execute queries.
+		await self.instance.gbx.multicall(*queries)
 
 	async def destroy(self, manialink, logins=None):
 		if manialink.id in self.manialinks:

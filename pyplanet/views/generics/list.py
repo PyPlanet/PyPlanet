@@ -73,6 +73,7 @@ class ListView(TemplateView):
 	def __init__(self, *args, **kwargs):
 		self.id = 'pyplanet.views.generics.list.ListView'
 		super().__init__(*args, **kwargs)
+		self.disable_alt_menu = True
 		self.search_text = None
 		self.sort_field = None
 		self.sort_order = 1
