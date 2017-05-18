@@ -250,6 +250,9 @@ class DedimaniaAPI:
 			raise DedimaniaTransportException('Result seems to be empty!')
 
 		result = result[0][0]
+		if not result:
+			raise DedimaniaTransportException('Result seems to be empty!')
+
 		allowed_modes = result['AllowedGameModes']
 		server_max_rank = result['ServerMaxRank']
 		response_players = result['Players']
