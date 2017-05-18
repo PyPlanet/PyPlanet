@@ -188,6 +188,54 @@ Functionality:
 Required permission:
   ``admin:manage_admins``, requires admin level 2.
 
+Game Flow
+^^^^^^^^^
+
+Force round to end
+~~~~~~~~~~~~~~~~~~
+Command:
+  ``//endround``
+Parameters:
+  None
+Functionality:
+  Force the trackmania round to an end.
+Required permission:
+  ``admin:end_round``, requires admin level 2.
+
+Force WarmUp round to end
+~~~~~~~~~~~~~~~~~~~~~~~~~
+Command:
+  ``//endwuround``
+Parameters:
+  None
+Functionality:
+  Force the trackmania WarmUp round to an end.
+Required permission:
+  ``admin:end_round``, requires admin level 2.
+
+Force WarmUp to an end
+~~~~~~~~~~~~~~~~~~~~~~
+Command:
+  ``//endwu``
+Parameters:
+  None
+Functionality:
+  Force the whole WarmUp to an end.
+Required permission:
+  ``admin:end_round``, requires admin level 2.
+
+Set rounds points (Points repartition)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Command:
+  ``//pointsrepartition`` / ``//pointsrep``
+Parameters:
+  * Points per place, top to bottom, separated with either spaces or commas.
+Functionality:
+  Set the rounds points (points per player and place it ends in an round).
+Required permission:
+  ``admin:points_repartition``, requires admin level 2.
+
+
 Server
 ^^^^^^
 
