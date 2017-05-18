@@ -321,7 +321,7 @@ class MapManager(CoreContrib):
 		setting = settings.MAP_MATCHSETTINGS
 		if isinstance(setting, dict) and self._instance.process_name in setting:
 			setting = setting[self._instance.process_name]
-		if isinstance(setting, dict):
+		if not isinstance(setting, str):
 			setting = None
 
 		if not filename and not setting:

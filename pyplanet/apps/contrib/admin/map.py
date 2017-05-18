@@ -84,6 +84,8 @@ class MapAdmin:
 		setting = settings.MAP_MATCHSETTINGS
 		if isinstance(setting, dict) and self.instance.process_name in setting:
 			setting = setting[self.instance.process_name]
+		if not isinstance(setting, str):
+			setting = None
 
 		if not setting and not data.file:
 			message = '$ff0Default match settings file not configured in your settings!'

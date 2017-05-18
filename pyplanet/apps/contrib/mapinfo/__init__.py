@@ -1,3 +1,5 @@
+import asyncio
+
 from pyplanet.apps.config import AppConfig
 
 from pyplanet.apps.contrib.mapinfo.views import MapInfoWidget
@@ -22,7 +24,9 @@ class MapInfo(AppConfig):
 		self.instance.ui_manager.properties.set_attribute('multilap_info', 'pos', '107., 88., 5.')
 
 		self.widget = MapInfoWidget(self)
-		await self.widget.display()
+
+		# Don't wait on the displaying of the widget.
+		asyncio.ensure_future(self.widget.display())
 
 	async def map_begin(self, map):
 		await self.widget.display()
