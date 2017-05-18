@@ -97,7 +97,7 @@ class MapManager(CoreContrib):
 
 			maps = await asyncio.gather(*coroutines)
 			async with self.lock:
-				self._maps = maps
+				self._maps = set(maps)
 		else:
 			# Only update/insert the changed bits, (not checking for removed maps!!).
 			async with self.lock:

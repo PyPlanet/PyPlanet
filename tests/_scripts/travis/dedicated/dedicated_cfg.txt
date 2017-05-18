@@ -23,7 +23,7 @@
 	</masterserver_account>
 
 	<server_options>
-		<name></name>
+		<name>Travis Test</name>
 		<comment></comment>
 		<hide_server>1</hide_server>					<!-- value is 0 (always shown), 1 (always hidden), 2 (hidden from nations) -->
 

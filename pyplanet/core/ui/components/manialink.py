@@ -49,7 +49,7 @@ class _ManiaLink:
 
 		self.receivers = dict()
 		self._is_global_shown = False
-		self._is_player_shown = dict() # Holds per player login a boolean if the ml is shown.
+		self._is_player_shown = dict()  # Holds per player login a boolean if the ml is shown.
 
 		self.__register_listener = False
 

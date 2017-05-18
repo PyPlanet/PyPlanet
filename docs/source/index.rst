@@ -15,7 +15,7 @@ a event loop and have simultaneously processing of received events from the dedi
 * Core: Stable and well designed core and apps system. (Inspired by Django).
 * Core: All apps will handle the game experience.
 * Core: Adjustable settings for all your apps.
-* Core: Supports Trackmania and Shootmania, Scripted only!
+* Core: Supports **Trackmania** and **Shootmania**, **Scripted only!**
 * App: Local Records, including widget + list.
 * App: Dedimania Records, including widget + list.
 * App: Admin Commands, Providing with basic commands and control for maintaining your server.
@@ -23,6 +23,8 @@ a event loop and have simultaneously processing of received events from the dedi
 * App: Jukebox, Let your players 'juke' the next map.
 * App: ManiaExchange, Simply add your maps directly from Mania-Exchange.
 * App: Players, This app shows messages when players join and leave.
+* App: Transactions, Donate planets to the server, show number of planets on server and pay out players.
+* App: Live Rankings, Show the live rankings of the game mode. (Trackmania).
 
 Do you want to install PyPlanet, head towards our :doc:`Getting Started Manual </intro/index>`
 
@@ -68,6 +70,7 @@ Information about development of apps and the core is also available under:
     apps/contrib/players
     apps/contrib/mx
     apps/contrib/transactions
+    apps/contrib/live_rankings
 
 
 .. _dev-docs:

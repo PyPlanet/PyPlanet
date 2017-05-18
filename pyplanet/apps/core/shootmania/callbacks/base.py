@@ -34,10 +34,20 @@ async def handle_on_near_miss(source, signal, **kwargs):
 	)
 
 async def handle_armor_empty(source, signal, **kwargs):
-	shooter, victim = await asyncio.gather(*[
-		Controller.instance.player_manager.get_player(login=source['shooter']),
-		Controller.instance.player_manager.get_player(login=source['victim']),
-	])
+	calls = []
+	if source['shooter']:
+		calls.append(Controller.instance.player_manager.get_player(login=source['shooter']))
+	if source['victim']:
+		calls.append(Controller.instance.player_manager.get_player(login=source['victim']))
+	players = await asyncio.gather(*calls)
+
+	victim = None
+	shooter = None
+	if source['shooter']:
+		shooter = players[0]
+	if source['victim']:
+		victim = players[1]
+
 	return dict(
 		shooter=shooter, time=source['time'], weapon=source['weapon'], victim=victim, distance=source['distance'],
 		shooter_position=source['shooterposition'], victim_position=source['victimposition'],

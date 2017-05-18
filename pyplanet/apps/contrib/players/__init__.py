@@ -50,5 +50,5 @@ class Players(AppConfig):
 		if not await self.setting_enable_leave_msg.get_value():
 			return
 		await self.instance.chat(
-			'$z$s$fff»» $ff0{} $fff{}$z$s$ff0 left the server!'.format(player.get_level_string(), player.nickname)
+			'$ff0{} $fff{}$z$s$ff0 left the server!'.format(player.get_level_string(), player.nickname)
 		)

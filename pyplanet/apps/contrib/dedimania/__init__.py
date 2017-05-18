@@ -6,11 +6,13 @@ from requests.exceptions import ConnectionError as RequestsConnectionError
 
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.dedimania.api import DedimaniaAPI, DedimaniaRecord
-from pyplanet.apps.contrib.dedimania.exceptions import DedimaniaException, DedimaniaTransportException
+from pyplanet.apps.contrib.dedimania.exceptions import DedimaniaException, DedimaniaTransportException, \
+	DedimaniaNotSupportedException, DedimaniaFault, DedimaniaInvalidCredentials
 from pyplanet.apps.core.trackmania import callbacks as tm_signals
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 from pyplanet.contrib.setting import Setting
 from pyplanet.utils import times
+from pyplanet.utils.log import handle_exception
 
 from .views import DedimaniaRecordsWidget, DedimaniaRecordsListView
 
@@ -29,7 +31,13 @@ class Dedimania(AppConfig):
 
 		self.lock = asyncio.Lock()
 		self.current_records = []
+		self.current_script = None
 		self.player_info = dict()
+
+		self.v_replay = None
+		self.v_replay_checks = None
+		self.ghost_replay = None
+
 		self.server_max_rank = None
 		self.map_status = False
 		self.ready = False
@@ -69,9 +77,14 @@ class Dedimania(AppConfig):
 		self.instance.signal_manager.listen(mp_signals.map.map_start, self.map_start)
 		self.instance.signal_manager.listen(mp_signals.map.map_end, self.map_end)
 
+		# TODO Activate after server bug has fixed!
+		# self.instance.signal_manager.listen(mp_signals.flow.podium_start, self.podium_start)
+
 		self.instance.signal_manager.listen(tm_signals.finish, self.player_finish)
 		self.instance.signal_manager.listen(mp_signals.player.player_connect, self.player_connect)
 		self.instance.signal_manager.listen(mp_signals.player.player_disconnect, self.player_disconnect)
+
+		# Change round results widget location.
 
 		# Load initial data.
 		self.widget = DedimaniaRecordsWidget(self)
@@ -86,6 +99,9 @@ class Dedimania(AppConfig):
 			await self.instance.chat(message)
 			return
 
+		# Save current script name
+		self.current_script = await self.instance.mode_manager.get_current_script()
+
 		# Init API (execute this in a non waiting future).
 		self.api = DedimaniaAPI(
 			self.instance,
@@ -98,11 +114,20 @@ class Dedimania(AppConfig):
 		await self.api.on_start()
 		try:
 			await self.api.authenticate()
+			self.ready = True
 		except RequestsConnectionError as e:
 			logger.error('Can\'t connect to dedimania! Dedimania down or blocked by your host? {}'.format(str(e)))
+			self.ready = False
 			return
 		except ConnectionRefusedError as e:
 			logger.error('Can\'t connect to dedimania! Dedimania down or blocked by your host? {}'.format(str(e)))
+			self.ready = False
+			return
+		except DedimaniaInvalidCredentials:
+			logger.error('Can\'t connect to dedimania! Code or login is invalid!')
+			message = '$f00Error: Your dedimania code or login is invalid!'
+			await self.instance.chat(message)
+			self.ready = False
 			return
 		except Exception as e:
 			logger.exception(e)
@@ -110,7 +135,8 @@ class Dedimania(AppConfig):
 			print(type(e))
 			return
 
-		await self.map_begin(self.instance.map_manager.current_map)
+		if self.ready:
+			await self.map_begin(self.instance.map_manager.current_map)
 
 	async def show_records_list(self, player, data = None, **kwargs):
 		"""
@@ -149,46 +175,100 @@ class Dedimania(AppConfig):
 
 	async def map_start(self, map, restarted, **kwargs):
 		if restarted:
-			await self.map_end(map)
-			await self.map_begin(map)
+			# TODO: Activate after fix in dedicated:
+			# await self.podium_start()
 
-	async def map_begin(self, map):
-		# Reset retries.
+			await self.map_end(map)
+			await self.map_begin(map, send_messages=False)
+
+	async def map_begin(self, map, send_messages=True, **kwargs):
+		# Reset.
 		self.api.retries = 0
 
 		# Set map status.
 		self.map_status = map.time_author > 6200 or map.num_checkpoints > 0
 
+		# Refresh script.
+		self.current_script = await self.instance.mode_manager.get_current_script()
+
 		# Fetch records + update widget.
+		async with self.lock:
+			self.v_replay = None
+			self.v_replay_checks = None
+			self.ghost_replay = None
+			self.current_records = list()
+		if self.ready:
+			await self.widget.display()
+
 		await self.refresh_records()
 
 		if self.ready:
-			await asyncio.gather(
-				self.chat_current_record(),
-				self.widget.display()
-			)
+			calls = list()
+			if send_messages:
+				calls.append(self.chat_current_record())
+			calls.append(self.widget.display())
+			await asyncio.gather(*calls)
+
+	async def podium_start(self, force=False, **kwargs):
+		# Get replays of the players.
+		self.v_replay = None
+		self.v_replay_checks = None
+
+		# TODO: Remove if statement after fix dedicated.
+		if not force:
+			self.ghost_replay = None
+
+		# TODO: Remove this block after fix dedicated.
+		if force:
+			self.v_replay = None
+			self.v_replay_checks = None
+
+		async with self.lock:
+			for pos, record in enumerate(self.current_records):
+				if record.updated:
+					if not self.v_replay:
+						replay = await self.get_v_replay(record.login)
+						if replay:
+							self.v_replay = replay
+					if pos == 0:
+						if self.current_script.startswith('Laps'):
+							self.v_replay_checks = ','.join([str(c) for c in record.race_cps])
+
+						replay = await self.get_ghost_replay(record.login)
+						if replay:
+							self.ghost_replay = replay
 
 	async def map_end(self, map):
 		if not self.map_status:
 			logger.warning('Don\'t send dedi records, map not supported or we are offline!')
 			return
 
-		# Get data, prepare for sending.
+		if not self.v_replay:
+			return
+
 		async with self.lock:
-			await self.api.set_map_times(
-				map, 'TA' if 'TimeAttack' in await self.instance.mode_manager.get_current_script() else 'Rounds',
-				self.current_records
-			)
+			try:
+				logger.debug('Sending Dedimania times...')
+				await self.api.set_map_times(
+					map, self.current_script, self.current_records.copy(), self.v_replay, self.v_replay_checks, self.ghost_replay,
+				)
+			except DedimaniaNotSupportedException:
+				pass
+			except (DedimaniaTransportException, DedimaniaFault) as e:
+				logger.error(e)
+				if 'session' not in str(e):
+					message = '$f00Error: Dedimania got an error, didn\'t send records :( (Error: {})'.format(str(e))
+					await self.instance.chat(message)
 
 	async def refresh_records(self):
 		try:
-			player_list, current_script = await asyncio.gather(
+			player_list, self.current_script = await asyncio.gather(
 				self.instance.gbx('GetPlayerList', -1, 0),
 				self.instance.mode_manager.get_current_script(),
 			)
 			self.server_max_rank, modes, player_infos, self.current_records = await self.api.get_map_details(
 				self.instance.map_manager.current_map,
-				'TA' if 'TimeAttack' in current_script else 'Rounds',
+				self.current_script,
 				server_name=self.instance.game.server_name, server_comment='', is_private=self.instance.game.server_is_private,
 				max_players=self.instance.game.server_max_players['CurrentValue'], max_specs=self.instance.game.server_max_specs['CurrentValue'],
 				players=player_list,
@@ -205,9 +285,18 @@ class Dedimania(AppConfig):
 				logger.exception(e)
 			await self.instance.chat(message)
 			return
-		except Exception as e:
+		except DedimaniaFault as e:
 			self.ready = False
 
+			if 'session' in str(e).lower():
+				handle_exception(e, module_name=__name__, func_name='refresh_records')
+			logger.error('Dedimania gave an Fault: {}'.format(str(e)))
+
+			self.current_records = list()
+			return
+		except Exception as e:
+			self.ready = False
+			handle_exception(e, module_name=__name__, func_name='refresh_records')
 			logger.exception(e)
 			self.current_records = list()
 			return
@@ -219,7 +308,8 @@ class Dedimania(AppConfig):
 
 	async def player_connect(self, player, is_spectator, **kwargs):
 		try:
-			await self.widget.display(player=player)
+			if self.ready:
+				await self.widget.display(player=player)
 			res = await self.instance.gbx('GetDetailedPlayerInfo', player.login)
 			p_info = await self.api.player_connect(
 				player.login, player.nickname, res['Path'], is_spectator
@@ -243,7 +333,7 @@ class Dedimania(AppConfig):
 		except:
 			pass
 
-	async def player_finish(self, player, race_time, lap_time, lap_cps, flow, raw, **kwargs):
+	async def player_finish(self, player, race_time, lap_time, lap_cps, race_cps, flow, raw, **kwargs):
 		if not self.map_status:
 			return
 		if not self.ready:
@@ -261,6 +351,9 @@ class Dedimania(AppConfig):
 
 			if score < current_record.score:
 				previous_time = current_record.score
+				current_record.updated = True
+				if self.current_script.startswith('Laps'):
+					current_record.race_cps = race_cps
 
 				# Determinate new rank.
 				async with self.lock:
@@ -275,16 +368,6 @@ class Dedimania(AppConfig):
 					logger.debug('Ignore time, not within server or player max_rank.')
 					return
 
-				try:
-					if new_rank == 1:
-						# We need the ghost replay too.
-						current_record.ghost_replay, current_record.virtual_replay = await self.get_replays(player.login, ghost=True, virtual=True)
-					else:
-						# Get virtual replay.
-						_, current_record.virtual_replay = await self.get_replays(current_record.login, ghost=False, virtual=True)
-				except:
-					return
-
 				# Update score + infos.
 				async with self.lock:
 					current_record.score = score
@@ -292,7 +375,7 @@ class Dedimania(AppConfig):
 					self.current_records.sort(key=lambda x: x.score)
 
 				if new_rank < previous_index:
-					message = '$z$s$fff»» $fff{}$z$s$0b3 gained the $fff{}.$0b3 Dedimania Record, with a time of $fff\uf017 {}$0b3 ($fff{}.$0b3 $fff-{}$0b3).'.format(
+					message = '$fff{}$z$s$0b3 gained the $fff{}.$0b3 Dedimania Record, with a time of $fff\uf017 {}$0b3 ($fff{}.$0b3 $fff-{}$0b3).'.format(
 						player.nickname, new_rank, times.format_time(score), previous_index,
 						times.format_time((previous_time - score))
 					)
@@ -303,6 +386,11 @@ class Dedimania(AppConfig):
 					)
 
 				coros = [self.widget.display()]
+
+				# TODO: Temp fix for dedicated bug
+				coros.append(self.podium_start(force=True))
+				# END TEMP FIX
+
 				if chat_announce >= new_rank:
 					coros.append(self.instance.chat(message))
 				elif chat_announce != 0:
@@ -324,6 +412,9 @@ class Dedimania(AppConfig):
 				login=player.login, nickname=player.nickname, score=score, rank=None, max_rank=player_info['max_rank'],
 				cps=lap_cps, vote=-1
 			)
+			new_record.updated = True
+			if self.current_script.startswith('Laps'):
+				new_record.race_cps = race_cps
 
 			# Determinate new rank.
 			async with self.lock:
@@ -338,58 +429,51 @@ class Dedimania(AppConfig):
 				logger.debug('Ignore time, not within server or player max_rank.')
 				return
 
-			try:
-				if new_rank == 1:
-					new_record.ghost_replay, new_record.virtual_replay = await self.get_replays(player.login, ghost=True, virtual=True)
-				else:
-					_, new_record.virtual_replay = await self.get_replays(player.login, ghost=False, virtual=True)
-			except:
-				return
-
 			async with self.lock:
 				self.current_records.append(new_record)
 				self.current_records.sort(key=lambda x: x.score)
 				new_index = self.current_records.index(new_record) + 1
-			message = '$z$s$fff»» $fff{}$z$s$0b3 drove the $fff{}.$0b3 Dedimania Record, with a time of $fff\uf017 {}$0b3.'.format(
+			message = '$fff{}$z$s$0b3 drove the $fff{}.$0b3 Dedimania Record, with a time of $fff\uf017 {}$0b3.'.format(
 				player.nickname, new_index, times.format_time(score)
 			)
 			await asyncio.gather(
 				self.instance.chat(message),
-				self.widget.display()
+				self.widget.display(),
+
+				# TODO: Temp fix for dedicated bug
+				self.podium_start(force=True)
+				# END TEMP FIX.
 			)
 
-	async def get_replays(self, player_login, ghost=False, virtual=True):
+	async def get_v_replay(self, login):
+		try:
+			return await self.instance.gbx('GetValidationReplay', login)
+		except:
+			return None
+
+	async def get_ghost_replay(self, login):
 		replay_name = 'dedimania_{}.Replay.Gbx'.format(uuid.uuid4().hex)
-		calls = list()
-		if virtual:
-			calls.append(self.instance.gbx('GetValidationReplay', player_login))
-		if ghost:
-			calls.append(self.instance.gbx('SaveBestGhostsReplay', player_login, replay_name))
-
-		results = await self.instance.gbx.multicall(*calls)
-
-		if ghost:
-			try:
-				async with self.instance.storage.open('UserData/Replays/{}'.format(replay_name)) as ghost_file:
-					ghost_base = ghost_file.read()
-					if virtual:
-						return ghost_base, results[0]
-					return ghost_base, None
-			except FileNotFoundError as e:
-				message = '$f00Error: Dedimania requires you to have file access on the server. We can\'t fetch' \
-						  'the driven replay!'
-				logger.error('Please make sure we can access the dedicated files. Configure your storage driver correctly! '
-							 '{}'.format(str(e)))
-				await self.instance.chat(message)
-				raise DedimaniaException('Can\'t access files')
-			except PermissionError as e:
-				message = '$f00Error: Dedimania requires you to have file access on the server. We can\'t fetch' \
-						  'the driven replay because of an permission problem!'
-				logger.error('We can\'t read files in the dedicated folder, your permissions don\'t allow us to read it! '
-							 '{}'.format(str(e)))
-				await self.instance.chat(message)
-				raise DedimaniaException('Can\'t access files due to permission problems')
-		return None, results[0]
+		try:
+			await self.instance.gbx('SaveBestGhostsReplay', login, replay_name)
+		except:
+			return None
+		try:
+			async with self.instance.storage.open('UserData/Replays/{}'.format(replay_name)) as ghost_file:
+				return await ghost_file.read()
+		except FileNotFoundError as e:
+			message = '$f00Error: Dedimania requires you to have file access on the server. We can\'t fetch' \
+					  'the driven replay!'
+			logger.error('Please make sure we can access the dedicated files. Configure your storage driver correctly! '
+						 '{}'.format(str(e)))
+			await self.instance.chat(message)
+			raise DedimaniaException('Can\'t access replay file')
+		except PermissionError as e:
+			message = '$f00Error: Dedimania requires you to have file access on the server. We can\'t fetch' \
+					  'the driven replay because of an permission problem!'
+			logger.error('We can\'t read files in the dedicated folder, your permissions don\'t allow us to read it! '
+						 '{}'.format(str(e)))
+			await self.instance.chat(message)
+			raise DedimaniaException('Can\'t access files due to permission problems')
 
 	async def chat_current_record(self):
 		records_amount = len(self.current_records)

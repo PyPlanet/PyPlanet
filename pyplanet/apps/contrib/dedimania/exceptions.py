@@ -15,6 +15,20 @@ class DedimaniaTransportException(DedimaniaException):
 	pass
 
 
+class DedimaniaNotSupportedException(DedimaniaException):
+	"""
+	Map or mode is not supported by Dedimania.
+	"""
+	pass
+
+
+class DedimaniaInvalidCredentials(DedimaniaException):
+	"""
+	Invalid code or player.
+	"""
+	pass
+
+
 class DedimaniaFault(DedimaniaException, Fault):
 	"""
 	Dedimania XMLRPC Fault.

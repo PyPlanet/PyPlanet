@@ -151,12 +151,12 @@ class LocalRecords(AppConfig):
 		# Prepare messages.
 		if previous_index is not None:
 			if new_index < previous_index:
-				message = '$z$s$fff»» $fff{}$z$s$0f3 gained the $fff{}.$0f3 Local Record: $fff\uf017 {}$0f3 ($fff{}.$0f3 $fff-{}$0f3).'.format(
+				message = '$fff{}$z$s$0f3 gained the $fff{}.$0f3 Local Record: $fff\uf017 {}$0f3 ($fff{}.$0f3 $fff-{}$0f3).'.format(
 					player.nickname, new_index, times.format_time(score), previous_index,
 					times.format_time((previous_time - score))
 				)
 			else:
-				message = '$z$s$fff»» $fff{}$z$s$0f3 improved the $fff{}.$0f3 Local Record: $fff\uf017 {}$0f3 ($fff-{}$0f3).'.format(
+				message = '$fff{}$z$s$0f3 improved the $fff{}.$0f3 Local Record: $fff\uf017 {}$0f3 ($fff-{}$0f3).'.format(
 					player.nickname, new_index, times.format_time(score),
 					times.format_time((previous_time - score))
 				)
