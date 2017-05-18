@@ -8,5 +8,11 @@ class LogoView(TemplateView):
 		super().__init__(*args, **kwargs)
 		self.id = 'pyplanet__logo'
 
+	async def get_context_data(self):
+		from pyplanet.core import Controller
+		context = await super().get_context_data()
+		context['game'] = Controller.instance.game.game
+		return context
+
 	async def display(self, **kwargs):
 		return await super().display(**kwargs)

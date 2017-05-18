@@ -4,13 +4,28 @@ Changelog
 0.3.1
 -----
 
+Core
+~~~~
+
+* Improvement: Multiple namespaces per command + improve help.
+* Improvement: Hide the alt menu in shootmania when having a window in the middle.
+* Improvement: Add method to retrieve map by index.
+* Bugfix: Save boolean in the //settings
+* Bugfix: Fixing issue with writing the map list.
+* Bugfix: Handling of fetching player in a callback for shootmania.
+* Bugfix: Several fixes for shootmania modes.
+
+
 Apps
 ~~~~
 
+* Improvement: Make dedimania record message shorter.
 * Bugfix: Double prefix in leave messages.
 * Bugfix: Dedimania nickname fetching gave error. Sometimes the widget didn't work properly.
 * Bugfix: Improve error handling in Dedimania.
-* Improvement: Make dedimania record message shorter.
+* Bugfix: Fixing issue with write map list (admin part of it).
+* Bugfix: Don't display the time of the author when in shootmania
+
 
 0.3.0
 -----
