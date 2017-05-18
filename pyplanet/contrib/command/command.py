@@ -194,8 +194,12 @@ class Command:
 		return text
 
 	def __str__(self):
+		# Make sure namespace is always an array if provided.
+		if self.namespace and not isinstance(self.namespace, (list, tuple)):
+			self.namespace = [self.namespace]
+
 		return '/{}{}{}'.format(
 			'/' if self.admin else '',
-			self.namespace or self.command,
+			'|'.join(self.namespace) if self.namespace and isinstance(self.namespace, (list, tuple)) else self.command,
 			' ' + self.command if self.namespace else '',
 		)

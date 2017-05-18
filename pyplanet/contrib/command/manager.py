@@ -108,7 +108,7 @@ class CommandManager(CoreContrib):
 		# All commands.
 		commands = [c for c in self._commands if c.admin is filter_admin]
 		calls = list()
-		for cmds in batch(commands, 6):
+		for cmds in batch(commands, 7):
 			help_texts = [str(c) for c in cmds]
 			calls.append(
 				self._instance.chat(
