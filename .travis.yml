@@ -70,3 +70,6 @@ after_success:
   - tests/_scripts/travis_coverage.sh
 #  - codecov
 #  - python-codacy-coverage -r coverage.xml
+
+after_failure:
+  - cat dedicated/Logs/*
