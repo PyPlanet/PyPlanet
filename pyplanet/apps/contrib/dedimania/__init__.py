@@ -375,12 +375,12 @@ class Dedimania(AppConfig):
 					self.current_records.sort(key=lambda x: x.score)
 
 				if new_rank < previous_index:
-					message = '$fff{}$z$s$0b3 gained the $fff{}.$0b3 Dedimania Record, with a time of $fff\uf017 {}$0b3 ($fff{}.$0b3 $fff-{}$0b3).'.format(
+					message = '$fff{}$z$s$0b3 gained the $fff{}.$0b3 Dedimania Record: $fff\uf017 {}$0b3 ($fff{}.$0b3 $fff-{}$0b3).'.format(
 						player.nickname, new_rank, times.format_time(score), previous_index,
 						times.format_time((previous_time - score))
 					)
 				else:
-					message = '$fff{}$z$s$0b3 improved the $fff{}.$0b3 Dedimania Record, with a time of $fff\uf017 {}$0b3 ($fff-{}$0b3).'.format(
+					message = '$fff{}$z$s$0b3 improved the $fff{}.$0b3 Dedimania Record: $fff\uf017 {}$0b3 ($fff-{}$0b3).'.format(
 						player.nickname, new_rank, times.format_time(score),
 						times.format_time((previous_time - score))
 					)
@@ -398,7 +398,7 @@ class Dedimania(AppConfig):
 				await asyncio.gather(*coros)
 
 			elif score == current_record.score:
-				message = '$fff{}$z$s$0b3 equalled the $fff{}.$0b3 Dedimania Record, with a time of $fff\uf017 {}$0b3.'.format(
+				message = '$fff{}$z$s$0b3 equalled the $fff{}.$0b3 Dedimania Record: $fff\uf017 {}$0b3.'.format(
 					player.nickname, previous_index, times.format_time(score)
 				)
 
@@ -433,7 +433,7 @@ class Dedimania(AppConfig):
 				self.current_records.append(new_record)
 				self.current_records.sort(key=lambda x: x.score)
 				new_index = self.current_records.index(new_record) + 1
-			message = '$fff{}$z$s$0b3 drove the $fff{}.$0b3 Dedimania Record, with a time of $fff\uf017 {}$0b3.'.format(
+			message = '$fff{}$z$s$0b3 drove the $fff{}.$0b3 Dedimania Record: $fff\uf017 {}$0b3.'.format(
 				player.nickname, new_index, times.format_time(score)
 			)
 			await asyncio.gather(
