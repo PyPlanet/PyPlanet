@@ -13,7 +13,7 @@ class TestMapManager(ControllerTestCase):
 		if len(self.instance.map_manager.maps) <= 1:
 			raise Exception('Test server should contain more than 1 map!')
 		while True:
-			next_map = random.choice(self.instance.map_manager.maps)
+			next_map = random.choice(list(self.instance.map_manager.maps))
 			if next_map.uid != self.instance.map_manager.current_map.uid:
 				break
 
