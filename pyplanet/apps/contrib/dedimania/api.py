@@ -6,7 +6,7 @@ import requests
 from pprint import pprint
 from xmlrpc.client import dumps, loads
 
-from requests import ConnectTimeout
+from requests import ConnectTimeout, ReadTimeout
 
 from pyplanet import __version__ as version
 from pyplanet.apps.contrib.dedimania.exceptions import DedimaniaTransportException, DedimaniaFault, \
@@ -85,7 +85,7 @@ class DedimaniaAPI:
 				self.retries = 0
 				return data[0]
 			raise DedimaniaTransportException('Invalid response from dedimania!')
-		except ConnectionError as e:
+		except (ConnectionError, ReadTimeout) as e:
 			raise DedimaniaTransportException(e) from e
 		except ConnectTimeout as e:
 			raise DedimaniaTransportException(e) from e
