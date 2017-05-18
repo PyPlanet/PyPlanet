@@ -484,12 +484,15 @@ class Dedimania(AppConfig):
 			)
 			calls = list()
 			calls.append(self.instance.chat(message))
+
+			coros = list()
 			for player in self.instance.player_manager.online:
-				calls.append(self.chat_personal_record(player))
-			await self.instance.gbx.multicall(*calls)
+				coros.append(self.chat_personal_record(player))
+			calls.extend(await asyncio.gather(*coros))
+			return calls
 		else:
 			message = '$0b3There is no Dedimania Record on this map yet.'
-			await self.instance.chat(message)
+			return [self.instance.chat(message)]
 
 	async def chat_personal_record(self, player):
 		async with self.lock:
