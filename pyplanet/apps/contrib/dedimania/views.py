@@ -114,13 +114,12 @@ class DedimaniaRecordsWidget(TimesWidgetView):
 
 			index = 1
 			for record in records:
-				record_player = await record.get_related('player')
 				list_record = dict()
 				list_record['index'] = index
 				list_record['color'] = '$fff'
 				if index <= self.top_entries:
 					list_record['color'] = '$ff0'
-				list_record['nickname'] = record_player.nickname
+				list_record['nickname'] = record.nickname
 				list_record['score'] = times.format_time(int(record.score))
 				index += 1
 				list_records.append(list_record)
