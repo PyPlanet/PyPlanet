@@ -179,9 +179,9 @@ class Dedimania(AppConfig):
 			# await self.podium_start()
 
 			await self.map_end(map)
-			await self.map_begin(map, send_messages=False)
+			await self.map_begin(map)
 
-	async def map_begin(self, map, send_messages=True, **kwargs):
+	async def map_begin(self, map, **kwargs):
 		# Reset.
 		if not self.api:
 			await self.initiate_api()
@@ -205,11 +205,10 @@ class Dedimania(AppConfig):
 		await self.refresh_records()
 
 		if self.ready:
-			calls = list()
-			if send_messages:
-				calls.append(self.chat_current_record())
-			calls.append(self.widget.display())
-			await asyncio.gather(*calls)
+			await asyncio.gather(
+				self.chat_current_record(),
+				self.widget.display()
+			)
 
 	async def podium_start(self, force=False, **kwargs):
 		# Get replays of the players.
@@ -491,14 +490,12 @@ class Dedimania(AppConfig):
 			calls = list()
 			calls.append(self.instance.chat(message))
 
-			coros = list()
 			for player in self.instance.player_manager.online:
-				coros.append(self.chat_personal_record(player))
-			calls.extend(await asyncio.gather(*coros))
-			return calls
+				calls.append(await self.chat_personal_record(player))
+			return await asyncio.gather(*calls)
 		else:
 			message = '$0b3There is no Dedimania Record on this map yet.'
-			return [self.instance.chat(message)]
+			return await self.instance.chat(message)
 
 	async def chat_personal_record(self, player):
 		async with self.lock:
