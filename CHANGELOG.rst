@@ -1,6 +1,16 @@
 Changelog
 =========
 
+0.3.2
+-----
+
+Core
+~~~~
+
+* Bugfix: Not properly sending and handling mode changes.
+* Bugfix: Several errors in handling the callbacks in shootmania
+
+
 0.3.1
 -----
 
