@@ -8,14 +8,23 @@ from pyplanet.core import Controller
 from pyplanet.core.events import Callback, handle_generic
 
 
+async def _get_player(login):
+	try:
+		if not login or not len(login):
+			return None
+		return await Controller.instance.player_manager.get_player(login=login)
+	except:
+		return None
+
+
 async def handle_on_shoot(source, signal, **kwargs):
 	shooter = await Controller.instance.player_manager.get_player(login=source['shooter'])
 	return dict(shooter=shooter, time=source['time'], weapon=source['weapon'])
 
 async def handle_on_hit(source, signal, **kwargs):
-	shooter, victim = await asyncio.gather(*[
-		Controller.instance.player_manager.get_player(login=source['shooter']),
-		Controller.instance.player_manager.get_player(login=source['victim']),
+	victim, shooter = await asyncio.gather(*[
+		_get_player(source['victim']),
+		_get_player(source['shooter']),
 	])
 	return dict(
 		shooter=shooter, time=source['time'], weapon=source['weapon'], victim=victim, damage=source['damage'],
@@ -24,9 +33,9 @@ async def handle_on_hit(source, signal, **kwargs):
 	)
 
 async def handle_on_near_miss(source, signal, **kwargs):
-	shooter, victim = await asyncio.gather(*[
-		Controller.instance.player_manager.get_player(login=source['shooter']),
-		Controller.instance.player_manager.get_player(login=source['victim']),
+	victim, shooter = await asyncio.gather(*[
+		_get_player(source['victim']),
+		_get_player(source['shooter']),
 	])
 	return dict(
 		shooter=shooter, time=source['time'], weapon=source['weapon'], victim=victim, distance=source['distance'],
@@ -34,17 +43,9 @@ async def handle_on_near_miss(source, signal, **kwargs):
 	)
 
 async def handle_armor_empty(source, signal, **kwargs):
-	async def get_player(login):
-		try:
-			if not login or not len(login):
-				return None
-			return await Controller.instance.player_manager.get_player(login=login)
-		except:
-			return None
-
 	victim, shooter = await asyncio.gather(
-		get_player(source['victim']),
-		get_player(source['shooter']),
+		_get_player(source['victim']),
+		_get_player(source['shooter']),
 	)
 
 	return dict(
@@ -60,9 +61,9 @@ async def handle_on_capture(source, signal, **kwargs):
 	return dict(time=source['time'], players=players, landmark=source['landmark'])
 
 async def handle_on_shot_deny(source, signal, **kwargs):
-	shooter, victim = await asyncio.gather(*[
-		Controller.instance.player_manager.get_player(login=source['shooter']),
-		Controller.instance.player_manager.get_player(login=source['victim']),
+	victim, shooter = await asyncio.gather(*[
+		_get_player(source['victim']),
+		_get_player(source['shooter']),
 	])
 	return dict(
 		time=source['time'], shooter=shooter, victim=victim,
@@ -81,33 +82,35 @@ async def handle_player_added(source, signal, **kwargs):
 	)
 
 async def handle_custom_event(source, signal, **kwargs):
-	shooter = await Controller.instance.player_manager.get_player(login=source['shooter']) if source['shooter'] else None
-	victim = await Controller.instance.player_manager.get_player(login=source['victim']) if source['victim'] else None
+	victim, shooter = await asyncio.gather(*[
+		_get_player(source['victim']),
+		_get_player(source['shooter']),
+	])
 	source['shooter'] = shooter
 	source['victim'] = victim
 	return source
 
 async def handle_action_event(source, signal, **kwargs):
-	player = await Controller.instance.player_manager.get_player(login=source['login'])
+	player = await _get_player(login=source['login'])
 	return dict(time=source['time'], player=player, action_input=source['actioninput'])
 
 async def handle_player_touches_object(source, signal, **kwargs):
-	player = await Controller.instance.player_manager.get_player(login=source['login'])
+	player = await _get_player(login=source['login'])
 	return dict(
 		time=source['time'], player=player, object_id=source['objectid'], model_id=source['modelid'], model_name=source['modelname']
 	)
 
 async def handle_player_triggers_sector(source, signal, **kwargs):
-	player = await Controller.instance.player_manager.get_player(login=source['login'])
+	player = await _get_player(login=source['login'])
 	return dict(time=source['time'], player=player, sector_id=source['sectorid'])
 
 async def handle_player_request_action_change(source, signal, **kwargs):
-	player = await Controller.instance.player_manager.get_player(login=source['login'])
+	player = await _get_player(login=source['login'])
 	return dict(time=source['time'], player=player, action_change=source['actionchange'])
 
 async def handle_scores(source, signal, **kwargs):
 	async def get_player_scores(data):
-		player = await Controller.instance.player_manager.get_player(login=data['login'])
+		player = await _get_player(login=data['login'])
 		return dict(
 			player=player, rank=data['rank'], round_points=data['roundpoints'], map_points=data['mappoints'],
 			match_points=data['matchpoints'],
