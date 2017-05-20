@@ -29,32 +29,37 @@ class LocalRecordsWidget(TimesWidgetView):
 		if self.app.instance.performance_mode:
 			return data
 
+		record_limit = await self.app.setting_record_limit.get_value()
+		if record_limit > 0:
+			current_records = self.app.current_records[:record_limit]
+		else:
+			current_records = self.app.current_records
 		widget_times = dict()
 
 		for player in self.app.instance.player_manager.online:
 			list_records = list()
 
-			player_record = [x for x in self.app.current_records if x.player_id == player.get_id()]
-			player_index = (len(self.app.current_records) + 1)
+			player_record = [x for x in current_records if x.player_id == player.get_id()]
+			player_index = (len(current_records) + 1)
 			if len(player_record) > 0:
 				# Set player index if there is a record
-				player_index = (self.app.current_records.index(player_record[0]) + 1)
+				player_index = (current_records.index(player_record[0]) + 1)
 
-			records = list(self.app.current_records[:self.top_entries])
+			records = list(current_records[:self.top_entries])
 			custom_start_index = None
-			if player_index > len(self.app.current_records):
+			if player_index > len(current_records):
 				# No personal record, get the last records
-				records_start = (len(self.app.current_records) - self.record_amount + self.top_entries)
+				records_start = (len(current_records) - self.record_amount + self.top_entries)
 				# If start of current slice is in the top entries, add more records below
 				if records_start < self.top_entries:
 					records_start = (self.top_entries)
 
-				records += list(self.app.current_records[records_start:])
+				records += list(current_records[records_start:])
 				custom_start_index = (records_start + 1)
 			else:
 				if player_index <= self.top_entries:
 					# Player record is in top X, get following records (top entries + 1 onwards)
-					records += self.app.current_records[(self.top_entries + 1):(self.record_amount + 1)]
+					records += current_records[(self.top_entries + 1):(self.record_amount + 1)]
 					custom_start_index = (self.top_entries + 1)
 				else:
 					# Player record is not in top X, get records around player record
@@ -64,14 +69,14 @@ class LocalRecordsWidget(TimesWidgetView):
 					end_point = ((player_index + math.floor((records_to_fill - 1) / 2)) - 1)
 
 					# If end of current slice is outside the list, add more records above
-					if end_point > len(self.app.current_records):
-						end_difference = (end_point - len(self.app.current_records))
+					if end_point > len(current_records):
+						end_difference = (end_point - len(current_records))
 						start_point = (start_point - end_difference)
 					# If start of current slice is in the top entries, add more records below
 					if start_point < self.top_entries:
 						start_point = self.top_entries
 
-					records += self.app.current_records[start_point:(start_point + records_to_fill)]
+					records += current_records[start_point:(start_point + records_to_fill)]
 					custom_start_index = (start_point + 1)
 
 			index = 1
@@ -110,9 +115,15 @@ class LocalRecordsWidget(TimesWidgetView):
 			'top_entries': self.top_entries
 		})
 
+		record_limit = await self.app.setting_record_limit.get_value()
+		if record_limit > 0:
+			current_records = self.app.current_records[:record_limit]
+		else:
+			current_records = self.app.current_records
+
 		if self.app.instance.performance_mode:
 			list_records = list()
-			records = list(self.app.current_records[:self.record_amount])
+			records = list(current_records[:self.record_amount])
 
 			index = 1
 			for record in records:

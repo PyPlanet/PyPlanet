@@ -30,6 +30,12 @@ class LocalRecords(AppConfig):
 			default=50
 		)
 
+		self.setting_record_limit = Setting(
+			'record_limit', 'Local Records limit', Setting.CAT_BEHAVIOUR, type=int,
+			description='Limit for the amount of Local Records displayed in-game (0 for disable).',
+			default=100
+		)
+
 	async def on_start(self):
 		# Register commands
 		await self.instance.command_manager.register(Command(command='records', target=self.show_records_list))
@@ -39,7 +45,7 @@ class LocalRecords(AppConfig):
 		self.instance.signal_manager.listen(tm_signals.finish, self.player_finish)
 		self.instance.signal_manager.listen(mp_signals.player.player_connect, self.player_connect)
 
-		await self.context.setting.register(self.setting_chat_announce)
+		await self.context.setting.register(self.setting_chat_announce, self.setting_record_limit)
 
 		# Load initial data.
 		await self.refresh_locals()
@@ -77,7 +83,13 @@ class LocalRecords(AppConfig):
 		view = LocalRecordsListView(self)
 		view_data = []
 		first_time = self.current_records[0].score
-		for item in self.current_records:
+		record_limit = await self.setting_record_limit.get_value()
+		if record_limit > 0:
+			records = self.current_records[:record_limit]
+		else:
+			records = self.current_records
+
+		for item in records:
 			record_player = item.player
 			record_time_difference = ''
 			if index > 1:
@@ -102,6 +114,7 @@ class LocalRecords(AppConfig):
 		await self.widget.display(player=player)
 
 	async def player_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
+		record_limit = await self.setting_record_limit.get_value()
 		chat_announce = await self.setting_chat_announce.get_value()
 		current_records = [x for x in self.current_records if x.player_id == player.get_id()]
 		score = lap_time
@@ -120,7 +133,7 @@ class LocalRecords(AppConfig):
 			previous_time = current_record.score
 
 			# If equal, only show message.
-			if score == current_record.score:
+			if score == current_record.score and (record_limit == 0 or previous_index <= record_limit):
 				message = '$fff{}$z$s$0f3 equalled the $fff{}.$0f3 Local Record: $fff\uf017 {}$0f3.'.format(
 					player.nickname, previous_index, times.format_time(score)
 				)
@@ -149,7 +162,7 @@ class LocalRecords(AppConfig):
 		new_index = self.current_records.index(current_record) + 1
 
 		# Prepare messages.
-		if previous_index is not None:
+		if previous_index is not None and (record_limit == 0 or previous_index <= record_limit):
 			if new_index < previous_index:
 				message = '$fff{}$z$s$0f3 gained the $fff{}.$0f3 Local Record: $fff\uf017 {}$0f3 ($fff{}.$0f3 $fff-{}$0f3).'.format(
 					player.nickname, new_index, times.format_time(score), previous_index,
@@ -169,14 +182,20 @@ class LocalRecords(AppConfig):
 		asyncio.ensure_future(current_record.save())
 
 		coros = [self.widget.display()]
-		if chat_announce >= new_index:
-			coros.append(self.instance.chat(message))
-		elif chat_announce != 0:
-			coros.append(self.instance.chat(message, player))
+		if record_limit == 0 or new_index <= record_limit:
+			if chat_announce >= new_index:
+				coros.append(self.instance.chat(message))
+			elif chat_announce != 0:
+				coros.append(self.instance.chat(message, player))
 		await asyncio.gather(*coros)
 
 	async def chat_current_record(self):
-		records_amount = len(self.current_records)
+		record_limit = await self.setting_record_limit.get_value()
+		if record_limit > 0:
+			records_amount = len(self.current_records[:record_limit])
+		else:
+			records_amount = len(self.current_records)
+
 		if records_amount > 0:
 			first_record = self.current_records[0]
 			message = '$0f3Current Local Record: $fff\uf017 {}$z$s$0f3 by $fff{}$z$s$0f3 ($fff{}$0f3 records)'.format(
@@ -185,14 +204,19 @@ class LocalRecords(AppConfig):
 			calls = list()
 			calls.append(self.instance.chat(message))
 			for player in self.instance.player_manager.online:
-				calls.append(self.chat_personal_record(player))
+				calls.append(self.chat_personal_record(player, record_limit))
 			await self.instance.gbx.multicall(*calls)
 		else:
 			message = '$0f3There is no Local Record on this map yet.'
 			await self.instance.chat(message)
 
-	def chat_personal_record(self, player):
-		record = [x for x in self.current_records if x.player_id == player.get_id()]
+	def chat_personal_record(self, player, record_limit):
+		if record_limit > 0:
+			records = self.current_records[:record_limit]
+		else:
+			records = self.current_records
+
+		record = [x for x in records if x.player_id == player.get_id()]
 
 		if len(record) > 0:
 			message = '$0f3You currently hold the $fff{}.$0f3 Local Record: $fff\uf017 {}'.format(
