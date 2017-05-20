@@ -15,20 +15,20 @@ from pyplanet.core.exceptions import ImproperlyConfigured
 class MapManager(CoreContrib):
 	"""
 	Map Manager. Manages the current map pool and the current and next map.
-	
+
 	.. todo::
-	
+
 		Write introduction.
-		
+
 	.. warning::
-	
+
 		Don't initiate this class yourself.
 
 	"""
 	def __init__(self, instance):
 		"""
 		Initiate, should only be done from the core instance.
-		
+
 		:param instance: Instance.
 		:type instance: pyplanet.core.instance.Instance
 		"""
@@ -63,7 +63,7 @@ class MapManager(CoreContrib):
 	async def handle_map_change(self, info):
 		"""
 		This will be called from the glue that creates the signal 'maniaplanet:map_begin' or 'map_end'.
-		
+
 		:param info: Mapinfo in dict.
 		:return: Map instance.
 		:rtype: pyplanet.apps.core.maniaplanet.models.map.Map
@@ -115,7 +115,7 @@ class MapManager(CoreContrib):
 	async def get_map(self, uid=None):
 		"""
 		Get map instance by uid.
-		
+
 		:param uid: By uid (pk).
 		:return: Player or exception if not found
 		"""
@@ -127,7 +127,7 @@ class MapManager(CoreContrib):
 	async def get_map_by_index(self, index):
 		"""
 		Get map instance by index id (primary key).
-		
+
 		:param index: Primary key index.
 		:return: Map instance or raise exception.
 		"""
@@ -140,7 +140,7 @@ class MapManager(CoreContrib):
 	def next_map(self):
 		"""
 		The next scheduled map.
-		
+
 		:rtype: pyplanet.apps.core.maniaplanet.models.Map
 		"""
 		return self._next_map
@@ -149,9 +149,9 @@ class MapManager(CoreContrib):
 		"""
 		Set the next map. This will prepare the manager to set the next map and will communicate the next map to the
 		dedicated server.
-		
+
 		The Map parameter can be a map instance or the UID of the map.
-		
+
 		:param map: Map instance or UID string.
 		:type map: pyplanet.apps.core.maniaplanet.models.Map, str
 		"""
@@ -166,7 +166,7 @@ class MapManager(CoreContrib):
 	def current_map(self):
 		"""
 		The current map, database model instance.
-		
+
 		:rtype: pyplanet.apps.core.maniaplanet.models.Map
 		"""
 		return self._current_map
@@ -175,8 +175,8 @@ class MapManager(CoreContrib):
 	def previous_map(self):
 		"""
 		The previously played map, or None if not known!
-		
-		:rtype: pyplanet.apps.core.maniaplanet.models.Map 
+
+		:rtype: pyplanet.apps.core.maniaplanet.models.Map
 		"""
 		return self._previous_map
 
@@ -185,15 +185,15 @@ class MapManager(CoreContrib):
 		"""
 		Get the maps that are currently loaded on the server. The list should contain model instances of the currently
 		loaded matchsettings. This list should be up-to-date.
-		
-		:rtype: list 
+
+		:rtype: list
 		"""
 		return self._maps
 
 	async def set_current_map(self, map):
 		"""
 		Set the current map and jump to it.
-		
+
 		:param map: Map instance or uid.
 		"""
 		if isinstance(map, str):
@@ -219,7 +219,7 @@ class MapManager(CoreContrib):
 	async def add_map(self, filename, insert=True):
 		"""
 		Add or insert map to current online playlist.
-		
+
 		:param filename: Load from filename relative to the 'Maps' directory on the dedicated host server.
 		:param insert: Insert after the current map, this will make it play directly after the current map. True by default.
 		:type filename: str
@@ -247,7 +247,7 @@ class MapManager(CoreContrib):
 	async def upload_map(self, fh, filename, insert=True, overwrite=False):
 		"""
 		Upload and add/insert the map to the current online playlist.
-		
+
 		:param fh: File handler, bytesio object or any readable context.
 		:param filename: The filename when saving on the server. Must include the map.gbx! Relative to 'Maps' folder.
 		:param insert: Insert after the current map, this will make it play directly after the current map. True by default.
@@ -273,7 +273,7 @@ class MapManager(CoreContrib):
 	async def remove_map(self, map, delete_file=False):
 		"""
 		Remove and optionally delete file from server and playlist.
-		
+
 		:param map: Map instance or filename in string.
 		:param delete_file: Boolean to decide if we are going to remove the file from the server too. Defaults to False.
 		:type delete_file: bool
@@ -288,9 +288,13 @@ class MapManager(CoreContrib):
 		try:
 			success = await self._instance.gbx('RemoveMap', map)
 			if success:
+				the_map = None
 				for m in self._maps:
 					if m.file == map:
-						self._maps.remove(m)
+						the_map = m
+						break
+				if the_map:
+					self._maps.remove(the_map)
 		except Fault as e:
 			if 'unknown' in e.faultString:
 				raise MapNotFound('Dedicated can\'t find map. Already removed?')

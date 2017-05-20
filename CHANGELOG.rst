@@ -11,6 +11,12 @@ Core
 * Bugfix: Several errors in handling the callbacks in shootmania
 
 
+Apps
+~~~~
+
+* Bugfix: Fixing issue with removing or erasing maps.
+
+
 0.3.1
 -----
 
