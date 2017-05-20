@@ -54,7 +54,7 @@ class LocalRecordsWidget(TimesWidgetView):
 			else:
 				if player_index <= self.top_entries:
 					# Player record is in top X, get following records (top entries + 1 onwards)
-					records += self.app.current_records[(self.top_entries + 1):(self.record_amount + 1)]
+					records += self.app.current_records[self.top_entries:self.record_amount]
 					custom_start_index = (self.top_entries + 1)
 				else:
 					# Player record is not in top X, get records around player record
