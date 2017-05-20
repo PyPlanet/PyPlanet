@@ -94,8 +94,8 @@ class Dedimania(AppConfig):
 		self.login = await self.setting_server_login.get_value(refresh=True) or self.instance.game.server_player_login
 		self.code = await self.setting_dedimania_code.get_value(refresh=True)
 		if not self.code:
-			message = '$0b3Error: No dedimania code was provided, please edit the settings and restart PyPlanet (//settings)'
-			logger.error('Dedimania Code not configured! Please configure with //settings and restart PyPlanet!')
+			message = '$0b3Error: No dedimania code was provided, please edit the settings (//settings).'
+			logger.error('Dedimania Code not configured! Please configure with //settings!')
 			await self.instance.chat(message)
 			return
 
