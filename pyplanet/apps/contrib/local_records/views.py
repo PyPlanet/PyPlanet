@@ -191,3 +191,28 @@ class LocalRecordsListView(ManualListView):
 		super().__init__(self)
 		self.app = app
 		self.manager = app.context.ui
+
+	async def get_title(self):
+		return 'Local Records on {}'.format(self.app.instance.map_manager.current_map.name)
+
+	async def get_data(self):
+		first_time = self.app.current_records[0].score
+		record_limit = await self.app.setting_record_limit.get_value()
+		if record_limit > 0:
+			records = self.app.current_records[:record_limit]
+		else:
+			records = self.app.current_records
+
+		index = 1
+		items = []
+		for item in records:
+			record_player = item.player
+			record_time_difference = ''
+			if index > 1:
+				record_time_difference = '$f00 + ' + times.format_time((item.score - first_time))
+			items.append({'index': index, 'player_nickname': record_player.nickname,
+						  'record_time': times.format_time(item.score),
+						  'record_time_difference': record_time_difference})
+			index += 1
+
+		return items

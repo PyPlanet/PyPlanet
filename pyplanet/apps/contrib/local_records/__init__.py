@@ -78,28 +78,7 @@ class LocalRecords(AppConfig):
 			await self.instance.chat(message, player)
 			return
 
-		# TODO: Move logic to view class.
-		index = 1
 		view = LocalRecordsListView(self)
-		view_data = []
-		first_time = self.current_records[0].score
-		record_limit = await self.setting_record_limit.get_value()
-		if record_limit > 0:
-			records = self.current_records[:record_limit]
-		else:
-			records = self.current_records
-
-		for item in records:
-			record_player = item.player
-			record_time_difference = ''
-			if index > 1:
-				record_time_difference = '$f00 + ' + times.format_time((item.score - first_time))
-			view_data.append({'index': index, 'player_nickname': record_player.nickname,
-							  'record_time': times.format_time(item.score),
-							  'record_time_difference': record_time_difference})
-			index += 1
-		view.objects_raw = view_data
-		view.title = 'Local Records on {}'.format(self.instance.map_manager.current_map.name)
 		await view.display(player=player.login)
 		return view
 
