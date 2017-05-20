@@ -184,6 +184,7 @@ class Dedimania(AppConfig):
 	async def map_begin(self, map, **kwargs):
 		# Reset.
 		if not self.api:
+			await self.reload_settings()
 			await self.initiate_api()
 		self.api.retries = 0
 
