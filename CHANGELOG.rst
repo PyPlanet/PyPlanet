@@ -15,6 +15,7 @@ Apps
 ~~~~
 
 * Bugfix: Fixing issue with removing or erasing maps.
+* Improvement: Dedimania now also works in cup mode.
 
 
 0.3.1
