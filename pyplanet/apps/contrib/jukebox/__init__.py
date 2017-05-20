@@ -31,6 +31,15 @@ class Jukebox(AppConfig):
 		# Register callback.
 		self.instance.signal_manager.listen(mp_signals.flow.podium_start, self.podium_start)
 
+	def insert_map(self, player, map):
+		self.jukebox = [{'player': player, 'map': map}] + self.jukebox
+
+	def append_map(self, player, map):
+		self.jukebox.append({'player': player, 'map': map})
+
+	def clear_jukebox(self):
+		self.jukebox.clear()
+
 	async def show_map_list(self, player, data, **kwargs):
 		view = MapListView(self)
 		if data.search is not None:
@@ -87,7 +96,7 @@ class Jukebox(AppConfig):
 				await self.instance.chat(message, player)
 				return
 
-			if map.get_id() == self.instance.map_manager.current_map.get_id():
+			if map.get_id() == self.instance.map_manager.current_map.get_id() and player.level == 0:
 				message = '$i$f00You can\'t add the current map to the jukebox!'
 				await self.instance.chat(message, player)
 				return
@@ -113,14 +122,11 @@ class Jukebox(AppConfig):
 					await self.instance.chat(message)
 
 	async def podium_start(self, **kwargs):
-		while True:
-			if len(self.jukebox) == 0:
-				break
-			next = self.jukebox.pop(0)
-			if next['map'].get_id() != self.instance.map_manager.current_map.get_id():
-				message = '$fa0The next map will be $fff{}$z$s$fa0 as requested by $fff{}$z$s$fa0.'.format(next['map'].name, next['player'].nickname)
-				await asyncio.gather(
-					self.instance.chat(message),
-					self.instance.map_manager.set_next_map(next['map'])
-				)
-				break
+		if len(self.jukebox) == 0:
+			return
+		next = self.jukebox.pop(0)
+		message = '$fa0The next map will be $fff{}$z$s$fa0 as requested by $fff{}$z$s$fa0.'.format(next['map'].name, next['player'].nickname)
+		await asyncio.gather(
+			self.instance.chat(message),
+			self.instance.map_manager.set_next_map(next['map'])
+		)

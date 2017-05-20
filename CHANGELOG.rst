@@ -16,6 +16,7 @@ Apps
 
 * Bugfix: Fixing issue with removing or erasing maps.
 * Improvement: Dedimania now also works in cup mode.
+* Feature: Add //replay command for admins, make it able to juke the current map for non-players (ops and admins)
 
 
 0.3.1

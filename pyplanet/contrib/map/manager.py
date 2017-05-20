@@ -159,7 +159,10 @@ class MapManager(CoreContrib):
 			map = await self.get_map(map)
 		if not isinstance(map, Map):
 			raise Exception('When setting the map, you should give an Map instance!')
-		await self._instance.gbx('SetNextMapIdent', map.uid)
+		if map.file:
+			await self._instance.gbx('ChooseNextMap', map.file)
+		else:
+			await self._instance.gbx('SetNextMapIdent', map.uid)
 		self._next_map = map
 
 	@property

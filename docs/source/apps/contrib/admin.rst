@@ -63,6 +63,17 @@ Functionality:
 Required permission:
   ``admin:restart``, requires admin level 1.
 
+Replay map
+~~~~~~~~~~
+Command:
+  ``//replay``
+Parameters:
+  None.
+Functionality:
+  Queue the current map to be replayed
+Required permission:
+  ``admin:replay``, requires admin level 1.
+
 Add Local map
 ~~~~~~~~~~~~~
 Command:
