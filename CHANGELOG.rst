@@ -1,6 +1,24 @@
 Changelog
 =========
 
+0.3.3
+-----
+
+Core
+~~~~
+
+* Bugfix: Ignore erros with unknown login for ui updates. (means the player left).
+
+
+Apps
+~~~~
+
+* Bugfix: Fixing issues with dedimania and unsupported maps.
+* Bugfix: Fixing issues with dedimania and replays.
+* Bugfix: Fixing issues with local records widget showing the wrong offset.
+* Bugfix: Fixing issues with local records and double records.
+* Improvement: Some not visible improvements to the local record widget logic.
+
 0.3.2
 -----
 
