@@ -1,3 +1,5 @@
+from xmlrpc.client import Fault
+
 from pyplanet.core.ui.ui_properties import UIProperties
 
 
@@ -5,7 +7,7 @@ class _BaseUIManager:
 	def __init__(self, instance):
 		"""
 		Initiate manager.
-		
+
 		:param instance: Instance of controller.
 		:type instance: pyplanet.core.instance.Instance
 		"""
@@ -18,7 +20,7 @@ class _BaseUIManager:
 	async def send(self, manialink, logins=None, **kwargs):
 		"""
 		Send manialink to player(s).
-		
+
 		:param manialink: ManiaLink instance.
 		:param logins: Logins to post to. None to globally send.
 		:type manialink: pyplanet.core.ui.components.manialink._ManiaLink
@@ -89,13 +91,18 @@ class _BaseUIManager:
 					'SendDisplayManialinkPage', body, manialink.timeout, manialink.hide_click
 				))
 
-		# Execute calls.
-		await self.instance.gbx.multicall(*queries)
+		# Execute calls, ignore login unknown (player just left).
+		try:
+			await self.instance.gbx.multicall(*queries)
+		except Fault as e:
+			if 'Login unknown' in str(e):
+				return
+			raise
 
 	async def hide(self, manialink, logins=None):
 		"""
 		Send manialink to player(s).
-		
+
 		:param manialink: ManiaLink instance.
 		:param logins: Logins to post to. None to globally send.
 		:type manialink: pyplanet.core.ui.components.manialink._ManiaLink
@@ -142,7 +149,7 @@ class GlobalUIManager(_BaseUIManager):
 	def create_app_manager(self, app_config):
 		"""
 		Create app ui manager.
-		
+
 		:param app_config: App Config instance.
 		:type app_config: pyplanet.apps.config.AppConfig
 		:return: UI Manager
@@ -158,7 +165,7 @@ class AppUIManager(_BaseUIManager):
 	def __init__(self, instance, app):
 		"""
 		Initiate app ui manager.
-		
+
 		:param instance: Controller instance.
 		:param app: App Config instance.
 		:type instance: pyplanet.core.instance.Instance
