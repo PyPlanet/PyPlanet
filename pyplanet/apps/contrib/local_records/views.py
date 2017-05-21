@@ -6,14 +6,10 @@ from pyplanet.utils import times
 
 
 class LocalRecordsWidget(TimesWidgetView):
-	widget_x = 124
-	widget_y = 55.5
-	size_x = 38
-	size_y = 55.5
+	widget_x = 125
+	widget_y = 56.5
 	top_entries = 5
-	title = None  # 'Local Records'
-	icon_style = 'BgRaceScore2'
-	icon_substyle = 'LadderRank'
+	title = 'Local Records'
 
 	def __init__(self, app):
 		super().__init__(self)
@@ -22,7 +18,7 @@ class LocalRecordsWidget(TimesWidgetView):
 		self.id = 'pyplanet__widgets_localrecords'
 
 		self.action = self.action_recordlist
-		self.record_amount = math.floor((self.size_y - 5.5) / 3.3)
+		self.record_amount = 15
 
 	async def get_player_data(self):
 		data = await super().get_player_data()

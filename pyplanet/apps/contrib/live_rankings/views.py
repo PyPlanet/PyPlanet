@@ -10,9 +10,7 @@ class LiveRankingsWidget(TimesWidgetView):
 	size_x = 38
 	size_y = 55.5
 	top_entries = 5
-	title = None  # 'Live Rankings'
-	icon_style = 'BgRaceScore2'
-	icon_substyle = 'LadderRank'
+	title = 'Live Rankings'
 
 	template_name = 'live_rankings/widget.xml'
 
@@ -22,8 +20,7 @@ class LiveRankingsWidget(TimesWidgetView):
 		self.manager = app.context.ui
 		self.id = 'pyplanet__widgets_liverankings'
 
-		self.record_amount = math.floor((self.size_y - 5.5) / 3.3)
-		self.original_size_x = self.size_x
+		self.record_amount = 15
 		self.format_times = True
 		self.display_cpdifference = False
 
@@ -134,11 +131,6 @@ class LiveRankingsWidget(TimesWidgetView):
 		else:
 			self.format_times = False
 			self.display_cpdifference = False
-
-		if self.display_cpdifference:
-			self.size_x = self.original_size_x + 5
-		else:
-			self.size_x = self.original_size_x
 
 		data = await super().get_context_data()
 		if self.app.instance.performance_mode:

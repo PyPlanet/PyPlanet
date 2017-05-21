@@ -4,13 +4,8 @@ from pyplanet.contrib.player.exceptions import PlayerNotFound
 
 
 class MapInfoWidget(WidgetView):
-	widget_x = 124
-	widget_y = 90.5
-	size_x = 38
-	size_y = 14
-	title = None  # 'Current map'
-	icon_style = 'Icons128x128_1'
-	icon_substyle = 'Challenge'
+	widget_x = 125
+	widget_y = 90
 
 	template_name = 'mapinfo/mapinfo.xml'
 

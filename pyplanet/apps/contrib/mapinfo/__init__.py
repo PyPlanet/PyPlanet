@@ -22,6 +22,7 @@ class MapInfo(AppConfig):
 
 		# Move the multilapinfo a bit. (Only Trackmania).
 		self.instance.ui_manager.properties.set_attribute('multilap_info', 'pos', '107., 88., 5.')
+		self.instance.ui_manager.properties.set_visibility('map_info', False)
 
 		self.widget = MapInfoWidget(self)
 
