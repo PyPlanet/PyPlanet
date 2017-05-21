@@ -111,6 +111,8 @@ class Dedimania(AppConfig):
 		asyncio.ensure_future(self.initiate_api())
 
 	async def initiate_api(self):
+		if not self.api:
+			return
 		await self.api.on_start()
 		try:
 			await self.api.authenticate()
