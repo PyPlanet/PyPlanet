@@ -233,14 +233,14 @@ class Dedimania(AppConfig):
 		async with self.lock:
 			for pos, record in enumerate(self.current_records):
 				if record.updated:
-					if pos == 0:
+					if not self.v_replay:
 						replay = await self.get_v_replay(record.login)
 						if replay:
 							self.v_replay = replay
+					if not self.v_replay_checks and self.current_script.startswith('Laps'):
+						self.v_replay_checks = ','.join([str(c) for c in record.race_cps])
 
-						if self.current_script.startswith('Laps'):
-							self.v_replay_checks = ','.join([str(c) for c in record.race_cps])
-
+					if pos == 0:
 						replay = await self.get_ghost_replay(record.login)
 						if replay:
 							self.ghost_replay = replay
