@@ -25,6 +25,10 @@ async def handle_waypoint(source, signal, **kwargs):
 			player=player, race_time=source['racetime'], flow=flow, raw=source
 		)
 	elif source['isendlap'] or source['isendrace']:
+		# Check if the time is not zero or bellow, if it is, ignore. See #282.
+		if source['racetime'] <= 0 or source['laptime'] <= 0:
+			raise SignalGlueStop()
+
 		# End flow and call the other signal.
 		flow.reset_run()
 		if source['isendlap'] and not source['isendrace']:
