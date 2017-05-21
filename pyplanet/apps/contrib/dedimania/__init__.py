@@ -189,7 +189,10 @@ class Dedimania(AppConfig):
 		self.api.retries = 0
 
 		# Set map status.
-		self.map_status = map.time_author > 6200 or map.num_checkpoints > 0
+		self.map_status = map.time_author > 6200 and map.num_checkpoints > 1
+		if not self.map_status:
+			message = '$f90This map is not supported by Dedimania (min 1 checkpoint + 6.2 seconds or higher author time).'
+			return await self.instance.chat(message)
 
 		# Refresh script.
 		self.current_script = await self.instance.mode_manager.get_current_script()
