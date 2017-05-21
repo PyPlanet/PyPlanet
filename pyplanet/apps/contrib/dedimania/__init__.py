@@ -237,10 +237,10 @@ class Dedimania(AppConfig):
 						replay = await self.get_v_replay(record.login)
 						if replay:
 							self.v_replay = replay
-					if pos == 0:
-						if self.current_script.startswith('Laps'):
-							self.v_replay_checks = ','.join([str(c) for c in record.race_cps])
+					if not self.v_replay_checks and self.current_script.startswith('Laps'):
+						self.v_replay_checks = ','.join([str(c) for c in record.race_cps])
 
+					if pos == 0:
 						replay = await self.get_ghost_replay(record.login)
 						if replay:
 							self.ghost_replay = replay
