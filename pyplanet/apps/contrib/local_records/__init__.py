@@ -20,6 +20,7 @@ class LocalRecords(AppConfig):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
+		self.lock = asyncio.Lock()
 
 		self.current_records = []
 		self.widget = None
@@ -116,7 +117,8 @@ class LocalRecords(AppConfig):
 	async def player_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
 		record_limit = await self.setting_record_limit.get_value()
 		chat_announce = await self.setting_chat_announce.get_value()
-		current_records = [x for x in self.current_records if x.player_id == player.get_id()]
+		async with self.lock:
+			current_records = [x for x in self.current_records if x.player.login == player.login]
 		score = lap_time
 
 		previous_index = None
@@ -153,13 +155,14 @@ class LocalRecords(AppConfig):
 		current_record.score = score
 		current_record.checkpoints = ','.join([str(cp) for cp in cps])
 
-		# Add to list when it's a new record!
-		if current_record.get_id() is None:
-			self.current_records.append(current_record)
+		async with self.lock:
+			# Add to list when it's a new record!
+			if current_record.get_id() is None:
+				self.current_records.append(current_record)
 
-		# (Re)sort the record list.
-		self.current_records.sort(key=lambda x: x.score)
-		new_index = self.current_records.index(current_record) + 1
+			# (Re)sort the record list.
+			self.current_records.sort(key=lambda x: x.score)
+			new_index = self.current_records.index(current_record) + 1
 
 		# Prepare messages.
 		if previous_index is not None and (record_limit == 0 or previous_index <= record_limit):
