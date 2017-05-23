@@ -3,7 +3,7 @@ class _Game:
 	"""
 	The game class holds information about the game itself and the server. The properties can be virtually overriden
 	to be able to proxy to new/old syntaxes. This way we can provide a read-only data structure and still
-	maintain the same structure if any of the third party API changes.  
+	maintain the same structure if any of the third party API changes.
 	"""
 	dedicated_build = None
 	dedicated_version = None
@@ -29,7 +29,12 @@ class _Game:
 	server_password = None
 	server_spec_password = None
 	server_max_players = None
+	server_next_max_players = None
 	server_max_specs = None
+	server_next_max_specs = None
+
+	ladder_min = None
+	ladder_max = None
 
 	game = None  # tm / sm
 	#  game_long = None  # trackmania / shootmania

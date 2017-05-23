@@ -1,0 +1,24 @@
+{% extends 'core.views/generics/widget.xml' %}
+
+{% block content %}
+  <quad pos="0 0" z-index="0" size="17.25 6" bgcolor="00000060"/>
+  <quad pos="0 0" z-index="0" size="6.5 6" bgcolor="00000060"/>
+  <label pos="3.25 -3" z-index="1" size="6.5 6" text="&#xf007;" textsize="1.8" halign="center" valign="center2"/>
+  <label pos="11.5 -3" z-index="1" size="10 6" text="{{ num_players }}/{{ max_players }}" textsize="1.4" textfont="RajdhaniMono" textemboss="1" halign="center" valign="center2"/>
+
+  <quad pos="17.75 0" z-index="0" size="17 6" bgcolor="00000060"/>
+  <quad pos="17.75 0" z-index="0" size="6.5 6" bgcolor="00000060"/>
+  <label pos="21 -3" z-index="1" size="6.5 6" text="&#xf03d;" textsize="1.8" halign="center" valign="center2"/>
+  <label pos="29.5 -3" z-index="1" size="10 6" text="{{ num_spectators }}/{{ max_spectators }}" textsize="1.4" textfont="RajdhaniMono" textemboss="1" halign="center" valign="center2"/>
+
+  <quad pos="0 -6.5" z-index="0" size="35 6" bgcolor="00000060"/>
+  <quad pos="0 -6.5" z-index="0" size="6.5 6" bgcolor="00000060"/>
+  <label pos="3.25 -9.5" z-index="1" size="6.5 6" text="&#xf145;" textsize="1.8" halign="center" valign="center2"/>
+  <label pos="21.5 -9.5" z-index="1" size="28 6" text="{{ ladder_min }} - {{ ladder_max }}k" textsize="1.6" valign="center2" halign="center" textfont="RajdhaniMono" textemboss="1"/>
+
+  <quad pos="0 -13" z-index="0" size="35 6" bgcolor="00000060"/>
+  <quad pos="0 -13" z-index="0" size="6.5 6" bgcolor="00000060"/>
+  <label pos="3.25 -16" z-index="1" size="6.5 6" text="&#xf1e6;" textsize="1.8" halign="center" valign="center2"/>
+  <label pos="21.5 -16.5" z-index="1" size="28 6" text="PyPlanet {{ version }}" textsize="1.6" valign="center2"
+         textfont="RajdhaniMono" textemboss="1" halign="center"/>
+{% endblock %}

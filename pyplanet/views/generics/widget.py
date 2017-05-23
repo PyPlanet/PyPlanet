@@ -71,7 +71,7 @@ class WidgetView(TemplateView):
 		context = await super().get_context_data()
 
 		icon_x = 0.5
-		if self.widget_x < 0:
+		if self.widget_x < 0 and self.size_x:
 			icon_x = (self.size_x - 2.5 - 4.5)
 
 		hover_color = '3341'

@@ -39,11 +39,15 @@ async def handle_player_chat(source, signal, **kwargs):
 	)
 
 async def handle_player_info_changed(source, signal, **kwargs):
-	is_spectator =     		source['SpectatorStatus']			% 10
-	is_temp_spectator =		(source['SpectatorStatus'] / 10)	% 10
-	is_pure_spectator =		(source['SpectatorStatus'] / 100)	% 10
-	auto_target =			(source['SpectatorStatus'] / 1000)	% 10
-	target_id =				(source['SpectatorStatus'] / 10000)
+	is_spectator =     		bool(source['SpectatorStatus']			% 10)
+	is_temp_spectator =		bool((source['SpectatorStatus'] / 10)	% 10)
+	is_pure_spectator =		bool((source['SpectatorStatus'] / 100)	% 10)
+	auto_target =			bool((source['SpectatorStatus'] / 1000)	% 10)
+	target_id =				bool((source['SpectatorStatus'] / 10000))
+
+	# TODO: Unpack flags.
+	# https://github.com/maniaplanet/dedicated-server-api/blob/master/libraries/Maniaplanet/DedicatedServer/Structures/PlayerInfo.php#L69
+
 	try:
 		player = await Controller.instance.player_manager.get_player(login=source['Login'])
 	except:
@@ -52,12 +56,18 @@ async def handle_player_info_changed(source, signal, **kwargs):
 		target = await Controller.instance.player_manager.get_player_by_id(target_id)
 	except:
 		target = None
-	return dict(
+
+	payload = dict(
 		is_spectator=is_spectator, is_temp_spectator=is_temp_spectator, is_pure_spectator=is_pure_spectator,
 		auto_target=auto_target, target_id=target_id, target=target, flags=source['Flags'],
 		spectator_status=source['SpectatorStatus'], team_id=source['TeamId'],
 		player_id=source['PlayerId'], player=player, player_login=source['Login'],
 	)
+
+	# Handle changes in our player_manager.
+	await Controller.instance.player_manager.handle_info_change(**payload)
+
+	return payload
 
 
 player_connect = Callback(
