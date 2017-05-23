@@ -1,6 +1,7 @@
 import asyncio
 import logging
 
+from pyplanet.utils.analytics import Analytics
 from .controller import Controller as _Controller
 
 from pyplanet import __version__ as version
@@ -31,7 +32,7 @@ logger = logging.getLogger(__name__)
 class Instance:
 	"""
 	Controller Instance. The very base of the controller, containing class instances of all core components.
-	
+
 	:ivar process_name: Process and pool name.
 	:ivar loop: AsyncIO Event Loop.
 	:ivar game: Game Information class.
@@ -41,7 +42,7 @@ class Instance:
 	:ivar storage: Storage component.
 	:ivar signal_manager: Signal Manager.
 	:ivar ui_manager: UI Manager (global). Please use the APP context UI manager instead!
-	
+
 	:ivar map_manager: Contrib: Map Manager.
 	:ivar player_manager: Contrib: Player Manager.
 	:ivar permission_manager: Contrib: Permission Manager.
@@ -53,7 +54,7 @@ class Instance:
 	def __init__(self, process_name):
 		"""
 		The actual instance of the controller.
-		
+
 		:param process_name: EnvironmentProcess class specific for this process.
 		:type process_name: str
 		"""
@@ -110,7 +111,7 @@ class Instance:
 	def performance_mode(self):
 		"""
 		Gives back a boolean, True if we are in performance mode.
-		
+
 		:return: Performance mode boolean.
 		"""
 		return self.player_manager.performance_mode
@@ -118,7 +119,7 @@ class Instance:
 	async def __fire_signal(self, signal):  # pragma: no cover
 		"""
 		Fire signal with given name to all listeners.
-		
+
 		:param signal: Signal to fire on.
 		:type signal: pyplanet.core.events.dispatcher.Signal
 		"""
@@ -159,6 +160,9 @@ class Instance:
 		await self.apps.start()
 		await self.__fire_signal(signals.pyplanet_start_apps_after)
 		await self.print_footer()
+
+		# Utils.
+		await Analytics.start(self)
 
 		# Finish signalling and send finish signal.
 		await self.signal_manager.finish_start()

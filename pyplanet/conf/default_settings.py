@@ -121,6 +121,9 @@ LOGGING = {
 # 3 = Report errors with traces and server data, provide data to contributed apps (only pyplanet team has access).
 LOGGING_REPORTING = 3
 
+# Enable usage analytics. On by default. (Will be turned off when DEBUG is true!).
+ANALYTICS = True
+
 
 ##########################################
 ################# APPS ###################
