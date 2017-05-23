@@ -17,8 +17,8 @@ class _Analytics:
 		self.instance = None
 
 	async def execute(self, *event):
-		if not settings.ANALYTICS or settings.DEBUG:
-			return
+		#if not settings.ANALYTICS or settings.DEBUG:
+		#	return
 
 		await self.client.post(self.URL, params=dict(api_key=self.KEY, event=dumps(event)))
 
@@ -31,12 +31,16 @@ class _Analytics:
 			server_name=self.instance.game.server_name,
 			language=self.instance.game.server_language,
 			login=self.instance.game.server_player_login,
+			title=self.instance.game.dedicated_title,
+			dedicated_build=self.instance.game.dedicated_build,
+			dedicated_version=self.instance.game.dedicated_version,
 		)
 
 		await self.execute(dict(
 			user_id=self.instance.game.server_player_login,
 			event_type=event_name, event_properties=event_properties, user_properties=user_properties,
-			app_version=version, platform=platform.platform(), os_name=platform.system(), os_version=platform.version()
+			app_version=version, platform=platform.platform(), os_name=platform.system(), os_version=platform.version(),
+			language=self.instance.game.server_language
 		))
 
 	async def start(self, instance):
@@ -48,8 +52,11 @@ class _Analytics:
 		"""
 		self.instance = instance
 		self.client = aiohttp.ClientSession()
+
 		try:
-			await self.capture('start_controller')
+			await self.capture('start_controller', dict(
+				app_labels=list(self.instance.apps.apps.keys())
+			))
 		except:
 			pass
 
