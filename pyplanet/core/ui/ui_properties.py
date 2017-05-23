@@ -14,14 +14,14 @@ logger = logging.getLogger(__name__)
 class UIProperties:  # pragma: no cover
 	"""
 	Set the custom Script UI Properties.
-	
+
 	.. tip::
-	
+
 		Look at the possible UI Properties right here:
-		
+
 		- Trackmania: https://github.com/maniaplanet/script-xmlrpc/blob/master/XmlRpcListing.md#trackmaniauisetproperties
 		- Shootmania: https://github.com/maniaplanet/script-xmlrpc/blob/master/XmlRpcListing.md#shootmaniauisetproperties
-	
+
 	Access this class with:
 
 	.. code-block:: python
@@ -63,33 +63,39 @@ class UIProperties:  # pragma: no cover
 
 	def set_visibility(self, element: str, visible: bool):
 		"""
-		Set the visibility of the UI Property and don't complain about failing to set. Must be set at the start of the 
+		Set the visibility of the UI Property and don't complain about failing to set. Must be set at the start of the
 		app(s).
-		
-		:param element: Element name, such as notices, map_info and chat. 
+
+		:param element: Element name, such as notices, map_info and chat.
 						Full list: https://github.com/maniaplanet/script-xmlrpc/blob/master/XmlRpcListing.md#shootmaniauisetproperties
 		:param visible: Boolean if the element should be visible.
 		:return: Boolean, true if is set, false if failed to set.
 		"""
-		return self.set_attribute(element, 'visible', visible)
+		return self.set_attribute(element, 'visible', 'true' if visible else 'false')
 
 	def get_visibility(self, element: str, default=empty):
 		"""
-		Set the visibility of the UI Property and don't complain about failing to set. Must be set at the start of the 
+		Set the visibility of the UI Property and don't complain about failing to set. Must be set at the start of the
 		app(s).
-		
-		:param element: Element name, such as notices, map_info and chat. 
+
+		:param element: Element name, such as notices, map_info and chat.
 						Full list: https://github.com/maniaplanet/script-xmlrpc/blob/master/XmlRpcListing.md#shootmaniauisetproperties
 		:param default: The default value, or an exception if not given.
 		:return: The boolean if it's visible or raise exception if not exists (or the default if default is given).
 		"""
-		return self.get_attribute(element, 'visible', default)
+		value = self.get_attribute(element, 'visible', default)
+		if isinstance(value, str):
+			if value.lower() == 'true':
+				return True
+			elif value.lower() == 'false':
+				return False
+		return value
 
 	def set_attribute(self, element: str, attribute: str, value):
 		"""
 		Set an attribute of an element and silent if it's not found. Useful to change positions but unsure if it will
 		and still exists. Returns boolean if it's set successfully.
-		
+
 		:param element: Element name
 		:param attribute: Attribute name
 		:param value: New value of the attribute.
@@ -107,7 +113,7 @@ class UIProperties:  # pragma: no cover
 	def get_attribute(self, element: str, attribute: str, default=empty):
 		"""
 		Get an attribute value of an element.
-		
+
 		:param element: Element name
 		:param attribute: Attribute name
 		:param default: Default if not found.

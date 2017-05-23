@@ -1,18 +1,12 @@
 from pyplanet.apps.contrib.karma.models import Karma
 from pyplanet.apps.core.maniaplanet.models import Player
-from pyplanet.utils.style import percentage_color, rgb_to_hex
 from pyplanet.views.generics.widget import WidgetView
 from pyplanet.views.generics.list import ManualListView
 
 
 class KarmaWidget(WidgetView):
-	widget_x = 124
-	widget_y = 75
-	size_x = 38
-	size_y = 18
-	title = None  # 'Map karma'
-	icon_style = 'Icons128x128_1'
-	icon_substyle = 'Buddies'
+	widget_x = 125
+	widget_y = 70
 
 	template_name = 'karma/karma.xml'
 
@@ -29,25 +23,17 @@ class KarmaWidget(WidgetView):
 	async def get_context_data(self):
 		context = await super().get_context_data()
 
-		karma_percentage = round((len(self.app.current_positive_votes) / (len(self.app.current_votes))) * 100, 2) \
+		karma_percentage = round((len(self.app.current_positive_votes) / (len(self.app.current_votes))) * 100, 1) \
 			if len(self.app.current_votes) > 0 else 0
-
-		color = percentage_color(karma_percentage)
-		bar_color = rgb_to_hex(color)
-		karma_text_color = '$fff'
-		if self.app.current_karma > 0:
-			karma_text_color = '$3f3'
-		elif self.app.current_karma < 0:
-			karma_text_color = '$f00'
+		bar_width = round(((karma_percentage / 100) * 24), 2)
 
 		context.update({
 			'current_karma': self.app.current_karma,
 			'karma_percentage': karma_percentage,
-			'progress_color': bar_color,
 			'progress_percentage': karma_percentage if karma_percentage != 0 else 5,
-			'karma_text_color': karma_text_color,
 			'positive_votes': len(self.app.current_positive_votes),
-			'negative_votes': len(self.app.current_negative_votes)
+			'negative_votes': len(self.app.current_negative_votes),
+			'bar_width': bar_width,
 		})
 
 		return context

@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class _ManiaLink:
 	def __init__(
 		self, manager=None, id=None, version='3', body=None, template=None, timeout=0, hide_click=False, data=None,
-		player_data=None, throw_exceptions=False
+		player_data=None, disable_alt_menu=False, throw_exceptions=False
 	):
 		"""
 		Create manialink (USE THE MANAGER CREATE, DONT INIT DIRECTLY!
@@ -46,6 +46,7 @@ class _ManiaLink:
 		self.data = data if data and isinstance(data, dict) else dict()
 		self.player_data = player_data if player_data and isinstance(player_data, dict) else dict()
 		self.throw_exceptions = False
+		self.disable_alt_menu = bool(disable_alt_menu)
 
 		self.receivers = dict()
 		self._is_global_shown = False

@@ -1,5 +1,10 @@
 <quad pos="150 -50" z-index="100" size="15 15" image="http://maniacdn.net//toffe/pyplanet/assets/logo/pyplanet-xs.png"
       autoscale="0" keepratio="Clip" halign="center" valign="center" opacity="0.4" url="http://pypla.net/" />
 
-<label pos="0 -86" z-index="100" size="52 5" text="Report issue / suggestion" style="TextButtonNav" scale="0.6"
-       url="https://github.com/PyPlanet/PyPlanet/issues/new" halign="center" />
+{% if game == 'tm' %}
+  <label pos="0 -86.5" z-index="100" size="52 5" text="Report issue / suggestion" style="TextButtonNav" scale="0.6"
+         url="https://github.com/PyPlanet/PyPlanet/issues/new" halign="center" />
+{% else %}
+  <label pos="140 -86.5" z-index="100" size="52 5" text="Report issue / suggestion" style="TextButtonNav" scale="0.6"
+         url="https://github.com/PyPlanet/PyPlanet/issues/new" halign="center" />
+{% endif %}

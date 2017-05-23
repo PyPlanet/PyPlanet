@@ -57,14 +57,12 @@ class ModeManager(CoreContrib):
 			self._next_variables_update = dict()
 
 		# Make sure we send to the signal when mode is been changed.
-		current_script = self._current_script
-		next_script = self._next_script
-		await self.get_current_script(refresh=True)
-
-		if current_script != self._current_script and next_script == self._current_script:
+		if self._current_script != self._next_script:
 			await script_mode_changed.send_robust({
-				'unloaded_script': current_script, 'loaded_script': next_script
+				'unloaded_script': self._current_script, 'loaded_script': self._next_script
 			})
+
+		await self.get_current_script(refresh=True)
 
 	async def get_current_script(self, refresh=False):
 		"""
@@ -87,9 +85,9 @@ class ModeManager(CoreContrib):
 		"""
 		if refresh or not self._current_script:
 			payload = await self._instance.gbx('GetScriptName')
-			self._current_script = payload['CurrentValue']
+			self._current_script = payload['CurrentValue'].partition('.')[0]
 			if 'NextValue' in payload:
-				self._next_script = payload['NextValue']
+				self._next_script = payload['NextValue'].partition('.')[0]
 		return self._next_script
 
 	async def get_current_script_info(self):
@@ -105,7 +103,7 @@ class ModeManager(CoreContrib):
 		:param name: Name
 		"""
 		await self._instance.gbx('SetScriptName', name)
-		self._next_script = name
+		self._next_script = name.partition('.')[0]
 
 	async def get_settings(self):
 		"""

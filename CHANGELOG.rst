@@ -1,6 +1,68 @@
 Changelog
 =========
 
+0.3.3
+-----
+
+Core
+~~~~
+
+* Bugfix: Ignore erros with unknown login for ui updates. (means the player left).
+
+
+Apps
+~~~~
+
+* Bugfix: Fixing issues with dedimania and unsupported maps.
+* Bugfix: Fixing issues with dedimania and replays.
+* Bugfix: Fixing issues with local records widget showing the wrong offset.
+* Bugfix: Fixing issues with local records and double records.
+* Improvement: Some not visible improvements to the local record widget logic.
+
+0.3.2
+-----
+
+Core
+~~~~
+
+* Bugfix: Not properly sending and handling mode changes.
+* Bugfix: Several errors in handling the callbacks in shootmania
+
+
+Apps
+~~~~
+
+* Bugfix: Fixing issue with removing or erasing maps.
+* Improvement: Dedimania now also works in cup mode.
+* Feature: Add //replay command for admins, make it able to juke the current map for non-players (ops and admins)
+
+
+0.3.1
+-----
+
+Core
+~~~~
+
+* Improvement: Multiple namespaces per command + improve help.
+* Improvement: Hide the alt menu in shootmania when having a window in the middle.
+* Improvement: Add method to retrieve map by index.
+* Bugfix: Save boolean in the //settings
+* Bugfix: Fixing issue with writing the map list.
+* Bugfix: Handling of fetching player in a callback for shootmania.
+* Bugfix: Several fixes for shootmania modes.
+
+
+Apps
+~~~~
+
+* Improvement: Make dedimania record message shorter.
+* Bugfix: Double prefix in leave messages.
+* Bugfix: Dedimania nickname fetching gave error. Sometimes the widget didn't work properly.
+* Bugfix: Improve error handling in Dedimania.
+* Bugfix: Fixing issue with write map list (admin part of it).
+* Bugfix: Don't display the time of the author when in shootmania
+
+
 0.3.0
 -----
 

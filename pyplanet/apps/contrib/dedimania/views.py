@@ -6,14 +6,12 @@ from pyplanet.utils import times
 
 
 class DedimaniaRecordsWidget(TimesWidgetView):
-	widget_x = -160.5
+	widget_x = -160
 	widget_y = 12.5
 	size_x = 38
 	size_y = 55.5
 	top_entries = 5
-	title = None
-	icon_style = 'BgRaceScore2'
-	icon_substyle = 'LadderRank'
+	title = 'Dedimania'
 
 	def __init__(self, app):
 		super().__init__(self)
@@ -22,7 +20,7 @@ class DedimaniaRecordsWidget(TimesWidgetView):
 		self.id = 'pyplanet__widgets_dedimaniarecords'
 
 		self.action = self.action_recordlist
-		self.record_amount = math.floor((self.size_y - 5.5) / 3.3)
+		self.record_amount = 15
 
 	async def get_player_data(self):
 		data = await super().get_player_data()
@@ -53,7 +51,7 @@ class DedimaniaRecordsWidget(TimesWidgetView):
 			else:
 				if player_index <= self.top_entries:
 					# Player record is in top X, get following records (top entries + 1 onwards)
-					records += self.app.current_records[(self.top_entries + 1):(self.record_amount + 1)]
+					records += self.app.current_records[self.top_entries:self.record_amount]
 					custom_start_index = (self.top_entries + 1)
 				else:
 					# Player record is not in top X, get records around player record
@@ -114,13 +112,12 @@ class DedimaniaRecordsWidget(TimesWidgetView):
 
 			index = 1
 			for record in records:
-				record_player = await record.get_related('player')
 				list_record = dict()
 				list_record['index'] = index
 				list_record['color'] = '$fff'
 				if index <= self.top_entries:
 					list_record['color'] = '$ff0'
-				list_record['nickname'] = record_player.nickname
+				list_record['nickname'] = record.nickname
 				list_record['score'] = times.format_time(int(record.score))
 				index += 1
 				list_records.append(list_record)

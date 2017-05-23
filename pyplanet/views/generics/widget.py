@@ -14,9 +14,6 @@ class WidgetView(TemplateView):
 	size_x = None
 	size_y = None
 	title = None
-	icon_style = None
-	icon_substyle = None
-
 	action = None
 
 	template_name = 'core.views/generics/widget.xml'
@@ -74,12 +71,8 @@ class WidgetView(TemplateView):
 		context = await super().get_context_data()
 
 		icon_x = 0.5
-		title_x = 5.5
-		title_halign = 'left'
-		if self.widget_x < 0:
+		if self.widget_x < 0 and self.size_x:
 			icon_x = (self.size_x - 2.5 - 4.5)
-			title_x = (icon_x - 0.5)
-			title_halign = 'right'
 
 		hover_color = '3341'
 		if self.action is not None:
@@ -94,11 +87,7 @@ class WidgetView(TemplateView):
 			'hover_color': hover_color,
 			'icon_x': icon_x,
 			'title': await self.get_title(),
-			'title_x': title_x,
-			'title_halign': title_halign,
-			'open_action': (self.action is not None),
-			'icon_style': self.icon_style,
-			'icon_substyle': self.icon_substyle,
+			'open_action': self.action is not None,
 			'content_pos_x': 2,
 			'content_pos_y': -5
 		})

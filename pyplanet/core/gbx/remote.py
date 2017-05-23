@@ -26,7 +26,7 @@ class GbxRemote:
 	def __init__(self, host, port, event_pool=None, user=None, password=None, api_version='2013-04-16', instance=None):
 		"""
 		Initiate the GbxRemote client.
-		
+
 		:param host: Host of the dedicated server.
 		:param port: Port of the dedicated XML-RPC server.
 		:param event_pool: Asyncio pool to execute the handling on.
@@ -66,7 +66,7 @@ class GbxRemote:
 	def create_from_settings(cls, instance, conf):
 		"""
 		Create an instance from configuration given for the specific pool.
-		
+
 		:param instance: Instance of the app.
 		:param conf: Settings for pool.
 		:type conf: dict
@@ -185,10 +185,6 @@ class GbxRemote:
 				body = await self.reader.readexactly(size)
 				data = method = fault = None
 
-				# HOTFIX FOR INVALID XML
-				body = body.decode('utf-8', 'ignore')
-				# END HOTFIX
-
 				try:
 					data, method = loads(body, use_builtin_types=True)
 				except Fault as e:
@@ -216,7 +212,7 @@ class GbxRemote:
 	async def handle_payload(self, handle_nr, method=None, data=None, fault=None):
 		"""
 		Handle a callback/response payload or fault.
-		
+
 		:param handle_nr: Handler ID
 		:param method: Method name
 		:param data: Parsed payload data.

@@ -58,11 +58,11 @@ class Signal:
 		"""
 		The meta-class contains the code of the signal, used for string notation.
 		An optional namespace could be given to override the app label namespace.
-		
+
 		.. warning::
-		
+
 			Only change or access this if you override the ``Signal`` class in your own class.
-		
+
 		"""
 		code = None
 		namespace = None
@@ -71,7 +71,7 @@ class Signal:
 		"""
 		This method processed data into abstract data. You can give your own function in the init of the Signal or
 		override the method.
-		
+
 		:param data: Raw data input
 		:return: Parsed data output
 		"""
@@ -80,7 +80,7 @@ class Signal:
 	def has_listeners(self):
 		"""
 		Has the signal listeners.
-		
+
 		:return:
 		"""
 		return bool(self._live_receivers())
@@ -88,9 +88,9 @@ class Signal:
 	def set_self(self, receiver, slf):  # pragma: no cover
 		"""
 		Set the self instance on a receiver.
-		
+
 		.. deprecated:: 0.0.1
-		
+
 		:param receiver: Receiver function.
 		:param slf: Self instance
 		"""
@@ -107,17 +107,17 @@ class Signal:
 	def register(self, receiver, weak=True, dispatch_uid=None):
 		"""
 		Connect receiver to sender for signal.
-		
+
 		:param receiver: A function or an instance method which is to receive signals. Receivers must be hashable objects.
 			If weak is True, then receiver must be weak referenceable.Receivers must be able to accept keyword arguments.
 			If a receiver is connected with a dispatch_uid argument, it
 			will not be added if another receiver was already connected with that dispatch_uid.
-					
+
 		:param weak: Whether to use weak references to the receiver. By default, the
 			module will attempt to use weak references to the receiver
 			objects. If this parameter is false, then strong references will
 			be used.
-		
+
 		:param dispatch_uid: An identifier used to uniquely identify a particular instance of
 			a receiver. This will usually be a string, though it may be anything hashable.
 		"""
@@ -151,7 +151,7 @@ class Signal:
 		Disconnect receiver from sender for signal.
 		If weak references are used, disconnect need not be called. The receiver
 		will be removed from dispatch automatically.
-		
+
 		:param receiver: The registered receiver to disconnect. May be none if dispatch_uid is specified.
 		:param dispatch_uid: the unique identifier of the receiver to disconnect
 		"""
@@ -254,13 +254,13 @@ class Signal:
 	async def send_robust(self, source=None, raw=False, gather=True):
 		"""
 		Send signal from sender to all connected receivers catching errors.
-		
+
 		:param source: The data to be send to the processor which produces data that will be send to the receivers.
 		:param raw: Optional bool parameter to just send the source to the receivers without any processing.
 		:param gather: Execute multiple receivers at the same time (parallel). On by default!
 
 		:return: Return a list of tuple pairs [(receiver, response), ... ].
-			If any receiver raises an error (specifically any subclass of Exception), 
+			If any receiver raises an error (specifically any subclass of Exception),
 			return the error instance as the result for that receiver.
 		"""
 		return await self.send(source, raw, catch_exceptions=True, gather=gather)

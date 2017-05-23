@@ -1,23 +1,21 @@
 {% extends 'core.views/generics/widget.xml' %}
 
 {% block content %}
-  <frame pos="{{ ((size_x - 37) / 2) }} 0">
-    <gauge pos="1 -2" z-index="5" size="30 1" style="ProgressBar" ratio="{{ progress_percentage / 100 }}" color="{{ progress_color }}FF"
-           drawblockbg="0" />
+  <quad pos="0 0" z-index="0" size="35 6" bgcolor="00000060"/>
+  <quad pos="0 0" z-index="1" size="6 6" bgcolor="FF7B7B60"/>
+  <label pos="3 -3" z-index="2" size="6 6" textsize="2.0" textcolor="FFE8E8FF"
+         text="{% if player_vote == -1 %}&#xf165;{% else %}&#xf088;{% endif %}"
+         action="{{ id }}__vote_negative" scriptevents="1" focusareacolor1="9EFF9300" halign="center" valign="center2"/>
+  <quad pos="30 0" z-index="1" size="6 6" bgcolor="73FF5160"/>
+  <label pos="33 -3" z-index="2" size="6 6" textsize="2.0" textcolor="E6FFE5FF"
+         text="{% if player_vote == 1 %}&#xf164;{% else %}&#xf087;{% endif %}"
+         action="{{ id }}__vote_positive" scriptevents="1" halign="center" valign="center2"/>
+  <quad pos="6 0" z-index="2" size="{{ bar_width }} 6" bgcolor="00000080" /> <!-- max 24 -->
 
-    {% if player_vote == -1 %}
-      <quad pos="1.75 -4.25" size="6.5 6.5" z-index="0" style="Icons64x64_1" substyle="LvlRed" />
-    {% endif %}
-    <quad pos="2 -4.5" size="6 6" z-index="1" style="Icons64x64_1" substyle="Sub" action="{{ id }}__vote_negative" />
-
-    <label pos="16.5 -6.3" size="5 2" text="$s$o{{ karma_text_color }}{{ current_karma }}" textsize="0.9" halign="center" />
-    <label pos="5 -10.2" size="5 2" text="$s$f66{{ negative_votes }}" textsize="0.8" halign="center" />
-    <label pos="16.5 -10.2" size="10 2" text="$s{{ karma_percentage }}%" textsize="0.8" halign="center" />
-    <label pos="28 -10.2" size="5 2" text="$s$3f3{{ positive_votes }}" textsize="0.8" halign="center" />
-
-    {% if player_vote == 1 %}
-      <quad pos="24.75 -4.25" size="6.5 6.5" z-index="0" style="Icons64x64_1" substyle="LvlGreen" />
-    {% endif %}
-    <quad pos="25 -4.5" size="6 6" z-index="1" style="Icons64x64_1" substyle="Add" action="{{ id }}__vote_positive" />
-  </frame>
+  <quad pos="0 -6.5" z-index="0" size="11.5 6" bgcolor="00000060"/>
+  <label pos="5.75 -9.5" z-index="1" size="11.5 6" text="{{ negative_votes }}"  textfont="RajdhaniMono" textsize="2.0"  halign="center" valign="center2"/>
+  <quad pos="12  -6.5" z-index="0" size="11.5 6" bgcolor="00000099"/>
+  <label pos="17.8 -9.5" z-index="1" size="11.5 6" text="{{ karma_percentage }}%"  textfont="RajdhaniMono" textsize="2.0"  halign="center" valign="center2"/>
+  <quad pos="24  -6.5" z-index="0" size="11.5 6" bgcolor="00000060"/>
+  <label pos="29.8 -9.5" z-index="1" size="11.5 6" text="{{ positive_votes }}"  textfont="RajdhaniMono" textsize="2.0"  halign="center" valign="center2"/>
 {% endblock %}

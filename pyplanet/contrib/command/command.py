@@ -33,7 +33,7 @@ class Command:
 		:type target: any
 		:type aliases: str[]
 		:type admin: bool
-		:type namespace: str
+		:type namespace: str, str[]
 		:type perms: list,str
 		:type parser: any
 		:type description: str
@@ -71,7 +71,12 @@ class Command:
 			else:
 				return False
 
-		if len(input) > 0 and self.namespace and input[0] == self.namespace:
+		# Make sure namespace is always an array if provided.
+		if self.namespace and not isinstance(self.namespace, (list, tuple)):
+			self.namespace = [self.namespace]
+
+		# Check against namespace.
+		if len(input) > 0 and self.namespace and any(input[0] == n for n in self.namespace):
 			input.pop(0)
 		elif self.namespace:
 			return False
@@ -189,8 +194,12 @@ class Command:
 		return text
 
 	def __str__(self):
+		# Make sure namespace is always an array if provided.
+		if self.namespace and not isinstance(self.namespace, (list, tuple)):
+			self.namespace = [self.namespace]
+
 		return '/{}{}{}'.format(
 			'/' if self.admin else '',
-			self.namespace or self.command,
+			'|'.join(self.namespace) if self.namespace and isinstance(self.namespace, (list, tuple)) else self.command,
 			' ' + self.command if self.namespace else '',
 		)

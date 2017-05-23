@@ -25,6 +25,7 @@ class MapAdmin:
 		await self.instance.permission_manager.register('previous', 'Skip to the previous map', app=self.app, min_level=1)
 		await self.instance.permission_manager.register('next', 'Skip to the next map', app=self.app, min_level=1)
 		await self.instance.permission_manager.register('restart', 'Restart the maps', app=self.app, min_level=1)
+		await self.instance.permission_manager.register('replay', 'Replay the maps', app=self.app, min_level=1)
 		await self.instance.permission_manager.register('add_local_map', 'Add map from server disk', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('remove_map', 'Remove map from server', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('write_map_list', 'Write Matchsettings to file', app=self.app, min_level=2)
@@ -35,6 +36,7 @@ class MapAdmin:
 			Command(command='skip', target=self.next_map, perms='admin:next', admin=True),
 			Command(command='previous', aliases=['prev'], target=self.prev_map, perms='admin:previous', admin=True),
 			Command(command='restart', aliases=['res', 'rs'], target=self.restart_map, perms='admin:restart', admin=True),
+			Command(command='replay', target=self.replay_map, perms='admin:replay', admin=True),
 			Command(command='local', namespace='add', target=self.add_local_map, perms='admin:add_local_map', admin=True)
 				.add_param('map', nargs=1, type=str, required=True, help='Map filename (relative to Maps directory).'),
 			Command(command='remove', target=self.remove_map, perms='admin:remove_map', admin=True, description='Remove map from maplist.')
@@ -56,10 +58,7 @@ class MapAdmin:
 			return await self.instance.chat(message, player.login)
 
 		if 'jukebox' in self.instance.apps.apps:
-			self.instance.apps.apps['jukebox'].jukebox = [
-				{'player': player, 'map': self.instance.map_manager.previous_map}
-			] + self.instance.apps.apps['jukebox'].jukebox
-			pass
+			self.instance.apps.apps['jukebox'].insert_map(player, self.instance.map_manager.previous_map)
 		else:
 			await self.instance.map_manager.set_next_map(self.instance.map_manager.previous_map)
 
@@ -83,10 +82,22 @@ class MapAdmin:
 			self.instance.chat(message)
 		)
 
+	async def replay_map(self, player, data, **kwargs):
+		if 'jukebox' in self.instance.apps.apps:
+			self.instance.apps.apps['jukebox'].insert_map(player, self.instance.map_manager.current_map)
+		else:
+			await self.instance.map_manager.set_next_map(self.instance.map_manager.current_map)
+
+		await self.instance.chat(
+			'$ff0Admin $fff{}$z$s$ff0 has queued this map for replay.'.format(player.nickname)
+		)
+
 	async def write_map_list(self, player, data, **kwargs):
 		setting = settings.MAP_MATCHSETTINGS
 		if isinstance(setting, dict) and self.instance.process_name in setting:
 			setting = setting[self.instance.process_name]
+		if not isinstance(setting, str):
+			setting = None
 
 		if not setting and not data.file:
 			message = '$ff0Default match settings file not configured in your settings!'

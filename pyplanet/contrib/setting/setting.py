@@ -134,7 +134,7 @@ class Setting:
 				value = float(value)
 			elif self.type == bool:
 				if value == '1' or value == 1 or value == '0' or value == 0:
-					value = bool(value)
+					value = bool(int(value))
 		except:
 			pass
 
@@ -145,6 +145,8 @@ class Setting:
 
 		if self.type == list or self.type == set or self.type == dict:
 			return json.dumps(value)
+		if self.type == bool:
+			return value
 		return str(value)
 
 	@property

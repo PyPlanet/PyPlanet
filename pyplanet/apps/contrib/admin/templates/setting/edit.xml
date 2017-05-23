@@ -1,0 +1,54 @@
+<frame pos="0 0 70" z-index="50">
+  <quad pos="0 0 -1" size="320 180" halign="center" valign="center" style="Bgs1" substyle="BgDialogBlur" z-index="50" scriptevents="1" />
+</frame>
+<frame pos="0 17 0" z-index="60">
+  <quad pos="0 62.5" size="120 127" z-index="60" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
+  <quad pos="0 62.5" size="120 127" z-index="61" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
+  <quad pos="0 61.5" size="118 11" z-index="62" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
+
+  <quad pos="-54 60.5 0" size="9 9" z-index="63" style="{{ icon_style }}" substyle="{{ icon_substyle }}"/>
+  <label pos="-20.5 57.8 0" size="60 7" z-index="63" text="$o{{ title }}" textsize="2.5" textcolor="FFFFFFF" halign="left"/>
+
+  <quad pos="49.5 59.5 0" size="7 7" z-index="63" style="Icons128x32_1" substyle="Close" action="{{ id }}__button_close"/>
+
+  <frame pos="-54.5 45 0" id="setting_body" z-index="70">
+    <label pos="0 0" size="30 5" text="$fff$oName" textsize="1.2" valign="top" />
+    <label pos="30 0" size="70 5" text="$fff$i{{ setting.name }}" textsize="1.2" valign="top" />
+
+    <label pos="0 -5" size="30 5" text="$fff$oDescription" textsize="1.2" valign="top" />
+    <label pos="30 -5" size="70 20" autonewline="1" maxline="6" text="$fff$i{{ setting.description|default('-', True) }}" textsize="1.2" valign="top" />
+
+    <label pos="0 -35" size="30 5" text="$fff$oDefault" textsize="1.2" valign="top" />
+    <label pos="30 -35" size="70 5" text="$fff$i{{ setting.default|default('-', True) }}" textsize="1.2" valign="top" />
+
+    <frame pos="0 -40" id="setting_edit_frame">
+      {% if setting.type == types.str or setting.type == types.int or setting.type == types.float or setting.type == types.dict %}
+        <label pos="0 0" size="30 5" text="$fff$oValue" textsize="1.2" valign="top" />
+        <entry pos="30 0" size="70 40" name="setting_value_field" id="setting_value_field"
+               textsize="1.2" default="{{ setting_value|default('', True) }}" scriptevents="1"
+               focusareacolor1="0003" focusareacolor2="FFF2" />
+      {% elif setting.type == types.bool %}
+        <frame id="setting_value_boolean">
+          <entry hidden="1" id="setting_value_field" name="setting_value_field" default="{{ setting_value|int }}" />
+          <quad pos="0 0" id="setting_value_boolean_switch" size="5 5" style="Icons64x64_1" substyle="Check" styleselected="{{ setting_value|int }}" valign="top" scriptevents="1" />
+          <label pos="10 -1" size="50 5" text="$fff$oEnable / Activated" textsize="1.2" valign="top" />
+        </frame>
+      {% elif setting.type == types.set or setting.type == types.list %}
+        <frame id="setting_value_list">
+          <entry hidden="1" id="setting_value_field" name="setting_value_field" default="{{ setting_value }}" />
+          <label pos="0 0" size="100 5" text="$fff$oTodo: List/set entries. ManiaScript!" textsize="1.2" valign="top" />
+        </frame>
+      {% endif %}
+    </frame>
+
+    <label pos="30 -100" style="CardButtonMedium" valign="center" halign="center"
+           text="Save" translate="1" action="{{ id }}__button_save"
+           scriptevents="1" id="settings_button_submit" />
+    <label pos="80 -100" style="CardButtonMedium" valign="center" halign="center"
+           text="Cancel" translate="1" action="{{ id }}__button_cancel"
+           scriptevents="1" id="settings_button_cancel" />
+  </frame>
+</frame>
+
+
+<script><!-- {% include 'core.pyplanet/setting/edit.Script.Txt' %} --></script>

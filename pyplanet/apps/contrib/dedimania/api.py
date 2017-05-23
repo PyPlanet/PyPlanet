@@ -6,7 +6,7 @@ import requests
 from pprint import pprint
 from xmlrpc.client import dumps, loads
 
-from requests import ConnectTimeout
+from requests import ConnectTimeout, ReadTimeout
 
 from pyplanet import __version__ as version
 from pyplanet.apps.contrib.dedimania.exceptions import DedimaniaTransportException, DedimaniaFault, \
@@ -22,7 +22,7 @@ class DedimaniaAPI:
 	def __init__(self, instance, server_login, dedi_code, path, pack_mask, server_version, server_build, game='TM2'):
 		"""
 		Initiate dedi api.
-		
+
 		:param instance: ControllerInstance
 		:param server_login: .
 		:param dedi_code: .
@@ -64,7 +64,7 @@ class DedimaniaAPI:
 	def mode_to_dedi_mode(self, mode):
 		if mode.startswith('TeamAttack') or mode.startswith('Chase'):
 			return False
-		elif mode.startswith('Rounds') or mode.startswith('Team') or mode.startswith('Doppler'):
+		elif mode.startswith('Rounds') or mode.startswith('Team') or mode.startswith('Doppler') or mode.startswith('Cup'):
 			return 'Rounds'
 		elif mode.startswith('TimeAttack') or mode.startswith('Laps') or mode.startswith('Doppler'):
 			return 'TA'
@@ -85,7 +85,7 @@ class DedimaniaAPI:
 				self.retries = 0
 				return data[0]
 			raise DedimaniaTransportException('Invalid response from dedimania!')
-		except ConnectionError as e:
+		except (ConnectionError, ReadTimeout) as e:
 			raise DedimaniaTransportException(e) from e
 		except ConnectTimeout as e:
 			raise DedimaniaTransportException(e) from e
@@ -209,7 +209,7 @@ class DedimaniaAPI:
 	):
 		"""
 		Get records for specific map instance.
-		
+
 		:param map: Map instance.
 		:param game_mode: Game mode, either 'Rounds' or 'TA'.
 		:param server_name: Name of server
@@ -250,6 +250,9 @@ class DedimaniaAPI:
 			raise DedimaniaTransportException('Result seems to be empty!')
 
 		result = result[0][0]
+		if not result:
+			raise DedimaniaTransportException('Result seems to be empty!')
+
 		allowed_modes = result['AllowedGameModes']
 		server_max_rank = result['ServerMaxRank']
 		response_players = result['Players']

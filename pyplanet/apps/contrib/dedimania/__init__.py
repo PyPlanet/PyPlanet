@@ -94,8 +94,8 @@ class Dedimania(AppConfig):
 		self.login = await self.setting_server_login.get_value(refresh=True) or self.instance.game.server_player_login
 		self.code = await self.setting_dedimania_code.get_value(refresh=True)
 		if not self.code:
-			message = '$0b3Error: No dedimania code was provided, please edit the settings and restart PyPlanet (//settings)'
-			logger.error('Dedimania Code not configured! Please configure with //settings and restart PyPlanet!')
+			message = '$0b3Error: No dedimania code was provided, please edit the settings (//settings).'
+			logger.error('Dedimania Code not configured! Please configure with //settings!')
 			await self.instance.chat(message)
 			return
 
@@ -111,6 +111,8 @@ class Dedimania(AppConfig):
 		asyncio.ensure_future(self.initiate_api())
 
 	async def initiate_api(self):
+		if not self.api:
+			return
 		await self.api.on_start()
 		try:
 			await self.api.authenticate()
@@ -179,14 +181,20 @@ class Dedimania(AppConfig):
 			# await self.podium_start()
 
 			await self.map_end(map)
-			await self.map_begin(map, send_messages=False)
+			await self.map_begin(map)
 
-	async def map_begin(self, map, send_messages=True, **kwargs):
+	async def map_begin(self, map, **kwargs):
 		# Reset.
+		if not self.api:
+			await self.reload_settings()
+			await self.initiate_api()
 		self.api.retries = 0
 
 		# Set map status.
-		self.map_status = map.time_author > 6200 or map.num_checkpoints > 0
+		self.map_status = map.time_author > 6200 and map.num_checkpoints > 1
+		if not self.map_status:
+			message = '$f90This map is not supported by Dedimania (min 1 checkpoint + 6.2 seconds or higher author time).'
+			return await self.instance.chat(message)
 
 		# Refresh script.
 		self.current_script = await self.instance.mode_manager.get_current_script()
@@ -203,11 +211,10 @@ class Dedimania(AppConfig):
 		await self.refresh_records()
 
 		if self.ready:
-			calls = list()
-			if send_messages:
-				calls.append(self.chat_current_record())
-			calls.append(self.widget.display())
-			await asyncio.gather(*calls)
+			await asyncio.gather(
+				self.chat_current_record(),
+				self.widget.display()
+			)
 
 	async def podium_start(self, force=False, **kwargs):
 		# Get replays of the players.
@@ -230,10 +237,10 @@ class Dedimania(AppConfig):
 						replay = await self.get_v_replay(record.login)
 						if replay:
 							self.v_replay = replay
-					if pos == 0:
-						if self.current_script.startswith('Laps'):
-							self.v_replay_checks = ','.join([str(c) for c in record.race_cps])
+					if not self.v_replay_checks and self.current_script.startswith('Laps'):
+						self.v_replay_checks = ','.join([str(c) for c in record.race_cps])
 
+					if pos == 0:
 						replay = await self.get_ghost_replay(record.login)
 						if replay:
 							self.ghost_replay = replay
@@ -270,7 +277,7 @@ class Dedimania(AppConfig):
 				self.instance.map_manager.current_map,
 				self.current_script,
 				server_name=self.instance.game.server_name, server_comment='', is_private=self.instance.game.server_is_private,
-				max_players=self.instance.game.server_max_players['CurrentValue'], max_specs=self.instance.game.server_max_specs['CurrentValue'],
+				max_players=self.instance.game.server_max_players, max_specs=self.instance.game.server_max_specs,
 				players=player_list,
 				server_login=self.instance.game.server_player_login
 			)
@@ -308,6 +315,8 @@ class Dedimania(AppConfig):
 
 	async def player_connect(self, player, is_spectator, **kwargs):
 		try:
+			if not self.api:
+				return
 			if self.ready:
 				await self.widget.display(player=player)
 			res = await self.instance.gbx('GetDetailedPlayerInfo', player.login)
@@ -329,6 +338,8 @@ class Dedimania(AppConfig):
 		except:
 			pass
 		try:
+			if not self.api:
+				return
 			await self.api.player_disconnect(player.login, '')
 		except:
 			pass
@@ -375,12 +386,12 @@ class Dedimania(AppConfig):
 					self.current_records.sort(key=lambda x: x.score)
 
 				if new_rank < previous_index:
-					message = '$fff{}$z$s$0b3 gained the $fff{}.$0b3 Dedimania Record, with a time of $fff\uf017 {}$0b3 ($fff{}.$0b3 $fff-{}$0b3).'.format(
+					message = '$fff{}$z$s$0b3 gained the $fff{}.$0b3 Dedimania Record: $fff\uf017 {}$0b3 ($fff{}.$0b3 $fff-{}$0b3).'.format(
 						player.nickname, new_rank, times.format_time(score), previous_index,
 						times.format_time((previous_time - score))
 					)
 				else:
-					message = '$fff{}$z$s$0b3 improved the $fff{}.$0b3 Dedimania Record, with a time of $fff\uf017 {}$0b3 ($fff-{}$0b3).'.format(
+					message = '$fff{}$z$s$0b3 improved the $fff{}.$0b3 Dedimania Record: $fff\uf017 {}$0b3 ($fff-{}$0b3).'.format(
 						player.nickname, new_rank, times.format_time(score),
 						times.format_time((previous_time - score))
 					)
@@ -398,7 +409,7 @@ class Dedimania(AppConfig):
 				await asyncio.gather(*coros)
 
 			elif score == current_record.score:
-				message = '$fff{}$z$s$0b3 equalled the $fff{}.$0b3 Dedimania Record, with a time of $fff\uf017 {}$0b3.'.format(
+				message = '$fff{}$z$s$0b3 equalled the $fff{}.$0b3 Dedimania Record: $fff\uf017 {}$0b3.'.format(
 					player.nickname, previous_index, times.format_time(score)
 				)
 
@@ -433,7 +444,7 @@ class Dedimania(AppConfig):
 				self.current_records.append(new_record)
 				self.current_records.sort(key=lambda x: x.score)
 				new_index = self.current_records.index(new_record) + 1
-			message = '$fff{}$z$s$0b3 drove the $fff{}.$0b3 Dedimania Record, with a time of $fff\uf017 {}$0b3.'.format(
+			message = '$fff{}$z$s$0b3 drove the $fff{}.$0b3 Dedimania Record: $fff\uf017 {}$0b3.'.format(
 				player.nickname, new_index, times.format_time(score)
 			)
 			await asyncio.gather(
@@ -484,12 +495,13 @@ class Dedimania(AppConfig):
 			)
 			calls = list()
 			calls.append(self.instance.chat(message))
+
 			for player in self.instance.player_manager.online:
-				calls.append(self.chat_personal_record(player))
-			await self.instance.gbx.multicall(*calls)
+				calls.append(await self.chat_personal_record(player))
+			return await asyncio.gather(*calls)
 		else:
 			message = '$0b3There is no Dedimania Record on this map yet.'
-			await self.instance.chat(message)
+			return await self.instance.chat(message)
 
 	async def chat_personal_record(self, player):
 		async with self.lock:

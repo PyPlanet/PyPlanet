@@ -1,16 +1,15 @@
+"""
+.. deprecated:: 0.4.0
+	Use ``pyplanet.apps.contrib.info`` instead!
+"""
 from pyplanet.views.generics.widget import WidgetView
 from pyplanet.utils import times
 from pyplanet.contrib.player.exceptions import PlayerNotFound
 
 
 class MapInfoWidget(WidgetView):
-	widget_x = 124
-	widget_y = 90.5
-	size_x = 38
-	size_y = 14
-	title = None  # 'Current map'
-	icon_style = 'Icons128x128_1'
-	icon_substyle = 'Challenge'
+	widget_x = 125
+	widget_y = 90
 
 	template_name = 'mapinfo/mapinfo.xml'
 
@@ -34,7 +33,7 @@ class MapInfoWidget(WidgetView):
 		context.update({
 			'map_name': map.name,
 			'map_author': map_author,
-			'map_authortime': times.format_time(map.time_author),
+			'map_authortime': times.format_time(map.time_author) if map.time_author and map.time_author > 0 else '-',
 			'map_environment': map.environment,
 		})
 

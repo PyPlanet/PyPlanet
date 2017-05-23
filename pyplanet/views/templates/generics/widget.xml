@@ -1,17 +1,18 @@
-<frame pos="{{ widget_x }} {{ widget_y }} 0">
-  <label pos="0.5 -0.5" size="{{ (size_x - 1) }} {{ (size_y - 1) }}" z-index="-42" text=" " focusareacolor1="3341" focusareacolor2="{{ hover_color }}" action="{{ id }}__open_widget" />
-  <quad pos="-0.2 0.2" size="{{ (size_x + 0.2) }} {{ (size_y + 0.2) }}" z-index="-41" style="EnergyBar" substyle="BgText" opacity="0.6" />
-  {% if title %}
-    <frame pos="1 -1" z-index="0">
-      <quad pos="0 0" size="{{ (size_x - 2) }} 3.5" z-index="0" style="BgsPlayerCard" substyle="BgRacePlayerName" />
-      <quad pos="{{ icon_x }} 0.35" size="4.5 4.5" z-index="1" style="{{ icon_style }}" substyle="{{ icon_substyle }}" />
-      <label pos="{{ title_x }} -0.5" size="{{ (widget_x - 8) }} 3" z-index="1" halign="{{ title_halign }}" text="$s{{ title }}" textcolor="FFFFFFF" textsize="1" />
-    </frame>
-    <frame pos="{{ content_pos_x }} {{ content_pos_y }}" z-index="0">
-  {% else %}
-    <frame pos="{{ content_pos_x }} -1.5" z-index="0">
-  {% endif %}
-    {% block content %}
-    {% endblock %}
+<frame pos="{{ widget_x }} {{ widget_y }}">
+  {% block title %}
+    {% if title %}
+      <quad pos="0 0" z-index="0" size="35 6" bgcolor="00000099"/>
+      {% if open_action %}
+        <label pos="17.5 -3" z-index="1" size="35 6" text="{{ title }}" textfont="RajdhaniMono" textsize="2.0" textemboss="1" halign="center" valign="center2"
+               action="{{ id }}__open_widget" scriptevents="1"/>
+        <label pos="33 -3" z-index="2" size="4 6" text="&#xf08e;" textsize="1.0"  halign="center" valign="center2" action="{{ id }}__open_widget" scriptevents="1"/>
+      {% else %}
+        <label pos="17.5 -3" z-index="1" size="35 6" text="{{ title }}" textfont="RajdhaniMono" textsize="2.0" textemboss="1" halign="center" valign="center2"/>
+      {% endif %}
+    {% endif %}
+  {% endblock %}
+
+  <frame pos="0 {% if title %}-6.5{% else %}0{% endif %}">
+    {% block content %}{% endblock %}
   </frame>
 </frame>

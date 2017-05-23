@@ -1,3 +1,5 @@
+from xmlrpc.client import Fault
+
 from pyplanet.core.ui.ui_properties import UIProperties
 
 
@@ -5,7 +7,7 @@ class _BaseUIManager:
 	def __init__(self, instance):
 		"""
 		Initiate manager.
-		
+
 		:param instance: Instance of controller.
 		:type instance: pyplanet.core.instance.Instance
 		"""
@@ -18,7 +20,7 @@ class _BaseUIManager:
 	async def send(self, manialink, logins=None, **kwargs):
 		"""
 		Send manialink to player(s).
-		
+
 		:param manialink: ManiaLink instance.
 		:param logins: Logins to post to. None to globally send.
 		:type manialink: pyplanet.core.ui.components.manialink._ManiaLink
@@ -30,7 +32,8 @@ class _BaseUIManager:
 		if manialink.id not in self.manialinks:
 			self.manialinks[manialink.id] = manialink
 
-		if not await manialink.is_global():
+		is_global = await manialink.is_global()
+		if not is_global:
 			for login in for_logins:
 				if login not in manialink.player_data:
 					continue
@@ -62,6 +65,20 @@ class _BaseUIManager:
 			# Add manialink tag to body.
 			body = '<manialink version="{}" id="{}">{}</manialink>'.format(manialink.version, manialink.id, body)
 
+			# Hide ALT menus (shootmania).
+			if self.instance.game.game == 'sm' and manialink.disable_alt_menu:
+				if is_global:
+					queries.extend([
+						self.instance.gbx('Maniaplanet.UI.SetAltScoresTableVisibility', player.login, 'false', encode_json=False, response_id=False)
+						for player in self.instance.player_manager.online
+					])
+				else:
+					queries.extend([
+						self.instance.gbx('Maniaplanet.UI.SetAltScoresTableVisibility', login, 'false', encode_json=False, response_id=False)
+						for login in logins
+					])
+
+			# Add normal queries.
 			if logins and len(logins) > 0:
 				for login in logins:
 					# Prepare query
@@ -74,22 +91,45 @@ class _BaseUIManager:
 					'SendDisplayManialinkPage', body, manialink.timeout, manialink.hide_click
 				))
 
-		# Execute calls.
-		await self.instance.gbx.multicall(*queries)
+		# Execute calls, ignore login unknown (player just left).
+		try:
+			await self.instance.gbx.multicall(*queries)
+		except Fault as e:
+			if 'Login unknown' in str(e):
+				return
+			raise
 
 	async def hide(self, manialink, logins=None):
 		"""
 		Send manialink to player(s).
-		
+
 		:param manialink: ManiaLink instance.
 		:param logins: Logins to post to. None to globally send.
 		:type manialink: pyplanet.core.ui.components.manialink._ManiaLink
 		"""
 		body = '<manialink id="{}"></manialink>'.format(manialink.id)
+		queries = list()
 		if logins and len(logins) > 0:
-			await self.instance.gbx('SendDisplayManialinkPageToLogin', ','.join(logins), body, 0, False)
+			queries.append(
+				self.instance.gbx('SendDisplayManialinkPageToLogin', ','.join(logins), body, 0, False)
+			)
+
+			# Show alt menu again.
+			if self.instance.game.game == 'sm' and manialink.disable_alt_menu:
+				queries.extend([
+					self.instance.gbx('Maniaplanet.UI.SetAltScoresTableVisibility', login, 'true', encode_json=False, response_id=False)
+					for login in logins
+				])
 		else:
-			await self.instance.gbx('SendDisplayManialinkPage', body, 0, False)
+			queries.append(self.instance.gbx('SendDisplayManialinkPage', body, 0, False))
+			if self.instance.game.game == 'sm' and manialink.disable_alt_menu:
+				queries.extend([
+					self.instance.gbx('Maniaplanet.UI.SetAltScoresTableVisibility', player.login, 'true', encode_json=False, response_id=False)
+					for player in self.instance.player_manager.online
+				])
+
+		# Execute queries.
+		await self.instance.gbx.multicall(*queries)
 
 	async def destroy(self, manialink, logins=None):
 		if manialink.id in self.manialinks:
@@ -109,7 +149,7 @@ class GlobalUIManager(_BaseUIManager):
 	def create_app_manager(self, app_config):
 		"""
 		Create app ui manager.
-		
+
 		:param app_config: App Config instance.
 		:type app_config: pyplanet.apps.config.AppConfig
 		:return: UI Manager
@@ -125,7 +165,7 @@ class AppUIManager(_BaseUIManager):
 	def __init__(self, instance, app):
 		"""
 		Initiate app ui manager.
-		
+
 		:param instance: Controller instance.
 		:param app: App Config instance.
 		:type instance: pyplanet.core.instance.Instance

@@ -20,6 +20,7 @@ class LocalRecords(AppConfig):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
+		self.lock = asyncio.Lock()
 
 		self.current_records = []
 		self.widget = None
@@ -28,6 +29,12 @@ class LocalRecords(AppConfig):
 			'chat_announce', 'Minimum index for chat announce', Setting.CAT_BEHAVIOUR, type=int,
 			description='Minimum record index needed for public new record/recordchange announcement (0 for disable).',
 			default=50
+		)
+
+		self.setting_record_limit = Setting(
+			'record_limit', 'Local Records limit', Setting.CAT_BEHAVIOUR, type=int,
+			description='Limit for the amount of Local Records displayed in-game (0 for disable).',
+			default=100
 		)
 
 	async def on_start(self):
@@ -39,7 +46,7 @@ class LocalRecords(AppConfig):
 		self.instance.signal_manager.listen(tm_signals.finish, self.player_finish)
 		self.instance.signal_manager.listen(mp_signals.player.player_connect, self.player_connect)
 
-		await self.context.setting.register(self.setting_chat_announce)
+		await self.context.setting.register(self.setting_chat_announce, self.setting_record_limit)
 
 		# Load initial data.
 		await self.refresh_locals()
@@ -72,22 +79,7 @@ class LocalRecords(AppConfig):
 			await self.instance.chat(message, player)
 			return
 
-		# TODO: Move logic to view class.
-		index = 1
 		view = LocalRecordsListView(self)
-		view_data = []
-		first_time = self.current_records[0].score
-		for item in self.current_records:
-			record_player = item.player
-			record_time_difference = ''
-			if index > 1:
-				record_time_difference = '$f00 + ' + times.format_time((item.score - first_time))
-			view_data.append({'index': index, 'player_nickname': record_player.nickname,
-							  'record_time': times.format_time(item.score),
-							  'record_time_difference': record_time_difference})
-			index += 1
-		view.objects_raw = view_data
-		view.title = 'Local Records on {}'.format(self.instance.map_manager.current_map.name)
 		await view.display(player=player.login)
 		return view
 
@@ -102,8 +94,10 @@ class LocalRecords(AppConfig):
 		await self.widget.display(player=player)
 
 	async def player_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
+		record_limit = await self.setting_record_limit.get_value()
 		chat_announce = await self.setting_chat_announce.get_value()
-		current_records = [x for x in self.current_records if x.player_id == player.get_id()]
+		async with self.lock:
+			current_records = [x for x in self.current_records if x.player.login == player.login]
 		score = lap_time
 
 		previous_index = None
@@ -120,7 +114,7 @@ class LocalRecords(AppConfig):
 			previous_time = current_record.score
 
 			# If equal, only show message.
-			if score == current_record.score:
+			if score == current_record.score and (record_limit == 0 or previous_index <= record_limit):
 				message = '$fff{}$z$s$0f3 equalled the $fff{}.$0f3 Local Record: $fff\uf017 {}$0f3.'.format(
 					player.nickname, previous_index, times.format_time(score)
 				)
@@ -140,16 +134,17 @@ class LocalRecords(AppConfig):
 		current_record.score = score
 		current_record.checkpoints = ','.join([str(cp) for cp in cps])
 
-		# Add to list when it's a new record!
-		if current_record.get_id() is None:
-			self.current_records.append(current_record)
+		async with self.lock:
+			# Add to list when it's a new record!
+			if current_record.get_id() is None:
+				self.current_records.append(current_record)
 
-		# (Re)sort the record list.
-		self.current_records.sort(key=lambda x: x.score)
-		new_index = self.current_records.index(current_record) + 1
+			# (Re)sort the record list.
+			self.current_records.sort(key=lambda x: x.score)
+			new_index = self.current_records.index(current_record) + 1
 
 		# Prepare messages.
-		if previous_index is not None:
+		if previous_index is not None and (record_limit == 0 or previous_index <= record_limit):
 			if new_index < previous_index:
 				message = '$fff{}$z$s$0f3 gained the $fff{}.$0f3 Local Record: $fff\uf017 {}$0f3 ($fff{}.$0f3 $fff-{}$0f3).'.format(
 					player.nickname, new_index, times.format_time(score), previous_index,
@@ -169,14 +164,20 @@ class LocalRecords(AppConfig):
 		asyncio.ensure_future(current_record.save())
 
 		coros = [self.widget.display()]
-		if chat_announce >= new_index:
-			coros.append(self.instance.chat(message))
-		elif chat_announce != 0:
-			coros.append(self.instance.chat(message, player))
+		if record_limit == 0 or new_index <= record_limit:
+			if chat_announce >= new_index:
+				coros.append(self.instance.chat(message))
+			elif chat_announce != 0:
+				coros.append(self.instance.chat(message, player))
 		await asyncio.gather(*coros)
 
 	async def chat_current_record(self):
-		records_amount = len(self.current_records)
+		record_limit = await self.setting_record_limit.get_value()
+		if record_limit > 0:
+			records_amount = len(self.current_records[:record_limit])
+		else:
+			records_amount = len(self.current_records)
+
 		if records_amount > 0:
 			first_record = self.current_records[0]
 			message = '$0f3Current Local Record: $fff\uf017 {}$z$s$0f3 by $fff{}$z$s$0f3 ($fff{}$0f3 records)'.format(
@@ -185,14 +186,19 @@ class LocalRecords(AppConfig):
 			calls = list()
 			calls.append(self.instance.chat(message))
 			for player in self.instance.player_manager.online:
-				calls.append(self.chat_personal_record(player))
+				calls.append(self.chat_personal_record(player, record_limit))
 			await self.instance.gbx.multicall(*calls)
 		else:
 			message = '$0f3There is no Local Record on this map yet.'
 			await self.instance.chat(message)
 
-	def chat_personal_record(self, player):
-		record = [x for x in self.current_records if x.player_id == player.get_id()]
+	def chat_personal_record(self, player, record_limit):
+		if record_limit > 0:
+			records = self.current_records[:record_limit]
+		else:
+			records = self.current_records
+
+		record = [x for x in records if x.player_id == player.get_id()]
 
 		if len(record) > 0:
 			message = '$0f3You currently hold the $fff{}.$0f3 Local Record: $fff\uf017 {}'.format(
