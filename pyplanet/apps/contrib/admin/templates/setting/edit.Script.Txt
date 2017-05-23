@@ -1,0 +1,24 @@
+
+declare Quad_Setting_Boolean <=> (Page.GetFirstChild("setting_value_boolean_switch") as CMlQuad);
+declare Entry_Setting_Value <=> (Page.GetFirstChild("setting_value_field") as CMlEntry);
+
+
+while(True) {
+  foreach (Event in PendingEvents) {
+    if (Event.Type == CMlScriptEvent::Type::MouseClick && Event.ControlId == "setting_value_boolean_switch") {
+      if (Quad_Setting_Boolean.StyleSelected) {
+        Quad_Setting_Boolean.StyleSelected = False;
+        Entry_Setting_Value.SetText("0", True);
+      } else {
+        Quad_Setting_Boolean.StyleSelected = True;
+        Entry_Setting_Value.SetText("1", True);
+      }
+    }
+    if (Event.Type == CMlScriptEvent::Type::EntrySubmit && Event.ControlId == "setting_value_field") {
+      log("Update value field.");
+      // TODO: Run validation
+    }
+    // log(Event.Type);
+  }
+  yield;
+}

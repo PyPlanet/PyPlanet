@@ -7,7 +7,7 @@ from pyplanet.apps.core.maniaplanet.callbacks.player import player_chat
 from pyplanet.contrib.command import Command
 from xmlrpc.client import Fault
 
-from pyplanet.apps.contrib.admin.views import ModeSettingsListView
+from pyplanet.apps.contrib.admin.views.setting import ModeSettingMenuView
 
 
 class ServerAdmin:
@@ -87,7 +87,7 @@ class ServerAdmin:
 	async def mode_settings(self, player, data, **kwargs):
 		setting_name = data.setting
 		if setting_name is None:
-			view = ModeSettingsListView(self.app)
+			view = ModeSettingMenuView(self.app, player)
 			await view.display(player=player.login)
 		else:
 			if not data.content:
