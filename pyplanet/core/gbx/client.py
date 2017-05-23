@@ -1,8 +1,6 @@
 import asyncio
 import logging
 
-import collections
-
 from pyplanet.core.gbx.query import Query, ScriptQuery
 from pyplanet.utils.functional import empty
 from .remote import GbxRemote
@@ -19,7 +17,7 @@ class GbxClient(GbxRemote):
 
 	AUTO_RESPONSE_ID = object()
 	SUPPORTED_SCRIPT_API_VERSIONS = [
-		'2.0.0',
+		'2.0.0', '2.1.0'
 	]
 
 	def __init__(self, *args, script_api_version=empty, **kwargs):
@@ -151,7 +149,7 @@ class GbxClient(GbxRemote):
 				await self('XmlRpc.SetApiVersion', self.script_api_version, response_id=False)
 			self.script_api_version = await self('XmlRpc.GetApiVersion')
 		except Exception as e:
-			logger.info('Can\'t set the script API Version! {}'.format(str(e)))
+			logger.error('Can\'t set the script API Version! {}'.format(str(e)))
 
 		await self.refresh_info()
 
