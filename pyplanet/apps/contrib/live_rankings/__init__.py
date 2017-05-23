@@ -26,6 +26,7 @@ class LiveRankings(AppConfig):
 
 		# Make sure we hide rounds_scores.
 		self.instance.ui_manager.properties.set_visibility('round_scores', False)
+		self.instance.ui_manager.properties.set_visibility('checkpoint_ranking', False)
 		self.instance.ui_manager.properties.set_attribute('multilap_info', 'pos', '107., 88., 5.')
 
 		self.widget = LiveRankingsWidget(self)

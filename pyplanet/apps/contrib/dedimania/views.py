@@ -6,14 +6,12 @@ from pyplanet.utils import times
 
 
 class DedimaniaRecordsWidget(TimesWidgetView):
-	widget_x = -160.5
+	widget_x = -160
 	widget_y = 12.5
 	size_x = 38
 	size_y = 55.5
 	top_entries = 5
-	title = None
-	icon_style = 'BgRaceScore2'
-	icon_substyle = 'LadderRank'
+	title = 'Dedimania'
 
 	def __init__(self, app):
 		super().__init__(self)
@@ -22,7 +20,7 @@ class DedimaniaRecordsWidget(TimesWidgetView):
 		self.id = 'pyplanet__widgets_dedimaniarecords'
 
 		self.action = self.action_recordlist
-		self.record_amount = math.floor((self.size_y - 5.5) / 3.3)
+		self.record_amount = 15
 
 	async def get_player_data(self):
 		data = await super().get_player_data()
