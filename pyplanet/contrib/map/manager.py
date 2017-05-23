@@ -1,10 +1,10 @@
 import asyncio
+import logging
 
 from xmlrpc.client import Fault
-
-import logging
 from peewee import DoesNotExist
 
+from pyplanet.utils.log import handle_exception
 from pyplanet.apps.core.maniaplanet.models import Map
 from pyplanet.conf import settings
 from pyplanet.contrib import CoreContrib
@@ -219,14 +219,16 @@ class MapManager(CoreContrib):
 				return True
 		return False
 
-	async def add_map(self, filename, insert=True):
+	async def add_map(self, filename, insert=True, save_matchsettings=True):
 		"""
 		Add or insert map to current online playlist.
 
 		:param filename: Load from filename relative to the 'Maps' directory on the dedicated host server.
 		:param insert: Insert after the current map, this will make it play directly after the current map. True by default.
+		:param save_matchsettings: Save match settings as well.
 		:type filename: str
 		:type insert: bool
+		:type save_matchsettings: bool
 		:raise: pyplanet.contrib.map.exceptions.MapIncompatible
 		:raise: pyplanet.contrib.map.exceptions.MapException
 		"""
@@ -243,9 +245,10 @@ class MapManager(CoreContrib):
 
 		# Try to save match settings.
 		try:
-			await self.save_matchsettings()
-		except:
-			pass
+			if save_matchsettings:
+				await self.save_matchsettings()
+		except Exception as e:
+			handle_exception(e, __name__, 'add_map', extra_data={'EXTRAHOOK': 'Map Insert bug, see #306'})
 
 	async def upload_map(self, fh, filename, insert=True, overwrite=False):
 		"""

@@ -88,7 +88,7 @@ class MX(AppConfig):  # pragma: no cover
 					await map_file.close()
 
 				# Insert map to server.
-				result = await self.instance.map_manager.add_map(map_filename)
+				result = await self.instance.map_manager.add_map(map_filename, save_matchsettings=False)
 
 				if result:
 					message = '$ff0Admin $fff{}$z$s$ff0 has added the map $fff{}$z$s$ff0 by $fff{}$z$s$ff0 from MX..'.format(
@@ -101,3 +101,9 @@ class MX(AppConfig):  # pragma: no cover
 				logger.warning('Error when player {} was adding map from mx: {}'.format(player.login, str(e)))
 				message = '$ff0Error: Can\'t add map {}, Error: {}'.format(mx_info['Name'], str(e))
 				await self.instance.chat(message, player.login)
+
+		# Save match settings after inserting maps.
+		try:
+			await self.instance.map_manager.save_matchsettings()
+		except:
+			pass
