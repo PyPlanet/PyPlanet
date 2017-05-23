@@ -74,7 +74,7 @@ class Player(TimedModel):
 	async def get_by_login(cls, login, default=empty):
 		"""
 		Get player by login.
-		
+
 		:param login: Login.
 		:param default: Optional default if not exist.
 		:return: Player instance
@@ -102,6 +102,11 @@ class PlayerFlow:
 		self.in_run = False
 		self.player_id = None
 		self.team_id = None
+		self.is_player = False
+		self.is_spectator = False
+		self.is_temp_spectator = False
+		self.is_pure_spectator = False
+		self.spectator_target = None
 		self.other = dict()
 
 	def start_run(self):

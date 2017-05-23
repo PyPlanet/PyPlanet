@@ -277,7 +277,7 @@ class Dedimania(AppConfig):
 				self.instance.map_manager.current_map,
 				self.current_script,
 				server_name=self.instance.game.server_name, server_comment='', is_private=self.instance.game.server_is_private,
-				max_players=self.instance.game.server_max_players['CurrentValue'], max_specs=self.instance.game.server_max_specs['CurrentValue'],
+				max_players=self.instance.game.server_max_players, max_specs=self.instance.game.server_max_specs,
 				players=player_list,
 				server_login=self.instance.game.server_player_login
 			)

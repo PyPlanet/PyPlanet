@@ -9,7 +9,7 @@ class Callback(Signal):
 	"""
 	A callback signal is an double signal. Once for the GBX Callback itself (the Gbx callback named). And the destination
 	Between those two signals is a sort of `processor` that confirms it into the PyPlanet style objects.
-	
+
 	For example, a player connect will result in a player database object instead of the plain Maniaplanet payload.
 	This will make it possible to develop your app as fast as possible, without any overhead and make it better
 	with callback payload changes!
@@ -18,7 +18,7 @@ class Callback(Signal):
 		"""
 		Shortcut for registering two signals, one is the raw signal and the second one is the parsed and structured
 		output signal. This also glues the two together.
-		
+
 		:param call:
 		:param namespace:
 		:param code:

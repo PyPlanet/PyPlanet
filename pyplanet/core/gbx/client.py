@@ -40,7 +40,7 @@ class GbxClient(GbxRemote):
 	def prepare(self, method, *args, **kwargs):
 		"""
 		Prepare an query.
-		
+
 		:param method: Method name
 		:param args: Arguments...
 		:return: Prepared query.
@@ -53,7 +53,7 @@ class GbxClient(GbxRemote):
 	async def script(self, method, *args, encode_json=True, response_id=True):
 		"""
 		Execute scripted call.
-		
+
 		:param method: Scripted method name
 		:param args: Arguments
 		:param encode_json: Are the arguments dictionary, should it be encoded? (Then only provide the first arg).
@@ -67,7 +67,7 @@ class GbxClient(GbxRemote):
 	async def multicall(self, *queries):
 		"""
 		Run the queries given async. Will use one or more multicall(s), depends on content.
-		
+
 		:param queries: Queries to execute in multicall.
 		:return: Results in tuple.
 		:rtype: tuple<any>
@@ -177,6 +177,7 @@ class GbxClient(GbxRemote):
 			self('GetMaxPlayers'),
 			self('GetMaxSpectators'),
 			self('GetHideServer'),
+			self('GetLadderServerLimits'),
 		)
 		version_info = res[0]
 		self.game.dedicated_version = version_info['Version']
@@ -204,9 +205,14 @@ class GbxClient(GbxRemote):
 
 		self.game.server_password = res[6]
 		self.game.server_spec_password = res[7]
-		self.game.server_max_players = res[8]
-		self.game.server_max_specs = res[9]
+		self.game.server_max_players = res[8]['CurrentValue']
+		self.game.server_next_max_players = res[8]['NextValue']
+		self.game.server_max_specs = res[9]['CurrentValue']
+		self.game.server_next_max_specs = res[9]['NextValue']
 		self.game.server_is_private = res[10]
+
+		self.game.ladder_min = res[11]['LadderServerLimitMin']
+		self.game.ladder_max = res[11]['LadderServerLimitMax']
 
 		# Detailed server player infos.
 		server_player_info = await self('GetDetailedPlayerInfo', self.game.server_player_login)
@@ -219,7 +225,7 @@ class GbxClient(GbxRemote):
 async def multicall(*calls):
 	"""
 	Run the queries given async. Will use one or more multicall(s), depends on content.
-	
+
 	:param queries: Queries to execute in multicall.
 	:return: Results in tuple.
 	:rtype: tuple<any>

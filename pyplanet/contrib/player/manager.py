@@ -17,19 +17,19 @@ logger = logging.getLogger(__name__)
 class PlayerManager(CoreContrib):
 	"""
 	Player Manager.
-	
+
 	.. todo::
-	
+
 		Write introduction.
-		
+
 	.. warning::
-	
+
 		Don't initiate this class yourself.
 	"""
 	def __init__(self, instance):
 		"""
 		Initiate, should only be done from the core instance.
-		
+
 		:param instance: Instance.
 		:type instance: pyplanet.core.instance.Instance
 		"""
@@ -39,6 +39,12 @@ class PlayerManager(CoreContrib):
 
 		# Online contains all currently online players.
 		self._online = set()
+
+		# Counters.
+		self._counter_lock = asyncio.Lock()
+		self._total_count = 0
+		self._players_count = 0
+		self._spectators_count = 0
 
 	@property
 	def performance_mode(self):
@@ -63,7 +69,7 @@ class PlayerManager(CoreContrib):
 
 	async def on_start(self):
 		"""
-		Handle startup, just before the apps will start. We will throw connects for the players so we know that the 
+		Handle startup, just before the apps will start. We will throw connects for the players so we know that the
 		current playing players are also initiated correctly!
 		"""
 		player_list = await self._instance.gbx('GetPlayerList', -1, 0)
@@ -72,7 +78,7 @@ class PlayerManager(CoreContrib):
 	async def handle_connect(self, login):
 		"""
 		Handle a connection of a player, this call is being called inside of the Glue of the callbacks.
-		
+
 		:param login: Login, received from dedicated.
 		:return: Database Player instance.
 		:rtype: pyplanet.apps.core.maniaplanet.models.Player
@@ -89,6 +95,14 @@ class PlayerManager(CoreContrib):
 			return
 		ip, _, port = info['IPAddress'].rpartition(':')
 		is_owner = login in settings.OWNERS[self._instance.process_name]
+
+		# Update counter.
+		async with self._counter_lock:
+			self._total_count += 1
+			if info['IsSpectator']:
+				self._spectators_count += 1
+			else:
+				self._players_count += 1
 
 		try:
 			player = await Player.get_by_login(login)
@@ -110,24 +124,55 @@ class PlayerManager(CoreContrib):
 
 		player.flow.player_id = info['PlayerId']
 		player.flow.team_id = info['TeamId']
+		player.flow.is_spectator = bool(info['IsSpectator'])
+		player.flow.is_player = not bool(info['IsSpectator'])
 
 		self._online.add(player)
 		self.performance_mode = len(self._online) >= await performance_mode.get_value()
 
 		return player
 
+	async def handle_info_change(self, player, is_spectator, is_temp_spectator, is_pure_spectator, target, team_id, **kwargs):
+		if not player:
+			return
+		# Make sure spectator is real spectator and not temporary.
+		is_spectator = is_spectator and not is_temp_spectator
+
+		async with self._counter_lock:
+			if player.flow.is_spectator and not is_spectator:
+				self._spectators_count -= 1
+				self._players_count += 1
+			if player.flow.is_player and is_spectator:
+				self._spectators_count += 1
+				self._players_count -= 1
+
+		player.flow.is_spectator = is_spectator
+		player.flow.is_temp_spectator = is_temp_spectator
+		player.flow.is_pure_spectator = is_pure_spectator
+		player.flow.is_player = not is_spectator
+		player.flow.spectator_target = target
+		player.flow.team_id = team_id
+
 	async def handle_disconnect(self, login):
 		"""
 		Handle a disconnection of a player, this call is being called inside of the Glue of the callbacks.
-		
+
 		:param login: Login, received from dedicated.
 		:return: Database Player instance.
-		:rtype: pyplanet.apps.core.maniaplanet.models.Player 
+		:rtype: pyplanet.apps.core.maniaplanet.models.Player
 		"""
 		try:
 			player = await Player.get_by_login(login=login)
 		except:
 			return
+
+		# Update counters.
+		async with self._counter_lock:
+			self._total_count -= 1
+			if player.flow.is_player:
+				self._players_count -= 1
+			else:
+				self._spectators_count -= 1
 
 		if player in self._online:
 			self._online.remove(player)
@@ -138,14 +183,15 @@ class PlayerManager(CoreContrib):
 		player.last_seen = datetime.datetime.now()
 		await player.save()
 
-		self.performance_mode = len(self._online) >= await performance_mode.get_value()
+		# Update performance mode status.
+		self.performance_mode = self._total_count >= await performance_mode.get_value()
 
 		return player
 
 	async def get_player(self, login=None, pk=None, lock=True):
 		"""
 		Get player by login or primary key.
-		
+
 		:param login: Login.
 		:param pk: Primary Key identifier.
 		:param lock: Lock for a sec when receiving.
@@ -178,3 +224,38 @@ class PlayerManager(CoreContrib):
 		Online player list.
 		"""
 		return self._online.copy()
+
+	@property
+	def count_all(self):
+		"""
+		Get all player counts (players + spectators).
+		"""
+		return self._total_count
+
+	@property
+	def count_players(self):
+		"""
+		Get number of playing players.
+		"""
+		return self._players_count
+
+	@property
+	def count_spectators(self):
+		"""
+		Get number of spectating players.
+		"""
+		return self._spectators_count
+
+	@property
+	def max_players(self):
+		"""
+		Get maximum number of players.
+		"""
+		return self._instance.game.server_max_players
+
+	@property
+	def max_spectators(self):
+		"""
+		Get maximum number of spectators.
+		"""
+		return self._instance.game.server_max_specs

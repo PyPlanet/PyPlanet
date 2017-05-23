@@ -1,3 +1,7 @@
+"""
+.. deprecated:: 0.4.0
+	Use ``pyplanet.apps.contrib.info`` instead!
+"""
 from pyplanet.views.generics.widget import WidgetView
 from pyplanet.utils import times
 from pyplanet.contrib.player.exceptions import PlayerNotFound
