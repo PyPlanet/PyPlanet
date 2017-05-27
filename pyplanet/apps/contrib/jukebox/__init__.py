@@ -130,3 +130,9 @@ class Jukebox(AppConfig):
 			self.instance.chat(message),
 			self.instance.map_manager.set_next_map(next['map'])
 		)
+
+	def add_maplist_action(self):
+		pass
+
+	def remove_maplist_action(self):
+		pass

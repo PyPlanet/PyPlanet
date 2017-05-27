@@ -20,21 +20,21 @@ class ListView(TemplateView):
 	"""
 	The ListView is an abstract list that uses a database query to show and manipulate the list that is presented to the
 	end-user. The ListView is able to automatically manage the searching, ordering and pagination of your query contents.
-	
+
 	The columns could be specified, for each column you can change behaviour, such as searchable and sortable. But also
 	custom rendering of the values that will be displayed.
-	
+
 	You can override ``get_fields()``, ``get_actions()``, ``get_query()`` if you need any customization or use a self method
 	or variable in one of your properties.
-	
+
 	.. note::
-	
+
 		The design and some behaviour can change in updates of PyPlanet. We aim to provide backward compatibility as much
 		as we can. If we are going to break things we will make it deprecated, or if we are in a situation of not having
 		enough time to provide a transition time, we are going to create a separate solution (like a second version).
 
 	.. code-block:: python
-	
+
 		class SampleListView(ListView):
 			query = Model.select()
 			model = Model
@@ -51,7 +51,7 @@ class ListView(TemplateView):
 					'substyle': 'Close'
 				},
 			]
-			
+
 			async def action_delete(self, player, values, instance, **kwargs):
 				print('Delete value: {}'.format(instance))
 
@@ -179,9 +179,9 @@ class ListView(TemplateView):
 
 			# Execute action/target method.
 			if iscoroutinefunction(action):
-				await action(player, values, instance)
+				await action(player, values, instance, view=self)
 			else:
-				action(player, values, instance)
+				action(player, values, instance, view=self)
 
 	@property
 	def num_pages(self):
@@ -190,7 +190,7 @@ class ListView(TemplateView):
 	async def close(self, player, *args, **kwargs):
 		"""
 		Close the link for a specific player. Will hide manialink and destroy data for player specific to save memory.
-		
+
 		:param player: Player model instance.
 		:type player: pyplanet.apps.core.maniaplanet.models.Player
 		"""
@@ -201,7 +201,7 @@ class ListView(TemplateView):
 	async def refresh(self, player, *args, **kwargs):
 		"""
 		Refresh list with current properties for a specific player. Can be used to show new data changes.
-		
+
 		:param player: Player model instance.
 		:type player: pyplanet.apps.core.maniaplanet.models.Player
 		"""
@@ -210,7 +210,7 @@ class ListView(TemplateView):
 	async def display(self, player=None):
 		"""
 		Display list to player.
-		
+
 		:param player: Player login or model instance.
 		:type player: str, pyplanet.apps.core.maniaplanet.models.Player
 		"""
