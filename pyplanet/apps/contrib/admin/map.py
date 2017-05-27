@@ -3,11 +3,13 @@ Map Admin methods and functions.
 """
 import asyncio
 import logging
+from argparse import Namespace
 
 from pyplanet.apps.core.maniaplanet.models import Map
 from pyplanet.conf import settings
 from pyplanet.contrib.command import Command
 from pyplanet.utils import gbxparser
+from pyplanet.views.generics import ask_confirmation
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +47,33 @@ class MapAdmin:
 			Command(command='writemaplist', aliases=['wml'], target=self.write_map_list, perms='admin:write_map_list', admin=True)
 				.add_param('file', required=False, type=str, help='Give custom match settings file to save to.')
 		)
+
+		# If jukebox app is loaded, register the map actions.
+		if 'jukebox' in self.instance.apps.apps:
+			from pyplanet.apps.contrib.jukebox.views import MapListView
+			MapListView.add_action(self.list_action_remove, 'Delete', '&#xf1f8;')
+
+	async def list_action_remove(self, player, values, map_dictionary, view, **kwargs):
+		# Check permission.
+		if not await self.instance.permission_manager.has_permission(player, 'admin:remove_map'):
+			await self.instance.chat(
+				'$f00You don\'t have the permission to perform this action!',
+				player
+			)
+			return
+
+		# Ask for confirmation.
+		cancel = bool(await ask_confirmation(player, 'Are you sure you want to remove the map \'{}\'$z$s from the server?'.format(
+			map_dictionary['name']
+		), size='sm'))
+		if cancel is True:
+			return
+
+		# Simulate command.
+		await self.remove_map(player, Namespace(nr=map_dictionary['id']))
+
+		# Reload parent view.
+		await view.refresh(player)
 
 	async def prev_map(self, player, data, **kwargs):
 		if not self.instance.map_manager.previous_map:

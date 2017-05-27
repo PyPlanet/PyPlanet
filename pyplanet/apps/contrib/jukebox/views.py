@@ -2,7 +2,7 @@ from playhouse.shortcuts import model_to_dict
 
 from pyplanet.apps.core.maniaplanet.models import Map
 
-from pyplanet.views.generics.list import ListView, ManualListView
+from pyplanet.views.generics.list import ManualListView
 
 
 class JukeboxListView(ManualListView):
@@ -57,6 +57,8 @@ class MapListView(ManualListView):
 	icon_style = 'Icons128x128_1'
 	icon_substyle = 'Browse'
 
+	custom_actions = list()
+
 	def __init__(self, app):
 		super().__init__(self)
 		self.app = app
@@ -92,17 +94,25 @@ class MapListView(ManualListView):
 		]
 
 	async def get_actions(self):
-		return [
-			{
-				'name': 'Delete',
-				'action': self.action_delete,
-				'style': 'Icons64x64_1',
-				'substyle': 'Close'
-			}
-		]
+		return self.custom_actions
 
 	async def action_jukebox(self, player, values, map_info, **kwargs):
 		await self.app.add_to_jukebox(player, await self.app.instance.map_manager.get_map(map_info['uid']))
 
-	async def action_delete(self, player, values, map_info, **kwargs):
-		print('Delete value: {}'.format(map_info))
+	@classmethod
+	def add_action(cls, target, name, text, text_size='1.2', require_confirm=False):
+		cls.custom_actions.append(dict(
+			name=name,
+			action=target,
+			text=text,
+			textsize=text_size,
+			safe=True,
+			type='label',
+			require_confirm=require_confirm,
+		))
+
+	@classmethod
+	def remove_action(cls, target):
+		for idx, custom in enumerate(cls.custom_actions):
+			if custom['action'] == target:
+				del cls.custom_actions[idx]
