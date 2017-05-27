@@ -85,7 +85,7 @@ class DedimaniaAPI:
 				self.retries = 0
 				return data[0]
 			raise DedimaniaTransportException('Invalid response from dedimania!')
-		except (ConnectionError, ReadTimeout) as e:
+		except (ConnectionError, ReadTimeout, ConnectionRefusedError) as e:
 			raise DedimaniaTransportException(e) from e
 		except ConnectTimeout as e:
 			raise DedimaniaTransportException(e) from e
@@ -157,6 +157,9 @@ class DedimaniaAPI:
 		while True:
 			await asyncio.sleep(60 * 4)
 
+			if not self.session_id:
+				continue
+
 			def is_spectator(player):
 				return bool(player['SpectatorStatus'] % 10)
 
@@ -187,6 +190,8 @@ class DedimaniaAPI:
 	async def player_connect(
 		self, login, nickname, path, is_spec
 	):
+		if not self.session_id:
+			return None
 		try:
 			response = await self.multicall(
 				('dedimania.PlayerConnect', self.session_id, login, nickname, path, is_spec)
@@ -199,6 +204,8 @@ class DedimaniaAPI:
 			return None
 
 	async def player_disconnect(self, login, tool_option):
+		if not self.session_id:
+			return True
 		await self.multicall(
 			('dedimania.PlayerDisconnect', self.session_id, login, tool_option)
 		)
@@ -223,6 +230,8 @@ class DedimaniaAPI:
 		"""
 		if not self.session_id:
 			await self.authenticate()
+		if not self.session_id:
+			raise DedimaniaTransportException('Dedimania not authenticated!')
 
 		def is_spectator(player):
 			return bool(player['SpectatorStatus'] % 10)
@@ -267,6 +276,9 @@ class DedimaniaAPI:
 		mode = self.mode_to_dedi_mode(game_mode)
 		if not mode:
 			raise DedimaniaNotSupportedException('Mode is not supported!')
+
+		if not self.session_id:
+			raise DedimaniaTransportException('Dedimania not authenticated!')
 
 		times = [{
 			'Login': r.login, 'Best': r.score, 'Checks': ','.join([str(c) for c in r.cps]),
