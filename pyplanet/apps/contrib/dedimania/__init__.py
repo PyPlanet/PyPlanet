@@ -188,6 +188,9 @@ class Dedimania(AppConfig):
 		if not self.api:
 			await self.reload_settings()
 			await self.initiate_api()
+		if not self.api:
+			return
+
 		self.api.retries = 0
 
 		# Set map status.
