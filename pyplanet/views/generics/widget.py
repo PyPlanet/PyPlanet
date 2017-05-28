@@ -20,6 +20,7 @@ class WidgetView(TemplateView):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
+		self.relaxed_updating = True
 
 		# Setup the receivers.
 		self.subscribe('open_widget', self.open_widget)

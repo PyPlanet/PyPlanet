@@ -14,11 +14,11 @@ logger = logging.getLogger(__name__)
 class _ManiaLink:
 	def __init__(
 		self, manager=None, id=None, version='3', body=None, template=None, timeout=0, hide_click=False, data=None,
-		player_data=None, disable_alt_menu=False, throw_exceptions=False
+		player_data=None, disable_alt_menu=False, throw_exceptions=False, relaxed_updating=False,
 	):
 		"""
 		Create manialink (USE THE MANAGER CREATE, DONT INIT DIRECTLY!
-		
+
 		:param manager: Manager instance. use your app manager.
 		:param id: Unique manialink id. Could be set later, must be set before displaying.
 		:param version: Version of manialink.
@@ -30,6 +30,7 @@ class _ManiaLink:
 		:param player_data: Dict with player login and for value the player specific variables. Dont fill this to have
 		a global manialink instead of per person.
 		:param throw_exceptions: Throw exceptions during handling and executing of action handlers.
+		:param relaxed_updating: Relaxed updating will rate limit the amount of updates send to clients.
 		:type manager: pyplanet.core.ui.AppUIManager
 		:type template: pyplanet.core.ui.template.Template
 		:type id: str
@@ -47,6 +48,7 @@ class _ManiaLink:
 		self.player_data = player_data if player_data and isinstance(player_data, dict) else dict()
 		self.throw_exceptions = False
 		self.disable_alt_menu = bool(disable_alt_menu)
+		self.relaxed_updating = relaxed_updating
 
 		self.receivers = dict()
 		self._is_global_shown = False
@@ -63,7 +65,7 @@ class _ManiaLink:
 	async def render(self, player_login=None, data=None, player_data=None, template=None):
 		"""
 		Render template. Will render template and return body.
-		
+
 		:param player_login: Render data only for player, set to None to globally render (and ignore player_data).
 		:param data: Data to append.
 		:param player_data: Data to append.
@@ -92,9 +94,9 @@ class _ManiaLink:
 
 	async def display(self, player_logins=None, **kwargs):
 		"""
-		Display the manialink. Will also render if no body is given. Will show per player or global. depending on 
+		Display the manialink. Will also render if no body is given. Will show per player or global. depending on
 		the data given and stored!
-		
+
 		:param player_logins: Only display to the list of player logins given.
 		"""
 		if player_logins:
@@ -113,7 +115,7 @@ class _ManiaLink:
 	async def hide(self, player_logins=None):
 		"""
 		Hide manialink globally of only for the logins given in parameter.
-		
+
 		:param player_logins: Only hide for list of players, None for all players on the server.
 		"""
 		if player_logins:
@@ -130,10 +132,10 @@ class _ManiaLink:
 	def subscribe(self, action, target):
 		"""
 		Subscribe to a action given by the manialink.
-		
+
 		:param action: Action name.
 		:param target: Target method.
-		:return: 
+		:return:
 		"""
 		if action not in self.receivers:
 			self.receivers[action] = list()
@@ -174,7 +176,7 @@ class _ManiaLink:
 	async def handle_catch_all(self, player, action, values, **kwargs):
 		"""
 		Override this class to handle all other actions related to this view/manialink.
-		
+
 		:param player: Player instance.
 		:param action: Action name/string
 		:param values: Values provided by the user client.
@@ -203,7 +205,7 @@ class _ManiaLink:
 		"""
 		Destroy the Manialink with it's handlers and references.
 		Will also hide the Manialink for all users!
-		
+
 		This method is sync and will call a async method (destroying of the manialink at our players) async but will not
 		be executed at the same time. Be aware with this one!
 		"""
@@ -232,9 +234,9 @@ class DynamicManiaLink(_ManiaLink):
 	"""
 	The DynamicManiaLink is a special manialink with data-bindings and automatically updates via maniascript.
 	Please use the ``View`` classes instead!
-	
+
 	.. warning ::
-	
+
 		This feature is not yet implemented.
 
 	"""
