@@ -1,6 +1,12 @@
+import asyncio
+import logging
+
 from xmlrpc.client import Fault
 
 from pyplanet.core.ui.ui_properties import UIProperties
+from pyplanet.utils.log import handle_exception
+
+logger = logging.getLogger(__name__)
 
 
 class _BaseUIManager:
@@ -13,9 +19,32 @@ class _BaseUIManager:
 		"""
 		self.instance = instance
 		self.manialinks = dict()
+		self.send_queue = list()
 
 	async def on_start(self):
-		pass
+		asyncio.ensure_future(self.send_loop())
+
+	async def send_loop(self):
+		while True:
+			await asyncio.sleep(0.25)
+			if len(self.send_queue) == 0:
+				continue
+
+			# Copy send queue and clear the global one
+			queue = self.send_queue.copy()
+			self.send_queue.clear()
+
+			# Process and push out the queue.
+			try:
+				await self.instance.gbx.multicall(*queue)
+			except Fault as e:
+				if 'Login unknown' in str(e):
+					return
+				logger.exception(e)
+				handle_exception(exception=e, module_name=__name__, func_name='send_loop')
+			except Exception as e:
+				logger.exception(e)
+				handle_exception(exception=e, module_name=__name__, func_name='send_loop')
 
 	async def send(self, manialink, logins=None, **kwargs):
 		"""
@@ -91,6 +120,11 @@ class _BaseUIManager:
 					'SendDisplayManialinkPage', body, manialink.timeout, manialink.hide_click
 				))
 
+		# It the manialink wants rate limitting with the relaxed updating feature (mostly used for widgets), add to send queue
+		if getattr(manialink, 'relaxed_updating', False):
+			self.send_queue.extend(queries)
+			return
+
 		# Execute calls, ignore login unknown (player just left).
 		try:
 			await self.instance.gbx.multicall(*queries)
@@ -128,6 +162,11 @@ class _BaseUIManager:
 					for player in self.instance.player_manager.online
 				])
 
+		# It the manialink wants rate limitting with the relaxed updating feature (mostly used for widgets), add to send queue
+		if getattr(manialink, 'relaxed_updating', False):
+			self.send_queue.extend(queries)
+			return
+
 		# Execute queries.
 		await self.instance.gbx.multicall(*queries)
 
@@ -144,7 +183,13 @@ class GlobalUIManager(_BaseUIManager):
 		self.properties = UIProperties(self.instance)
 
 	async def on_start(self):
+		await super().on_start()
 		await self.properties.on_start()
+
+		# Start app ui managers.
+		await asyncio.gather(*[
+			m.on_start() for m in self.app_managers.values()
+		])
 
 	def create_app_manager(self, app_config):
 		"""
