@@ -34,7 +34,7 @@ class SectorTimes(AppConfig):
 		await self.widget.display(player)
 
 	async def map_start(self, *args, **kwargs):
-		await asyncio.sleep(4)
+		await asyncio.sleep(2)
 		await self.widget.display()
 
 	async def podium_start(self, *args, **kwargs):
