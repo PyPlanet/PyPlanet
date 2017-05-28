@@ -58,6 +58,11 @@ class Dedimania(AppConfig):
 			description='Minimum record index needed for public new record/recordchange announcement (0 for disable).',
 			default=50
 		)
+		self.setting_sent_announce = Setting(
+			'sent_announce', 'Announce sending times to dedimania', Setting.CAT_BEHAVIOUR, type=bool,
+			description='Enable the announce of successfully sent records to dedimania message.',
+			default=False
+		)
 
 		self.login = self.code = self.server_version = self.pack_mask = None
 
@@ -67,7 +72,9 @@ class Dedimania(AppConfig):
 
 	async def on_start(self):
 		# Init settings.
-		await self.context.setting.register(self.setting_server_login, self.setting_dedimania_code, self.setting_chat_announce)
+		await self.context.setting.register(
+			self.setting_server_login, self.setting_dedimania_code, self.setting_chat_announce, self.setting_sent_announce,
+		)
 
 		# Load settings + initiate api.
 		await self.reload_settings()
@@ -262,6 +269,10 @@ class Dedimania(AppConfig):
 				await self.api.set_map_times(
 					map, self.current_script, self.current_records.copy(), self.v_replay, self.v_replay_checks, self.ghost_replay,
 				)
+				if await self.setting_sent_announce.get_value():
+					await self.instance.chat(
+						'$0b3Dedimania records has been sent successfully!'
+					)
 			except DedimaniaNotSupportedException:
 				pass
 			except (DedimaniaTransportException, DedimaniaFault) as e:
