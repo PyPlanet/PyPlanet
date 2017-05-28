@@ -224,6 +224,8 @@ class GbxRemote:
 		elif method and data is not None:
 			if method == 'ManiaPlanet.ModeScriptCallbackArray':
 				await self.handle_scripted(handle_nr, method, data)
+			elif method == 'ManiaPlanet.ModeScriptCallback':
+				await self.handle_scripted(handle_nr, method, data)
 			else:
 				await self.handle_callback(handle_nr, method, data)
 		elif fault is not None:
