@@ -144,7 +144,7 @@ class GbxClient(GbxRemote):
 
 		# Try to get the script api_versions.
 		try:
-			api_versions = await self('XmlRpc.GetAllApiVersions')
+			api_versions = await self('XmlRpc.GetAllApiVersions', timeout=5)
 			if 'versions' in api_versions and self.script_api_version in api_versions['versions']:
 				await self('XmlRpc.SetApiVersion', self.script_api_version, response_id=False)
 			self.script_api_version = await self('XmlRpc.GetApiVersion')
