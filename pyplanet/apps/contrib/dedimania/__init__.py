@@ -39,7 +39,8 @@ class Dedimania(AppConfig):
 		self.ghost_replay = None
 
 		self.server_max_rank = None
-		self.map_status = False
+		self.map_status = None
+		self.map_uid = None
 		self.ready = False
 
 		self.setting_server_login = Setting(
@@ -187,6 +188,9 @@ class Dedimania(AppConfig):
 			# TODO: Activate after fix in dedicated:
 			# await self.podium_start()
 
+			# Clear the current map.
+			self.map_uid = None
+
 			await self.map_end(map)
 			await self.map_begin(map)
 
@@ -199,6 +203,12 @@ class Dedimania(AppConfig):
 			return
 
 		self.api.retries = 0
+
+		# If the map uid already has been filled and the same we are starting double. Return immediately.
+		# This is because of issue #276.
+		if self.map_uid == self.instance.map_manager.current_map.uid:
+			return
+		self.map_uid = self.instance.map_manager.current_map.uid
 
 		# Set map status.
 		self.map_status = map.time_author > 6200 and map.num_checkpoints > 1
@@ -259,6 +269,9 @@ class Dedimania(AppConfig):
 		if not self.map_status:
 			logger.warning('Don\'t send dedi records, map not supported or we are offline!')
 			return
+
+		# Clear the current map status.
+		self.map_status = None
 
 		if not self.v_replay:
 			return
