@@ -136,6 +136,9 @@ main() {
 
   while(True) {
     foreach (Event in RaceEvents) {
+      if (GUIPlayer == Null || Event.Player != GUIPlayer) {
+        continue;
+      }
       if (Event.Type == CTmRaceClientEvent::EType::Respawn) {
         if (GUIPlayer != Null && GUIPlayer.RaceState != CTmMlPlayer::ERaceState::Running) {
           CurrentCheckpointScores = Integer[];
