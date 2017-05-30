@@ -142,9 +142,17 @@ class PlayerManager(CoreContrib):
 			if player.flow.is_spectator and not is_spectator:
 				self._spectators_count -= 1
 				self._players_count += 1
+
+				await self._instance.signal_manager.get_signal('maniaplanet:player_enter_player_slot').send_robust(dict(
+					player=player,
+				), raw=True)
 			if player.flow.is_player and is_spectator:
 				self._spectators_count += 1
 				self._players_count -= 1
+
+				await self._instance.signal_manager.get_signal('maniaplanet:player_enter_spectator_slot').send_robust(dict(
+					player=player,
+				), raw=True)
 
 		player.flow.is_spectator = is_spectator
 		player.flow.is_temp_spectator = is_temp_spectator

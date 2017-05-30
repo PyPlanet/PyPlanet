@@ -1,4 +1,5 @@
 from pyplanet.apps.config import AppConfig
+from pyplanet.apps.core.trackmania.callbacks import finish
 
 
 class TrackmaniaConfig(AppConfig):
@@ -12,3 +13,6 @@ class TrackmaniaConfig(AppConfig):
 	game_dependencies = [
 		'trackmania'
 	]
+
+	async def on_start(self):
+		self.instance.signal_manager.register_signal(finish)

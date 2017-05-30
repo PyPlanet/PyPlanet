@@ -3,6 +3,7 @@ import logging
 
 from xmlrpc.client import Fault
 
+from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.core.ui.ui_properties import UIProperties
 from pyplanet.utils.log import handle_exception
 
@@ -46,16 +47,21 @@ class _BaseUIManager:
 				logger.exception(e)
 				handle_exception(exception=e, module_name=__name__, func_name='send_loop')
 
-	async def send(self, manialink, logins=None, **kwargs):
+	async def send(self, manialink, players=None, **kwargs):
 		"""
 		Send manialink to player(s).
 
 		:param manialink: ManiaLink instance.
-		:param logins: Logins to post to. None to globally send.
+		:param players: Player instances or logins to post to. None to globally send.
 		:type manialink: pyplanet.core.ui.components.manialink._ManiaLink
 		"""
 		queries = list()
-		for_logins = logins or (manialink.player_data.keys() if manialink.player_data else None)
+		if isinstance(players, list):
+			for_logins = [p.login if isinstance(p, Player) else p for p in players]
+		elif manialink.player_data:
+			for_logins = list(manialink.player_data.keys())
+		else:
+			for_logins = list()
 
 		# Register to the manialink context.
 		if manialink.id not in self.manialinks:
@@ -104,12 +110,12 @@ class _BaseUIManager:
 				else:
 					queries.extend([
 						self.instance.gbx('Maniaplanet.UI.SetAltScoresTableVisibility', login, 'false', encode_json=False, response_id=False)
-						for login in logins
+						for login in for_logins
 					])
 
 			# Add normal queries.
-			if logins and len(logins) > 0:
-				for login in logins:
+			if for_logins and len(for_logins) > 0:
+				for login in for_logins:
 					# Prepare query
 					queries.append(self.instance.gbx(
 						'SendDisplayManialinkPageToLogin', login, body, manialink.timeout, manialink.hide_click

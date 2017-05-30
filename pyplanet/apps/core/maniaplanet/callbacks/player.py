@@ -1,7 +1,7 @@
 import asyncio
 
 from pyplanet.apps.core.maniaplanet.callbacks.other import server_chat
-from pyplanet.core.events import Callback
+from pyplanet.core.events import Callback, Signal
 from pyplanet.core.exceptions import SignalGlueStop
 from pyplanet.core.instance import Controller
 
@@ -167,4 +167,40 @@ player_info_changed = Callback(
 :param player_id: Player ID (server id).
 :type player: pyplanet.apps.core.maniaplanet.models.player.Player
 :type target: pyplanet.apps.core.maniaplanet.models.player.Player
+"""
+
+player_enter_player_slot = Signal(
+	namespace='maniaplanet',
+	code='player_enter_player_slot',
+)
+"""
+:Signal: 
+	Player enters a player slot.
+:Code:
+	``maniaplanet:player_enter_player_slot``
+:Description:
+	Player change into a player, is using a player slot.
+:Original Callback:
+	*None*
+
+:param player: Player instance.
+:type player: pyplanet.apps.core.maniaplanet.models.player.Player
+"""
+
+player_enter_spectator_slot = Signal(
+	namespace='maniaplanet',
+	code='player_enter_spectator_slot',
+)
+"""
+:Signal: 
+	Player enters a spectator slot (not temporary).
+:Code:
+	``maniaplanet:player_enter_spectator_slot``
+:Description:
+	Player change into a spectator, is using a spectator slot.
+:Original Callback:
+	*None*
+
+:param player: Player instance.
+:type player: pyplanet.apps.core.maniaplanet.models.player.Player
 """

@@ -1,0 +1,33 @@
+/**
+ * PyPlanet - ManiaScript Libraries.
+ * TimeUtils.Script.Txt
+ */
+#Include "MathLib" as ML
+
+Text LeftPad(Integer number, Integer pad) {
+  declare Text out = "";
+  out = "" ^ number;
+  if (number < 100 && pad == 3) {
+    out = "0" ^ number;
+  }
+  if (number < 10 && pad == 3) {
+    out = "00" ^ number;
+  }
+  if (number < 10 && pad == 2) {
+    out = "0" ^ number;
+  }
+  return out;
+}
+
+Text TimeToText(Integer inTime) {
+  declare time = ML::Abs(inTime);
+  declare Integer cent = time % 1000;
+  time = time / 1000;
+  declare Integer sec = time % 60;
+  declare Integer min = time / 60;
+  declare Text sign = "";
+  if (inTime < 0)  {
+    sign = "-";
+  }
+  return sign ^ LeftPad(min, 2) ^ ":" ^ LeftPad(sec, 2) ^ "." ^ LeftPad(cent, 3);
+}
