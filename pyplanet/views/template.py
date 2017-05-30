@@ -132,7 +132,13 @@ class TemplateView(View):
 			get_player_data(p.login) if isinstance(p, Player) else get_player_data(p)
 			for p in player_logins or Controller.instance.player_manager.online
 		])
-		self.player_data.update(dict(player_data))
+
+		# TODO: This can be flatten with `self.player_data = dict(player_data)` after deprecated code has been removed.
+		for login, data in player_data:
+			if login in self.player_data and isinstance(self.player_data[login], dict):
+				self.player_data[login].update(data)
+			else:
+				self.player_data[login] = data
 
 		# Fallback in case the data is empty or not a dictionary.
 		if not isinstance(self.player_data, dict):
