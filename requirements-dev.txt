@@ -1,7 +1,7 @@
 -r requirements.txt
 
 # Documentation Building.
-sphinx==1.5.5
+sphinx==1.6.2
 sphinx-autobuild==0.6.0
 sphinx_rtd_theme==0.2.4
 
