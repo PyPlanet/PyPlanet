@@ -1,6 +1,57 @@
 Changelog
 =========
 
+0.4.0 (unreleased)
+------------------
+
+Core
+~~~~
+
+* **Breaking**: Refactored the TemplateView to make it able to use player data way more efficient.
+
+  This is a *deprecation* for the method ``get_player_data``. From now on, use the ``get_all_player_data`` or the better ``get_per_player_data``.
+  More info: :doc:`/api/views`.
+
+  **The old method will not be called from 0.6.0**
+
+* Feature: UI Overhaul is done! We replaced the whole GUI for a nicer, simple and modern one! With large inspiration of LongLife's posted image (https://github.com/PyPlanet/PyPlanet/issues/223).
+* Feature: UI Update queue, Don't make the dedicated hot by sending UI updates in realtime, but queue up and sent every 0,25 seconds. (Performance)
+* Improvement: Removing the fix for symbols in nicknames/chat (fix for the maniaplanet dedicated/client issue earlier).
+* Improvement: Add analytics.
+* Improvement: Don't report several exceptions to Sentry.
+* Improvement: Remove SQlite references in code and project skeleton.
+* Improvement: Give error message when loaded script is using old style scripted callbacks.
+* Improvement: Dynamic future timeouts for script/gbx queries.
+* Improvement: Add ManiaScript libs includes in core. Will be expanded, open pull requests if needed!
+* Improvement: Adding two new signals for players when entering spec/player slot.
+* Bugfix: Adding several investigation points to send more data about problems that occur for some users.
+
+
+Apps
+~~~~
+
+* **Breaking**: Refactor the MapInfo app to Info app. Adding new features: Server and general info on top left corner.
+
+  This requires a config change:
+  Change ``pyplanet.apps.contrib.mapinfo`` into ``pyplanet.apps.contrib.info`` and you are done!
+
+  **The old app will be removed in 0.6.0**
+
+* Feature: **New App**: Shootmania Royal Dynamic Point Limit is here! Add it with ``pyplanet.apps.contrib.dynamic_points``.
+* Feature: **New App**: Trackmania Checkpoint/Sector time widget is here! Add it with ``pyplanet.apps.contrib.sector_times``.
+* Improvement: Apply the new UI Overhaul to all apps.
+* Improvement: Add message when dedimania records are sent.
+* Improvement: Improve the dedimania error handling even better.
+* Improvement: Notice when map is not suited for dedimania records.
+* Improvement: Several performance improvements on the dedimania and localrecords apps.
+* Improvement: Add dynamic actions to map list, such as deletion of maps.
+* Bugfix: Adding several investigation points to send more data about problems that occur for some users.
+* Bugfix: Trying to sent dedi records when dedimania isn't initialized bug is solved.
+* Bugfix: Prevent double message of dedimania record when switching game modes.
+* Bugfix: Fixing double local records (or investigate more if it still occurs).
+
+
+
 0.3.3
 -----
 

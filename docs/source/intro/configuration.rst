@@ -240,6 +240,7 @@ The order doesn't make a difference when starting/loading PyPlanet.
       'pyplanet.apps.contrib.mapinfo',
       'pyplanet.apps.contrib.mx',
       'pyplanet.apps.contrib.transactions',
+      'pyplanet.apps.contrib.sector_times',
     ],
   }
 

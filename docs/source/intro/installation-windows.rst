@@ -19,9 +19,9 @@ Make sure it looks like this and click on the red area to continue.
 
 
 .. figure:: /_static/intro/python-windows-1.png
-   :alt: Setup wizard with the required settings
+  :alt: Setup wizard with the required settings
 
-    Setup wizard with the checkboxes enabled.
+  Setup wizard with the checkboxes enabled.
 
 .. note::
 
@@ -51,8 +51,8 @@ To activate, use the following commands:
 
 .. code-block:: bash
 
-    # Windows, in your command prompt
-    env\Scripts\activate.bat
+  # Windows, in your command prompt
+  env\Scripts\activate.bat
 
 
 3. PyPlanet Installation
@@ -62,7 +62,7 @@ PyPlanet is published through the Python Package Index (PyPi) and is easy to ins
 
 .. code-block:: bash
 
-    pip install pyplanet --upgrade
+  pip install pyplanet --upgrade
 
 After installing it on your system you can use the pyplanet cli commands. To get help about commands, use ``pyplanet help``.
 
@@ -81,7 +81,7 @@ with the following command:
 
 .. code-block:: bash
 
-    pyplanet init_project .
+  pyplanet init_project .
 
 After setup your project, you have to install or update your dependencies from your local ``requirements.txt``.
 
