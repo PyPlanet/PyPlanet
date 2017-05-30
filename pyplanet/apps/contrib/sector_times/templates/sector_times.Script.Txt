@@ -81,8 +81,6 @@ Void UpdateInterface() {
   // Best CP (+ source or current if no record)
   if (RecordCpTime > 0) {
     Sector_SectorTime_Text.SetText(BestSource ^ ": " ^ TimeToText(RecordCpTime));
-  } else if (CurrentCheckpointTime > 0) {
-    Sector_SectorTime_Text.SetText("Round: " ^ TimeToText(RecordCpTime));
   } else {
     Sector_SectorTime_Text.SetText("-");
   }
@@ -96,7 +94,6 @@ Void UpdateInterface() {
 }
 
 Integer[] ParseCheckpoints(Text RawInput) {
-  log("Parsing: " ^ RawInput);
   if (TL::Length(RawInput) == 0) {
     return Integer[];
   }
@@ -144,7 +141,7 @@ main() {
           UpdateInterface();
         }
       }
-      if (Event.Type == CTmRaceClientEvent::EType::WayPoint) {
+      if (Event.Type == CTmRaceClientEvent::EType::WayPoint && GUIPlayer != Null) {
         if (CurrentCheckpoint != TotalCheckpoints) {
           CurrentCheckpoint += 1;
           CurrentCheckpointScores.add(GUIPlayer.CurCheckpointLapTime);
@@ -159,7 +156,7 @@ main() {
 
         if (Event.IsEndLap) {
           CurrentCheckpoint = 0;
-          if (Event.LapTime < BestScore && CurrentCheckpointScores.count == TotalCheckpoints) {
+          if ((BestScore <= 0 || Event.LapTime < BestScore) && CurrentCheckpointScores.count == TotalCheckpoints) {
             BestScore = Event.LapTime;
             BestSource = "Round";
             BestCheckpoints = CurrentCheckpointScores;
