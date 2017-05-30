@@ -41,7 +41,7 @@ def initiate_logger():  # pragma: no cover
 		logging.config.dictConfig(settings.LOGGING)
 
 
-def handle_exception(exception=None, module_name=None, func_name=None, extra_data=None):  # pragma: no cover
+def handle_exception(exception=None, module_name=None, func_name=None, extra_data=None, force=False):  # pragma: no cover
 	# Test for ignored exceptions
 	if exception and isinstance(exception, (ImproperlyConfigured,)):
 		return
@@ -63,8 +63,9 @@ def handle_exception(exception=None, module_name=None, func_name=None, extra_dat
 	except:
 		pass
 	try:
-		if any(ig.lower() in str(exception).lower() for ig in IGNORED_TEXT):
-			ignore = True
+		if not force:
+			if any(ig.lower() in str(exception).lower() for ig in IGNORED_TEXT):
+				ignore = True
 	except:
 		pass
 

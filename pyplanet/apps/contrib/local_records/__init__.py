@@ -10,6 +10,7 @@ from pyplanet.apps.core.trackmania import callbacks as tm_signals
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 
 from pyplanet.utils import times
+from pyplanet.utils.log import handle_exception
 
 from .models import LocalRecord
 
@@ -98,43 +99,42 @@ class LocalRecords(AppConfig):
 		chat_announce = await self.setting_chat_announce.get_value()
 		async with self.lock:
 			current_records = [x for x in self.current_records if x.player.login == player.login]
-		score = lap_time
+			score = lap_time
 
-		previous_index = None
-		previous_time = None
+			previous_index = None
+			previous_time = None
 
-		if len(current_records) > 0:
-			current_record = current_records[0]
-			if score > current_record.score:
-				# No improvement, ignore
-				return
+			if len(current_records) > 0:
+				current_record = current_records[0]
+				if score > current_record.score:
+					# No improvement, ignore
+					return
 
-			# Temporary make index + time local for the messages.
-			previous_index = self.current_records.index(current_record) + 1
-			previous_time = current_record.score
+				# Temporary make index + time local for the messages.
+				previous_index = self.current_records.index(current_record) + 1
+				previous_time = current_record.score
 
-			# If equal, only show message.
-			if score == current_record.score and (record_limit == 0 or previous_index <= record_limit):
-				message = '$fff{}$z$s$0f3 equalled the $fff{}.$0f3 Local Record: $fff\uf017 {}$0f3.'.format(
-					player.nickname, previous_index, times.format_time(score)
+				# If equal, only show message.
+				if score == current_record.score and (record_limit == 0 or previous_index <= record_limit):
+					message = '$fff{}$z$s$0f3 equalled the $fff{}.$0f3 Local Record: $fff\uf017 {}$0f3.'.format(
+						player.nickname, previous_index, times.format_time(score)
+					)
+
+					if chat_announce >= previous_index:
+						return await self.instance.chat(message)
+					elif chat_announce != 0:
+						return await self.instance.chat(message, player.login)
+
+			else:
+				current_record = LocalRecord(
+					map=self.instance.map_manager.current_map,
+					player=player,
 				)
 
-				if chat_announce >= previous_index:
-					return await self.instance.chat(message)
-				elif chat_announce != 0:
-					return await self.instance.chat(message, player.login)
+			# Set details (score + cps times).
+			current_record.score = score
+			current_record.checkpoints = ','.join([str(cp) for cp in cps])
 
-		else:
-			current_record = LocalRecord(
-				map=self.instance.map_manager.current_map,
-				player=player,
-			)
-
-		# Set details (score + cps times).
-		current_record.score = score
-		current_record.checkpoints = ','.join([str(cp) for cp in cps])
-
-		async with self.lock:
 			# Add to list when it's a new record!
 			if current_record.get_id() is None:
 				self.current_records.append(current_record)
@@ -161,7 +161,14 @@ class LocalRecords(AppConfig):
 			)
 
 		# Save to database (but don't wait for it).
-		asyncio.ensure_future(current_record.save())
+		try:
+			asyncio.ensure_future(current_record.save())
+		except Exception as e:
+			# To investigate #283.
+			handle_exception(e, __name__, 'player_finish', extra_data={
+				'own_records': current_records,
+				'own_record': current_record
+			})
 
 		coros = [self.widget.display()]
 		if record_limit == 0 or new_index <= record_limit:
