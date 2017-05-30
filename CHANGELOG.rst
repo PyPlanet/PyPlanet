@@ -39,12 +39,14 @@ Apps
 
 * Feature: **New App**: Shootmania Royal Dynamic Point Limit is here! Add it with ``pyplanet.apps.contrib.dynamic_points``.
 * Feature: **New App**: Trackmania Checkpoint/Sector time widget is here! Add it with ``pyplanet.apps.contrib.sector_times``.
+* Feature: Change modesettings directly from the GUI (//modesettings).
 * Improvement: Apply the new UI Overhaul to all apps.
 * Improvement: Add message when dedimania records are sent.
 * Improvement: Improve the dedimania error handling even better.
 * Improvement: Notice when map is not suited for dedimania records.
 * Improvement: Several performance improvements on the dedimania and localrecords apps.
 * Improvement: Add dynamic actions to map list, such as deletion of maps.
+* Improvement: Modesettings list is ordered by name by default now.
 * Bugfix: Adding several investigation points to send more data about problems that occur for some users.
 * Bugfix: Trying to sent dedi records when dedimania isn't initialized bug is solved.
 * Bugfix: Prevent double message of dedimania record when switching game modes.
