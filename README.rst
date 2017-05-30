@@ -5,6 +5,9 @@ PyPlanet
   :target: https://travis-ci.org/PyPlanet/PyPlanet
 .. image:: https://codecov.io/gh/PyPlanet/PyPlanet/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/PyPlanet/PyPlanet
+.. image:: https://readthedocs.org/projects/pyplanet/badge/?version=stable
+  :target: http://pyplanet.readthedocs.io/en/stable/?badge=stable
+  :alt: Documentation Status
 
 This repo contains the PyPlanet package.
 
