@@ -81,6 +81,8 @@ Void UpdateInterface() {
   // Best CP (+ source or current if no record)
   if (RecordCpTime > 0) {
     Sector_SectorTime_Text.SetText(BestSource ^ ": " ^ TimeToText(RecordCpTime));
+  } else if (BestScore > 0) {
+    Sector_SectorTime_Text.SetText(BestSource ^ ": " ^ TimeToText(BestScore));
   } else {
     Sector_SectorTime_Text.SetText("-");
   }
