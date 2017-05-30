@@ -52,6 +52,7 @@ Information about development of apps and the core is also available under:
     :caption: User Documentation
 
     intro/index
+    intro/configuration
     intro/upgrading
     convert/index
 

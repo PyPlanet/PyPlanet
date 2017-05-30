@@ -1,12 +1,6 @@
-|
-|
-|
-|
-|
-|
 
-Configuration
--------------
+Configuring PyPlanet
+====================
 
 **Settings module** is where the PyPlanet settings are stored. You provide the settings module by providing the
 environment variable ``PYPLANET_SETTINGS_MODULE``. Most of the times this is set in the ``manage.py``.
