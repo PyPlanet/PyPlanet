@@ -1,8 +1,8 @@
 Changelog
 =========
 
-0.4.0 (unreleased)
-------------------
+0.4.0
+-----
 
 Core
 ~~~~
@@ -60,7 +60,7 @@ Apps
 Core
 ~~~~
 
-* Bugfix: Ignore erros with unknown login for ui updates. (means the player left).
+* Bugfix: Ignore errors with unknown login for ui updates. (means the player left).
 
 
 Apps
