@@ -53,6 +53,7 @@ Information about development of apps and the core is also available under:
 
     intro/index
     intro/configuration
+    intro/starting
     intro/upgrading
     convert/index
 

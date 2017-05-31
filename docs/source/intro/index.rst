@@ -10,4 +10,3 @@ Getting Started (installation)
   requirements
   installation-linux
   installation-windows
-  starting
