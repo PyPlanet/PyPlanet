@@ -40,7 +40,7 @@ DATABASES = {
 			'host': 'localhost',
 			'user': 'root',
 			'password': '',
-			'charset': 'utf8',
+			'charset': 'utf8mb4',
 		}
 	}
 }

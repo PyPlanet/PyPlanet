@@ -19,7 +19,7 @@ class Database:
 	def __init__(self, engine_cls, instance, *args, **kwargs):
 		"""
 		Initiate database.
-		
+
 		:param engine_cls: Engine class
 		:param instance: Instance of the app.
 		:param args: *
@@ -45,6 +45,11 @@ class Database:
 			db_name = conf['NAME']
 			db_options = conf['OPTIONS'] if 'OPTIONS' in conf and conf['OPTIONS'] else dict()
 
+			# FIX for #331. Replace utf8 by utf8mb4 in the mysql driver encoding.
+			if conf['ENGINE'] == 'peewee_async.MySQLDatabase' and 'charset' in db_options and db_options['charset'] == 'utf8':
+				logging.info('Forcing to use \'utf8mb4\' instead of \'utf8\' for the MySQL charset option! (Fix #331).')
+				db_options['charset'] = 'utf8mb4'
+
 			# We will try to load it so we have the validation inside this class.
 			engine = getattr(importlib.import_module(engine_path), cls_name)
 		except ImportError:
@@ -64,10 +69,10 @@ class Database:
 	def allow_sync(self, *args, **kwargs):
 		"""
 		Wrapper around engine allow_sync to allow failover when no async driver.
-		
-		:param args: 
-		:param kwargs: 
-		:return: 
+
+		:param args:
+		:param kwargs:
+		:return:
 		"""
 		if hasattr(self.engine, 'allow_sync'):
 			return self.engine.allow_sync()
