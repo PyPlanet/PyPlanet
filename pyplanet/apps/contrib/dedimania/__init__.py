@@ -267,12 +267,9 @@ class Dedimania(AppConfig):
 							self.ghost_replay = replay
 
 	async def map_end(self, map):
-		if not self.map_status:
-			logger.warning('Don\'t send dedi records, map not supported or we are offline!')
+		if self.map_status is False:
+			logger.warning('Don\'t send dedi records, map not supported!')
 			return
-
-		# Clear the current map status.
-		self.map_status = None
 
 		if not self.v_replay:
 			return
