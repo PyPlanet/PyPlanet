@@ -211,9 +211,10 @@ class Dedimania(AppConfig):
 		self.map_uid = self.instance.map_manager.current_map.uid
 
 		# Set map status.
-		self.map_status = map.time_author > 6200 and map.num_checkpoints > 1
+		self.map_status = map.author_login == 'nadeo' or map.time_author > 6200 and map.num_checkpoints > 1
 		if not self.map_status:
 			message = '$f90This map is not supported by Dedimania (min 1 checkpoint + 6.2 seconds or higher author time).'
+			await self.widget.hide()
 			return await self.instance.chat(message)
 
 		# Refresh script.
