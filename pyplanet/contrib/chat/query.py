@@ -1,5 +1,7 @@
 import collections
 
+from xmlrpc.client import Fault
+
 from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.contrib.chat.exceptions import ChatException
 from pyplanet.core.gbx.query import Query
@@ -8,7 +10,7 @@ from pyplanet.core.gbx.query import Query
 class ChatQuery(Query):
 	"""
 	The chat query is the chat message building class in PyPlanet.
-	
+
 	Please get a new instance from the chat manager with ``instance.chat.prepare()`` and chain your methods from there.
 	"""
 
@@ -52,7 +54,7 @@ class ChatQuery(Query):
 	def to_players(self, *players):
 		"""
 		Set the destination of the chat message.
-		
+
 		:param players: Player instance(s) or player login string(s). Can be a list, or a single entry.
 		:return: Self reference.
 		:rtype: pyplanet.contrib.chat.query.ChatQuery
@@ -99,7 +101,7 @@ class ChatQuery(Query):
 	def to_all(self):
 		"""
 		Send message to all players on server (default).
-		
+
 		:return: Self reference.
 		:rtype: pyplanet.contrib.chat.query.ChatQuery
 		"""
@@ -109,7 +111,7 @@ class ChatQuery(Query):
 	def message(self, message: str):
 		"""
 		Set the message payload.
-		
+
 		:param message: Message of the chat message.
 		:return: Self reference.
 		:rtype: pyplanet.contrib.chat.query.ChatQuery
@@ -120,7 +122,7 @@ class ChatQuery(Query):
 	def get_formatted_message(self):
 		"""
 		Get the formatted message. (will get the message string with prefix if applied).
-		
+
 		:return: String
 		:rtype: str
 		"""
@@ -142,7 +144,7 @@ class ChatQuery(Query):
 	def prepare(self):
 		"""
 		Get a prepared gbx query for this chat message.
-		
+
 		:return: Prepared GBX query.
 		:rtype: pyplanet.core.gbx.query.Query
 		"""
@@ -153,7 +155,7 @@ class ChatQuery(Query):
 	def gbx_query(self):
 		"""
 		Get a prepared gbx query for this chat message.
-		
+
 		:return: Prepared GBX query.
 		:rtype: pyplanet.core.gbx.query.Query
 		"""
@@ -170,7 +172,12 @@ class ChatQuery(Query):
 	async def execute(self):  # pragma: no cover
 		"""
 		Execute the chat message sending query. Please don't use this when you send multiple chat messages or actions!
-		
+
 		:return: Result of query.
 		"""
-		return await self.gbx_query.execute()
+		try:
+			return await self.gbx_query.execute()
+		except Fault as e:
+			if 'Login unknown' in e.faultString:
+				return True  # Ignore
+			raise
