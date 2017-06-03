@@ -7,7 +7,7 @@ from colorlog import ColoredFormatter
 def _run(name, queue):
 	"""
 	The actual process that runs the separate controller instance.
-	
+
 	:param name: name of the process
 	:type name: str
 	"""
@@ -40,9 +40,9 @@ def _run(name, queue):
 class InstanceProcess:
 	"""
 	The InstanceProcess is the encapsulation around the real controller instance.
-	
+
 	.. warning::
-		
+
 		This code is still being executed at the main process!!
 
 	"""
@@ -50,7 +50,7 @@ class InstanceProcess:
 	def __init__(self, queue, environment_name='default', pool=None):
 		"""
 		Create an environment process of the controller itself.
-		
+
 		:param queue: Queue to hook on.
 		:param environment_name: Name of environment.
 		:param pool: Pool.
@@ -85,7 +85,7 @@ class InstanceProcess:
 	def exitcode(self):
 		"""
 		Exit code of process.
-		
+
 		:return: Exit code.
 		"""
 		return self.process.exitcode
@@ -93,7 +93,7 @@ class InstanceProcess:
 	@property
 	def will_restart(self):
 		"""
-		Boolean: Is the process able to restart (not reached max_restarts). 
+		Boolean: Is the process able to restart (not reached max_restarts).
 		"""
 		return self.restarts < self.max_restarts
 

@@ -16,11 +16,11 @@ logger = logging.getLogger(__name__)
 class EnvironmentPool:
 	"""
 	This class manages the pool instances for the current environment/installation.
-	
+
 	.. warning::
-	
+
 		You should not have to use this class in any moment!
-		
+
 	"""
 
 	def __init__(self, pool_names, max_restarts=0):
@@ -57,7 +57,7 @@ class EnvironmentPool:
 		Start all processes.
 		"""
 		for name, proc in self.pool.items():
-			proc.process.start()
+			proc.start()
 
 	def shutdown(self):
 		"""
@@ -71,7 +71,7 @@ class EnvironmentPool:
 	def restart(self, name=None):
 		"""
 		Restart single process, or all if no name is given.
-		
+
 		:param name: Name or none for all pools.
 		"""
 		if name:
