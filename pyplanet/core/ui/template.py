@@ -1,5 +1,6 @@
 from jinja2 import Environment, PackageLoader, select_autoescape
 
+from pyplanet.conf import settings
 from pyplanet.core.ui.loader import PyPlanetLoader
 
 
@@ -10,11 +11,11 @@ async def load_template(file):
 class Template:
 	"""
 	Template class manages the template file source and the rendering of it.
-	
+
 	Will also take care of the loader of the Jinja2 template engine.
-	
+
 	Some notable prefixes:
-	
+
 	- core.views: ``pyplanet.views.templates``.
 	- core.pyplanet: ``pyplanet.apps.core.pyplanet.templates``.
 	- core.maniaplanet: ``pyplanet.apps.core.pyplanet.templates``.
@@ -29,6 +30,7 @@ class Template:
 		self.env = Environment(
 			loader=PyPlanetLoader.get_loader(),
 			autoescape=select_autoescape(['html', 'xml', 'Txt', 'txt', 'ml', 'ms', 'script.txt', 'Script.Txt']),
+			auto_reload=bool(settings.DEBUG),
 		)
 		self.template = self.env.get_template(file)
 
