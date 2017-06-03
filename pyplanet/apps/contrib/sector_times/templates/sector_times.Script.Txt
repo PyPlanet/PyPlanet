@@ -64,9 +64,9 @@ Void UpdateInterface() {
       DifferenceIcon = ""; // Down. &#xf107;
       DifferenceBackgroundColor = TL::ToColor("C30"); // Red
     } else if (Difference < 0) {
-      DifferencePrefix = "$6C0";
+      DifferencePrefix = "$02F";
       DifferenceIcon = ""; // Up. &#xf105;
-      DifferenceBackgroundColor = TL::ToColor("1C0"); // Green
+      DifferenceBackgroundColor = TL::ToColor("02F"); // Blue
     }
   }
 
@@ -74,9 +74,9 @@ Void UpdateInterface() {
   Sector_SectorDiff_Text.SetText(TimeToText(Difference));
   Sector_SectorDiff_Icon.SetText(DifferenceIcon);
   Sector_SectorDiff_IconBg.BgColor = DifferenceBackgroundColor;
-  Sector_SectorDiff_IconBg.Opacity = 0.6;
+  Sector_SectorDiff_IconBg.Opacity = 0.5;
   Sector_SectorDiff_QuadBg.BgColor = DifferenceBackgroundColor;
-  Sector_SectorDiff_QuadBg.Opacity = 0.6;
+  Sector_SectorDiff_QuadBg.Opacity = 0.5;
 
   // Best CP (+ source or current if no record)
   if (RecordCpTime > 0) {
