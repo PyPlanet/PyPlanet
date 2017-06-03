@@ -6,6 +6,11 @@ if [[ ${TOXENV} == *"integration"* ]]; then
 else
   exit 0
 fi
+# Check if we should use the second dedicated account instead.
+if [[ ${TOXENV} == *"py36-integration"* ]]; then
+  MP_USER="${MP_USER}2"
+fi
+
 
 BEFORE_PWD=`pwd`
 cd "$(dirname "$0")"
