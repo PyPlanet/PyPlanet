@@ -103,6 +103,8 @@ class Instance:
 			# Run forever.
 			if run_forever:
 				self.loop.run_forever()
+		except KeyboardInterrupt:
+			pass
 		except Exception as e:
 			logger.exception(e)
 			raise
