@@ -100,19 +100,6 @@ class _BaseUIManager:
 			# Add manialink tag to body.
 			body = '<manialink version="{}" id="{}">{}</manialink>'.format(manialink.version, manialink.id, body)
 
-			# Hide ALT menus (shootmania).
-			if self.instance.game.game == 'sm' and manialink.disable_alt_menu:
-				if is_global:
-					queries.extend([
-						self.instance.gbx('Maniaplanet.UI.SetAltScoresTableVisibility', player.login, 'false', encode_json=False, response_id=False)
-						for player in self.instance.player_manager.online
-					])
-				else:
-					queries.extend([
-						self.instance.gbx('Maniaplanet.UI.SetAltScoresTableVisibility', login, 'false', encode_json=False, response_id=False)
-						for login in for_logins
-					])
-
 			# Add normal queries.
 			if for_logins and len(for_logins) > 0:
 				for login in for_logins:
@@ -125,6 +112,19 @@ class _BaseUIManager:
 				queries.append(self.instance.gbx(
 					'SendDisplayManialinkPage', body, manialink.timeout, manialink.hide_click
 				))
+
+		# Hide ALT menus (shootmania).
+		if self.instance.game.game == 'sm' and manialink.disable_alt_menu:
+			if is_global:
+				queries.extend([
+					self.instance.gbx('Maniaplanet.UI.SetAltScoresTableVisibility', player.login, 'false', encode_json=False, response_id=False)
+					for player in self.instance.player_manager.online
+				])
+			else:
+				queries.extend([
+					self.instance.gbx('Maniaplanet.UI.SetAltScoresTableVisibility', login, 'false', encode_json=False, response_id=False)
+					for login in for_logins
+				])
 
 		# It the manialink wants rate limitting with the relaxed updating feature (mostly used for widgets), add to send queue
 		if getattr(manialink, 'relaxed_updating', False):
