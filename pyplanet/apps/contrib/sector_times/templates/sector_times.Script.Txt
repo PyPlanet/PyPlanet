@@ -139,6 +139,8 @@ main() {
       if (GUIPlayer == Null || Event.Player != GUIPlayer) {
         continue;
       }
+      declare Boolean IsSpectating = GUIPlayer != InputPlayer;
+
       if (Event.Type == CTmRaceClientEvent::EType::Respawn) {
         if (GUIPlayer != Null && GUIPlayer.RaceState != CTmMlPlayer::ERaceState::Running) {
           CurrentCheckpointScores = Integer[];
@@ -161,7 +163,7 @@ main() {
 
         if (Event.IsEndLap) {
           CurrentCheckpoint = 0;
-          if ((BestScore <= 0 || Event.LapTime < BestScore) && CurrentCheckpointScores.count == TotalCheckpoints) {
+          if (! IsSpectating && (BestScore <= 0 || Event.LapTime < BestScore) && CurrentCheckpointScores.count == TotalCheckpoints) {
             BestScore = Event.LapTime;
             BestSource = "Round";
             BestCheckpoints = CurrentCheckpointScores;
