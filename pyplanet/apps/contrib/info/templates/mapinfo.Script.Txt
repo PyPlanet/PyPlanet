@@ -1,0 +1,8 @@
+
+declare CMlLabel Author_Label <=> (Page.GetFirstChild("author_label") as CMlLabel);
+declare CMlQuad Author_Flag <=> (Page.GetFirstChild("author_flag") as CMlQuad);
+
+if (Map != Null) {
+  Author_Label.SetText(Map.AuthorNickName);
+  Author_Flag.ChangeImageUrl(Map.AuthorZoneIconUrl);
+}
