@@ -1,7 +1,12 @@
+import platform
+
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.core.pyplanet.dev import DevComponent
 from pyplanet.apps.core.pyplanet.setting import SettingComponent
 from pyplanet.apps.core.pyplanet.views.logo import LogoView
+from pyplanet.contrib.command import Command
+
+from pyplanet import __version__ as version
 
 
 class PyPlanetConfig(AppConfig):
@@ -32,6 +37,12 @@ class PyPlanetConfig(AppConfig):
 
 		# Listeners.
 		self.instance.signal_manager.listen('maniaplanet:player_connect', self.on_connect)
+		await self.instance.command_manager.register(Command('version', self.chat_version))
 
 	async def on_connect(self, player, **kwargs):
 		await self.logo.display(player_logins=[player.login])
+
+	async def chat_version(self, player, *args, **kwargs):
+		message = '$ff0PyPlanet: $fff{}$ff0 (Python $fff{}$ff0), current apps: $fff'.format(version, platform.python_version())
+		message += '$ff0, $fff'.join(self.instance.apps.apps.keys())
+		await self.instance.chat(message, player)
