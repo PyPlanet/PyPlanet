@@ -9,20 +9,20 @@ class CommandManager(CoreContrib):
 	"""
 	The Command Manager contributed extension is a manager that controls all chat-commands in the game.
 	Your app needs to use this manager to register any custom commands you want to provide.
-	
+
 	.. todo::
-	
+
 		Write introduction.
-		
+
 	.. warning::
-	
+
 		Don't initiate this class yourself.
 	"""
 
 	def __init__(self, instance):
 		"""
 		Init manager.
-		
+
 		:param instance: Controller Instance
 		:type instance: pyplanet.core.instance.Instance
 		"""
@@ -43,8 +43,8 @@ class CommandManager(CoreContrib):
 	async def register(self, *commands):
 		"""
 		Register your command.
-		
-		:param commands: Command instance. 
+
+		:param commands: Command instance.
 		:type commands: pyplanet.contrib.command.command.Command
 		"""
 		self._commands.extend(commands)
@@ -61,6 +61,10 @@ class CommandManager(CoreContrib):
 
 		# Replace the / in the first part.
 		argv[0] = argv[0][1:]
+
+		# Check if we need to ignore the command.
+		if len(argv) > 0 and argv[0] in ['serverlogin']:
+			return
 
 		# Try to match the command prefix by one of the registered commands.
 		command = None
