@@ -27,6 +27,10 @@ class PyPlanetConfig(AppConfig):
 		await self.setting.on_start()
 		await self.dev.on_start()
 
+		# Hide live infos (and move it in case something else activates it).
+		self.instance.ui_manager.properties.set_visibility('live_info', False)
+		self.instance.ui_manager.properties.set_attribute('live_info', 'pos', '-125. 84. 5.')
+
 		# Display logo.
 		await self.logo.display()
 
