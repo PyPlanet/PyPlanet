@@ -87,7 +87,7 @@ class _ManiaLink:
 		# Combine data (global + user specific).
 		payload_data = self.data.copy()
 		if player_login:
-			payload_data.update(self.player_data.get(player_login, dict()))
+			payload_data.update(player_data.get(player_login, dict()))
 
 		# Render and save in content.
 		return await template.render(**payload_data)
