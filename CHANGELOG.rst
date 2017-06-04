@@ -1,6 +1,33 @@
 Changelog
 =========
 
+0.4.1
+-----
+
+Core
+~~~~
+
+* Improvement: Add command ignore and /version improvements.
+* Improvement: Disable the live infos in the left upper corner (player join/leave, 1st finish).
+* Bugfix: Issue with database collate and utf8mb4, nickname parsing issue has been solved.
+* Bugfix: Don't auto reload and use different environments for the template engine. Should improve performance very much.
+* Bugfix: Ignore unknown login at the chat and UI managers.
+* Bugfix: Ignore key interrupt exception trace when stopping PyPlanet while it has got a reboot in the mean time.
+* Bugfix: Hide the ALT menu in shootmania, just as it should do since before 0.4.0.
+* Bugfix: Fixing issue with checking for updates could result in a exception trace in the console for some installations with older setuptools.
+
+
+Apps
+~~~~
+
+* Improvement: Make it able to drive dedimania records on short maps made by Nadeo.
+* Improvement: Make the improvement time blue like Nadeo also does in the sector times widget.
+* Bugfix: Don't set the time of the spectator as your best time in the sector times widget.
+* Bugfix: Problems that could lead to dedimania not being init currently on the map if the map was replayed.
+* Bugfix: Hide dedimania if map is not supported.
+* Bugfix: Fix the offset issue for the live rankings widget (in TA mode).
+
+
 0.4.0
 -----
 
