@@ -16,7 +16,7 @@ class Command(BaseCommand):
 
 	def add_arguments(self, parser):
 		parser.add_argument('--max-restarts', type=int, default=0)
-		pass
+		parser.add_argument('--tokio', dest='tokio', action='store_true')
 
 	def handle(self, *args, **options):
 		# Initiate the logger.
@@ -31,7 +31,7 @@ class Command(BaseCommand):
 		logger.info('-------------------------------[  PyPlanet v{}  ]-------------------------------'.format(self.get_version()))
 
 		# Start god process (the current started process).
-		pool = EnvironmentPool(settings.POOLS, max_restarts=options['max_restarts'])
+		pool = EnvironmentPool(settings.POOLS, max_restarts=options['max_restarts'], options=options)
 		pool.populate()
 
 		# Starting all processes.

@@ -23,11 +23,12 @@ class EnvironmentPool:
 
 	"""
 
-	def __init__(self, pool_names, max_restarts=0):
+	def __init__(self, pool_names, max_restarts=0, options=None):
 		self.names = pool_names
 		self.queue = multiprocessing.Queue()
 		self.pool = dict()
 		self.max_restarts = max_restarts
+		self.options = options or dict()
 
 		self.dog_path = os.curdir
 		self.dog_handler = LiveReload(self)
@@ -48,7 +49,7 @@ class EnvironmentPool:
 		Populate the pool instance processes, (prepares the processes).
 		"""
 		for name in self.names:
-			self.pool[name] = process.InstanceProcess(queue=self.queue, environment_name=name)
+			self.pool[name] = process.InstanceProcess(queue=self.queue, environment_name=name, options=self.options)
 			self._restarts[name] = 0
 		return self
 
