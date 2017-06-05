@@ -62,11 +62,12 @@ class DedimaniaAPI:
 		pass
 
 	def mode_to_dedi_mode(self, mode):
-		if mode.startswith('TeamAttack') or mode.startswith('Chase'):
+		mode = mode.lower()
+		if mode.startswith('teamattack') or mode.startswith('chase'):
 			return False
-		elif mode.startswith('Rounds') or mode.startswith('Team') or mode.startswith('Doppler') or mode.startswith('Cup'):
+		elif mode.startswith('rounds') or mode.startswith('team') or mode.startswith('cup'):
 			return 'Rounds'
-		elif mode.startswith('TimeAttack') or mode.startswith('Laps') or mode.startswith('Doppler'):
+		elif mode.startswith('timeattack') or mode.startswith('laps') or mode.startswith('doppler'):
 			return 'TA'
 		return False
 
