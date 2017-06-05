@@ -15,6 +15,7 @@ Core
 * Bugfix: Ignore key interrupt exception trace when stopping PyPlanet while it has got a reboot in the mean time.
 * Bugfix: Hide the ALT menu in shootmania, just as it should do since before 0.4.0.
 * Bugfix: Fixing issue with checking for updates could result in a exception trace in the console for some installations with older setuptools.
+* Bugfix: Fixing an issue that results in fetching data for widget several times while it's not needed (thinking it's per player data when it isn't). (Thanks to Chris92)
 
 
 Apps
@@ -22,10 +23,12 @@ Apps
 
 * Improvement: Make it able to drive dedimania records on short maps made by Nadeo.
 * Improvement: Make the improvement time blue like Nadeo also does in the sector times widget.
+* Improvement: Always show nickname of the map author and make it switchable by clicking on it.
 * Bugfix: Don't set the time of the spectator as your best time in the sector times widget.
 * Bugfix: Problems that could lead to dedimania not being init currently on the map if the map was replayed.
 * Bugfix: Hide dedimania if map is not supported.
 * Bugfix: Fix the offset issue for the live rankings widget (in TA mode).
+* Bugfix: Fix the incorrect number of spec/player count on the top left info widget.
 
 
 0.4.0
