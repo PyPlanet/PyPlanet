@@ -102,10 +102,10 @@ class PlayerFlow:
 		self.in_run = False
 		self.player_id = None
 		self.team_id = None
-		self.is_player = False
-		self.is_spectator = False
-		self.is_temp_spectator = False
-		self.is_pure_spectator = False
+		self.is_player = None
+		self.is_spectator = None
+		self.is_temp_spectator = None
+		self.is_pure_spectator = None
 		self.spectator_target = None
 		self.other = dict()
 
