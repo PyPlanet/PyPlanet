@@ -34,8 +34,15 @@ Make sure it looks like this and click on the red area to continue.
 To prevent the usage of the administration leverage and to benefit from multiple PyPlanet installations and a clean environment
 we recommend to setup a Virtual Environment.
 
-Do this by going to your directory where you want to setup the PyPlanet installation. Create a folder somewhere that is empty and ready
-for the PyPlanet settings and other files.
+First of all we need to install the ``virtualenv`` package. To do so, open a terminal screen by hitting start and write cmd. Open the command prompt.
+
+.. code-block:: bash
+
+  pip install virtualenv
+
+
+After this we will initiate the environment, you can do this by going to your directory where you want to setup the PyPlanet installation.
+Create a folder somewhere that is empty and ready for the PyPlanet settings and other files.
 
 Open a terminal in this folder by holding :kbd:`SHIFT` and :kbd:`Right click` on an empty space in the folder. Then click ``Open terminal here``.
 
