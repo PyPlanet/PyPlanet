@@ -60,9 +60,9 @@ class ServerAdmin:
 				))
 
 	async def set_mode(self, player, data, **kwargs):
-		mode = ' '.join(data.mode)
+		mode = (' '.join(data.mode)).lower()
 
-		if mode == 'ta':
+		if mode == 'ta' or mode == 'timeattack':
 			mode = 'TimeAttack.Script.txt'
 		elif mode == 'laps':
 			mode = 'Laps.Script.txt'

@@ -43,8 +43,9 @@ class LiveRankings(AppConfig):
 			await self.widget.display()
 
 	def is_mode_supported(self, mode):
-		return mode.startswith('TimeAttack') or mode.startswith('Rounds') or mode.startswith('Team') or \
-			   mode.startswith('Laps') or mode.startswith('Cup')
+		mode = mode.lower()
+		return mode.startswith('timeattack') or mode.startswith('rounds') or mode.startswith('team') or \
+			   mode.startswith('laps') or mode.startswith('cup')
 
 	async def scores(self, section, players, **kwargs):
 		await self.handle_scores(players)
@@ -53,8 +54,8 @@ class LiveRankings(AppConfig):
 	async def handle_scores(self, players):
 		self.current_rankings = []
 
-		current_script = await self.instance.mode_manager.get_current_script()
-		if 'TimeAttack' in current_script:
+		current_script = (await self.instance.mode_manager.get_current_script()).lower()
+		if 'timeattack' in current_script:
 			for player in players:
 				if 'best_race_time' in player:
 					if player['best_race_time'] != -1:
@@ -66,7 +67,7 @@ class LiveRankings(AppConfig):
 						self.current_rankings.append(new_ranking)
 
 			self.current_rankings.sort(key=lambda x: x['score'])
-		elif 'Rounds' in current_script or 'Team' in current_script or 'Cup' in current_script:
+		elif 'rounds' in current_script or 'team' in current_script or 'cup' in current_script:
 			for player in players:
 				if 'map_points' in player:
 					if player['map_points'] != -1:
@@ -99,7 +100,7 @@ class LiveRankings(AppConfig):
 		await self.widget.display()
 
 	async def player_waypoint(self, player, race_time, flow, raw):
-		if 'Laps' not in await self.instance.mode_manager.get_current_script():
+		if 'laps' not in (await self.instance.mode_manager.get_current_script()).lower():
 			return
 
 		current_rankings = [x for x in self.current_rankings if x['nickname'] == player.nickname]
@@ -122,12 +123,12 @@ class LiveRankings(AppConfig):
 		await self.widget.display()
 
 	async def player_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
-		current_script = await self.instance.mode_manager.get_current_script()
-		if 'Laps' in current_script:
+		current_script = (await self.instance.mode_manager.get_current_script()).lower()
+		if 'laps' in current_script:
 			await self.player_waypoint(player, race_time, flow, raw)
 			return
 
-		if 'TimeAttack' not in current_script:
+		if 'timeattack' not in current_script:
 			return
 
 		current_rankings = [x for x in self.current_rankings if x['nickname'] == player.nickname]

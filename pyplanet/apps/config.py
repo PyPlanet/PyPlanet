@@ -15,7 +15,7 @@ class _AppContext:
 		"""
 		Initiate the App Context. Used by several core and contribs to have it's own manager instance per app.
 		You should always use the managers of your local app at first!
-		
+
 		:param app: App Config instance.
 		:type app: pyplanet.apps.config.AppConfig
 		"""
@@ -34,14 +34,14 @@ class AppConfig:
 	"""
 	This class is the base class for the Applications metadata class. The class holds information and hooks
 	that will be executed after initiation for example.
-	
+
 	.. code-block:: python
-	
+
 		class MyApp(AppConfig):
 
 			async def on_start(self):
 				print('we are staring!!')
-	
+
 	"""
 
 	name = None
@@ -63,7 +63,7 @@ class AppConfig:
 	.. code-block :: python
 
 		def is_mode_supported(self, mode):
-			return mode.startswith('TimeAttack')
+			return mode.lower().startswith('TimeAttack')
 
 	"""
 
@@ -87,7 +87,7 @@ class AppConfig:
 	def __init__(self, app_name, app_module, instance):
 		"""
 		Init app config.
-		
+
 		:param app_name: App Name (from module path).
 		:param app_module: App Module.
 		:param instance: Instance of controller
@@ -159,7 +159,7 @@ class AppConfig:
 
 	async def on_start(self):
 		"""
-		The on_start call is being called after all apps has been started successfully. You should register any stuff 
+		The on_start call is being called after all apps has been started successfully. You should register any stuff
 		that is related to any other apps and signals like your `self` context for signals if they are classmethods.
 		"""
 		# Deprecated: Fix the deprecated method
@@ -170,7 +170,7 @@ class AppConfig:
 
 	async def on_stop(self):
 		"""
-		The on_stop will be called before stopping the app.  
+		The on_stop will be called before stopping the app.
 		"""
 		pass
 
@@ -184,7 +184,7 @@ class AppConfig:
 
 	def is_mode_supported(self, mode):
 		if self.mode_dependencies:
-			return mode in self.mode_dependencies
+			return mode in self.mode_dependencies or mode.lower in self.mode_dependencies
 		return True
 
 	def is_game_supported(self, game):

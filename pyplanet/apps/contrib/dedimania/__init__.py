@@ -68,8 +68,9 @@ class Dedimania(AppConfig):
 		self.login = self.code = self.server_version = self.pack_mask = None
 
 	def is_mode_supported(self, mode):
-		return mode.startswith('TimeAttack') or mode.startswith('Rounds') or mode.startswith('Team') or \
-			   mode.startswith('Laps') or mode.startswith('Cup')
+		mode = mode.lower()
+		return mode.startswith('timeattack') or mode.startswith('rounds') or mode.startswith('team') or \
+			   mode.startswith('laps') or mode.startswith('cup')
 
 	async def on_start(self):
 		# Init settings.
@@ -218,7 +219,7 @@ class Dedimania(AppConfig):
 			return await self.instance.chat(message)
 
 		# Refresh script.
-		self.current_script = await self.instance.mode_manager.get_current_script()
+		self.current_script = (await self.instance.mode_manager.get_current_script()).lower()
 
 		# Fetch records + update widget.
 		async with self.lock:
@@ -307,6 +308,18 @@ class Dedimania(AppConfig):
 				server_login=self.instance.game.server_player_login
 			)
 			self.ready = True
+		except DedimaniaNotSupportedException as e:
+			self.ready = False
+			await self.instance.chat('$0b3Dedimania doesn\'t support or know the current script mode {}'.format(
+				self.current_script
+			))
+			logger.warning('Dedimania doesn\'t support or known the mode {}'.format(self.current_script))
+
+			# Still silently report.
+			handle_exception(e, module_name=__name__, func_name='refresh_records', extra_data={
+				'script': self.current_script
+			})
+			return
 		except DedimaniaTransportException as e:
 			self.ready = False
 
