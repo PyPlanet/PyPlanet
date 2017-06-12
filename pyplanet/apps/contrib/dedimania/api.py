@@ -104,7 +104,7 @@ class DedimaniaAPI:
 				handle_exception(e, __name__, 'execute')
 				raise DedimaniaTransportException('Could not retrieve data from dedimania!')
 		except DedimaniaFault as e:
-			if 'Bad SessionId' in e.faultString:
+			if 'Bad SessionId' in e.faultString or ('SessionId' in e.faultString and 'not found' in e.faultString):
 				try:
 					self.retries += 1
 					if self.retries > 5:
@@ -114,7 +114,9 @@ class DedimaniaAPI:
 				except:
 					return
 			logger.error('XML-RPC Fault retrieved from Dedimania: {}'.format(str(e)))
-			handle_exception(e, __name__, 'execute')
+			handle_exception(e, __name__, 'execute', extra_data={
+				'dedimania_retries': self.retries,
+			})
 			raise DedimaniaTransportException('Could not retrieve data from dedimania!')
 
 	async def multicall(self, *queries):
