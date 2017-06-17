@@ -201,7 +201,7 @@ class ModeSettingEditView(TemplateView):
 			current_value = self.setting['value']
 			current_type = type(current_value)
 
-			if isinstance(value, bool):
+			if isinstance(current_value, bool):
 				lower_setting_value = str(value).lower()
 
 				if lower_setting_value == 'true' or value == '1':
