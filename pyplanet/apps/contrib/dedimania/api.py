@@ -137,6 +137,7 @@ class DedimaniaAPI:
 				})
 			)
 		except DedimaniaTransportException as e:
+			logger.error('Dedimania Error during authentication: {}'.format(str(e)))
 			return
 		if not result:
 			return
