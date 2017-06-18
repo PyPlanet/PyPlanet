@@ -3,7 +3,6 @@ import gzip
 import logging
 import requests
 
-from pprint import pprint
 from xmlrpc.client import dumps, loads
 
 from requests import ConnectTimeout, ReadTimeout
@@ -309,7 +308,6 @@ class DedimaniaAPI:
 		try:
 			return bool(isinstance(result[0][0]['Records'], list))
 		except Exception as e:
-			pprint(result)
 			logger.error('Sending times to dedimania failed. Info: {}'.format(result))
 			return False
 
