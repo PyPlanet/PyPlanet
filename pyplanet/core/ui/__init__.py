@@ -1,6 +1,13 @@
+import asyncio
+import logging
+
 from xmlrpc.client import Fault
 
+from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.core.ui.ui_properties import UIProperties
+from pyplanet.utils.log import handle_exception
+
+logger = logging.getLogger(__name__)
 
 
 class _BaseUIManager:
@@ -13,20 +20,48 @@ class _BaseUIManager:
 		"""
 		self.instance = instance
 		self.manialinks = dict()
+		self.send_queue = list()
 
 	async def on_start(self):
-		pass
+		asyncio.ensure_future(self.send_loop())
 
-	async def send(self, manialink, logins=None, **kwargs):
+	async def send_loop(self):
+		while True:
+			await asyncio.sleep(0.25)
+			if len(self.send_queue) == 0:
+				continue
+
+			# Copy send queue and clear the global one
+			queue = self.send_queue.copy()
+			self.send_queue.clear()
+
+			# Process and push out the queue.
+			try:
+				await self.instance.gbx.multicall(*queue)
+			except Fault as e:
+				if 'Login unknown' in str(e):
+					return
+				logger.exception(e)
+				handle_exception(exception=e, module_name=__name__, func_name='send_loop')
+			except Exception as e:
+				logger.exception(e)
+				handle_exception(exception=e, module_name=__name__, func_name='send_loop')
+
+	async def send(self, manialink, players=None, **kwargs):
 		"""
 		Send manialink to player(s).
 
 		:param manialink: ManiaLink instance.
-		:param logins: Logins to post to. None to globally send.
+		:param players: Player instances or logins to post to. None to globally send.
 		:type manialink: pyplanet.core.ui.components.manialink._ManiaLink
 		"""
 		queries = list()
-		for_logins = logins or (manialink.player_data.keys() if manialink.player_data else None)
+		if isinstance(players, list):
+			for_logins = [p.login if isinstance(p, Player) else p for p in players]
+		elif manialink.player_data:
+			for_logins = list(manialink.player_data.keys())
+		else:
+			for_logins = list()
 
 		# Register to the manialink context.
 		if manialink.id not in self.manialinks:
@@ -65,22 +100,9 @@ class _BaseUIManager:
 			# Add manialink tag to body.
 			body = '<manialink version="{}" id="{}">{}</manialink>'.format(manialink.version, manialink.id, body)
 
-			# Hide ALT menus (shootmania).
-			if self.instance.game.game == 'sm' and manialink.disable_alt_menu:
-				if is_global:
-					queries.extend([
-						self.instance.gbx('Maniaplanet.UI.SetAltScoresTableVisibility', player.login, 'false', encode_json=False, response_id=False)
-						for player in self.instance.player_manager.online
-					])
-				else:
-					queries.extend([
-						self.instance.gbx('Maniaplanet.UI.SetAltScoresTableVisibility', login, 'false', encode_json=False, response_id=False)
-						for login in logins
-					])
-
 			# Add normal queries.
-			if logins and len(logins) > 0:
-				for login in logins:
+			if for_logins and len(for_logins) > 0:
+				for login in for_logins:
 					# Prepare query
 					queries.append(self.instance.gbx(
 						'SendDisplayManialinkPageToLogin', login, body, manialink.timeout, manialink.hide_click
@@ -90,6 +112,24 @@ class _BaseUIManager:
 				queries.append(self.instance.gbx(
 					'SendDisplayManialinkPage', body, manialink.timeout, manialink.hide_click
 				))
+
+		# Hide ALT menus (shootmania).
+		if self.instance.game.game == 'sm' and manialink.disable_alt_menu:
+			if is_global:
+				queries.extend([
+					self.instance.gbx('Maniaplanet.UI.SetAltScoresTableVisibility', player.login, 'false', encode_json=False, response_id=False)
+					for player in self.instance.player_manager.online
+				])
+			else:
+				queries.extend([
+					self.instance.gbx('Maniaplanet.UI.SetAltScoresTableVisibility', login, 'false', encode_json=False, response_id=False)
+					for login in for_logins
+				])
+
+		# It the manialink wants rate limitting with the relaxed updating feature (mostly used for widgets), add to send queue
+		if getattr(manialink, 'relaxed_updating', False):
+			self.send_queue.extend(queries)
+			return
 
 		# Execute calls, ignore login unknown (player just left).
 		try:
@@ -128,6 +168,11 @@ class _BaseUIManager:
 					for player in self.instance.player_manager.online
 				])
 
+		# It the manialink wants rate limitting with the relaxed updating feature (mostly used for widgets), add to send queue
+		if getattr(manialink, 'relaxed_updating', False):
+			self.send_queue.extend(queries)
+			return
+
 		# Execute queries.
 		await self.instance.gbx.multicall(*queries)
 
@@ -144,7 +189,13 @@ class GlobalUIManager(_BaseUIManager):
 		self.properties = UIProperties(self.instance)
 
 	async def on_start(self):
+		await super().on_start()
 		await self.properties.on_start()
+
+		# Start app ui managers.
+		await asyncio.gather(*[
+			m.on_start() for m in self.app_managers.values()
+		])
 
 	def create_app_manager(self, app_config):
 		"""

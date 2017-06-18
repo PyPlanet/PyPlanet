@@ -16,6 +16,8 @@ class Command(TemplateCommand):
 
 		# Check that the project_name cannot be imported.
 		try:
+			if project_name == '.':
+				raise ImportError()
 			import_module(project_name)
 		except ImportError:
 			pass

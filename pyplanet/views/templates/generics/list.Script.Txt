@@ -1,0 +1,12 @@
+
+while(True) {
+  foreach (Event in PendingEvents) {
+    if (Event.Type == CMlScriptEvent::Type::MouseClick && Event.Control.ControlClasses.exists("require-confirm")) {
+      declare Text ActionName = Event.Control.DataAttributeGet("action");
+      declare Vec2 PositionAbsolute = Event.Control.AbsolutePosition_V3;
+      log("Needs Confirm!");
+      // TODO
+    }
+  }
+  yield;
+}

@@ -1,12 +1,6 @@
-|
-|
-|
-|
-|
-|
 
-Configuration
--------------
+Configuring PyPlanet
+====================
 
 **Settings module** is where the PyPlanet settings are stored. You provide the settings module by providing the
 environment variable ``PYPLANET_SETTINGS_MODULE``. Most of the times this is set in the ``manage.py``.
@@ -182,6 +176,10 @@ If you run your dedicated server locally, you should use the following setting:
 
 **Using SFTP/SCP/SSH**
 
+.. error::
+
+  The SFTP/SCP/SSH driver doesn't work for now! It's planned to be implemented later on if there are enough use-cases.
+
 If your dedicated server is remote, and you want to give access, you can use the SFTP driver (that works over SSH).
 
 .. code-block:: python
@@ -243,9 +241,13 @@ The order doesn't make a difference when starting/loading PyPlanet.
       'pyplanet.apps.contrib.local_records',
       'pyplanet.apps.contrib.dedimania',
       'pyplanet.apps.contrib.players',
-      'pyplanet.apps.contrib.mapinfo',
+      'pyplanet.apps.contrib.info',
       'pyplanet.apps.contrib.mx',
       'pyplanet.apps.contrib.transactions',
+
+      # New since 0.4.0:
+      'pyplanet.apps.contrib.sector_times',
+      'pyplanet.apps.contrib.dynamic_points',
     ],
   }
 

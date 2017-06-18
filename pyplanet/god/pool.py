@@ -16,18 +16,19 @@ logger = logging.getLogger(__name__)
 class EnvironmentPool:
 	"""
 	This class manages the pool instances for the current environment/installation.
-	
+
 	.. warning::
-	
+
 		You should not have to use this class in any moment!
-		
+
 	"""
 
-	def __init__(self, pool_names, max_restarts=0):
+	def __init__(self, pool_names, max_restarts=0, options=None):
 		self.names = pool_names
 		self.queue = multiprocessing.Queue()
 		self.pool = dict()
 		self.max_restarts = max_restarts
+		self.options = options or dict()
 
 		self.dog_path = os.curdir
 		self.dog_handler = LiveReload(self)
@@ -48,7 +49,7 @@ class EnvironmentPool:
 		Populate the pool instance processes, (prepares the processes).
 		"""
 		for name in self.names:
-			self.pool[name] = process.InstanceProcess(queue=self.queue, environment_name=name)
+			self.pool[name] = process.InstanceProcess(queue=self.queue, environment_name=name, options=self.options)
 			self._restarts[name] = 0
 		return self
 
@@ -57,7 +58,7 @@ class EnvironmentPool:
 		Start all processes.
 		"""
 		for name, proc in self.pool.items():
-			proc.process.start()
+			proc.start()
 
 	def shutdown(self):
 		"""
@@ -71,7 +72,7 @@ class EnvironmentPool:
 	def restart(self, name=None):
 		"""
 		Restart single process, or all if no name is given.
-		
+
 		:param name: Name or none for all pools.
 		"""
 		if name:

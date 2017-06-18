@@ -7,13 +7,14 @@ from pyplanet.core.exceptions import TransportException
 
 
 class Query:
-	def __init__(self, client, method, *args, **kwargs):
+	def __init__(self, client, method, *args, timeout=45, **kwargs):
 		"""
 		Initiate the prepared query.
-		
+
 		:param client: GbxClient to execute actions.
 		:param method: Method name
 		:param args: Arguments
+		:param timeout: Timeout of the call.
 		:type client: pyplanet.core.gbx.client.GbxClient
 		:type method: str:
 		"""
@@ -24,16 +25,17 @@ class Query:
 
 		self.method = method
 		self.args = args
+		self.timeout = timeout
 		self.result = None
 
 	async def execute(self):
 		"""
 		Execute call.
-		
+
 		:return: Future with results.
 		:rtype: Future<any>
 		"""
-		return await self._client.execute(self.method, *self.args)
+		return await self._client.execute(self.method, *self.args, timeout=self.timeout)
 
 	def __await__(self):
 		"""
@@ -61,13 +63,14 @@ class Query:
 
 class ScriptQuery(Query):
 
-	def __init__(self, client, method, *args, encode_json=True, response_id=True):
+	def __init__(self, client, method, *args, timeout=15, encode_json=True, response_id=True):
 		"""
 		Initiate a Scripted Query.
-		
+
 		:param client: Client instance
 		:param method: Method name
 		:param args: Arguments
+		:param timeout: Timeout to wait for future result.
 		:param encode_json: Is body json? True by default.
 		:param response_id: Is request requiring response_id?
 		:type client: pyplanet.core.gbx.client.GbxClient
@@ -92,12 +95,12 @@ class ScriptQuery(Query):
 		if self.response_id:
 			gbx_args.append(str(self.response_id))
 
-		super().__init__(client, gbx_method, method, gbx_args)
+		super().__init__(client, gbx_method, method, gbx_args, timeout=timeout)
 
 	async def execute(self):
 		"""
 		Execute call.
-		
+
 		:return: Future with results.
 		:rtype: Future<any>
 		"""
@@ -110,5 +113,5 @@ class ScriptQuery(Query):
 		gbx_res = await self._client.execute(self.method, *self.args)
 
 		if self.response_id:
-			return await asyncio.wait_for(future, 15.0) # Timeout after 15 seconds!
+			return await asyncio.wait_for(future, self.timeout) # Timeout after 15 seconds!
 		return gbx_res

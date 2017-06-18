@@ -3,7 +3,6 @@ import gzip
 import logging
 import requests
 
-from pprint import pprint
 from xmlrpc.client import dumps, loads
 
 from requests import ConnectTimeout, ReadTimeout
@@ -62,11 +61,12 @@ class DedimaniaAPI:
 		pass
 
 	def mode_to_dedi_mode(self, mode):
-		if mode.startswith('TeamAttack') or mode.startswith('Chase'):
+		mode = mode.lower()
+		if mode.startswith('teamattack') or mode.startswith('chase'):
 			return False
-		elif mode.startswith('Rounds') or mode.startswith('Team') or mode.startswith('Doppler') or mode.startswith('Cup'):
+		elif mode.startswith('rounds') or mode.startswith('team') or mode.startswith('cup'):
 			return 'Rounds'
-		elif mode.startswith('TimeAttack') or mode.startswith('Laps') or mode.startswith('Doppler'):
+		elif mode.startswith('timeattack') or mode.startswith('laps') or mode.startswith('doppler'):
 			return 'TA'
 		return False
 
@@ -85,7 +85,7 @@ class DedimaniaAPI:
 				self.retries = 0
 				return data[0]
 			raise DedimaniaTransportException('Invalid response from dedimania!')
-		except (ConnectionError, ReadTimeout) as e:
+		except (ConnectionError, ReadTimeout, ConnectionRefusedError) as e:
 			raise DedimaniaTransportException(e) from e
 		except ConnectTimeout as e:
 			raise DedimaniaTransportException(e) from e
@@ -103,7 +103,7 @@ class DedimaniaAPI:
 				handle_exception(e, __name__, 'execute')
 				raise DedimaniaTransportException('Could not retrieve data from dedimania!')
 		except DedimaniaFault as e:
-			if 'Bad SessionId' in e.faultString:
+			if 'Bad SessionId' in e.faultString or ('SessionId' in e.faultString and 'not found' in e.faultString):
 				try:
 					self.retries += 1
 					if self.retries > 5:
@@ -113,7 +113,9 @@ class DedimaniaAPI:
 				except:
 					return
 			logger.error('XML-RPC Fault retrieved from Dedimania: {}'.format(str(e)))
-			handle_exception(e, __name__, 'execute')
+			handle_exception(e, __name__, 'execute', extra_data={
+				'dedimania_retries': self.retries,
+			})
 			raise DedimaniaTransportException('Could not retrieve data from dedimania!')
 
 	async def multicall(self, *queries):
@@ -134,6 +136,7 @@ class DedimaniaAPI:
 				})
 			)
 		except DedimaniaTransportException as e:
+			logger.error('Dedimania Error during authentication: {}'.format(str(e)))
 			return
 		if not result:
 			return
@@ -156,6 +159,9 @@ class DedimaniaAPI:
 	async def update_loop(self):
 		while True:
 			await asyncio.sleep(60 * 4)
+
+			if not self.session_id:
+				continue
 
 			def is_spectator(player):
 				return bool(player['SpectatorStatus'] % 10)
@@ -187,10 +193,14 @@ class DedimaniaAPI:
 	async def player_connect(
 		self, login, nickname, path, is_spec
 	):
+		if not self.session_id:
+			return None
 		try:
 			response = await self.multicall(
 				('dedimania.PlayerConnect', self.session_id, login, nickname, path, is_spec)
 			)
+			if not response:
+				return None
 			response = response[0][0]
 			return dict(
 				banned=bool(response['Banned']), login=response['Login'], max_rank=response['MaxRank'],
@@ -199,6 +209,8 @@ class DedimaniaAPI:
 			return None
 
 	async def player_disconnect(self, login, tool_option):
+		if not self.session_id:
+			return True
 		await self.multicall(
 			('dedimania.PlayerDisconnect', self.session_id, login, tool_option)
 		)
@@ -223,6 +235,8 @@ class DedimaniaAPI:
 		"""
 		if not self.session_id:
 			await self.authenticate()
+		if not self.session_id:
+			raise DedimaniaTransportException('Dedimania not authenticated!')
 
 		def is_spectator(player):
 			return bool(player['SpectatorStatus'] % 10)
@@ -268,6 +282,9 @@ class DedimaniaAPI:
 		if not mode:
 			raise DedimaniaNotSupportedException('Mode is not supported!')
 
+		if not self.session_id:
+			raise DedimaniaTransportException('Dedimania not authenticated!')
+
 		times = [{
 			'Login': r.login, 'Best': r.score, 'Checks': ','.join([str(c) for c in r.cps]),
 		} for r in records if r.updated]
@@ -291,7 +308,6 @@ class DedimaniaAPI:
 		try:
 			return bool(isinstance(result[0][0]['Records'], list))
 		except Exception as e:
-			pprint(result)
 			logger.error('Sending times to dedimania failed. Info: {}'.format(result))
 			return False
 

@@ -1,11 +1,11 @@
 import asyncio
 import os
+import logging
 
 from xmlrpc.client import Fault
-
-import logging
 from peewee import DoesNotExist
 
+from pyplanet.utils.log import handle_exception
 from pyplanet.apps.core.maniaplanet.models import Map
 from pyplanet.conf import settings
 from pyplanet.contrib import CoreContrib
@@ -220,21 +220,23 @@ class MapManager(CoreContrib):
 				return True
 		return False
 
-	async def add_map(self, filename, insert=True):
+	async def add_map(self, filename, insert=True, save_matchsettings=True):
 		"""
 		Add or insert map to current online playlist.
 
 		:param filename: Load from filename relative to the 'Maps' directory on the dedicated host server.
 		:param insert: Insert after the current map, this will make it play directly after the current map. True by default.
+		:param save_matchsettings: Save match settings as well.
 		:type filename: str
 		:type insert: bool
+		:type save_matchsettings: bool
 		:raise: pyplanet.contrib.map.exceptions.MapIncompatible
 		:raise: pyplanet.contrib.map.exceptions.MapException
 		"""
 		gbx_method = 'InsertMap' if insert else 'AddMap'
 
 		try:
-			return await self._instance.gbx(gbx_method, filename)
+			result = await self._instance.gbx(gbx_method, filename)
 		except Fault as e:
 			if 'unknown' in e.faultString:
 				raise MapNotFound('Map is not found on the server.')
@@ -244,9 +246,12 @@ class MapManager(CoreContrib):
 
 		# Try to save match settings.
 		try:
-			await self.save_matchsettings()
-		except:
-			pass
+			if save_matchsettings:
+				await self.save_matchsettings()
+		except Exception as e:
+			handle_exception(e, __name__, 'add_map', extra_data={'EXTRAHOOK': 'Map Insert bug, see #306'})
+
+		return result
 
 	async def upload_map(self, fh, filename, insert=True, overwrite=False):
 		"""
@@ -350,7 +355,7 @@ class MapManager(CoreContrib):
 	async def load_matchsettings(self, filename):
 		"""
 		Load Match Settings file and insert it into the current map playlist.
-		
+
 		:param filename: File to load, relative to Maps folder.
 		:return: Boolean if loaded.
 		"""

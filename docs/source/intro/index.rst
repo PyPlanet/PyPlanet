@@ -1,8 +1,12 @@
 
-===============
-Getting Started
-===============
+==============================
+Getting Started (installation)
+==============================
 
-.. include:: installation.rst
-.. include:: configuration.rst
-.. include:: starting.rst
+.. toctree::
+  :glob:
+  :maxdepth: 1
+
+  requirements
+  installation-linux
+  installation-windows

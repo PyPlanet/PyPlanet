@@ -1,5 +1,7 @@
 import asyncio
+import re
 
+from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.views import TemplateView
 
 
@@ -7,7 +9,7 @@ class AlertView(TemplateView):
 	"""
 	The AlertView can be used to show several generic alerts to a player. You can use 3 different sizes, and adjust the
 	message text.
-	
+
 	The 3 sizes:
 	sm, md and lg.
 	"""
@@ -61,7 +63,7 @@ class AlertView(TemplateView):
 	):
 		"""
 		Create an AlertView instance.
-		
+
 		:param message: The message to display to the end-user, Use ``\\n`` for new lines. You can use symbols from FontAwesome
 						by using Unicode escaped strings.
 		:param size: Size to use, this parameter should be a string, and one of the following choices:
@@ -69,7 +71,7 @@ class AlertView(TemplateView):
 		:param buttons: Buttons to display, Should be an array with dictionary which contain: name.
 		:param manager: UI Manager to use, You should always keep this undefined unless you know what your doing!
 		:param target: Target coroutine method called as handle of button clicks.
-		
+
 		:type message: str
 		:type title: str
 		:type size: str
@@ -86,6 +88,7 @@ class AlertView(TemplateView):
 			buttons = [{'name': 'OK'}]
 
 		self.target = target
+		self.response_future = asyncio.Future()
 
 		self.data = dict(
 			message=message,
@@ -94,8 +97,29 @@ class AlertView(TemplateView):
 		)
 		self.data.update(data)
 
+	async def wait_for_reaction(self):  # pragma: no cover
+		"""
+		Wait for reaction or input and return it.
+
+		:return: Returns the button clicked or the input value string of the user.
+		"""
+		return await self.response_future
+
 	async def handle(self, player, action, values, **kwargs):  # pragma: no cover
 		await self.close(player)
+
+		# Try to parse the button id instead of the whole action string.
+		button = action
+		try:
+			match = re.search('button_([0-9]+)$', action)
+			if len(match.groups()) == 1:
+				button = match.group(1)
+		except:
+			pass
+
+		if not self.response_future.done():
+			self.response_future.set_result(button)
+
 		if self.target:
 			await self.target(player, action, values, **kwargs)
 
@@ -109,39 +133,39 @@ class AlertView(TemplateView):
 class PromptView(AlertView):
 	"""
 	The PromptView is like the AlertView but can ask for a text entry.
-	
+
 	The 3 sizes:
 	sm, md and lg.
-	
+
 	You can listen for the results of the players input with the ``wait_for_input()`` async handler (future).
 	Example:
-		
+
 	.. code-block:: python
-	
+
 		prompt = PromptView('Please enter your name')
 		await prompt.display(['login'])
-		
+
 		user_input = await prompt.wait_for_input()
 		print(user_input)
-		
-		
+
+
 	You can do validations before it's okay with giving a function to the argument ``validator``. Example:
-	
+
 	.. code-block:: python
-	
+
 		def my_validator(value):
 			try:
 				int(value)
 				return True, None
 			except:
 				return False, 'Value should be an integer!'
-	
+
 		prompt = PromptView('Please enter your name', validator=my_validator)
 		await prompt.display(['login'])
-		
+
 		user_input = await prompt.wait_for_input()
 		print(user_input)
-	
+
 	"""
 
 	template_name = 'core.views/generics/prompt.xml'
@@ -201,15 +225,13 @@ class PromptView(AlertView):
 		self.default = default
 		self.validator = validator or self.validate_input
 
-		self.input_future = asyncio.Future()
-
 	async def wait_for_input(self):  # pragma: no cover
 		"""
 		Wait for input and return it.
-		
+
 		:return: Returns the string value of the user.
 		"""
-		return await self.input_future
+		return await self.response_future
 
 	def validate_input(self, value):  # pragma: no cover
 		if not value or len(value) == 0:
@@ -226,9 +248,33 @@ class PromptView(AlertView):
 
 		if valid:
 			await self.close(player)
-			self.input_future.set_result(value)
-			self.input_future.done()
+			if not self.response_future.done():
+				self.response_future.set_result(value)
 			return
 
 		self.data['errors'] = message
 		await self.display([player.login])
+
+# Util methods.
+async def ask_confirmation(player, message, size='md', buttons=None):  # pragma: no cover
+	"""
+	Ask the player for confirmation and return the button number (0 is first button).
+
+	:param player: Player login or instance.
+	:param message: Message to display.
+	:param size: Size, could be 'sm', 'md', or 'lg'.
+	:param buttons: Buttons, optional, default is yes and no.
+	:return: Number of button that is clicked.
+	"""
+	buttons = buttons or [{'name': 'Yes'}, {'name': 'No'}]
+	view = AlertView(message, size, buttons)
+	if isinstance(player, Player):
+		player = player.login
+	await view.display(player_logins=[player])
+	reaction = await view.wait_for_reaction()
+	try:
+		reaction = int(reaction)
+	except:
+		reaction = None
+	del view
+	return reaction

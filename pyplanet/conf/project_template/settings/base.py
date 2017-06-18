@@ -40,18 +40,10 @@ DATABASES = {
 			'host': 'localhost',
 			'user': 'root',
 			'password': '',
-			'charset': 'utf8',
+			'charset': 'utf8mb4',
 		}
 	}
 }
-
-# Example: SQLite Settings:
-# DATABASES = {
-# 	'default': {
-# 		'ENGINE': 'peewee.SqliteDatabase',
-# 		'NAME': 'database.db'
-# 	}
-# }
 
 # Dedicated configuration holds the different dedicated servers that the instances will run on including the names of
 # the instances.

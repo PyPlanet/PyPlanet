@@ -18,11 +18,15 @@ APPS = {
 		'pyplanet.apps.contrib.mapinfo',
 		'pyplanet.apps.contrib.mx',
 		'pyplanet.apps.contrib.transactions',
+		'pyplanet.apps.contrib.sector_times',
 
 		# You can optionally enable one of the following apps. Please look at this page for more information:
 		# http://pypla.net/#app-docs
 
 		# Live Ranking App. Useful when playing in Laps, Rounds and all sort of Trackmania game modes.
 		# 'pyplanet.apps.contrib.live_rankings',
+
+		# Dynamic Points Limit is meant for Shootmania Royal.
+		# 'pyplanet.apps.contrib.dynamic_points',
 	]
 }

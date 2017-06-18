@@ -1,0 +1,25 @@
+
+declare CMlLabel Author_Label <=> (Page.GetFirstChild("author_label") as CMlLabel);
+declare CMlQuad Author_Flag <=> (Page.GetFirstChild("author_flag") as CMlQuad);
+
+declare Boolean Show_Login = False;
+
+if (Map != Null) {
+  Author_Label.SetText(Map.AuthorNickName);
+  Author_Flag.ChangeImageUrl(Map.AuthorZoneIconUrl);
+}
+
+while(True) {
+  foreach (Event in PendingEvents) {
+    if (Event.ControlId == "author_label" && Event.Type == CMlScriptEvent::Type::MouseClick && Map != Null) {
+      if (Show_Login) {
+        Show_Login = False;
+        Author_Label.SetText(Map.AuthorNickName);
+      } else {
+        Show_Login = True;
+        Author_Label.SetText(Map.AuthorLogin);
+      }
+    }
+  }
+  yield;
+}

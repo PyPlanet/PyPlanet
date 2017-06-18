@@ -148,13 +148,14 @@ class GbxRemote:
 			self.writer.close()
 			del self.writer
 
-	async def execute(self, method, *args):
+	async def execute(self, method, *args, timeout=45.0):
 		"""
 		Query the dedicated server and return the results. This method is a coroutine and should be awaited on.
 		The result you get will be a tuple with data inside (the response payload).
 
 		:param method: Server method.
 		:param args: Arguments.
+		:param timeout: Wait for x seconds until future is returned. Default is 45 seconds.
 		:type method: str
 		:type args: any
 		:return: Tuple with response data (after awaiting).
@@ -172,7 +173,7 @@ class GbxRemote:
 		# Send to server.
 		self.writer.write(length_bytes + handler_bytes + request_bytes)
 
-		return await asyncio.wait_for(future, 45.0)  # Wait for maximum of 45 seconds, then force complete future.
+		return await asyncio.wait_for(future, timeout)
 
 	async def listen(self):
 		"""
@@ -222,6 +223,8 @@ class GbxRemote:
 			await self.handle_response(handle_nr, method, data, fault)
 		elif method and data is not None:
 			if method == 'ManiaPlanet.ModeScriptCallbackArray':
+				await self.handle_scripted(handle_nr, method, data)
+			elif method == 'ManiaPlanet.ModeScriptCallback':
 				await self.handle_scripted(handle_nr, method, data)
 			else:
 				await self.handle_callback(handle_nr, method, data)

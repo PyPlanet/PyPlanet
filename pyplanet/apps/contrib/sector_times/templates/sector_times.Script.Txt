@@ -1,0 +1,176 @@
+
+#Include "TextLib" as TL
+
+// Includes
+{% include 'core.views/libs/TimeUtils.Script.Txt' %}
+
+// =================
+// == MAIN SCRIPT ==
+// =================
+
+declare CMlLabel Sector_Checkpoints_Icon;
+declare CMlLabel Sector_Checkpoints_Text;
+declare CMlLabel Sector_SectorTime_Icon;
+declare CMlLabel Sector_SectorTime_Text;
+declare CMlLabel Sector_SectorDiff_Icon;
+declare CMlLabel Sector_SectorDiff_Text;
+declare CMlQuad  Sector_SectorDiff_QuadBg;
+declare CMlQuad  Sector_SectorDiff_IconBg;
+
+declare Integer TotalCheckpoints;
+declare Integer CurrentCheckpoint;
+declare Integer CurrentLapScore;
+declare Integer[] CurrentCheckpointScores;
+
+declare Integer BestScore;
+declare Integer[] BestCheckpoints;
+declare Text BestSource;
+
+Void UpdateInterface() {
+  // Current lap sector time.
+  declare CurrentCheckpointTime = 0;
+  if (GUIPlayer != Null) {
+    CurrentCheckpointTime = GUIPlayer.CurCheckpointLapTime;
+  }
+  if (CurrentCheckpointTime == -1 && CurrentLapScore > 0) {
+    CurrentCheckpointTime = CurrentLapScore;
+  }
+
+  // Get record cp time.
+  declare Integer RecordCpTime;
+  if (CurrentCheckpoint > 0 && CurrentCheckpoint <= BestCheckpoints.count) {
+    RecordCpTime = BestCheckpoints[CurrentCheckpoint - 1];
+  } else if (CurrentCheckpoint > BestCheckpoints.count) {
+    RecordCpTime = BestScore;
+    if (CurrentCheckpointTime <= 0) {
+      CurrentCheckpointTime = CurrentLapScore;
+    }
+  } else {
+    RecordCpTime = 0;
+  }
+
+  // Calculate diff.
+  declare Integer Difference = 0;
+  declare Text DifferencePrefix = "";
+  declare Text DifferenceIcon = ""; // Up chevron.
+  declare Vec3 DifferenceBackgroundColor = <0., 0., 0.>;
+
+  // Determinate if faster or slower.
+  if (CurrentCheckpointTime > 0 && RecordCpTime > 0) {
+    Difference = CurrentCheckpointTime - RecordCpTime;
+
+    if (Difference > 0) {
+      DifferencePrefix = "$C30";
+      DifferenceIcon = ""; // Down. &#xf107;
+      DifferenceBackgroundColor = TL::ToColor("C30"); // Red
+    } else if (Difference < 0) {
+      DifferencePrefix = "$02F";
+      DifferenceIcon = ""; // Up. &#xf105;
+      DifferenceBackgroundColor = TL::ToColor("02F"); // Blue
+    }
+  }
+
+  // Current time difference.
+  Sector_SectorDiff_Text.SetText(TimeToText(Difference));
+  Sector_SectorDiff_Icon.SetText(DifferenceIcon);
+  Sector_SectorDiff_IconBg.BgColor = DifferenceBackgroundColor;
+  Sector_SectorDiff_IconBg.Opacity = 0.5;
+  Sector_SectorDiff_QuadBg.BgColor = DifferenceBackgroundColor;
+  Sector_SectorDiff_QuadBg.Opacity = 0.5;
+
+  // Best CP (+ source or current if no record)
+  if (RecordCpTime > 0) {
+    Sector_SectorTime_Text.SetText(BestSource ^ ": " ^ TimeToText(RecordCpTime));
+  } else if (BestScore > 0) {
+    Sector_SectorTime_Text.SetText(BestSource ^ ": " ^ TimeToText(BestScore));
+  } else {
+    Sector_SectorTime_Text.SetText("-");
+  }
+
+  // Set the checkpoint counter.
+  if (CurrentCheckpoint > TotalCheckpoints) {
+    Sector_Checkpoints_Text.SetText("Finish!");
+  } else {
+    Sector_Checkpoints_Text.SetText("Checkpoint " ^ CurrentCheckpoint ^ "/" ^ TotalCheckpoints);
+  }
+}
+
+Integer[] ParseCheckpoints(Text RawInput) {
+  if (TL::Length(RawInput) == 0) {
+    return Integer[];
+  }
+  declare Integer[] Output;
+  declare Text[] Checkpoints = TL::Split(",", RawInput);
+  foreach (Check in Checkpoints) {
+    Output.add(TL::ToInteger(Check));
+  }
+  return Output;
+}
+
+main() {
+  // Access the local + dedimania variables. TODO: Implement this in the local + dedi widgets.
+  declare Integer PyApp_local_records__player_score for LocalUser;
+  declare Integer PyApp_dedimania__player_score for LocalUser;
+  //
+
+  // Set variables
+  Sector_Checkpoints_Icon = (Page.GetFirstChild("sector_time_cps_icon") as CMlLabel);
+  Sector_Checkpoints_Text = (Page.GetFirstChild("sector_time_cps_text") as CMlLabel);
+  Sector_SectorTime_Icon = (Page.GetFirstChild("sector_time_sector_icon") as CMlLabel);
+  Sector_SectorTime_Text = (Page.GetFirstChild("sector_time_sector_time") as CMlLabel);
+  Sector_SectorDiff_Icon = (Page.GetFirstChild("sector_time_diff_icon") as CMlLabel);
+  Sector_SectorDiff_Text = (Page.GetFirstChild("sector_time_diff_time") as CMlLabel);
+  Sector_SectorDiff_QuadBg = (Page.GetFirstChild("sector_time_diff_quadbg") as CMlQuad);
+  Sector_SectorDiff_IconBg = (Page.GetFirstChild("sector_time_diff_iconbg") as CMlQuad);
+
+  // Score + cps from the records.
+  BestScore = TL::ToInteger(Sector_SectorTime_Text.DataAttributeGet("record"));
+  BestCheckpoints = ParseCheckpoints(Sector_SectorTime_Text.DataAttributeGet("record-sectors"));
+  BestSource = Sector_SectorTime_Text.DataAttributeGet("record-source");
+
+  TotalCheckpoints = MapCheckpointPos.count;
+  CurrentCheckpoint = 0;
+
+  // Initial update to clear the UI.
+  UpdateInterface();
+
+  while(True) {
+    foreach (Event in RaceEvents) {
+      if (GUIPlayer == Null || Event.Player != GUIPlayer) {
+        continue;
+      }
+      declare Boolean IsSpectating = GUIPlayer != InputPlayer;
+
+      if (Event.Type == CTmRaceClientEvent::EType::Respawn) {
+        if (GUIPlayer != Null && GUIPlayer.RaceState != CTmMlPlayer::ERaceState::Running) {
+          CurrentCheckpointScores = Integer[];
+          CurrentCheckpoint = 0;
+          UpdateInterface();
+        }
+      }
+      if (Event.Type == CTmRaceClientEvent::EType::WayPoint && GUIPlayer != Null) {
+        if (CurrentCheckpoint != TotalCheckpoints) {
+          CurrentCheckpoint += 1;
+          CurrentCheckpointScores.add(GUIPlayer.CurCheckpointLapTime);
+        }
+
+        if (Event.IsEndLap) {
+          CurrentCheckpoint = TotalCheckpoints + 1;
+          CurrentLapScore = Event.LapTime;
+        }
+
+        UpdateInterface();
+
+        if (Event.IsEndLap) {
+          CurrentCheckpoint = 0;
+          if (! IsSpectating && (BestScore <= 0 || Event.LapTime < BestScore) && CurrentCheckpointScores.count == TotalCheckpoints) {
+            BestScore = Event.LapTime;
+            BestSource = "Round";
+            BestCheckpoints = CurrentCheckpointScores;
+          }
+        }
+      }
+    }
+    yield;
+  }
+}

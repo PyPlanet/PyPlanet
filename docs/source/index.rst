@@ -25,8 +25,11 @@ a event loop and have simultaneously processing of received events from the dedi
 * App: Players, This app shows messages when players join and leave.
 * App: Transactions, Donate planets to the server, show number of planets on server and pay out players.
 * App: Live Rankings, Show the live rankings of the game mode. (Trackmania).
+* App: Sector Times, Compare your checkpoint time against your local or dedimania record. (Trackmania).
+* App: Dynamic Pointlimit, Royal point limit adjustment based on the number of players. (Shootmania Royal).
 
-Do you want to install PyPlanet, head towards our :doc:`Getting Started Manual </intro/index>`
+Do you want to install PyPlanet, head towards our :doc:`Getting Started Manual </intro/index>`.
+Want to see PyPlanet in action, head to :ref:`screenshots-ref`.
 
 The code is open source, and `available on GitHub`_.
 
@@ -50,6 +53,8 @@ Information about development of apps and the core is also available under:
     :caption: User Documentation
 
     intro/index
+    intro/configuration
+    intro/starting
     intro/upgrading
     convert/index
 
@@ -71,6 +76,8 @@ Information about development of apps and the core is also available under:
     apps/contrib/mx
     apps/contrib/transactions
     apps/contrib/live_rankings
+    apps/contrib/sector_times
+    apps/contrib/dynamic_points
 
 
 .. _dev-docs:
@@ -104,6 +111,20 @@ Some thoughts from experts
 .. raw:: html
 
   <iframe src="https://clips.twitch.tv/embed?clip=MagnificentHappyMarrowHeyGuys&autoplay=false" width="640" height="360" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>
+
+|
+|
+
+
+.. _screenshots-ref:
+
+Screenshots
+===========
+
+.. image:: /_static/screenshots/tm_1.jpg
+
+.. image:: /_static/screenshots/tm_2.jpg
+
 
 
 Indices and tables

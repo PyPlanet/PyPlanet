@@ -36,13 +36,21 @@ class TemplateCommand(BaseCommand):
 
 		self.validate_name(name, app_or_project)
 
+		# If it's a relative to the current dir, replace it.
+		if name == '.':
+			name = ''
+
 		# if some directory is given, make sure it's nicely expanded
 		if target is None:
 			top_dir = path.join(os.getcwd(), name)
 			try:
 				os.makedirs(top_dir)
 			except FileExistsError:
-				raise CommandError("'%s' already exists" % top_dir)
+				listdir = os.listdir(top_dir)
+				if len(listdir) == 0 or (len(listdir) == 1 and 'env' in listdir):
+					pass
+				else:
+					raise CommandError("'%s' already exists" % top_dir)
 			except OSError as e:
 				raise CommandError(e)
 		else:
@@ -139,6 +147,8 @@ class TemplateCommand(BaseCommand):
 		if name is None:
 			raise CommandError("you must provide %s %s name" % (
 				"an" if app_or_project == "app" else "a", app_or_project))
+		if app_or_project == 'project' and name == '.':
+			return True
 		# If it's not a valid directory name.
 		if not name.isidentifier():
 			raise CommandError(

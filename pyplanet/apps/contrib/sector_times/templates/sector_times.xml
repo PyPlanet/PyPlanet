@@ -1,0 +1,27 @@
+{% extends 'core.views/generics/widget.xml' %}
+
+{% block content %}
+  <quad pos="0 0" z-index="0" size="35 6" bgcolor="00000060"/>
+  <quad pos="0 0" z-index="0" size="6.5 6" bgcolor="00000060"/>
+  <label pos="3.25 -3" z-index="1" size="6.5 6" text="&#xf041;" halign="center" valign="center2" id="sector_time_cps_icon"/>
+  <label pos="20.8 -3" z-index="1" size="28.5 6" text="Checkpoint ?"
+         textsize="1.6" textfont="RajdhaniMono" textemboss="1" halign="center" valign="center2"
+         id="sector_time_cps_text"/>
+
+  <quad pos="0 -6.5" z-index="0" size="35 6" bgcolor="00000060"/>
+  <quad pos="0 -6.5" z-index="0" size="6.5 6" bgcolor="00000060"/>
+  <label pos="3.25 -9.5" z-index="1" size="6.5 6" text="&#xf1da;" halign="center" valign="center2" id="sector_time_sector_icon"/>
+  <label pos="20.8 -9.5" z-index="1" size="28.5 6" text="00:00.000"
+         textsize="1.6" textfont="RajdhaniMono" textemboss="1" halign="center" valign="center2"
+         id="sector_time_sector_time"
+         data-record-sectors="{{ record_sector_times }}" data-record="{{ record_time }}" data-record-source="{{ record_source }}"/>
+
+  <quad pos="0 -13" z-index="0" size="35 6" bgcolor="00000060" id="sector_time_diff_quadbg"/>
+  <quad pos="0 -13" z-index="0" size="6.5 6" bgcolor="00000060" id="sector_time_diff_iconbg"/>
+  <label pos="3.25 -16" z-index="1" size="6.5 6" text="&#xf107;" otherone="&#xf105;" halign="center" valign="center2" id="sector_time_diff_icon"/>
+  <label pos="20.8 -16" z-index="1" size="28.5 6" text="00:00.000"
+         textsize="1.6" textfont="RajdhaniMono" textemboss="1" halign="center" valign="center2"
+         id="sector_time_diff_time"/>
+
+  <script><!--{% include 'sector_times/sector_times.Script.Txt' %}--></script>
+{% endblock %}

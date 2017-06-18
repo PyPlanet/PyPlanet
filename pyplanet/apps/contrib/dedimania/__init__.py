@@ -39,7 +39,8 @@ class Dedimania(AppConfig):
 		self.ghost_replay = None
 
 		self.server_max_rank = None
-		self.map_status = False
+		self.map_status = None
+		self.map_uid = None
 		self.ready = False
 
 		self.setting_server_login = Setting(
@@ -58,16 +59,24 @@ class Dedimania(AppConfig):
 			description='Minimum record index needed for public new record/recordchange announcement (0 for disable).',
 			default=50
 		)
+		self.setting_sent_announce = Setting(
+			'sent_announce', 'Announce sending times to dedimania', Setting.CAT_BEHAVIOUR, type=bool,
+			description='Enable the announce of successfully sent records to dedimania message.',
+			default=False
+		)
 
 		self.login = self.code = self.server_version = self.pack_mask = None
 
 	def is_mode_supported(self, mode):
-		return mode.startswith('TimeAttack') or mode.startswith('Rounds') or mode.startswith('Team') or \
-			   mode.startswith('Laps') or mode.startswith('Cup')
+		mode = mode.lower()
+		return mode.startswith('timeattack') or mode.startswith('rounds') or mode.startswith('team') or \
+			   mode.startswith('laps') or mode.startswith('cup')
 
 	async def on_start(self):
 		# Init settings.
-		await self.context.setting.register(self.setting_server_login, self.setting_dedimania_code, self.setting_chat_announce)
+		await self.context.setting.register(
+			self.setting_server_login, self.setting_dedimania_code, self.setting_chat_announce, self.setting_sent_announce,
+		)
 
 		# Load settings + initiate api.
 		await self.reload_settings()
@@ -180,6 +189,9 @@ class Dedimania(AppConfig):
 			# TODO: Activate after fix in dedicated:
 			# await self.podium_start()
 
+			# Clear the current map.
+			self.map_uid = None
+
 			await self.map_end(map)
 			await self.map_begin(map)
 
@@ -188,16 +200,26 @@ class Dedimania(AppConfig):
 		if not self.api:
 			await self.reload_settings()
 			await self.initiate_api()
+		if not self.api:
+			return
+
 		self.api.retries = 0
 
+		# If the map uid already has been filled and the same we are starting double. Return immediately.
+		# This is because of issue #276.
+		if self.map_uid == self.instance.map_manager.current_map.uid:
+			return
+		self.map_uid = self.instance.map_manager.current_map.uid
+
 		# Set map status.
-		self.map_status = map.time_author > 6200 and map.num_checkpoints > 1
+		self.map_status = map.author_login == 'nadeo' or map.time_author > 6200 and map.num_checkpoints > 1
 		if not self.map_status:
 			message = '$f90This map is not supported by Dedimania (min 1 checkpoint + 6.2 seconds or higher author time).'
+			await self.widget.hide()
 			return await self.instance.chat(message)
 
 		# Refresh script.
-		self.current_script = await self.instance.mode_manager.get_current_script()
+		self.current_script = (await self.instance.mode_manager.get_current_script()).lower()
 
 		# Fetch records + update widget.
 		async with self.lock:
@@ -246,8 +268,8 @@ class Dedimania(AppConfig):
 							self.ghost_replay = replay
 
 	async def map_end(self, map):
-		if not self.map_status:
-			logger.warning('Don\'t send dedi records, map not supported or we are offline!')
+		if self.map_status is False:
+			logger.warning('Don\'t send dedi records, map not supported!')
 			return
 
 		if not self.v_replay:
@@ -259,6 +281,10 @@ class Dedimania(AppConfig):
 				await self.api.set_map_times(
 					map, self.current_script, self.current_records.copy(), self.v_replay, self.v_replay_checks, self.ghost_replay,
 				)
+				if await self.setting_sent_announce.get_value():
+					await self.instance.chat(
+						'$0b3Dedimania records has been sent successfully!'
+					)
 			except DedimaniaNotSupportedException:
 				pass
 			except (DedimaniaTransportException, DedimaniaFault) as e:
@@ -282,6 +308,18 @@ class Dedimania(AppConfig):
 				server_login=self.instance.game.server_player_login
 			)
 			self.ready = True
+		except DedimaniaNotSupportedException as e:
+			self.ready = False
+			await self.instance.chat('$0b3Dedimania doesn\'t support or know the current script mode {}'.format(
+				self.current_script
+			))
+			logger.warning('Dedimania doesn\'t support or known the mode {}'.format(self.current_script))
+
+			# Still silently report.
+			handle_exception(e, module_name=__name__, func_name='refresh_records', extra_data={
+				'script': self.current_script
+			})
+			return
 		except DedimaniaTransportException as e:
 			self.ready = False
 

@@ -4,16 +4,27 @@ import multiprocessing
 from colorlog import ColoredFormatter
 
 
-def _run(name, queue):
+def _run(name, queue, options):
 	"""
 	The actual process that runs the separate controller instance.
-	
+
 	:param name: name of the process
+	:param queue: Queue of the binding parent.
+	:param options: Custom Options
 	:type name: str
 	"""
 	from pyplanet.core.instance import Controller
 	from pyplanet.utils.log import initiate_logger, QueueHandler
 	import logging
+
+	# Tokio Asyncio (EXPERIMENTAL).
+	if 'tokio' in options and options['tokio'] is True:
+		import tokio
+		import asyncio
+		policy = tokio.TokioLoopPolicy()
+		asyncio.set_event_loop_policy(policy)
+		asyncio.set_event_loop(tokio.new_event_loop())
+		logging.warning('Using experimental Tokio Asyncio Loop!')
 
 	# Logging to queue.
 	if multiprocessing.get_start_method() != 'fork':  # pragma: no cover
@@ -40,33 +51,37 @@ def _run(name, queue):
 class InstanceProcess:
 	"""
 	The InstanceProcess is the encapsulation around the real controller instance.
-	
+
 	.. warning::
-		
+
 		This code is still being executed at the main process!!
 
 	"""
 
-	def __init__(self, queue, environment_name='default', pool=None):
+	def __init__(self, queue, environment_name='default', pool=None, options=None):
 		"""
 		Create an environment process of the controller itself.
-		
+
 		:param queue: Queue to hook on.
 		:param environment_name: Name of environment.
 		:param pool: Pool.
+		:param options: Custom options.
 		:type queue: multiprocessing.Queue
 		:type environment_name: str
 		:type pool: multiprocessing.Pool
+		:type options: dict
 		"""
 		self.queue = queue
 		self.name = environment_name
+		self.options = options or dict()
 
 		self.max_restarts = 1
 		self.restarts = 0
 
 		self.process = multiprocessing.Process(target=_run, kwargs=dict(
 			name=self.name,
-			queue=self.queue
+			queue=self.queue,
+			options=self.options,
 		))
 
 		self.__last_state = True
@@ -85,7 +100,7 @@ class InstanceProcess:
 	def exitcode(self):
 		"""
 		Exit code of process.
-		
+
 		:return: Exit code.
 		"""
 		return self.process.exitcode
@@ -93,7 +108,7 @@ class InstanceProcess:
 	@property
 	def will_restart(self):
 		"""
-		Boolean: Is the process able to restart (not reached max_restarts). 
+		Boolean: Is the process able to restart (not reached max_restarts).
 		"""
 		return self.restarts < self.max_restarts
 
