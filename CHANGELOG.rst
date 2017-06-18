@@ -8,6 +8,8 @@ Core
 ~~~~
 
 * Improvement: Bump XML-RPC Script API to version 2.2.0.
+* Improvement: Show the Round Score build-in ui (nadeo widget) and move it a bit.
+* Improvement: Move the build-in warmup ui (nadeo widget) a bit.
 
 Apps
 ~~~~
