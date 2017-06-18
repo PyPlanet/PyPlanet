@@ -18,9 +18,14 @@ class PlayerManager(CoreContrib):
 	"""
 	Player Manager.
 
-	.. todo::
+	You can access this class in your app with:
 
-		Write introduction.
+	.. code-block:: python
+
+		self.instance.player_manager
+
+	With the manager you can get several useful information about the players on the server. See all the properties and methods
+	below for more information.
 
 	.. warning::
 

@@ -1,6 +1,6 @@
 
-Support, Bug report & Contact
-=============================
+Support & Contact
+=================
 
 If you have any problems with starting PyPlanet, please report it on GitHub: https://github.com/PyPlanet/PyPlanet
 
@@ -19,17 +19,29 @@ There are several demo servers available. You need to search for servers on the 
 Who is behind PyPlanet
 ----------------------
 
+**Organisation**:
+
+* Toffe: Project and organisation lead.
+
 **Core**:
 
 * Toffe: Lead developer of the PyPlanet project.
 
 **Apps**:
 
+* Toffe: Bundled Application developer.
 * TheM: Bundled Application developer.
 
 Want to help us? Contact Toffe on Discord or Forum:
 :code:`Toffe#8999` or `Forum Profile <https://forum.maniaplanet.com/memberlist.php?mode=viewprofile&u=20394>`_.
 
-.. tip::
 
-  The pages on this site will be updated
+Donate
+======
+
+You can support PyPlanet and other projects of Toffe (such as ManiaCDN and the Toolkit application) with the following donation options:
+
+.. image:: https://img.shields.io/badge/patreon-donate-yellow.svg
+  :target: https://patreon.com/pyplanet
+.. image:: https://img.shields.io/badge/paypal-donate-yellow.svg
+  :target: https://paypal.me/tomvlk

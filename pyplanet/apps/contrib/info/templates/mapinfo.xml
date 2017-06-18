@@ -8,7 +8,7 @@
 
   <quad pos="0 -6.5" z-index="0" size="35 6" bgcolor="00000060"/>
   <quad pos="0 -6.5" z-index="0" size="6.5 6" bgcolor="00000060"/>
-  <quad pos="0.9 -7.35" z-index="1" size="4.80 4.25" image="file://Media/Flags/samerica.dds" id="author_flag" /> <!-- TODO: Use flag of author -->
+  <quad pos="0.9 -7.35" z-index="1" size="4.80 4.25" image="file://Media/Flags/samerica.dds" id="author_flag" />
   <label pos="20.5 -9.5" z-index="1" size="28.5 6"
          data-login="{{ map_author }}" text="-" textsize="1.6"
          valign="center2" halign="center" textfont="RajdhaniMono" textemboss="1"

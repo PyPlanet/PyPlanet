@@ -8,10 +8,18 @@ class Command:
 	"""
 	The command instance describes the command itself, the target to fire and all other related information, like
 	admin command or aliases.
-	
-	.. todo::
-	
-		Write introduction + examples
+
+	Some examples of some commands:
+
+	.. code-block:: python
+
+		# Admin command with permission on it.
+		Command(command='reboot', target=self.reboot_pool, perms='admin:reboot', admin=True)
+
+		# Normal user command with optional argument.
+		Command(command='list', target=self.show_map_list)\
+			.add_param(name='search', required=False)
+
 	"""
 
 	def __init__(
@@ -19,12 +27,12 @@ class Command:
 	):
 		"""
 		Initiate a command.
-		
+
 		:param command: Command text (prefix without parameters).
 		:param target: Target method to fire.
 		:param aliases: Alias(ses) for the command.
 		:param admin: Register command in admin context.
-		:param namespace: Custom namespace, this can be used to create commands like '/prog start' and '/prog end' 
+		:param namespace: Custom namespace, this can be used to create commands like '/prog start' and '/prog end'
 						  where 'prog' is the namespace.
 		:param perms: Required parameters, default everyone is allowed.
 		:param parser: Custom parser.
@@ -53,7 +61,7 @@ class Command:
 	def match(self, raw):
 		"""
 		Try to match the command with the given input in array style (splitted by spaces).
-		
+
 		:param raw: Raw input, split by spaces.
 		:type raw: list
 		:return: Boolean if command matches.
@@ -92,7 +100,7 @@ class Command:
 	def get_params(self, input):
 		"""
 		Get params in array from input in array.
-		
+
 		:param input: Array of raw input.
 		:type input: list
 		:return: Array of parameters, stripped of the command name and namespace, if defined.
@@ -119,7 +127,7 @@ class Command:
 	):
 		"""
 		Add positional parameter.
-		
+
 		:param name: Name of parameter, will be used to store result into!
 		:param nargs: Number of arguments, use integer or '*' for multiple or infinite.
 		:param type: Type of value, keep str to match all types. Use any other to try to parse to the type.
@@ -138,7 +146,7 @@ class Command:
 	async def handle(self, instance, player, argv):
 		"""
 		Handle command parsing and execution.
-		
+
 		:param player: Player object.
 		:param argv: Arguments in array
 		:type player: pyplanet.apps.core.maniaplanet.models.player.Player
@@ -176,7 +184,7 @@ class Command:
 	@property
 	def usage_text(self):
 		"""
-		The usage text line for the command. 
+		The usage text line for the command.
 		"""
 		text = 'Usage: /{}{}{}'.format(
 			'/' if self.admin else '',

@@ -64,3 +64,28 @@ You can add this line to your `base.py` file to change the behaviour.
 
   **We really like to improve the stability of PyPlanet**, therefor we kindly ask you to keep the setting on, or at least
   at level ``2``.
+
+
+Analytics & Telemetry
+---------------------
+
+For future improvements and look into the usage of PyPlanet and it's apps we collect the following information:
+
+- PyPlanet version
+- Python version
+- Server version
+- Operating system
+- Server login
+- Server titlepack
+- Active apps
+- Total number of players
+
+We do this by sending so called ping-updates every hour with up-to-date status about the server. By collecting this
+we gain information on how to improve with targeting specific titles or apps for updates. And to improve the operating system
+support if required.
+
+You can turn this off by adding this line to your ``settings/base.py``:
+
+.. code-block:: python
+
+  ANALYTICS = False

@@ -204,7 +204,7 @@ class GbxRemote:
 				'Connection with the dedicated server has been closed, we will now close down the subprocess! {}'.format(str(e))
 			)
 			# When the connection has been reset, we will close the controller process so it can be restarted by the god
-			# process. Exit code 10 gives the information to the god process. TODO: Make nice table for exit codes.
+			# process. Exit code 10 gives the information to the god process.
 			exit(10)
 		except Exception as e:
 			handle_exception(exception=e, module_name=__name__, func_name='listen')

@@ -185,7 +185,6 @@ class Instance:
 			raw=True
 		)
 
-		# TODO: Write analytics util for this. Fire every admin connect (random admin connect). Fetch new version x hours.
 		try:
 			asyncio.ensure_future(releases.UpdateChecker.init_checker(self))
 		except:
