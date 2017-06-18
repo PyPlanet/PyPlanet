@@ -152,6 +152,14 @@ class PlayerManager(CoreContrib):
 					player=player,
 				), raw=True)
 
+			# This is in case of desync happens. Not nice to fix, but currently one of the only options.
+			if self._players_count < 0:
+				self._players_count = 0
+			if self._spectators_count < 0:
+				self._spectators_count = 0
+			if self._total_count < 0:
+				self._total_count = 0
+
 		player.flow.is_spectator = is_spectator
 		player.flow.is_temp_spectator = is_temp_spectator
 		player.flow.is_pure_spectator = is_pure_spectator

@@ -2,7 +2,7 @@
 .. deprecated:: 0.4.0
 	Use ``pyplanet.apps.contrib.info`` instead!
 """
-# TODO: Remove in 0.6.0.
+# TODO: Remove in 0.7.0.
 
 import logging
 import asyncio
@@ -27,7 +27,7 @@ class MapInfo(AppConfig):
 		msg = [
 			'$f00$o\uf0a1 $z$s$f00$o$wDEPRECATION:$z$s$f55$o Please change your settings! $z$f55$s(\uf121 apps.py)',
 			'$f55Replace \'pyplanet.apps.contrib.mapinfo\' by \'pyplanet.apps.contrib.info\'.',
-			'$f55MapInfo will be removed in $o0.6.0$o and will break your installation!'
+			'$f55MapInfo will be removed in $o0.7.0$o and will break your installation!'
 		]
 		for m in msg:
 			logging.error(style.style_strip(m))
