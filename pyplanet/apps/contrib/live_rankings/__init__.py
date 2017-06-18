@@ -24,8 +24,8 @@ class LiveRankings(AppConfig):
 		self.instance.signal_manager.listen(tm_signals.give_up, self.player_giveup)
 		self.instance.signal_manager.listen(tm_signals.scores, self.scores)
 
-		# Make sure we hide rounds_scores.
-		self.instance.ui_manager.properties.set_visibility('round_scores', False)
+		# Make sure we move the rounds_scores and other gui elements.
+		self.instance.ui_manager.properties.set_attribute('round_scores', 'pos', '-126.5 87. 150.')
 		self.instance.ui_manager.properties.set_visibility('checkpoint_ranking', False)
 		self.instance.ui_manager.properties.set_attribute('multilap_info', 'pos', '107., 88., 5.')
 
