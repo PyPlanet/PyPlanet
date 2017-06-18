@@ -1,6 +1,24 @@
 Changelog
 =========
 
+0.4.2
+-----
+
+Core
+~~~~
+
+* Improvement: Bump XML-RPC Script API to version 2.2.0.
+
+Apps
+~~~~
+
+* Feature: Add //shuffle and //readmaplist. Both are unsure to work.
+* Improvement: Further investigate and report issues related to Dedimania.
+* Bugfix: Fixing negative count issue on the info widgets.
+* Bugfix: Remove faulty and debug line from dedimania api catch block.
+* Bugfix: Properly handle the dedimania response when player is not correct.
+* Bugfix: Fixing issues with boolean values and the //modesettings GUI.
+
 0.4.1
 -----
 
