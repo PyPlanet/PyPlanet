@@ -200,6 +200,8 @@ class DedimaniaAPI:
 			response = await self.multicall(
 				('dedimania.PlayerConnect', self.session_id, login, nickname, path, is_spec)
 			)
+			if not response:
+				return None
 			response = response[0][0]
 			return dict(
 				banned=bool(response['Banned']), login=response['Login'], max_rank=response['MaxRank'],
