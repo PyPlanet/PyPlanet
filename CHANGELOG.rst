@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.4.3
+-----
+
+Apps
+~~~~
+
+* Bugfix: Fix issue with switching to custom script (lower case not found), specially teams mode.
+
 0.4.2
 -----
 
