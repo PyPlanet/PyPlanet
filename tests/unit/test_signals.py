@@ -9,12 +9,12 @@ class TestSignals(asynctest.TestCase):
 		instance = Controller.prepare(name='default').instance
 
 		test1 = Signal(code='test1', namespace='tests')
-		instance.signal_manager.register_signal(test1)
+		instance.signals.register_signal(test1)
 		test2 = Signal(code='test2', namespace='tests')
-		instance.signal_manager.register_signal(test2)
+		instance.signals.register_signal(test2)
 
-		test1_comp = instance.signal_manager.get_signal('tests:test1')
-		test2_comp = instance.signal_manager.get_signal('tests:test2')
+		test1_comp = instance.signals.get_signal('tests:test1')
+		test2_comp = instance.signals.get_signal('tests:test2')
 
 		assert test1 == test1_comp
 		assert test2 == test2_comp
@@ -23,7 +23,7 @@ class TestSignals(asynctest.TestCase):
 		instance = Controller.prepare(name='default').instance
 
 		test1 = Signal(code='test1', namespace='tests', process_target=self.glue)
-		instance.signal_manager.register_signal(test1)
+		instance.signals.register_signal(test1)
 
 		self.got_sync = 0
 		self.got_async = 0
@@ -46,7 +46,7 @@ class TestSignals(asynctest.TestCase):
 	async def test_unregister(self):
 		instance = Controller.prepare(name='default').instance
 		test1 = Signal(code='test1', namespace='tests', process_target=self.glue)
-		instance.signal_manager.register_signal(test1)
+		instance.signals.register_signal(test1)
 
 		self.got_sync = 0
 		self.got_async = 0
