@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.5.0 (unreleased)
+------------------
+
+Core
+~~~~
+
+* Improvement: Retry 5 times when connecting to the dedicated server, making it possible to start both at the same time.
+
+
 0.4.3
 -----
 
