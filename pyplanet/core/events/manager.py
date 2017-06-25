@@ -16,14 +16,16 @@ from pyplanet.core.events import Signal
 class _SignalManager:
 	"""
 	Signal Manager class.
-	
+
 	.. note::
-	
-		Access this via ``instance.signal_manager``.
-	
+
+		Access this in the app via ``self.context.signals``.
+
 	"""
 
 	def __init__(self):
+		self.app_managers = dict()
+
 		self.signals = dict()
 		self.callbacks = dict()
 
@@ -40,7 +42,7 @@ class _SignalManager:
 	def register_signal(self, signal, app=None, callback=False):
 		"""
 		Register a signal to be known in the signalling system.
-		
+
 		:param signal: Signal(s)
 		:param app: App context/instance.
 		:param callback: Will a callback handle the response (mostly raw callbacks).
@@ -73,7 +75,7 @@ class _SignalManager:
 	def listen(self, signal, target, conditions=None, **kwargs):
 		"""
 		Register a listing client to the signal given (signal instance or string).
-		
+
 		:param signal: Signal instance or string: "namespace:code"
 		:param target: Target method to call.
 		:param conditions: Reserved for future purposes.
@@ -90,7 +92,7 @@ class _SignalManager:
 	def get_callback(self, call_name):
 		"""
 		Get signal by XML-RPC (script) callback.
-		
+
 		:param call_name: Callback name.
 		:return: Signal class or nothing.
 		:rtype: pyplanet.core.events.Signal
@@ -103,7 +105,7 @@ class _SignalManager:
 	def get_signal(self, key):
 		"""
 		Get signal by key (namespace:code).
-		
+
 		:param key: namespace:code key.
 		:return: signal or none
 		:rtype: pyplanet.core.events.Signal
@@ -141,7 +143,7 @@ class _SignalManager:
 	def init_app(self, app):
 		"""
 		Initiate app, load all signal/callbacks files. (just import, they should register with decorators).
-		
+
 		:param app: App instance
 		:type app: pyplanet.apps.AppConfig
 		"""
@@ -165,6 +167,86 @@ class _SignalManager:
 		Finish startup the core, this will copy reservations. (PRIVATE).
 		"""
 		self.finish_reservations()
+
+	def create_app_manager(self, app):
+		"""
+		This method will create the manager instance for the app context.
+
+		:param app: App instance.
+		:type app: pyplanet.apps.config.AppConfig
+		:return: SignalManager instance for the app.
+		:rtype: pyplanet.core.events.manager.AppSignalManager
+		"""
+		return AppSignalManager(self, app)
+
+
+class AppSignalManager:
+
+	def __init__(self, manager, app):
+		"""
+		Create the app manager proxy.
+		:param manager: Signal manager (core global).
+		:param app: App instance.
+		:type manager: pyplanet.core.events.manager._SignalManager
+		:type app: pyplanet.apps.config.AppConfig
+		"""
+		self.manager = manager
+		self.app = app
+
+		# Hold these to delete when the context is destroyed.
+		self.signals = list()
+		self.listeners = list()
+
+	def register_signal(self, signal, callback=False):
+		"""
+		Register a signal to be known in the signalling system.
+
+		:param signal: Signal(s)
+		:param callback: Will a callback handle the response (mostly raw callbacks).
+		"""
+		self.manager.register_signal(signal, self.app, callback=callback)
+		self.signals = list
+
+	def listen(self, signal, target, conditions=None, **kwargs):
+		"""
+		Register a listing client to the signal given (signal instance or string).
+
+		:param signal: Signal instance or string: "namespace:code"
+		:param target: Target method to call.
+		:param conditions: Reserved for future purposes.
+		"""
+		self.manager.listen(signal, target, conditions, **kwargs)
+		self.listeners.append((signal, target))
+
+	def get_callback(self, call_name):
+		"""
+		Get signal by XML-RPC (script) callback.
+
+		:param call_name: Callback name.
+		:return: Signal class or nothing.
+		:rtype: pyplanet.core.events.Signal
+		"""
+		return self.manager.get_callback(call_name)
+
+	def get_signal(self, key):
+		"""
+		Get signal by key (namespace:code).
+
+		:param key: namespace:code key.
+		:return: signal or none
+		:rtype: pyplanet.core.events.Signal
+		"""
+		return self.manager.get_signal(key)
+
+	async def on_destroy(self):
+		for signal, target in self.listeners:
+			try:
+				signal.unregister(target)
+			except Exception as e:
+				logging.exception(e)
+
+		# TODO: Delete signals.
+
 
 SignalManager = _SignalManager()
 

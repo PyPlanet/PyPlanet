@@ -37,7 +37,7 @@ class ModeManager(CoreContrib):
 		self._current_script = await self.get_current_script(refresh=True)
 
 		# Listeners.
-		self._instance.signal_manager.listen('maniaplanet:server_start', self._on_change)
+		self._instance.signals.listen('maniaplanet:server_start', self._on_change)
 
 	async def _on_change(self, *args, **kwargs):
 		# Making sure we set the settings + variables.

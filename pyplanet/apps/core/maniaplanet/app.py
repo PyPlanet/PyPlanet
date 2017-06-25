@@ -7,5 +7,5 @@ class ManiaplanetConfig(AppConfig):
 	core = True
 
 	async def on_start(self):
-		self.instance.signal_manager.register_signal(player_enter_player_slot)
-		self.instance.signal_manager.register_signal(player_enter_spectator_slot)
+		self.context.signals.register_signal(player_enter_player_slot)
+		self.context.signals.register_signal(player_enter_spectator_slot)

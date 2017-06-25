@@ -146,14 +146,14 @@ class PlayerManager(CoreContrib):
 				self._spectators_count -= 1
 				self._players_count += 1
 
-				await self._instance.signal_manager.get_signal('maniaplanet:player_enter_player_slot').send_robust(dict(
+				await self._instance.signals.get_signal('maniaplanet:player_enter_player_slot').send_robust(dict(
 					player=player,
 				), raw=True)
 			elif player.flow.is_player is True and is_spectator:
 				self._spectators_count += 1
 				self._players_count -= 1
 
-				await self._instance.signal_manager.get_signal('maniaplanet:player_enter_spectator_slot').send_robust(dict(
+				await self._instance.signals.get_signal('maniaplanet:player_enter_spectator_slot').send_robust(dict(
 					player=player,
 				), raw=True)
 

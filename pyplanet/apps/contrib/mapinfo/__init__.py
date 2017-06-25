@@ -34,8 +34,8 @@ class MapInfo(AppConfig):
 		await self.instance.chat.execute(*msg)
 
 	async def on_start(self):
-		self.instance.signal_manager.listen(mp_signals.map.map_begin, self.map_begin)
-		self.instance.signal_manager.listen(mp_signals.player.player_connect, self.player_connect)
+		self.context.signals.listen(mp_signals.map.map_begin, self.map_begin)
+		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
 
 		# Move the multilapinfo a bit. (Only Trackmania).
 		self.instance.ui_manager.properties.set_attribute('multilap_info', 'pos', '107., 88., 5.')

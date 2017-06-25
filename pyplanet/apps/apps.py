@@ -4,7 +4,7 @@ import logging
 from collections import OrderedDict
 
 from pyplanet.utils.toposort import toposort
-from pyplanet.apps.config import AppConfig
+from pyplanet.apps.config import AppConfig, AppState
 from pyplanet.core.exceptions import ImproperlyConfigured
 
 
@@ -20,13 +20,14 @@ class Apps:
 	def __init__(self, instance):
 		"""
 		Initiate registry with pre-loaded apps.
-		
+
 		:param instance: Instance of the controller.
 		:type instance: pyplanet.core.instance.Instance
 		"""
 		self.instance = instance
 
 		self.apps = OrderedDict()
+		self.unloaded_apps = OrderedDict()
 
 		# Set ready states.
 		self.apps_ready = self.ready = False
@@ -35,7 +36,7 @@ class Apps:
 		self._lock = threading.Lock()
 
 		# Listen to events
-		self.instance.signal_manager.listen('contrib.mode:script_mode_changed', self._on_mode_change)
+		self.instance.signals.listen('contrib.mode:script_mode_changed', self._on_mode_change)
 
 	def populate(self, apps, in_order=False):
 		"""
@@ -62,6 +63,9 @@ class Apps:
 
 			# Inject apps instance into app itself.
 			app.apps = self
+
+			# Set state on app.
+			app.state = AppState.UNLOADED
 
 			# Get dependencies to other apps.
 			deps = getattr(app, 'app_dependencies', list())
@@ -95,26 +99,57 @@ class Apps:
 
 	async def check(self):
 		"""
-		Check and remove unsupported apps based on the current game and script mode. 
+		Check and remove unsupported apps based on the current game and script mode. Also loads unloaded apps and try
+		if the mode and game does support it again.
 		"""
-		apps_dict = OrderedDict()
-		for label, app in self.apps.items():
-			if not app.is_game_supported('trackmania' if self.instance.game.game == 'tm' else 'shootmania'):
-				logging.info('Unloading app {}. Doesn\'t support the current game!'.format(label))
-				await app.on_stop()
-				await app.on_destroy()
-				del app
+		# Check if disabled apps can be loaded again.
+		# TODO: ACTIVATE THIS AFTER SIGNAL MANAGER DEPRECATION IS REMOVED!
+		# for app_label, app_module in self.unloaded_apps.items():
+		# 	try:
+		# 		# Load the module and initiate by creating the app class instance.
+		# 		self.populate([app_module], in_order=True)
+		# 		if app_label not in self.apps:
+		# 			raise Exception()  # Flow control, stop executing restart of app.
+		#
+		# 		# Init + start the app again.
+		# 		await self.apps[app_label].on_init()
+		# 		await self.apps[app_label].on_start()
+		#
+		# 		# Clear the label from the unloaded list.
+		# 		del self.unloaded_apps[app_label]
+		#
+		# 		logging.info('(Re)loaded app {} as it seems that it supports this game/mode again.'.format(app_label))
+		# 	except Exception as e:
+		# 		logging.debug('Can\'t start app {}, Got exception with error: {}'.format(app_label, str(e)))
+		# 		# logging.exception(e)
+		# 		# Some apps can't be reloaded.
+		# 		pass
 
-			elif not app.is_mode_supported(await self.instance.mode_manager.get_current_script()):
-				logging.info('Unloading app {}. Doesn\'t support the current script mode!'.format(label))
-				await app.on_stop()
-				await app.on_destroy()
-				del app
-
-			else:
-				apps_dict[label] = app
-
-		self.apps = apps_dict
+		# Check enabled apps, and replace the apps dictionary with the up-to-date apps.
+		# TODO: Same for this line, activate after life cycle has been fully implemented.
+		# script_name = await self.instance.mode_manager.get_current_script(refresh=True)
+		# apps_dict = OrderedDict()
+		# for label, app in self.apps.items():
+		# 	if not app.is_game_supported('trackmania' if self.instance.game.game == 'tm' else 'shootmania'):
+		# 		logging.info('Unloading app {}. Doesn\'t support the current game!'.format(label))
+		# 		await app.on_stop()
+		# 		await app.on_destroy()
+		#
+		# 		self.unloaded_apps[label] = app.module.__name__
+		# 		del app
+		#
+		# 	elif not app.is_mode_supported(script_name):
+		# 		logging.info('Unloading app {}. Doesn\'t support the current script mode!'.format(label))
+		# 		await app.on_stop()
+		# 		await app.on_destroy()
+		#
+		# 		self.unloaded_apps[label] = app.module.__name__
+		# 		del app
+		#
+		# 	else:
+		# 		apps_dict[label] = app
+		#
+		# self.apps = apps_dict
 
 	async def discover(self):
 		"""
@@ -126,24 +161,31 @@ class Apps:
 			self.instance.db.registry.init_app(app)
 
 			# Discover signals.
-			self.instance.signal_manager.init_app(app)
+			self.instance.signals.init_app(app)
 
 		# Finishing signal manager.
-		self.instance.signal_manager.finish_reservations()
+		self.instance.signals.finish_reservations()
 
 	async def init(self):
+		"""
+		This method will initiate all apps in order and in series.
+		"""
 		if self.apps_ready:
 			raise Exception('Apps are not yet ordered!')
 		for label, app in self.apps.items():
 			await app.on_init()
 
 	async def start(self):
+		"""
+		This method will start all apps that are previously initiated.
+		"""
 		if self.apps_ready:
 			raise Exception('Apps are not yet ordered!')
 
 		# The apps are in order, lets loop over them.
 		for label, app in self.apps.items():
 			await app.on_start()
+			app.state = AppState.LOADED
 			logging.debug('App is ready: {}'.format(label))
 		logging.info('Apps successfully started!')
 

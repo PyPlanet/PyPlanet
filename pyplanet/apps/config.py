@@ -29,6 +29,20 @@ class _AppContext:
 		Setting Contrib Component. See :doc:`Setting Classes </api/contrib_setting>`.
 		"""
 
+		self.signals = app.instance.signals.create_app_manager(app)
+		"""
+		Signal manager. See :doc:`Signal Manager </api/core_events>`.
+		"""
+
+	async def on_destroy(self):
+		await self.ui.on_destroy()
+		await self.signals.on_destroy()
+
+
+class AppState:
+	UNLOADED = 0
+	LOADED = 1
+
 
 class AppConfig:
 	"""
@@ -130,6 +144,9 @@ class AppConfig:
 		self.instance = instance
 		self.context = _AppContext(self)
 
+		# State of app.
+		self.state = AppState.UNLOADED
+
 	def __repr__(self):
 		return '<%s: %s>' % (self.__class__.__name__, self.label)
 
@@ -137,7 +154,7 @@ class AppConfig:
 	def ui(self):
 		"""
 		.. deprecated:: 0.0.1
-			Use ``context.ui`` instead.
+			Use ``context.ui`` instead. Will be removed in 0.6.0!
 		"""
 		logging.warning(DeprecationWarning(
 			'AppConfig.ui is deprecated, use AppConfig.context.ui instead.'
@@ -178,7 +195,7 @@ class AppConfig:
 		"""
 		On destroy is being called when unloading the app from the memory.
 		"""
-		pass
+		await self.context.on_destroy()
 
 	###################################################################################################
 

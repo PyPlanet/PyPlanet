@@ -37,9 +37,9 @@ class Karma(AppConfig):
 		await self.instance.command_manager.register(Command(command='whokarma', target=self.show_map_list))
 
 		# Register signals.
-		self.instance.signal_manager.listen(mp_signals.map.map_begin, self.map_begin)
-		self.instance.signal_manager.listen(mp_signals.player.player_chat, self.player_chat)
-		self.instance.signal_manager.listen(mp_signals.player.player_connect, self.player_connect)
+		self.context.signals.listen(mp_signals.map.map_begin, self.map_begin)
+		self.context.signals.listen(mp_signals.player.player_chat, self.player_chat)
+		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
 
 		await self.context.setting.register(self.setting_finishes_before_voting)
 

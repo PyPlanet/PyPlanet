@@ -17,12 +17,12 @@ class LiveRankings(AppConfig):
 
 	async def on_start(self):
 		# Register signals
-		self.instance.signal_manager.listen(mp_signals.map.map_start, self.map_start)
-		self.instance.signal_manager.listen(tm_signals.finish, self.player_finish)
-		self.instance.signal_manager.listen(tm_signals.waypoint, self.player_waypoint)
-		self.instance.signal_manager.listen(mp_signals.player.player_connect, self.player_connect)
-		self.instance.signal_manager.listen(tm_signals.give_up, self.player_giveup)
-		self.instance.signal_manager.listen(tm_signals.scores, self.scores)
+		self.context.signals.listen(mp_signals.map.map_start, self.map_start)
+		self.context.signals.listen(tm_signals.finish, self.player_finish)
+		self.context.signals.listen(tm_signals.waypoint, self.player_waypoint)
+		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
+		self.context.signals.listen(tm_signals.give_up, self.player_giveup)
+		self.context.signals.listen(tm_signals.scores, self.scores)
 
 		# Make sure we move the rounds_scores and other gui elements.
 		self.instance.ui_manager.properties.set_attribute('round_scores', 'pos', '-126.5 87. 150.')
