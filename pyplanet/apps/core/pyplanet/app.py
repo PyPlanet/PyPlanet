@@ -41,7 +41,7 @@ class PyPlanetConfig(AppConfig):
 		await self.logo.display()
 
 		# Listeners.
-		self.instance.signal_manager.listen('maniaplanet:player_connect', self.on_connect)
+		self.context.signals.listen('maniaplanet:player_connect', self.on_connect)
 		await self.instance.command_manager.register(Command('version', self.chat_version))
 
 	async def on_connect(self, player, **kwargs):

@@ -15,7 +15,7 @@ class TestCallbacks(asynctest.TestCase):
 			target=self.handle_sample
 		)
 
-		test1_comp = instance.signal_manager.get_callback('SampleCall')
+		test1_comp = instance.signals.get_callback('SampleCall')
 
 		assert test1.raw_signal == test1_comp
 

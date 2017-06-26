@@ -58,10 +58,10 @@ class DynamicPoints(AppConfig):
 		return 'royal' in mode.lower()
 
 	async def on_start(self):
-		self.instance.signal_manager.listen(mp_signals.player.player_connect, self.on_changes)
-		self.instance.signal_manager.listen(mp_signals.player.player_disconnect, self.on_changes)
-		self.instance.signal_manager.listen(mp_signals.player.player_info_changed, self.on_changes)
-		self.instance.signal_manager.listen(mp_signals.map.map_start, self.map_start)
+		self.context.signals.listen(mp_signals.player.player_connect, self.on_changes)
+		self.context.signals.listen(mp_signals.player.player_disconnect, self.on_changes)
+		self.context.signals.listen(mp_signals.player.player_info_changed, self.on_changes)
+		self.context.signals.listen(mp_signals.map.map_start, self.map_start)
 
 		await self.context.setting.register(
 			self.setting_enable_dynamic_points, self.setting_min_points, self.setting_max_points,

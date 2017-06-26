@@ -1,5 +1,6 @@
 import asynctest
 
+from pyplanet.apps import AppConfig
 from pyplanet.core import Controller
 from pyplanet.core.events import Signal
 
@@ -9,12 +10,12 @@ class TestSignals(asynctest.TestCase):
 		instance = Controller.prepare(name='default').instance
 
 		test1 = Signal(code='test1', namespace='tests')
-		instance.signal_manager.register_signal(test1)
+		instance.signals.register_signal(test1)
 		test2 = Signal(code='test2', namespace='tests')
-		instance.signal_manager.register_signal(test2)
+		instance.signals.register_signal(test2)
 
-		test1_comp = instance.signal_manager.get_signal('tests:test1')
-		test2_comp = instance.signal_manager.get_signal('tests:test2')
+		test1_comp = instance.signals.get_signal('tests:test1')
+		test2_comp = instance.signals.get_signal('tests:test2')
 
 		assert test1 == test1_comp
 		assert test2 == test2_comp
@@ -23,7 +24,7 @@ class TestSignals(asynctest.TestCase):
 		instance = Controller.prepare(name='default').instance
 
 		test1 = Signal(code='test1', namespace='tests', process_target=self.glue)
-		instance.signal_manager.register_signal(test1)
+		instance.signals.register_signal(test1)
 
 		self.got_sync = 0
 		self.got_async = 0
@@ -46,7 +47,7 @@ class TestSignals(asynctest.TestCase):
 	async def test_unregister(self):
 		instance = Controller.prepare(name='default').instance
 		test1 = Signal(code='test1', namespace='tests', process_target=self.glue)
-		instance.signal_manager.register_signal(test1)
+		instance.signals.register_signal(test1)
 
 		self.got_sync = 0
 		self.got_async = 0
@@ -65,6 +66,31 @@ class TestSignals(asynctest.TestCase):
 
 		assert self.got_sync == 1
 		assert self.got_async == 2
+
+	async def test_app_manager(self):
+		instance = Controller.prepare(name='default').instance
+		manager = instance.signals.create_app_manager(None)
+
+		test1 = Signal(code='test1', namespace='tests', process_target=self.glue)
+		manager.register_signal(test1)
+
+		self.got_sync = 0
+		self.got_async = 0
+		self.got_glue = 0
+		self.got_raw = 0
+
+		manager.listen(test1, self.sync_listener)
+		manager.listen(test1, self.async_listener)
+
+		await test1.send(dict(glue=False))
+
+		await manager.on_destroy()
+
+		# This one will be ignored because the app is destroyed.
+		await test1.send(dict(glue=False), raw=True)
+
+		assert self.got_sync == 1
+		assert self.got_async == 1
 
 	####################################################################################################################
 

@@ -20,7 +20,7 @@ class TrackmaniaComponent:
 
 	async def on_start(self):
 		# Listen to signals.
-		self.app.instance.signal_manager.listen(finish, self.on_finish)
+		self.app.context.signals.listen(finish, self.on_finish)
 
 	async def on_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
 		# Register the score of the player.

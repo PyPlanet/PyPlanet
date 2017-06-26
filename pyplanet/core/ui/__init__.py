@@ -212,6 +212,10 @@ class GlobalUIManager(_BaseUIManager):
 
 
 class AppUIManager(_BaseUIManager):
+	"""
+	The App UI manager is here to maintain the context of the app and have it destroy all the listeners when the app
+	is unloaded.
+	"""
 
 	def __init__(self, instance, app):
 		"""
@@ -224,3 +228,18 @@ class AppUIManager(_BaseUIManager):
 		"""
 		super().__init__(instance)
 		self.app = app
+
+	async def on_destroy(self):
+		links = self.manialinks.copy()
+		for ml in links.values():
+			try:
+				await ml.destroy()
+			except Exception as e:
+				logger.warning('Got exception while destroying apps UI: {}'.format(str(e)))
+				logger.debug(e)
+			try:
+				del ml
+			except:
+				pass
+
+		self.manialinks.clear()

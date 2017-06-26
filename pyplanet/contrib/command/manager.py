@@ -45,7 +45,7 @@ class CommandManager(CoreContrib):
 
 	async def on_start(self, **kwargs):
 		# Register events.
-		self._instance.signal_manager.listen('maniaplanet:player_chat', self._on_chat)
+		self._instance.signals.listen('maniaplanet:player_chat', self._on_chat)
 
 		# Register /help and //help
 		await self.register(

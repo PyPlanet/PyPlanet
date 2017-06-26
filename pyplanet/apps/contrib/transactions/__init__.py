@@ -34,7 +34,7 @@ class Transactions(AppConfig):
 		)
 
 		# Register callback.
-		self.instance.signal_manager.listen(mp_signals.other.bill_updated, self.bill_updated)
+		self.context.signals.listen(mp_signals.other.bill_updated, self.bill_updated)
 
 	async def display_planets(self, player, data, **kwargs):
 		planets = await self.instance.gbx('GetServerPlanets')

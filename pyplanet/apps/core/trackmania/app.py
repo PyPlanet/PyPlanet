@@ -15,4 +15,4 @@ class TrackmaniaConfig(AppConfig):
 	]
 
 	async def on_start(self):
-		self.instance.signal_manager.register_signal(finish)
+		self.context.signals.register_signal(finish)
