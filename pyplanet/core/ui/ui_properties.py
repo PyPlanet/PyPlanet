@@ -47,7 +47,7 @@ class UIProperties:  # pragma: no cover
 
 	async def on_start(self):
 		await self.refresh_properties()
-		self._instance.signal_manager.listen(pyplanet_start_after, self.send_properties)
+		self._instance.signals.listen(pyplanet_start_after, self.send_properties)
 
 	async def refresh_properties(self):
 		if self._instance.game.game == 'tm':

@@ -43,9 +43,9 @@ class LocalRecords(AppConfig):
 		await self.instance.command_manager.register(Command(command='records', target=self.show_records_list))
 
 		# Register signals
-		self.instance.signal_manager.listen(mp_signals.map.map_begin, self.map_begin)
-		self.instance.signal_manager.listen(tm_signals.finish, self.player_finish)
-		self.instance.signal_manager.listen(mp_signals.player.player_connect, self.player_connect)
+		self.context.signals.listen(mp_signals.map.map_begin, self.map_begin)
+		self.context.signals.listen(tm_signals.finish, self.player_finish)
+		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
 
 		await self.context.setting.register(self.setting_chat_announce, self.setting_record_limit)
 

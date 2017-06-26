@@ -49,7 +49,7 @@ class MapManager(CoreContrib):
 		self._next_map = None
 
 	async def on_start(self):
-		self._instance.signal_manager.listen('maniaplanet:playlist_modified', lambda: '')
+		self._instance.signals.listen('maniaplanet:playlist_modified', lambda: '')
 
 		# Fully update list + database.
 		await self.update_list(full_update=True)

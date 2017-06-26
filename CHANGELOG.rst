@@ -7,7 +7,20 @@ Changelog
 Core
 ~~~~
 
+* **Breaking**: App context aware signal manager.
+
+  This is a *deprecation* for the property ``signal_manager`` of the ``instance``. This means that ``self.instance.signal_manager``
+  needs to be replaced by ``self.context.signals`` to work with the life cycle changes in 0.8.0.
+  More info: https://github.com/PyPlanet/PyPlanet/issues/392
+
+  **The old way will break your app from version 0.8.0**
+  
 * Improvement: Retry 5 times when connecting to the dedicated server, making it possible to start both at the same time.
+
+Apps
+~~~~
+
+* Improvement: Applied context aware signal manager everywhere.
 
 
 0.4.3
@@ -79,7 +92,7 @@ Core
   This is a *deprecation* for the method ``get_player_data``. From now on, use the ``get_all_player_data`` or the better ``get_per_player_data``.
   More info: :doc:`/api/views`.
 
-  **The old method will not be called from 0.6.0**
+  **The old method will not be called from 0.7.0**
 
 * Feature: UI Overhaul is done! We replaced the whole GUI for a nicer, simple and modern one! With large inspiration of LongLife's posted image (https://github.com/PyPlanet/PyPlanet/issues/223).
 * Feature: UI Update queue, Don't make the dedicated hot by sending UI updates in realtime, but queue up and sent every 0,25 seconds. (Performance)
@@ -102,7 +115,7 @@ Apps
   This requires a config change:
   Change ``pyplanet.apps.contrib.mapinfo`` into ``pyplanet.apps.contrib.info`` and you are done!
 
-  **The old app will be removed in 0.6.0**
+  **The old app will be removed in 0.7.0**
 
 * Feature: **New App**: Shootmania Royal Dynamic Point Limit is here! Add it with ``pyplanet.apps.contrib.dynamic_points``.
 * Feature: **New App**: Trackmania Checkpoint/Sector time widget is here! Add it with ``pyplanet.apps.contrib.sector_times``.

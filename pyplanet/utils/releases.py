@@ -22,7 +22,7 @@ class _UpdateChecker:  # pragma: no cover
 		:type instance: pyplanet.core.instance.Instance
 		"""
 		self.instance = instance
-		self.instance.signal_manager.listen('maniaplanet:player_connect', self.connect)
+		self.instance.signals.listen('maniaplanet:player_connect', self.connect)
 
 		asyncio.ensure_future(self.check(True))
 		asyncio.ensure_future(self.loop())
