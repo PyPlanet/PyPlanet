@@ -37,7 +37,7 @@ class Jukebox(AppConfig):
 	def append_map(self, player, map):
 		self.jukebox.append({'player': player, 'map': map})
 
-	def clear_jukebox(self):
+	def empty_jukebox(self):
 		self.jukebox.clear()
 
 	async def show_map_list(self, player, data, **kwargs):
