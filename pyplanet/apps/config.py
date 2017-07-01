@@ -183,7 +183,6 @@ class AppConfig:
 		if hasattr(self, 'on_ready'):
 			logging.warning('on_ready is deprecated, use on_start instead! app: {}'.format(self.label))
 			await self.on_ready()
-		pass
 
 	async def on_stop(self):
 		"""

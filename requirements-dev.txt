@@ -11,4 +11,4 @@ rednose
 coverage
 asynctest
 twine
-codecov
+python-coveralls

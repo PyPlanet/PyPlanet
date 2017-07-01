@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# DEPRECATED
 
 # Check if we should run at all
 if [[ ${TOXENV} == *"integration"* ]]; then

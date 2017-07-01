@@ -3,8 +3,8 @@ PyPlanet
 
 .. image:: https://travis-ci.org/PyPlanet/PyPlanet.svg?branch=master
   :target: https://travis-ci.org/PyPlanet/PyPlanet
-.. image:: https://codecov.io/gh/PyPlanet/PyPlanet/branch/master/graph/badge.svg
-  :target: https://codecov.io/gh/PyPlanet/PyPlanet
+.. image:: https://coveralls.io/repos/github/PyPlanet/PyPlanet/badge.svg?branch=master
+  :target: https://coveralls.io/github/PyPlanet/PyPlanet?branch=master
 .. image:: https://readthedocs.org/projects/pyplanet/badge/?version=stable
   :target: http://pyplanet.readthedocs.io/en/stable/?badge=stable
   :alt: Documentation Status
