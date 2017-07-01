@@ -34,7 +34,6 @@ class _UpdateChecker:  # pragma: no cover
 				await self.check()
 			except:
 				pass
-		pass
 
 	async def check(self, first_check=False):
 		from pyplanet import __version__ as current_version
