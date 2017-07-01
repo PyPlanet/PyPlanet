@@ -14,6 +14,8 @@ Core
   More info: https://github.com/PyPlanet/PyPlanet/issues/392
 
   **The old way will break your app from version 0.8.0**
+  
+* Improvement: Retry 5 times when connecting to the dedicated server, making it possible to start both at the same time.
 
 Apps
 ~~~~
