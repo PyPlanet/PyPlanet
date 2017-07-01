@@ -56,7 +56,7 @@ before_install:
   - psql -c "CREATE USER pyplanet WITH PASSWORD 'pyplanet';" -U postgres
 
 install:
-  - pip install tox codacy-coverage codecov -U pip
+  - pip install tox codacy-coverage python-coveralls -U pip
   - tests/_scripts/travis_dedicated_setup.sh
 
 before_script:
@@ -67,9 +67,8 @@ script:
   - tox -e $TOXENV -- --with-coverage --cover-package=pyplanet --cover-xml --cover-xml-file=coverage.xml
 
 after_success:
-  - tests/_scripts/travis_coverage.sh
   - coveralls
-#  - codecov
+#  - tests/_scripts/travis_coverage.sh
 #  - python-codacy-coverage -r coverage.xml
 
 after_failure:
