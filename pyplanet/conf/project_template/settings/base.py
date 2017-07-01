@@ -1,6 +1,9 @@
 """
 This file contains the basic settings and overrides the default ones that are defined in the core.
 Documentation: http://pypla.net/
+
+If you want to use other configuration methods like YAML or JSON files, take a look at http://pypla.net/ and head to the
+configuration pages.
 """
 import os
 

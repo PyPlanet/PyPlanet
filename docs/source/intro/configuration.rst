@@ -2,17 +2,30 @@
 Configuring PyPlanet
 ====================
 
-**Settings module** is where the PyPlanet settings are stored. You provide the settings module by providing the
-environment variable ``PYPLANET_SETTINGS_MODULE``. Most of the times this is set in the ``manage.py``.
+**Settings method** is the method to read out settings. This can be one of the following methods/backends:
+
+- *python*: Default, the python loader uses the files ``base.py`` and ``apps.py`` in the ``PYPLANET_SETTINGS_MODULE`` provided.
+- json: Read json files ``base.json`` and ``apps.json`` in the provided ``PYPLANET_SETTINGS_DIRECTORY`` directory.
+- yaml: Read yaml files ``base.yaml`` and ``apps.yaml`` in the provided ``PYPLANET_SETTINGS_DIRECTORY`` directory.
+
+**Settings module (python only)** is where the PyPlanet settings are stored for python backend.
+You provide the settings module by providing the environment variable ``PYPLANET_SETTINGS_MODULE``.
+Most of the times this is set in the ``manage.py``.
 
 In most cases this settings module is ``settings`` and is located at the project root subfolder ``settings``.
 
+**Settings directory (json and yaml only)** is where the two configuration files are located for the file based backends
+such as JSON or YAML.
+
 **Split files** is the default, based on the CLI project generation. This will create two files inside of the settings module,
-the one is for apps (``apps.py``) and the other for all base configuration (``base.py``).
+the one is for apps (``apps.py``) and the other for all base configuration (``base.py``). For both other backends its quite the same.
 
 **Pools** are the different instances that will be running from PyPlanet. PyPlanet supports multiple controllers from a
 single setup and project, and even a start command. We are just spawning subprocesses when you start PyPlanet.
 More information about this setup and architecture on the `Architecture <../core/architecture>`__ overview.
+
+**Case sensitive**: Only the keys are not case insensitive (with exception of the Python backend). The value and the subkeys
+are all case sensitive!
 
 .. warning::
 
@@ -22,41 +35,99 @@ More information about this setup and architecture on the `Architecture <../core
   If you are going to add another pool, you should add the pool name to the keys of the dictionary, and fill the value like it
   is in the examples given here.
 
+  Also, the **JSON** examples always contain the opening and closing brackets in the examples. In a real file you would have these
+  only once around the whole file.
 
-Debug Mode (base.py)
-~~~~~~~~~~~~~~~~~~~~
+
+Debug Mode (base)
+~~~~~~~~~~~~~~~~~
 
 In most cases you don't have to use this setting. This setting is only here for developers.
 While you are in debug mode, there will be **More verbose output, no reporting of exceptions, and debugging of SQL queries**.
 
 When generating a project with the CLI, you will find this setting to be looking at your environment variable ``PYPLANET_DEBUG``.
-Therefor, enable debug by starting PyPlanet with ``PYPLANET_DEBUG=1``. Or changing the setting to ``DEBUG = True``.
+Therefor, enable debug by starting PyPlanet with ``PYPLANET_DEBUG=1``. Or changing the setting to ``DEBUG = True``. **This only works for the python config backend**
+
+
+.. code-block:: yaml
+  :caption: base.yaml
+
+  DEBUG: false
+
+.. code-block:: json
+  :caption: base.json
+
+  {
+    "DEBUG": false
+  }
+
 
 .. note::
+
   Please enable ``DEBUG`` when developing, as it won't send reports to the PyPlanet developers, which needs time to investigate
   and cleanup.
 
 
-Pool defining (base.py)
-~~~~~~~~~~~~~~~~~~~~~~~
+Pool defining (base)
+~~~~~~~~~~~~~~~~~~~~
 
 You need to define the pools you want to start and have activated with the ``POOLS`` list.
 
 .. code-block:: python
+  :caption: base.py
 
-  POOLS = ['default'] # Add more identifiers to start more controller instances.
+  # Add more identifiers to start more controller instances.
+  POOLS = [
+    'default'
+  ]
+
+.. code-block:: yaml
+  :caption: base.yaml
+
+  POOLS:
+    - default
+
+.. code-block:: json
+  :caption: base.json
+
+  {
+    "POOLS": [
+      "default"
+    ]
+  }
 
 
-Owners (base.py)
-~~~~~~~~~~~~~~~~
+Owners (base)
+~~~~~~~~~~~~~
 
 Because you want to have admin access at the first boot, you have to define a few master admin logins here. This is optional
 but will help you to get started directly after starting. This setting is pool aware.
 
 .. code-block:: python
+  :caption: base.py
 
   OWNERS = {
     'default': [ 'your-maniaplanet-login', 'second-login' ]
+  }
+
+.. code-block:: yaml
+  :caption: base.yaml
+
+  OWNERS:
+    default:
+      - your-maniaplanet-login
+      - second-login
+
+.. code-block:: json
+  :caption: base.json
+
+  {
+    "OWNERS": {
+      "default": [
+        "your-maniaplanet-login",
+        "second-login"
+      ]
+    }
   }
 
 
@@ -88,6 +159,7 @@ Create MySQL Database by running this command:
 Configuration can follow the following examples:
 
 .. code-block:: python
+  :caption: base.py
 
   DATABASES = { # Using PostgreSQL.
   'default': {
@@ -110,18 +182,50 @@ Configuration can follow the following examples:
         'host': 'localhost',
         'user': 'pyplanet',
         'password': 'pyplanet',
-        'charset': 'utf8',
+        'charset': 'utf8mb4',
+      }
+    }
+  }
+
+.. code-block:: yaml
+  :caption: base.yaml
+
+  DATABASES:
+    default:
+      ENGINE: 'peewee_async.MySQLDatabase'
+      NAME: 'pyplanet'
+      OPTIONS:
+        host: 'localhost'
+        user: 'pyplanet'
+        password: 'pyplanet'
+        charset: 'utf8mb4'
+
+.. code-block:: json
+  :caption: base.json
+
+  {
+    "DATABASES": {
+      "default": {
+        "ENGINE": "peewee_async.MySQLDatabase",
+        "NAME": "pyplanet",
+        "OPTIONS": {
+          "host": "localhost",
+          "user": "pyplanet",
+          "password": "pyplanet",
+          "charset": "utf8mb4"
+        }
       }
     }
   }
 
 
-Dedicated Server (base.py)
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Dedicated Server (base)
+~~~~~~~~~~~~~~~~~~~~~~~
 
 This one is pretty important, and pretty simple too. Look at the examples bellow, and you know how to set this up!
 
 .. code-block:: python
+  :caption: base.py
 
   DEDICATED = {
     'default': {
@@ -132,13 +236,38 @@ This one is pretty important, and pretty simple too. Look at the examples bellow
     }
   }
 
+.. code-block:: yaml
+  :caption: base.yaml
 
-Map settings (base.py)
-~~~~~~~~~~~~~~~~~~~~~~
+  DEDICATED:
+    default:
+      HOST: '127.0.0.1'
+      PORT: '5000'
+      USER: 'SuperAdmin'
+      PASSWORD: 'SuperAdmin'
+
+.. code-block:: json
+  :caption: base.json
+
+  {
+    "dedicated": {
+      "default": {
+        "HOST": "127.0.0.1",
+        "PORT": "5000",
+        "USER": "SuperAdmin",
+        "PASSWORD": "SuperAdmin"
+      }
+    }
+  }
+
+
+Map settings (base)
+~~~~~~~~~~~~~~~~~~~
 
 Some of these settings are required to be able to save match settings for example.
 
 .. code-block:: python
+  :caption: base.py
 
   # Map configuration is a set of configuration options related to match settings etc.
   # Matchsettings filename.
@@ -151,9 +280,24 @@ Some of these settings are required to be able to save match settings for exampl
     'default': '{server_login}.txt',
   }
 
+.. code-block:: yaml
+  :caption: base.yaml
 
-Storage (base.py)
-~~~~~~~~~~~~~~~~~
+  MAP_MATCHSETTINGS:
+    default: 'maplist.txt'
+
+.. code-block:: json
+  :caption: base.json
+
+  {
+    "MAP_MATCHSETTINGS": {
+      "default": "maplist.txt"
+    }
+  }
+
+
+Storage (base)
+~~~~~~~~~~~~~~
 
 This may need some explanation, why is this here? We wanted to be able to run PyPlanet on a separate machine as the dedicated
 is. But also access files from the dedicated for investigating maps, loading and writing maps and settings.
@@ -166,6 +310,7 @@ For example: *SFTP*, *FTP*, etc.
 If you run your dedicated server locally, you should use the following setting:
 
 .. code-block:: python
+  :caption: base.py
 
   STORAGE = {
     'default': {
@@ -173,6 +318,27 @@ If you run your dedicated server locally, you should use the following setting:
       'OPTIONS': {},
     }
   }
+
+.. code-block:: yaml
+  :caption: base.yaml
+
+  STORAGE:
+    default:
+      DRIVER: 'pyplanet.core.storage.drivers.local.LocalDriver'
+
+.. code-block:: json
+  :caption: base.json
+
+  {
+    "STORAGE": {
+      "default": {
+        "DRIVER": "pyplanet.core.storage.drivers.local.LocalDriver",
+        "OPTIONS": {
+        }
+      }
+    }
+  }
+
 
 **Using SFTP/SCP/SSH**
 
@@ -217,21 +383,22 @@ If your dedicated server is remote, and you want to give access, you can use the
   Documentation is available on: http://asyncssh.readthedocs.io/en/latest/#sftp-client
 
 
-Cache (base.py)
-~~~~~~~~~~~~~~~
+Cache (base)
+~~~~~~~~~~~~
 
 .. note::
 
-  This functionality is not yet implemented. Please don't define ``CACHE`` setting.
+  This functionality is not (yet) implemented. Please don't define ``CACHE`` setting.
 
 
-Enabling apps (apps.py)
-~~~~~~~~~~~~~~~~~~~~~~~
+Enabling apps (apps)
+~~~~~~~~~~~~~~~~~~~~
 
 You can enable apps in the ``APPS`` setting. This is pretty simple and straight forward.
 The order doesn't make a difference when starting/loading PyPlanet.
 
 .. code-block:: python
+  :caption: apps.py
 
   APPS = {
     'default': [
@@ -249,6 +416,47 @@ The order doesn't make a difference when starting/loading PyPlanet.
       'pyplanet.apps.contrib.sector_times',
       'pyplanet.apps.contrib.dynamic_points',
     ],
+  }
+
+.. code-block:: yaml
+  :caption: apps.yaml
+
+  apps:
+    default:
+      - 'pyplanet.apps.contrib.admin'
+      - 'pyplanet.apps.contrib.jukebox'
+      - 'pyplanet.apps.contrib.karma'
+      - 'pyplanet.apps.contrib.local_records'
+      - 'pyplanet.apps.contrib.dedimania'
+      - 'pyplanet.apps.contrib.players'
+      - 'pyplanet.apps.contrib.info'
+      - 'pyplanet.apps.contrib.mx'
+      - 'pyplanet.apps.contrib.transactions'
+
+      # New since 0.4.0:
+      - 'pyplanet.apps.contrib.sector_times'
+      - 'pyplanet.apps.contrib.dynamic_points'
+
+.. code-block:: json
+  :caption: apps.json
+
+  {
+    "APPS": {
+      "default": [
+        "pyplanet.apps.contrib.admin",
+        "pyplanet.apps.contrib.jukebox",
+        "pyplanet.apps.contrib.karma",
+        "pyplanet.apps.contrib.local_records",
+        "pyplanet.apps.contrib.dedimania",
+        "pyplanet.apps.contrib.players",
+        "pyplanet.apps.contrib.info",
+        "pyplanet.apps.contrib.mx",
+        "pyplanet.apps.contrib.transactions",
+
+        "pyplanet.apps.contrib.live_rankings",
+        "pyplanet.apps.contrib.sector_times",
+      ]
+    }
   }
 
 

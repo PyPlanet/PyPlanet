@@ -1,0 +1,34 @@
+root_path: './'
+tmp_path: './tmp'
+debug: true
+
+pools:
+  - default
+
+owners:
+  default:
+    - test-login
+
+databases:
+  default:
+    ENGINE: 'peewee_async.MySQLDatabase'
+    NAME: 'pyplanet'
+    OPTIONS:
+      host: localhost
+      user: root
+      password: ''
+      charset: utf8mb4
+
+dedicated:
+  default:
+    HOST: '127.0.0.1'
+    PORT: '5000'
+    USER: 'SuperAdmin'
+    PASSWORD: 'SuperAdmin'
+
+storage:
+  default:
+    DRIVER: 'pyplanet.core.storage.drivers.local.LocalDriver'
+
+map_matchsettings:
+  default: 'test.txt'
