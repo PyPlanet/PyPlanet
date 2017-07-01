@@ -41,15 +41,17 @@ class _UpdateChecker:  # pragma: no cover
 
 		logging.debug('Checking for new versions...')
 
-		async with aiohttp.request('GET', self.url) as resp:
-			self.latest = (await resp.json())[0]['name']
-			self.current = current_version
+		async with aiohttp.ClientSession() as session:
+			async with session.get(self.url) as resp:
+				self.latest = (await resp.json())[0]['name']
+				self.current = current_version
+				logging.debug('Version check, your version: {}, online version: {}'.format(self.current, self.latest))
 
-			if first_check and self.update_available:
-				logging.info('New version of PyPlanet available, consider updating: {}'.format(self.latest))
-				await self.instance.chat(
-					'\uf1e6 $FD4$oPy$369Planet$z$s$fff \uf0e7 new version available: v{}. Consider updating!'.format(self.latest)
-				)
+				if first_check and self.update_available:
+					logging.info('New version of PyPlanet available, consider updating: {}'.format(self.latest))
+					await self.instance.chat(
+						'\uf1e6 $FD4$oPy$369Planet$z$s$fff \uf0e7 new version available: v{}. Consider updating!'.format(self.latest)
+					)
 
 	@property
 	def update_available(self):
