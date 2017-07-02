@@ -6,8 +6,8 @@ environment:
     CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\tests\\_scripts\\run_with_env.cmd"
 
   matrix:
-    - PYTHON: "C:\\Python36-x64"
-      PYTHON_VERSION: "3.6.1"
+    - PYTHON: "C:\\Python35-x64"
+      PYTHON_VERSION: "3.5.3"
       PYTHON_ARCH: "64"
 
 install:
