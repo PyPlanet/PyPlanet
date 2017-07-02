@@ -18,6 +18,11 @@ Before upgrading, please check your existing version, and check the :doc:`Change
   We assume you installed PyPlanet with PyPi and initiated your project folder with ``init_project``.
   If you installed directly from Git, this document may not be suited for you.
 
+.. warning::
+
+  When using the executable method (downloaded from the GitHub releases page) you will have to redownload and replace the
+  binary file instead of these steps!
+
 1. Check requirements.txt
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
