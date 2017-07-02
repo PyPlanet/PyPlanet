@@ -28,6 +28,9 @@ env:
     - TOXENV=py36-integration-mysql
 
 matrix:
+#  include:
+#    - os: linux
+#    - os: osx
   exclude:
     - python: 3.6
       env: TOXENV=py35-unit-mysql
@@ -65,6 +68,7 @@ before_script:
 
 script:
   - tox -e $TOXENV -- --with-coverage --cover-package=pyplanet --cover-xml --cover-xml-file=coverage.xml
+  - ./tests/_script/travis_build_binary.sh
 
 after_success:
   - coveralls --ignore-errors

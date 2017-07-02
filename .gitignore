@@ -72,6 +72,8 @@ gen
 /tmp
 /*.db
 
+!/pyplanet.spec
+
 # local settings, apps etc.
 /settings/
 /apps/
