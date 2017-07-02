@@ -42,6 +42,10 @@ def initiate_logger():  # pragma: no cover
 	if settings.LOGGING_CONFIG == 'logging.config.dictConfig':
 		logging.config.dictConfig(settings.LOGGING)
 
+	root_path = os.curdir
+	if settings.ROOT_PATH:
+		root_path = settings.ROOT_PATH
+
 	# If we have writing logs enabled.
 	if settings.LOGGING_WRITE_LOGS:
 		# Parse directory
@@ -49,7 +53,7 @@ def initiate_logger():  # pragma: no cover
 			if os.path.isabs(settings.LOGGING_DIRECTORY):
 				path = settings.LOGGING_DIRECTORY
 			else:
-				path = os.path.join(settings.ROOT_PATH, settings.LOGGING_DIRECTORY)
+				path = os.path.join(root_path, settings.LOGGING_DIRECTORY)
 
 			# Create if not exists!
 			if not os.path.exists(path):
@@ -57,7 +61,7 @@ def initiate_logger():  # pragma: no cover
 
 			path = os.path.join(path, 'pyplanet.log')
 		else:
-			path = os.path.join(settings.ROOT_PATH, 'pyplanet.log')
+			path = os.path.join(root_path, 'pyplanet.log')
 
 		# Determinate handler and initiate it.
 		if settings.LOGGING_ROTATE_LOGS:

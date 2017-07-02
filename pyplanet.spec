@@ -3,10 +3,11 @@
 block_cipher = None
 
 
-a = Analysis(['pyplanet/bin/pyplanet'],
-             pathex=['.'],
+a = Analysis(['cli.py'],
+             pathex=['./'],
              binaries=[],
              datas=[('pyplanet', 'pyplanet')],
+             hiddenimports=['watchdog', 'watchdog.events', 'colorlog', 'aiofiles'],
              hookspath=[],
              runtime_hooks=[],
              excludes=['__pycache__', '*/__pycache__'],
