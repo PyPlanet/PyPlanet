@@ -79,3 +79,4 @@ gen
 /pyplanet/apps/local
 /logs/
 /pyplanet.log
+/pyplanet.pid
