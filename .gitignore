@@ -77,3 +77,5 @@ gen
 /apps/
 !/apps/__init__.py
 /pyplanet/apps/local
+/logs/
+/pyplanet.log

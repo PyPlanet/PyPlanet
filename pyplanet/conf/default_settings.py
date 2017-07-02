@@ -107,10 +107,15 @@ LOGGING = {
 		}
 	},
 	'root': {
-		'handlers': ['console', 'console-debug'],  # TODO: Add file (rotating) logger.
+		'handlers': ['console', 'console-debug'],
 		'level': logging.DEBUG,
 	}
 }
+
+# Global logging handlers.
+LOGGING_WRITE_LOGS = True
+LOGGING_ROTATE_LOGS = True
+LOGGING_DIRECTORY = 'logs'
 
 # Error reporting
 # See documentation for the options, (docs => privacy).

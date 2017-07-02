@@ -391,6 +391,35 @@ Cache (base)
   This functionality is not (yet) implemented. Please don't define ``CACHE`` setting.
 
 
+Logging (base)
+~~~~~~~~~~~~~~
+
+By default (from version 0.5.0) rotating logging is enabled by default. The settings bellow can be adjusted to meet
+your requirements.
+
+.. code-block:: python
+  :caption: base.py
+
+  LOGGING_WRITE_LOGS = True
+  LOGGING_ROTATE_LOGS = True
+  LOGGING_DIRECTORY = 'logs'
+
+.. code-block:: yaml
+  :caption: base.yaml
+
+  LOGGING_WRITE_LOGS: true
+  LOGGING_ROTATE_LOGS: true
+  LOGGING_DIRECTORY: 'logs'
+
+.. code-block:: json
+  :caption: base.json
+
+  {
+    "LOGGING_WRITE_LOGS": true,
+    "LOGGING_ROTATE_LOGS": true,
+    "LOGGING_DIRECTORY": "logs"
+  }
+
 Enabling apps (apps)
 ~~~~~~~~~~~~~~~~~~~~
 
