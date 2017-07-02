@@ -7,6 +7,4 @@ else
   exit 0
 fi
 
-set -ex
-
 docs/scripts/build-binary.sh

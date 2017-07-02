@@ -68,7 +68,7 @@ before_script:
 
 script:
   - tox -e $TOXENV -- --with-coverage --cover-package=pyplanet --cover-xml --cover-xml-file=coverage.xml
-  - ./tests/_script/travis_build_binary.sh
+  - tests/_scripts/travis_build_binary.sh
 
 after_success:
   - coveralls --ignore-errors
