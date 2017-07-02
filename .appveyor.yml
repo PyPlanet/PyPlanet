@@ -1,3 +1,6 @@
+cache:
+  - "%LOCALAPPDATA%\\pip\\Cache"
+
 environment:
   global:
     CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\tests\\_scripts\\run_with_env.cmd"
