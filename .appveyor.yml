@@ -24,6 +24,9 @@ install:
   # target Python version and architecture
   - "%CMD_IN_ENV% pip install -r requirements.txt"
 
+  # Install pyinstaller
+  - "%CMD_IN_ENV% pip install pyinstaller"
+
 build_script:
   # Build the compiled extension
   - "%CMD_IN_ENV% python setup.py build"
