@@ -1,10 +1,8 @@
-import multiprocessing
-
 import os
 import time
 import logging
+import multiprocessing
 
-from watchdog.observers import Observer
 from logging.handlers import QueueListener
 
 from pyplanet.utils.livereload import LiveReload
@@ -44,6 +42,14 @@ class EnvironmentPool:
 
 		self._restarts = dict()
 
+	@property
+	def num_online(self):
+		count = 0
+		for proc in self.pool.values():
+			if not proc.did_die:
+				count += 1
+		return count
+
 	def populate(self):
 		"""
 		Populate the pool instance processes, (prepares the processes).
@@ -64,7 +70,6 @@ class EnvironmentPool:
 		"""
 		Shutdown all processes.
 		"""
-
 		for name, proc in self.pool.items():
 			proc.shutdown()
 		# self.dog_observer.stop()
@@ -96,6 +101,8 @@ class EnvironmentPool:
 					# Process wants a restart! = exit code 50.
 					if proc.exitcode == 50:
 						self.restart(name)
+						# Make sure we don't kill our god at the end of the loop.
+						num_alive = 1
 					# Status changed from 'online' to 'offline'
 					elif self._restarts[name] < self.max_restarts:
 						logger.critical('The instance \'{}\' just died. We will restart the instance!'.format(name))

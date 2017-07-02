@@ -31,7 +31,14 @@ PyPlanet detached.
 
 .. code-block:: bash
 
-  ./manage.py start --detach --detach-pid-file=pyplanet.pid
+  ./manage.py start --detach --pid-file=pyplanet.pid
+
+
+This way you can create your own startup scripts. You can terminate PyPlanet by using the following command:
+
+.. code-block:: bash
+
+  kill -SIGTERM `cat pyplanet.pid`
 
 
 Start/stop with Screen (Linux)
