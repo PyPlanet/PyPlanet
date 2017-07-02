@@ -38,3 +38,14 @@ build_script:
 artifacts:
   # Archive the generated packages in the ci.appveyor.com build report.
   - path: dist\*
+
+deploy:
+  description: "Changelog pending..."
+  provider: GitHub
+  auth_token:
+    secure: CyTyaB2aB4moEZyYbm/XGlFhD68jIcl2o0/tVHOAZ/VIwTHsryFY3DvRMKNOmPZE
+  draft: true
+  prerelease: false
+  artifact: "dist\\pyplanet.exe"
+  on:
+    appveyor_repo_tag: true

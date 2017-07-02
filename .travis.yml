@@ -77,3 +77,13 @@ after_success:
 
 after_failure:
   - cat dedicated/Logs/*
+
+deploy:
+  provider: releases
+  api_key:
+    secure: jmdxPQpZOZrOgGLkls1IznIuYs43CEU+Q5GyQDGcIfOQtttOxiwgKjsCg37/1RVHylpSIqRYWVrzSlcw5k4bA9SANWjG4ENtdrG8J63LvjzAHUfzAquxwmHXpv1j+dU5heOheIgl5ckmXvWvMosddu412sEBtDtwuIwtV2v3VnYy8OV21mKg/JmCjJTZt/MurBfqgNyoMpKljIBiAuknlpKX8+Px4oxOZVR98GkmbEm5I9SxhrArr8XX8yshAyWyHPHF2ubiFUajkpl9yLrapiZwtNMJMEsvNcRFN3wL8anNJwmXVUWCRV/MXBYJpMoa31DR9YmlTYTS/QhxHhdl71y/PB2UMHcGlr+0ms5/fgiSeaBls2EIjyqd80+YIsP/lHGrjYv7BaZZEquXUHdvd51zkYfOv6YmmaZKq62pxKRAX1jyhQdwfbkkJPeqy7YjNrVT9gikbupLQecenFQ3tttbb6TOtsdDPeiDcYWW1wqpE+DoGVkludwN6YTEGkm7G+YX44PFk8aOEZJN31hibqwOXHIDUK/oiaGOMv4faftykE9Yx0YM9wJ1IjWrqw5A3Vp+A82yJ2jFHf+WK7bMAxoj0T23nIHNPuM74Bmv2KWBXWmXH/VFuMvjSeJHYzMWbUoIRe70ClSZsc8iikQkp1iZoeYaOlw3HWq21wUrh6I=
+  file: dist/pyplanet
+  on:
+    repo: PyPlanet/PyPlanet
+    tags: true
+  draft: true
