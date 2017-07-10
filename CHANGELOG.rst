@@ -1,6 +1,56 @@
 Changelog
 =========
 
+0.5.0 (unreleased)
+------------------
+
+Core
+~~~~
+
+* **Breaking**: App context aware signal manager.
+
+  This is a *deprecation* for the property ``signal_manager`` of the ``instance``. This means that ``self.instance.signal_manager``
+  needs to be replaced by ``self.context.signals`` to work with the life cycle changes in 0.8.0.
+  More info: https://github.com/PyPlanet/PyPlanet/issues/392
+
+  **The old way will break your app from version 0.8.0**
+  
+* Improvement: Retry 5 times when connecting to the dedicated server, making it possible to start both at the same time.
+
+Apps
+~~~~
+
+* Improvement: Applied context aware signal manager everywhere.
+
+
+0.4.3
+-----
+
+Apps
+~~~~
+
+* Bugfix: Fix issue with switching to custom script (lower case not found), specially teams mode.
+
+0.4.2
+-----
+
+Core
+~~~~
+
+* Improvement: Bump XML-RPC Script API to version 2.2.0.
+* Improvement: Show the Round Score build-in ui (nadeo widget) and move it a bit.
+* Improvement: Move the build-in warmup ui (nadeo widget) a bit.
+
+Apps
+~~~~
+
+* Feature: Add //shuffle and //readmaplist. Both are unsure to work.
+* Improvement: Further investigate and report issues related to Dedimania.
+* Bugfix: Fixing negative count issue on the info widgets.
+* Bugfix: Remove faulty and debug line from dedimania api catch block.
+* Bugfix: Properly handle the dedimania response when player is not correct.
+* Bugfix: Fixing issues with boolean values and the //modesettings GUI.
+
 0.4.1
 -----
 
@@ -15,6 +65,7 @@ Core
 * Bugfix: Ignore key interrupt exception trace when stopping PyPlanet while it has got a reboot in the mean time.
 * Bugfix: Hide the ALT menu in shootmania, just as it should do since before 0.4.0.
 * Bugfix: Fixing issue with checking for updates could result in a exception trace in the console for some installations with older setuptools.
+* Bugfix: Fixing an issue that results in fetching data for widget several times while it's not needed (thinking it's per player data when it isn't). (Thanks to Chris92)
 
 
 Apps
@@ -22,10 +73,12 @@ Apps
 
 * Improvement: Make it able to drive dedimania records on short maps made by Nadeo.
 * Improvement: Make the improvement time blue like Nadeo also does in the sector times widget.
+* Improvement: Always show nickname of the map author and make it switchable by clicking on it.
 * Bugfix: Don't set the time of the spectator as your best time in the sector times widget.
 * Bugfix: Problems that could lead to dedimania not being init currently on the map if the map was replayed.
 * Bugfix: Hide dedimania if map is not supported.
 * Bugfix: Fix the offset issue for the live rankings widget (in TA mode).
+* Bugfix: Fix the incorrect number of spec/player count on the top left info widget.
 
 
 0.4.0
@@ -39,7 +92,7 @@ Core
   This is a *deprecation* for the method ``get_player_data``. From now on, use the ``get_all_player_data`` or the better ``get_per_player_data``.
   More info: :doc:`/api/views`.
 
-  **The old method will not be called from 0.6.0**
+  **The old method will not be called from 0.7.0**
 
 * Feature: UI Overhaul is done! We replaced the whole GUI for a nicer, simple and modern one! With large inspiration of LongLife's posted image (https://github.com/PyPlanet/PyPlanet/issues/223).
 * Feature: UI Update queue, Don't make the dedicated hot by sending UI updates in realtime, but queue up and sent every 0,25 seconds. (Performance)
@@ -62,7 +115,7 @@ Apps
   This requires a config change:
   Change ``pyplanet.apps.contrib.mapinfo`` into ``pyplanet.apps.contrib.info`` and you are done!
 
-  **The old app will be removed in 0.6.0**
+  **The old app will be removed in 0.7.0**
 
 * Feature: **New App**: Shootmania Royal Dynamic Point Limit is here! Add it with ``pyplanet.apps.contrib.dynamic_points``.
 * Feature: **New App**: Trackmania Checkpoint/Sector time widget is here! Add it with ``pyplanet.apps.contrib.sector_times``.

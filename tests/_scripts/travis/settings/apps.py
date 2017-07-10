@@ -14,7 +14,7 @@ APPS = {
 		'pyplanet.apps.contrib.local_records.app.LocalRecords',
 		'pyplanet.apps.contrib.dedimania',
 		'pyplanet.apps.contrib.players.app.Players',
-		'pyplanet.apps.contrib.mapinfo',
+		'pyplanet.apps.contrib.info',
 		'pyplanet.apps.contrib.mx',
 		'pyplanet.apps.contrib.transactions',
 		'tests.apps.migration_test.app.MigrationTest',

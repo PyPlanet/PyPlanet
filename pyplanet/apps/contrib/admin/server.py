@@ -60,18 +60,21 @@ class ServerAdmin:
 				))
 
 	async def set_mode(self, player, data, **kwargs):
-		mode = ' '.join(data.mode)
+		mode = (' '.join(data.mode))
+		lower_mode = mode.lower()
 
-		if mode == 'ta':
+		if lower_mode == 'ta' or lower_mode == 'timeattack':
 			mode = 'TimeAttack.Script.txt'
-		elif mode == 'laps':
+		elif lower_mode == 'laps':
 			mode = 'Laps.Script.txt'
-		elif mode == 'rounds':
+		elif lower_mode == 'rounds':
 			mode = 'Rounds.Script.txt'
-		elif mode == 'cup':
+		elif lower_mode == 'cup':
 			mode = 'Cup.Script.txt'
-		elif mode == 'chase':
+		elif lower_mode == 'chase':
 			mode = 'Chase.Script.txt'
+		elif lower_mode == 'team':
+			mode = 'Team.Script.txt'
 
 		try:
 			await self.instance.mode_manager.set_next_script(mode)

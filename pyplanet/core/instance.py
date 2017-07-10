@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import traceback
 
 from pyplanet.utils.analytics import Analytics
 from .controller import Controller as _Controller
@@ -40,8 +41,8 @@ class Instance:
 	:ivar gbx: Gbx component.
 	:ivar db: Database component.
 	:ivar storage: Storage component.
-	:ivar signal_manager: Signal Manager.
-	:ivar ui_manager: UI Manager (global). Please use the APP context UI manager instead!
+	:ivar signals: Signal Manager (global). Please use the APP context Signal Manager instead!
+	:ivar ui_manager: UI Manager (global). Please use the APP context UI Manager instead!
 
 	:ivar map_manager: Contrib: Map Manager.
 	:ivar player_manager: Contrib: Player Manager.
@@ -66,7 +67,7 @@ class Instance:
 		self.gbx = 					GbxClient.create_from_settings(self, settings.DEDICATED[self.process_name])
 		self.db = 					Database.create_from_settings(self, settings.DATABASES[self.process_name])
 		self.storage =				Storage.create_from_settings(self, settings.STORAGE[self.process_name])
-		self.signal_manager = 		SignalManager
+		self.signals =				SignalManager
 		self.ui_manager =			GlobalUIManager(self)
 		self.apps = 				Apps(self)
 
@@ -88,6 +89,25 @@ class Instance:
 				'One of the pool names doesn\'t reflect into the APPS setting! You must '
 				'declare the apps per pool! ({})'.format(str(e))
 			)
+
+	@property
+	def signal_manager(self):
+		"""
+		Deprecated!
+
+		.. deprecated:: 0.5.0
+			Use :func:`self.context.signals` instead in your apps.
+
+		:return: Signal manager (global).
+		:rtype: pyplanet.core.events.manager._SignalManager
+		"""
+		logger.warning(DeprecationWarning(
+			'DEPRECATED: The usage of \'self.instance.signal_manager\' in apps is deprecated, '
+			'use \'self.context.signals\' instead!'
+		))
+		logger.warning('\n'.join(traceback.format_stack(limit=7)))
+
+		return self.signals
 
 	def start(self, run_forever=True):  # pragma: no cover
 		"""
@@ -167,7 +187,7 @@ class Instance:
 		await Analytics.start(self)
 
 		# Finish signalling and send finish signal.
-		await self.signal_manager.finish_start()
+		await self.signals.finish_start()
 		await self.__fire_signal(signals.pyplanet_start_after)
 
 	async def print_header(self):  # pragma: no cover
@@ -185,7 +205,6 @@ class Instance:
 			raw=True
 		)
 
-		# TODO: Write analytics util for this. Fire every admin connect (random admin connect). Fetch new version x hours.
 		try:
 			asyncio.ensure_future(releases.UpdateChecker.init_checker(self))
 		except:

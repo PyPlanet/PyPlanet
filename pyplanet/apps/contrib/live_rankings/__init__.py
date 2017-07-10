@@ -17,15 +17,15 @@ class LiveRankings(AppConfig):
 
 	async def on_start(self):
 		# Register signals
-		self.instance.signal_manager.listen(mp_signals.map.map_start, self.map_start)
-		self.instance.signal_manager.listen(tm_signals.finish, self.player_finish)
-		self.instance.signal_manager.listen(tm_signals.waypoint, self.player_waypoint)
-		self.instance.signal_manager.listen(mp_signals.player.player_connect, self.player_connect)
-		self.instance.signal_manager.listen(tm_signals.give_up, self.player_giveup)
-		self.instance.signal_manager.listen(tm_signals.scores, self.scores)
+		self.context.signals.listen(mp_signals.map.map_start, self.map_start)
+		self.context.signals.listen(tm_signals.finish, self.player_finish)
+		self.context.signals.listen(tm_signals.waypoint, self.player_waypoint)
+		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
+		self.context.signals.listen(tm_signals.give_up, self.player_giveup)
+		self.context.signals.listen(tm_signals.scores, self.scores)
 
-		# Make sure we hide rounds_scores.
-		self.instance.ui_manager.properties.set_visibility('round_scores', False)
+		# Make sure we move the rounds_scores and other gui elements.
+		self.instance.ui_manager.properties.set_attribute('round_scores', 'pos', '-126.5 87. 150.')
 		self.instance.ui_manager.properties.set_visibility('checkpoint_ranking', False)
 		self.instance.ui_manager.properties.set_attribute('multilap_info', 'pos', '107., 88., 5.')
 
@@ -43,8 +43,9 @@ class LiveRankings(AppConfig):
 			await self.widget.display()
 
 	def is_mode_supported(self, mode):
-		return mode.startswith('TimeAttack') or mode.startswith('Rounds') or mode.startswith('Team') or \
-			   mode.startswith('Laps') or mode.startswith('Cup')
+		mode = mode.lower()
+		return mode.startswith('timeattack') or mode.startswith('rounds') or mode.startswith('team') or \
+			   mode.startswith('laps') or mode.startswith('cup')
 
 	async def scores(self, section, players, **kwargs):
 		await self.handle_scores(players)
@@ -53,8 +54,8 @@ class LiveRankings(AppConfig):
 	async def handle_scores(self, players):
 		self.current_rankings = []
 
-		current_script = await self.instance.mode_manager.get_current_script()
-		if 'TimeAttack' in current_script:
+		current_script = (await self.instance.mode_manager.get_current_script()).lower()
+		if 'timeattack' in current_script:
 			for player in players:
 				if 'best_race_time' in player:
 					if player['best_race_time'] != -1:
@@ -66,7 +67,7 @@ class LiveRankings(AppConfig):
 						self.current_rankings.append(new_ranking)
 
 			self.current_rankings.sort(key=lambda x: x['score'])
-		elif 'Rounds' in current_script or 'Team' in current_script or 'Cup' in current_script:
+		elif 'rounds' in current_script or 'team' in current_script or 'cup' in current_script:
 			for player in players:
 				if 'map_points' in player:
 					if player['map_points'] != -1:
@@ -99,7 +100,7 @@ class LiveRankings(AppConfig):
 		await self.widget.display()
 
 	async def player_waypoint(self, player, race_time, flow, raw):
-		if 'Laps' not in await self.instance.mode_manager.get_current_script():
+		if 'laps' not in (await self.instance.mode_manager.get_current_script()).lower():
 			return
 
 		current_rankings = [x for x in self.current_rankings if x['nickname'] == player.nickname]
@@ -122,12 +123,12 @@ class LiveRankings(AppConfig):
 		await self.widget.display()
 
 	async def player_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
-		current_script = await self.instance.mode_manager.get_current_script()
-		if 'Laps' in current_script:
+		current_script = (await self.instance.mode_manager.get_current_script()).lower()
+		if 'laps' in current_script:
 			await self.player_waypoint(player, race_time, flow, raw)
 			return
 
-		if 'TimeAttack' not in current_script:
+		if 'timeattack' not in current_script:
 			return
 
 		current_rankings = [x for x in self.current_rankings if x['nickname'] == player.nickname]

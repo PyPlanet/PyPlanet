@@ -29,7 +29,7 @@ class Jukebox(AppConfig):
 		)
 
 		# Register callback.
-		self.instance.signal_manager.listen(mp_signals.flow.podium_start, self.podium_start)
+		self.context.signals.listen(mp_signals.flow.podium_start, self.podium_start)
 
 	def insert_map(self, player, map):
 		self.jukebox = [{'player': player, 'map': map}] + self.jukebox
@@ -37,7 +37,7 @@ class Jukebox(AppConfig):
 	def append_map(self, player, map):
 		self.jukebox.append({'player': player, 'map': map})
 
-	def clear_jukebox(self):
+	def empty_jukebox(self):
 		self.jukebox.clear()
 
 	async def show_map_list(self, player, data, **kwargs):

@@ -15,7 +15,7 @@ class _AppContext:
 		"""
 		Initiate the App Context. Used by several core and contribs to have it's own manager instance per app.
 		You should always use the managers of your local app at first!
-		
+
 		:param app: App Config instance.
 		:type app: pyplanet.apps.config.AppConfig
 		"""
@@ -29,19 +29,33 @@ class _AppContext:
 		Setting Contrib Component. See :doc:`Setting Classes </api/contrib_setting>`.
 		"""
 
+		self.signals = app.instance.signals.create_app_manager(app)
+		"""
+		Signal manager. See :doc:`Signal Manager </api/core_events>`.
+		"""
+
+	async def on_destroy(self):
+		await self.ui.on_destroy()
+		await self.signals.on_destroy()
+
+
+class AppState:
+	UNLOADED = 0
+	LOADED = 1
+
 
 class AppConfig:
 	"""
 	This class is the base class for the Applications metadata class. The class holds information and hooks
 	that will be executed after initiation for example.
-	
+
 	.. code-block:: python
-	
+
 		class MyApp(AppConfig):
 
 			async def on_start(self):
 				print('we are staring!!')
-	
+
 	"""
 
 	name = None
@@ -63,7 +77,7 @@ class AppConfig:
 	.. code-block :: python
 
 		def is_mode_supported(self, mode):
-			return mode.startswith('TimeAttack')
+			return mode.lower().startswith('TimeAttack')
 
 	"""
 
@@ -87,7 +101,7 @@ class AppConfig:
 	def __init__(self, app_name, app_module, instance):
 		"""
 		Init app config.
-		
+
 		:param app_name: App Name (from module path).
 		:param app_module: App Module.
 		:param instance: Instance of controller
@@ -130,6 +144,9 @@ class AppConfig:
 		self.instance = instance
 		self.context = _AppContext(self)
 
+		# State of app.
+		self.state = AppState.UNLOADED
+
 	def __repr__(self):
 		return '<%s: %s>' % (self.__class__.__name__, self.label)
 
@@ -137,7 +154,7 @@ class AppConfig:
 	def ui(self):
 		"""
 		.. deprecated:: 0.0.1
-			Use ``context.ui`` instead.
+			Use ``context.ui`` instead. Will be removed in 0.6.0!
 		"""
 		logging.warning(DeprecationWarning(
 			'AppConfig.ui is deprecated, use AppConfig.context.ui instead.'
@@ -159,18 +176,17 @@ class AppConfig:
 
 	async def on_start(self):
 		"""
-		The on_start call is being called after all apps has been started successfully. You should register any stuff 
+		The on_start call is being called after all apps has been started successfully. You should register any stuff
 		that is related to any other apps and signals like your `self` context for signals if they are classmethods.
 		"""
 		# Deprecated: Fix the deprecated method
 		if hasattr(self, 'on_ready'):
 			logging.warning('on_ready is deprecated, use on_start instead! app: {}'.format(self.label))
 			await self.on_ready()
-		pass
 
 	async def on_stop(self):
 		"""
-		The on_stop will be called before stopping the app.  
+		The on_stop will be called before stopping the app.
 		"""
 		pass
 
@@ -178,13 +194,13 @@ class AppConfig:
 		"""
 		On destroy is being called when unloading the app from the memory.
 		"""
-		pass
+		await self.context.on_destroy()
 
 	###################################################################################################
 
 	def is_mode_supported(self, mode):
 		if self.mode_dependencies:
-			return mode in self.mode_dependencies
+			return mode in self.mode_dependencies or mode.lower in self.mode_dependencies
 		return True
 
 	def is_game_supported(self, game):

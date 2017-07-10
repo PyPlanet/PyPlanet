@@ -10,6 +10,8 @@ omit =
   pyplanet/utils/log.py
   pyplanet/core/storage/drivers/asyncssh/*
   pyplanet/apps/contrib/*
+  pyplanet/conf/app_template/*
+  pyplanet/conf/project_template/*
 
 [report]
 exclude_lines =

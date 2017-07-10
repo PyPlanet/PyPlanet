@@ -1,6 +1,9 @@
 """
 This file contains the apps & apps settings and overrides the default ones that are defined in the core.
 Documentation: http://pypla.net/
+
+If you want to use other configuration methods like YAML or JSON files, take a look at http://pypla.net/ and head to the
+configuration pages.
 """
 
 # In the apps dictionary and array you configure the apps (or plugins) are loaded for specific pools (controllers).
@@ -15,7 +18,7 @@ APPS = {
 		'pyplanet.apps.contrib.local_records',
 		'pyplanet.apps.contrib.dedimania',  # Will be disabled in Shootmania automatically.
 		'pyplanet.apps.contrib.players',
-		'pyplanet.apps.contrib.mapinfo',
+		'pyplanet.apps.contrib.info',
 		'pyplanet.apps.contrib.mx',
 		'pyplanet.apps.contrib.transactions',
 		'pyplanet.apps.contrib.sector_times',
@@ -24,7 +27,7 @@ APPS = {
 		# http://pypla.net/#app-docs
 
 		# Live Ranking App. Useful when playing in Laps, Rounds and all sort of Trackmania game modes.
-		# 'pyplanet.apps.contrib.live_rankings',
+		'pyplanet.apps.contrib.live_rankings',
 
 		# Dynamic Points Limit is meant for Shootmania Royal.
 		# 'pyplanet.apps.contrib.dynamic_points',

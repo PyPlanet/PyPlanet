@@ -262,7 +262,7 @@ class BaseCommand:
 			sys.exit(1)
 		finally:
 			pass
-			# TODO: Clonse all db connections etc.
+			# TODO: Close all db connections etc.
 
 	def execute(self, *args, **options):
 		"""

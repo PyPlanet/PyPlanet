@@ -18,9 +18,14 @@ class PlayerManager(CoreContrib):
 	"""
 	Player Manager.
 
-	.. todo::
+	You can access this class in your app with:
 
-		Write introduction.
+	.. code-block:: python
+
+		self.instance.player_manager
+
+	With the manager you can get several useful information about the players on the server. See all the properties and methods
+	below for more information.
 
 	.. warning::
 
@@ -96,14 +101,6 @@ class PlayerManager(CoreContrib):
 		ip, _, port = info['IPAddress'].rpartition(':')
 		is_owner = login in settings.OWNERS[self._instance.process_name]
 
-		# Update counter.
-		async with self._counter_lock:
-			self._total_count += 1
-			if info['IsSpectator']:
-				self._spectators_count += 1
-			else:
-				self._players_count += 1
-
 		try:
 			player = await Player.get_by_login(login)
 			player.last_ip = ip
@@ -122,10 +119,18 @@ class PlayerManager(CoreContrib):
 				level=Player.LEVEL_MASTER if is_owner else Player.LEVEL_PLAYER,
 			)
 
-		player.flow.player_id = info['PlayerId']
-		player.flow.team_id = info['TeamId']
-		player.flow.is_spectator = bool(info['IsSpectator'])
-		player.flow.is_player = not bool(info['IsSpectator'])
+		# Update counter and state.
+		async with self._counter_lock:
+			player.flow.player_id = info['PlayerId']
+			player.flow.team_id = info['TeamId']
+			player.flow.is_spectator = bool(info['IsSpectator'])
+			player.flow.is_player = not bool(info['IsSpectator'])
+
+			self._total_count += 1
+			if player.flow.is_spectator:
+				self._spectators_count += 1
+			else:
+				self._players_count += 1
 
 		self._online.add(player)
 		self.performance_mode = len(self._online) >= await performance_mode.get_value()
@@ -135,24 +140,30 @@ class PlayerManager(CoreContrib):
 	async def handle_info_change(self, player, is_spectator, is_temp_spectator, is_pure_spectator, target, team_id, **kwargs):
 		if not player:
 			return
-		# Make sure spectator is real spectator and not temporary.
-		is_spectator = is_spectator and not is_temp_spectator
 
 		async with self._counter_lock:
-			if player.flow.is_spectator and not is_spectator:
+			if player.flow.is_spectator is True and not is_spectator:
 				self._spectators_count -= 1
 				self._players_count += 1
 
-				await self._instance.signal_manager.get_signal('maniaplanet:player_enter_player_slot').send_robust(dict(
+				await self._instance.signals.get_signal('maniaplanet:player_enter_player_slot').send_robust(dict(
 					player=player,
 				), raw=True)
-			if player.flow.is_player and is_spectator:
+			elif player.flow.is_player is True and is_spectator:
 				self._spectators_count += 1
 				self._players_count -= 1
 
-				await self._instance.signal_manager.get_signal('maniaplanet:player_enter_spectator_slot').send_robust(dict(
+				await self._instance.signals.get_signal('maniaplanet:player_enter_spectator_slot').send_robust(dict(
 					player=player,
 				), raw=True)
+
+			# This is in case of desync happens. Not nice to fix, but currently one of the only options.
+			if self._players_count < 0:
+				self._players_count = 0
+			if self._spectators_count < 0:
+				self._spectators_count = 0
+			if self._total_count < 0:
+				self._total_count = 0
 
 		player.flow.is_spectator = is_spectator
 		player.flow.is_temp_spectator = is_temp_spectator
@@ -190,6 +201,12 @@ class PlayerManager(CoreContrib):
 			pass
 		player.last_seen = datetime.datetime.now()
 		await player.save()
+
+		# Clear player/spec state.
+		player.flow.is_player = None
+		player.flow.is_spectator = None
+		player.flow.is_pure_spectator = None
+		player.flow.is_temp_spectator = None
 
 		# Update performance mode status.
 		self.performance_mode = self._total_count >= await performance_mode.get_value()

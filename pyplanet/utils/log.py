@@ -1,5 +1,7 @@
+import importlib
 import logging
 import logging.config
+import os
 import sys
 import traceback
 from pprint import pprint
@@ -39,6 +41,41 @@ class Raven:  # pragma: no cover
 def initiate_logger():  # pragma: no cover
 	if settings.LOGGING_CONFIG == 'logging.config.dictConfig':
 		logging.config.dictConfig(settings.LOGGING)
+
+	# If we have writing logs enabled.
+	if settings.LOGGING_WRITE_LOGS:
+		# Parse directory
+		if settings.LOGGING_DIRECTORY:
+			if os.path.isabs(settings.LOGGING_DIRECTORY):
+				path = settings.LOGGING_DIRECTORY
+			else:
+				path = os.path.join(settings.ROOT_PATH, settings.LOGGING_DIRECTORY)
+
+			# Create if not exists!
+			if not os.path.exists(path):
+				os.mkdir(path)
+
+			path = os.path.join(path, 'pyplanet.log')
+		else:
+			path = os.path.join(settings.ROOT_PATH, 'pyplanet.log')
+
+		# Determinate handler and initiate it.
+		if settings.LOGGING_ROTATE_LOGS:
+			handler = logging.handlers.TimedRotatingFileHandler(
+				path, when='D', interval=1, backupCount=14
+			)
+		else:
+			handler = logging.FileHandler(
+				path,
+			)
+
+		# Change the formatter.
+		handler.setFormatter(
+			logging.Formatter('[%(asctime)s][%(levelname)s][%(threadName)s] %(name)s: %(message)s (%(filename)s:%(lineno)d)')
+		)
+
+		# Add to the root handler.
+		logging.root.addHandler(handler)
 
 
 def handle_exception(exception=None, module_name=None, func_name=None, extra_data=None, force=False):  # pragma: no cover

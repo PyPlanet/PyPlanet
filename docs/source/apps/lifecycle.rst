@@ -10,6 +10,8 @@ Life Cycle
   Currently the life cycle **isn't fully implemented**. Only the ``on_init`` and ``on_start`` will be called, but please
   prepare your app to support the following life cycle methods.
 
+  To support the life cycle in the future, use the ``self.context.signals`` instead of the ``self.instance.signal_manager``
+
 on_init
 ~~~~~~~
 

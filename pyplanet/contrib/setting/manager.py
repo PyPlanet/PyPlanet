@@ -10,7 +10,7 @@ class _BaseSettingManager:
 	def __init__(self, instance):
 		"""
 		Initiate, should only be done from the core instance.
-		
+
 		:param instance: Instance.
 		:type instance: pyplanet.core.instance.Instance
 		"""
@@ -35,13 +35,13 @@ class _BaseSettingManager:
 class GlobalSettingManager(_BaseSettingManager, CoreContrib):
 	"""
 	Global Setting manager is available at the instance. ``instance.setting_manager``.
-	
+
 	.. warning::
-	
+
 		Don't use the setting_manager for registering app settings! Use the app setting manager instead!
-		
+
 		Don't initiate this class yourself.
-	
+
 	"""
 
 	def __init__(self, instance):
@@ -55,7 +55,7 @@ class GlobalSettingManager(_BaseSettingManager, CoreContrib):
 	def create_app_manager(self, app_config):
 		"""
 		Create app setting manager.
-		
+
 		:param app_config: App Config instance.
 		:type app_config: pyplanet.apps.config.AppConfig
 		:return: Setting Manager
@@ -68,7 +68,7 @@ class GlobalSettingManager(_BaseSettingManager, CoreContrib):
 	def get_app_manager(self, app):
 		"""
 		Get the app manager for a specified app label or config instance.
-		
+
 		:param app: App label in string or the app config instance.
 		:return: App manager instance.
 		:rtype: pyplanet.contrib.setting.manager.AppSettingManager
@@ -117,7 +117,7 @@ class GlobalSettingManager(_BaseSettingManager, CoreContrib):
 		"""
 		Get all the app label + names for all the settings we can find in our registry.
 		Returns a dict with label as key, and count + name as values.
-		
+
 		:param prefetch_values: Prefetch the values in this call. Defaults to True.
 		:return: List with setting objects.
 		"""
@@ -143,7 +143,7 @@ class GlobalSettingManager(_BaseSettingManager, CoreContrib):
 		"""
 		Get all the categories we have registered.
 		Returns a dict with label as key, and count + name as values.
-		
+
 		:param prefetch_values: Prefetch the values in this call. Defaults to True.
 		:return: List with setting objects.
 		"""
@@ -167,7 +167,7 @@ class GlobalSettingManager(_BaseSettingManager, CoreContrib):
 	async def get_all(self, prefetch_values=True):
 		"""
 		Retrieve a list of settings, with prefetched values, so get_value is almost instant (or use ._value, not recommended).
-		
+
 		:param prefetch_values: Prefetch the values in this call. Defaults to True.
 		:return: List with setting objects.
 		"""
@@ -181,32 +181,32 @@ class GlobalSettingManager(_BaseSettingManager, CoreContrib):
 class AppSettingManager(_BaseSettingManager):
 	"""
 	The local app setting manager is the one you should use to register settings to inside of your app.
-	
+
 	You can use this manager like this:
-	
+
 	.. code-block:: python
 
-		from pyplanet.contrib.setting import Setting	
-	
+		from pyplanet.contrib.setting import Setting
+
 		async def on_start(self):
 			await self.context.setting.register(
 				Setting('feature_a', 'Enable feature A', Setting.CAT_FEATURES, type=bool, description='Enable feature A'),
 				Setting('feature_b', 'Enable feature B', Setting.CAT_FEATURES, type=bool, description='Enable feature B'),
 			)
-			
-	For more information about the settings, categories, types, and all other options. Look at the ``Settings`` 
+
+	For more information about the settings, categories, types, and all other options. Look at the ``Settings``
 	documentation.
-	
+
 	.. warning::
-	
+
 		Don't initiate this class yourself.
-	
+
 	"""
 
 	def __init__(self, instance, app):
 		"""
 		Initiate app setting manager.
-		
+
 		:param instance: Controller instance.
 		:param app: App Config instance.
 		:type instance: pyplanet.core.instance.Instance
@@ -269,7 +269,7 @@ class AppSettingManager(_BaseSettingManager):
 	async def get_all(self, prefetch_values=True):
 		"""
 		Retrieve a list of settings, with prefetched values, so get_value is almost instant (or use ._value, not recommended).
-		
+
 		:param prefetch_values: Prefetch the values in this call. Defaults to True.
 		:return: List with setting objects.
 		"""
@@ -278,4 +278,3 @@ class AppSettingManager(_BaseSettingManager):
 				s.get_value(refresh=True) for s in self._settings
 			])
 		return self._settings
-

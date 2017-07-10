@@ -3,7 +3,6 @@ import gzip
 import logging
 import requests
 
-from pprint import pprint
 from xmlrpc.client import dumps, loads
 
 from requests import ConnectTimeout, ReadTimeout
@@ -62,11 +61,12 @@ class DedimaniaAPI:
 		pass
 
 	def mode_to_dedi_mode(self, mode):
-		if mode.startswith('TeamAttack') or mode.startswith('Chase'):
+		mode = mode.lower()
+		if mode.startswith('teamattack') or mode.startswith('chase'):
 			return False
-		elif mode.startswith('Rounds') or mode.startswith('Team') or mode.startswith('Doppler') or mode.startswith('Cup'):
+		elif mode.startswith('rounds') or mode.startswith('team') or mode.startswith('cup'):
 			return 'Rounds'
-		elif mode.startswith('TimeAttack') or mode.startswith('Laps') or mode.startswith('Doppler'):
+		elif mode.startswith('timeattack') or mode.startswith('laps') or mode.startswith('doppler'):
 			return 'TA'
 		return False
 
@@ -103,7 +103,7 @@ class DedimaniaAPI:
 				handle_exception(e, __name__, 'execute')
 				raise DedimaniaTransportException('Could not retrieve data from dedimania!')
 		except DedimaniaFault as e:
-			if 'Bad SessionId' in e.faultString:
+			if 'Bad SessionId' in e.faultString or ('SessionId' in e.faultString and 'not found' in e.faultString):
 				try:
 					self.retries += 1
 					if self.retries > 5:
@@ -113,7 +113,9 @@ class DedimaniaAPI:
 				except:
 					return
 			logger.error('XML-RPC Fault retrieved from Dedimania: {}'.format(str(e)))
-			handle_exception(e, __name__, 'execute')
+			handle_exception(e, __name__, 'execute', extra_data={
+				'dedimania_retries': self.retries,
+			})
 			raise DedimaniaTransportException('Could not retrieve data from dedimania!')
 
 	async def multicall(self, *queries):
@@ -134,6 +136,7 @@ class DedimaniaAPI:
 				})
 			)
 		except DedimaniaTransportException as e:
+			logger.error('Dedimania Error during authentication: {}'.format(str(e)))
 			return
 		if not result:
 			return
@@ -196,6 +199,8 @@ class DedimaniaAPI:
 			response = await self.multicall(
 				('dedimania.PlayerConnect', self.session_id, login, nickname, path, is_spec)
 			)
+			if not response:
+				return None
 			response = response[0][0]
 			return dict(
 				banned=bool(response['Banned']), login=response['Login'], max_rank=response['MaxRank'],
@@ -303,7 +308,6 @@ class DedimaniaAPI:
 		try:
 			return bool(isinstance(result[0][0]['Records'], list))
 		except Exception as e:
-			pprint(result)
 			logger.error('Sending times to dedimania failed. Info: {}'.format(result))
 			return False
 

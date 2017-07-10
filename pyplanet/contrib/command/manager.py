@@ -10,13 +10,26 @@ class CommandManager(CoreContrib):
 	The Command Manager contributed extension is a manager that controls all chat-commands in the game.
 	Your app needs to use this manager to register any custom commands you want to provide.
 
-	.. todo::
+	You should access this class within your app like this:
 
-		Write introduction.
+	.. code-block:: python
+
+		self.instance.command_manager
+
+	You can register your commands like this:
+
+	.. code-block:: python
+
+		await self.instance.command_manager.register(
+			Command(command='reboot', target=self.reboot_pool, perms='admin:reboot', admin=True),
+		)
+
+	More information of the command and the options of it, see the :class:`pyplanet.contrib.command.Command` class.
 
 	.. warning::
 
-		Don't initiate this class yourself.
+		Don't initiate this class yourself. Access this class from the ``self.instance.command_manager`` instance.
+
 	"""
 
 	def __init__(self, instance):
@@ -32,7 +45,7 @@ class CommandManager(CoreContrib):
 
 	async def on_start(self, **kwargs):
 		# Register events.
-		self._instance.signal_manager.listen('maniaplanet:player_chat', self._on_chat)
+		self._instance.signals.listen('maniaplanet:player_chat', self._on_chat)
 
 		# Register /help and //help
 		await self.register(

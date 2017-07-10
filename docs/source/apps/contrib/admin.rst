@@ -96,6 +96,28 @@ Functionality:
 Required permission:
   ``admin:write_map_list``, requires admin level 2.
 
+Read Map list
+~~~~~~~~~~~~~
+Command:
+  ``//readmaplist`` / ``//rml``
+Parameters:
+  * Match settings file.
+Functionality:
+  Read maplist from the match settings file.
+Required permission:
+  ``admin:read_map_list``, requires admin level 2.
+
+Shuffle Map list
+~~~~~~~~~~~~~~~~
+Command:
+  ``//shuffle``
+Parameters:
+  -
+Functionality:
+  Shuffle and reload map list from disk!
+Required permission:
+  ``admin:shuffle``, requires admin level 2.
+
 Remove Map
 ~~~~~~~~~~
 Command:

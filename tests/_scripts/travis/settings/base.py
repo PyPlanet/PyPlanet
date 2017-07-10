@@ -20,7 +20,6 @@ DEBUG = True # bool(os.environ.get('PYPLANET_DEBUG', False))
 # Add your pools (the controller instances per dedicated here) or leave as it is to use a single instance only.
 POOLS = [
 	'default',
-	#'test2',
 ]
 
 # Owners are logins of the server owners, the owners always get *ALL* the permissions in the system.
@@ -32,10 +31,6 @@ OWNERS = {
 
 # Databases configuration holds an dictionary with information of the database backend.
 # Please refer to the documentation for all examples.
-SQLITE = {
-	'ENGINE': 'peewee.SqliteDatabase',
-	'NAME': 'database.db'
-}
 MYSQL = {
 	'ENGINE': 'peewee_async.MySQLDatabase',
 	'NAME': 'pyplanet',
@@ -43,7 +38,7 @@ MYSQL = {
 		'host': 'localhost',
 		'user': 'root',
 		'password': '',
-		'charset': 'utf8',
+		'charset': 'utf8mb4',
 	}
 }
 POSTGRESQL = {
@@ -62,8 +57,6 @@ if 'mysql' in TOX_ENV:
 	DATABASE_ENGINE = MYSQL
 elif 'postgresql' in TOX_ENV:
 	DATABASE_ENGINE = POSTGRESQL
-else:
-	DATABASE_ENGINE = SQLITE
 DATABASES = {
 	'default': DATABASE_ENGINE
 }
@@ -90,10 +83,3 @@ STORAGE = {
 }
 
 MAP_MATCHSETTINGS = 'test.txt'
-
-# Define any cache backends that can be used by the core and the plugins to cache data.
-# CACHE = {
-# 	'default': {
-#
-# 	}
-# }

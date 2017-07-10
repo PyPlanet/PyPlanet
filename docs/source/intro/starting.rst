@@ -17,6 +17,30 @@ and as a service on your server. As a side-note we also have the screen method d
   activate before starting PyPlanet.
 
 
+Start and fork to PID file (Linux)
+----------------------------------
+
+**This is available from PyPlanet 0.5.0. With this feature you can start PyPlanet and let it detach itself and write a**
+**so called PID file which contain the process ID of the detached process. This is only available on Linux systems.**
+
+1. Starting detached
+~~~~~~~~~~~~~~~~~~~~
+
+Starting detached is as simple as it seems to be. Look at the starting command bellow and you will understand how to start
+PyPlanet detached.
+
+.. code-block:: bash
+
+  ./manage.py start --detach --pid-file=pyplanet.pid
+
+
+This way you can create your own startup scripts. You can terminate PyPlanet by using the following command:
+
+.. code-block:: bash
+
+  kill -SIGTERM `cat pyplanet.pid`
+
+
 Start/stop with Screen (Linux)
 ------------------------------
 

@@ -1,4 +1,5 @@
 import asyncio
+import os
 import logging
 
 from xmlrpc.client import Fault
@@ -48,7 +49,7 @@ class MapManager(CoreContrib):
 		self._next_map = None
 
 	async def on_start(self):
-		self._instance.signal_manager.listen('maniaplanet:playlist_modified', lambda: '')
+		self._instance.signals.listen('maniaplanet:playlist_modified', lambda: '')
 
 		# Fully update list + database.
 		await self.update_list(full_update=True)
@@ -235,7 +236,7 @@ class MapManager(CoreContrib):
 		gbx_method = 'InsertMap' if insert else 'AddMap'
 
 		try:
-			return await self._instance.gbx(gbx_method, filename)
+			result = await self._instance.gbx(gbx_method, filename)
 		except Fault as e:
 			if 'unknown' in e.faultString:
 				raise MapNotFound('Map is not found on the server.')
@@ -249,6 +250,8 @@ class MapManager(CoreContrib):
 				await self.save_matchsettings()
 		except Exception as e:
 			handle_exception(e, __name__, 'add_map', extra_data={'EXTRAHOOK': 'Map Insert bug, see #306'})
+
+		return result
 
 	async def upload_map(self, fh, filename, insert=True, overwrite=False):
 		"""
@@ -348,3 +351,21 @@ class MapManager(CoreContrib):
 		except Exception as e:
 			logging.exception(e)
 			raise MapException('Can\'t save matchsettings to \'{}\'!'.format(filename)) from e
+
+	async def load_matchsettings(self, filename):
+		"""
+		Load Match Settings file and insert it into the current map playlist.
+
+		:param filename: File to load, relative to Maps folder.
+		:return: Boolean if loaded.
+		"""
+		try:
+			if not await self._instance.storage.driver.exists(
+				os.path.join(self._instance.storage.MAP_FOLDER, filename)
+			):
+				raise MapException('Can\'t find match settings file. Does it exist?')
+			else:
+				self._instance.gbx('LoadMatchSettings', filename)
+		except Exception as e:
+			logging.warning('Can\'t load match settings!')
+			raise MapException('Can\'t load matchsettings according the dedicated server, tried loading from \'{}\'!'.format(filename)) from e

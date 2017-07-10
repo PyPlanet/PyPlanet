@@ -20,8 +20,8 @@ class GbxRemote:
 	"""
 	The GbxClient holds the connection to the dedicated server. Maintains the queries and the handlers it got.
 	"""
-	MAX_REQUEST_SIZE  = 2000000 # 2MB
-	MAX_RESPONSE_SIZE = 4000000 # 4MB
+	MAX_REQUEST_SIZE  = 2000000  # 2MB
+	MAX_RESPONSE_SIZE = 4000000  # 4MB
 
 	def __init__(self, host, port, event_pool=None, user=None, password=None, api_version='2013-04-16', instance=None):
 		"""
@@ -94,12 +94,28 @@ class GbxRemote:
 		"""
 		logger.debug('Trying to connect to the dedicated server...')
 
-		# Create socket (produces coroutine).
-		self.reader, self.writer = await asyncio.open_connection(
-			host=self.host,
-			port=self.port,
-			loop=self.event_loop,
-		)
+		# Create socket (+ retry few times if not successful.
+		retries = 0
+		while True:
+			try:
+				self.reader, self.writer = await asyncio.open_connection(
+					host=self.host,
+					port=self.port,
+					loop=self.event_loop,
+				)
+				break
+			except Exception as exc:
+				if retries >= 5:
+					raise
+				retries += 1
+
+				logger.info('Coudn\'t connect to Dedicated Server. Retry {} of {} (Error: {}'.format(
+					retries,
+					5,
+					str(exc)
+				))
+				await asyncio.sleep(2)
+
 		_, header = struct.unpack_from('<L11s', await self.reader.readexactly(15))
 		if header.decode() != 'GBXRemote 2':
 			raise TransportException('Server is not a valid GBXRemote 2 server.')
@@ -204,7 +220,7 @@ class GbxRemote:
 				'Connection with the dedicated server has been closed, we will now close down the subprocess! {}'.format(str(e))
 			)
 			# When the connection has been reset, we will close the controller process so it can be restarted by the god
-			# process. Exit code 10 gives the information to the god process. TODO: Make nice table for exit codes.
+			# process. Exit code 10 gives the information to the god process.
 			exit(10)
 		except Exception as e:
 			handle_exception(exception=e, module_name=__name__, func_name='listen')
