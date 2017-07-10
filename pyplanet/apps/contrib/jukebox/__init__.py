@@ -47,37 +47,50 @@ class Jukebox(AppConfig):
 		await view.display(player=player.login)
 
 	async def chat_command(self, player, data, **kwargs):
-		async with self.lock:
-			if data.option == 'list' or data.option == 'display':
-				if len(self.jukebox) > 0:
-					index = 1
-					view = JukeboxListView(self)
-					view_data = []
-					for item in self.jukebox:
-						view_data.append({'index': index, 'map_name': item['map'].name, 'player_nickname': item['player'].nickname, 'player_login': item['player'].login})
-						index += 1
-					view.objects_raw = view_data
-					await view.display(player=player.login)
-				else:
-					message = '$i$f00There are currently no maps in the jukebox!'
-					await self.instance.chat(message, player)
+		if data.option is None:
+			await self.display_chat_commands(player)
+		else:
+			async with self.lock:
+				if data.option == 'list' or data.option == 'display':
+					if len(self.jukebox) > 0:
+						index = 1
+						view = JukeboxListView(self)
+						view_data = []
+						for item in self.jukebox:
+							view_data.append({'index': index, 'map_name': item['map'].name, 'player_nickname': item['player'].nickname, 'player_login': item['player'].login})
+							index += 1
+						view.objects_raw = view_data
+						await view.display(player=player.login)
+					else:
+						message = '$i$f00There are currently no maps in the jukebox!'
+						await self.instance.chat(message, player)
 
-			elif data.option == 'drop':
-				first_player = next((item for item in reversed(self.jukebox) if item['player'].login == player.login), None)
-				if first_player is not None:
-					self.jukebox.remove(first_player)
-					message = '$fff{}$z$s$fa0 dropped $fff{}$z$s$fa0 from the jukebox.'.format(first_player['player'].nickname, first_player['map'].name)
-					await self.instance.chat(message)
-				else:
-					message = '$i$f00You currently don\'t have a map in the jukebox.'
-					await self.instance.chat(message, player)
+				elif data.option == 'drop':
+					first_player = next((item for item in reversed(self.jukebox) if item['player'].login == player.login), None)
+					if first_player is not None:
+						self.jukebox.remove(first_player)
+						message = '$fff{}$z$s$fa0 dropped $fff{}$z$s$fa0 from the jukebox.'.format(first_player['player'].nickname, first_player['map'].name)
+						await self.instance.chat(message)
+					else:
+						message = '$i$f00You currently don\'t have a map in the jukebox.'
+						await self.instance.chat(message, player)
 
-			elif data.option == 'clear':
-				if player.level == 0:
-					message = '$i$f00You\'re not allowed to do this!'
-					await self.instance.chat(message, player)
+				elif data.option == 'clear':
+					if player.level == 0:
+						message = '$i$f00You\'re not allowed to do this!'
+						await self.instance.chat(message, player)
+					else:
+						await self.clear_jukebox(player, data)
+
 				else:
-					await self.clear_jukebox(player, data)
+					await self.display_chat_commands(player)
+
+	async def display_chat_commands(self, player):
+		message = '$ff0Available jukebox commands: $ffflist$ff0 | $fffdisplay$ff0 | $fffdrop$ff0'
+		if player.level > 0:
+			message += ' | $fffclear$ff0'
+		message += '.'
+		await self.instance.chat(message, player)
 
 	async def clear_jukebox(self, player, data, **kwargs):
 		async with self.lock:
