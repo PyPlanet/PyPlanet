@@ -148,16 +148,9 @@ class PlayerAttributes:
 		:param default: Default value, defaults to None
 		:return: The value of the attribute.
 		"""
-		return self.__attributes.get(key, default=default)
-
-	def setdefault(self, key, default):
-		"""
-		Set the default of the attribute.
-
-		:param key: Key string
-		:param default: Default value
-		"""
-		self.__attributes.setdefault(key, default)
+		if key in self.__attributes:
+			return self.__attributes[key]
+		return default
 
 	def all(self):
 		"""

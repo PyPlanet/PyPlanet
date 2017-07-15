@@ -44,7 +44,7 @@ class Jukebox(AppConfig):
 		view = MapListView(self)
 		if data.search is not None:
 			view.search_text = data.search
-		await view.display(player=player.login)
+		await view.display(player=player)
 
 	async def chat_command(self, player, data, **kwargs):
 		if data.option is None:
