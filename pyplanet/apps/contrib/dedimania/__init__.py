@@ -10,6 +10,12 @@ from pyplanet.apps.contrib.dedimania.exceptions import DedimaniaException, Dedim
 	DedimaniaNotSupportedException, DedimaniaFault, DedimaniaInvalidCredentials
 from pyplanet.apps.core.trackmania import callbacks as tm_signals
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
+from pyplanet.apps.config import AppConfig
+from pyplanet.apps.contrib.dedimania.api import DedimaniaAPI, DedimaniaRecord
+from pyplanet.apps.contrib.dedimania.exceptions import (
+	DedimaniaException, DedimaniaTransportException, DedimaniaNotSupportedException,
+	DedimaniaFault, DedimaniaInvalidCredentials
+)
 from pyplanet.contrib.setting import Setting
 from pyplanet.utils import times
 from pyplanet.utils.log import handle_exception
@@ -86,8 +92,7 @@ class Dedimania(AppConfig):
 		self.context.signals.listen(mp_signals.map.map_start, self.map_start)
 		self.context.signals.listen(mp_signals.map.map_end, self.map_end)
 
-		# TODO Activate after server bug has fixed!
-		# self.context.signals.listen(mp_signals.flow.podium_start, self.podium_start)
+		self.context.signals.listen(mp_signals.flow.podium_start, self.podium_start)
 
 		self.context.signals.listen(tm_signals.finish, self.player_finish)
 		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
@@ -186,8 +191,7 @@ class Dedimania(AppConfig):
 
 	async def map_start(self, map, restarted, **kwargs):
 		if restarted:
-			# TODO: Activate after fix in dedicated:
-			# await self.podium_start()
+			await self.podium_start()
 
 			# Clear the current map.
 			self.map_uid = None
@@ -243,14 +247,7 @@ class Dedimania(AppConfig):
 		self.v_replay = None
 		self.v_replay_checks = None
 
-		# TODO: Remove if statement after fix dedicated.
-		if not force:
-			self.ghost_replay = None
-
-		# TODO: Remove this block after fix dedicated.
-		if force:
-			self.v_replay = None
-			self.v_replay_checks = None
+		self.ghost_replay = None
 
 		async with self.lock:
 			for pos, record in enumerate(self.current_records):
@@ -436,10 +433,6 @@ class Dedimania(AppConfig):
 
 				coros = [self.widget.display()]
 
-				# TODO: Temp fix for dedicated bug
-				coros.append(self.podium_start(force=True))
-				# END TEMP FIX
-
 				if chat_announce >= new_rank:
 					coros.append(self.instance.chat(message))
 				elif chat_announce != 0:
@@ -488,10 +481,6 @@ class Dedimania(AppConfig):
 			await asyncio.gather(
 				self.instance.chat(message),
 				self.widget.display(),
-
-				# TODO: Temp fix for dedicated bug
-				self.podium_start(force=True)
-				# END TEMP FIX.
 			)
 
 	async def get_v_replay(self, login):
