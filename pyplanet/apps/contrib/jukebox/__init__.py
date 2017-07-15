@@ -1,4 +1,5 @@
 import asyncio
+from xmlrpc.client import Fault
 
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.jukebox.views import MapListView, JukeboxListView
@@ -139,10 +140,24 @@ class Jukebox(AppConfig):
 			return
 		next = self.jukebox.pop(0)
 		message = '$fa0The next map will be $fff{}$z$s$fa0 as requested by $fff{}$z$s$fa0.'.format(next['map'].name, next['player'].nickname)
-		await asyncio.gather(
-			self.instance.chat(message),
-			self.instance.map_manager.set_next_map(next['map'])
-		)
+
+		# Try to set the map, if not successful it might be that the map is removed while juked!
+		try:
+			await asyncio.gather(
+				self.instance.chat(message),
+				self.instance.map_manager.set_next_map(next['map'])
+			)
+		except Fault as e:
+			# It's removed from the server.
+			if 'Map not in the selection' in e.faultString or 'Map unknown' in e.faultString:
+				await self.instance.chat(
+					'$fa0Setting the next map has been canceled because the map is not on the server anymore!'
+				)
+
+				# Retry the next map(s).
+				await self.podium_start()
+			else:
+				raise
 
 	def add_maplist_action(self):
 		pass
