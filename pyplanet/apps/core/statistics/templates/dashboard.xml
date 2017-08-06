@@ -1,0 +1,14 @@
+<frame pos="0 0">
+  <quad pos="0 0" size="320 180" halign="center" valign="center" style="Bgs1" substyle="BgDialogBlur" z-index="50" />
+  <quad pos="{{ sizes.top__pos }}" size="{{ sizes.top__size }}" halign="center" style="Bgs1InRace" substyle="BgGlow2" z-index="52" />
+  <quad size="{{ sizes.box__size }}" halign="center" valign="center" style="Bgs1InRace" substyle="BgWindow2" z-index="51" />
+  <quad pos="{{ sizes.bottom__pos }}" size="{{ sizes.bottom__size }}" halign="center" style="Bgs1InRace" substyle="BgMetalBar" z-index="52" />
+
+  <frame z-index="55" pos="0 60">
+    {% block body %}
+      <label pos="-5 -3" size="180 8" halign="left" valign="center2" textsize="2.5" textcolor="FFF" text="Statistics" />
+      <quad pos="90 1" size="7 7" style="Icons128x32_1" substyle="Close" action="{{ id }}__button_close"/>
+
+    {% endblock %}
+  </frame>
+</frame>
