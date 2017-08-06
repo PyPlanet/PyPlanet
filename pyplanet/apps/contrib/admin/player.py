@@ -104,6 +104,11 @@ class PlayerAdmin:
 			new_team = 1
 			team_name = '$f00RED'
 
+		if new_team is None:
+			message = '$i$f00Unable to switch team (are you in a team mode?)!'
+			await self.instance.chat(message, player)
+			return
+
 		message = '$ff0Admin $fff{}$z$s$ff0 has forced $fff{}$z$s$ff0 into team $fff{}$ff0.'.format(
 			player.nickname, dest_player[0].nickname, team_name
 		)
@@ -114,6 +119,9 @@ class PlayerAdmin:
 
 	async def ignore_player(self, player, data, **kwargs):
 		try:
+			if data.login not in self.instance.player_manager.online_logins:
+				raise PlayerNotFound()
+
 			mute_player = await self.instance.player_manager.get_player(data.login)
 			message = '$ff0Admin $fff{}$z$s$ff0 has muted $fff{}$z$s$ff0.'.format(player.nickname, mute_player.nickname)
 			await self.instance.gbx.multicall(
@@ -126,6 +134,9 @@ class PlayerAdmin:
 
 	async def unignore_player(self, player, data, **kwargs):
 		try:
+			if data.login not in self.instance.player_manager.online_logins:
+				raise PlayerNotFound()
+
 			unmute_player = await self.instance.player_manager.get_player(data.login)
 			message = '$ff0Admin $fff{}$z$s$ff0 has un-muted $fff{}$z$s$ff0.'.format(player.nickname, unmute_player.nickname)
 			await self.instance.gbx.multicall(
@@ -138,6 +149,9 @@ class PlayerAdmin:
 
 	async def kick_player(self, player, data, **kwargs):
 		try:
+			if data.login not in self.instance.player_manager.online_logins:
+				raise PlayerNotFound()
+
 			kick_player = await self.instance.player_manager.get_player(data.login)
 			message = '$ff0Admin $fff{}$z$s$ff0 has kicked $fff{}$z$s$ff0.'.format(player.nickname, kick_player.nickname)
 			await self.instance.gbx.multicall(
