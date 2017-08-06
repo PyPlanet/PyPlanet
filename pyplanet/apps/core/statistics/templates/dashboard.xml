@@ -23,7 +23,7 @@
         <label pos="1.5 -11" size="60 8" halign="left" valign="left" textsize="1.5" textcolor="FFF" text="Number of top 3 records" />
         <label pos="70 -11" size="60 8" halign="left" valign="left" textsize="1.5" textcolor="FFF" text="{{ numbers.top_3 }}" />
 
-        <label pos="1.5 -15.5" size="60 8" halign="left" valign="left" textsize="1.5" textcolor="FFF" text="Total local records" />
+        <label pos="1.5 -15.5" size="60 8" halign="left" valign="left" textsize="1.5" textcolor="FFF" text="Number of local records" />
         <label pos="70 -15.5" size="60 8" halign="left" valign="left" textsize="1.5" textcolor="FFF" text="{{ numbers.records }}" />
 
         {% if numbers.top_3 and numbers.records %}
