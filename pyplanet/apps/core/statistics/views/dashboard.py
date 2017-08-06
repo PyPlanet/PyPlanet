@@ -8,8 +8,17 @@ class StatsDashboardView(StatsView):
 	"""
 	template_name = 'core.statistics/dashboard.xml'
 
-	def __init__(self, *args, **kwargs):
+	def __init__(self, app, *args, **kwargs):
+		"""
+		Init the dashboard.
+
+		:param app: App instance
+		:param args: Args..
+		:param kwargs: Kwargs...
+		:type app: pyplanet.apps.core.statistics.Statistics
+		"""
 		super().__init__(*args, **kwargs)
+		self.app = app
 
 		self.subscribe('button_close', self.close)
 
@@ -28,6 +37,15 @@ class StatsDashboardView(StatsView):
 			'input__size': '185 7',
 		}
 		return context
+
+	async def get_all_player_data(self, logins):
+		data = dict()
+		for login in logins:
+			player = await self.app.instance.player_manager.get_player(login=login, lock=False)
+			data[login] = await self.app.processor.get_dashboard_data(player)
+			# data[login]['numbers_chart'] = 'https://image-charts.com/chart?cht=p&chd=t:10,90&chs=200x200&chl=Top 3%7CRecords%7C.png'
+
+		return data
 
 	async def close(self, player, *args, **kwargs):
 		"""

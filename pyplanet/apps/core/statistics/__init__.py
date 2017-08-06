@@ -1,5 +1,6 @@
 
 from pyplanet.apps.config import AppConfig
+from pyplanet.apps.core.statistics.processor import StatisticsProcessor
 from pyplanet.apps.core.statistics.tm import TrackmaniaComponent
 
 
@@ -10,6 +11,7 @@ class Statistics(AppConfig):
 		super().__init__(*args, **kwargs)
 
 		# Initiate components.
+		self.processor = StatisticsProcessor(self)
 		self.trackmania = TrackmaniaComponent(self)
 
 	async def on_init(self):

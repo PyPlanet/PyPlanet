@@ -39,5 +39,5 @@ class TrackmaniaComponent:
 		).save()
 
 	async def open_stats(self, player, **kwargs):
-		view = StatsDashboardView(self.app.context.ui, player)
+		view = StatsDashboardView(self.app, self.app.context.ui, player)
 		await view.display()
