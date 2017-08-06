@@ -50,6 +50,16 @@ class JukeboxListView(ManualListView):
 	async def action_drop(self, player, values, instance, **kwargs):
 		await self.app.drop_from_jukebox(player, instance)
 
+	async def get_data(self):
+		index = 1
+		items = []
+		for item in self.app.jukebox:
+			items.append({'index': index, 'map_name': item['map'].name, 'player_nickname': item['player'].nickname,
+						  'player_login': item['player'].login})
+			index += 1
+
+		return items
+
 
 class MapListView(ManualListView):
 	model = Map
