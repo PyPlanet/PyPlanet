@@ -56,17 +56,23 @@ class Player(TimedModel):
 
 	def __init__(self, *args, **kwargs):
 		self.__flow = PlayerFlow()
+		self.__attributes = PlayerAttributes()
 		super().__init__(*args, **kwargs)
 
 	@property
 	def flow(self):
 		return self.__flow
 
+	@property
+	def attributes(self):
+		return self.__attributes
+
 	async def save(self, *args, **kwargs):
 		res = await super().save(*args, **kwargs)
 		if self.login not in self.CACHE or (self.login in self.CACHE and id(self) != id(self.CACHE[self.login])):
 			if self.login in self.CACHE and id(self) != id(self.CACHE[self.login]):
 				self.__flow = self.CACHE[self.login].flow
+				self.__attributes = self.CACHE[self.login].attributes
 			self.CACHE[self.login] = self
 		return res
 
@@ -115,3 +121,43 @@ class PlayerFlow:
 	def reset_run(self):
 		if self.in_run:
 			self.in_run = False
+
+
+class PlayerAttributes:
+	"""
+	Hold custom attributes by keys used in several apps.
+	"""
+	def __init__(self):
+		self.__attributes = dict()
+
+	def set(self, key, value):
+		"""
+		Set value of a defined key.
+
+		:param key: Key string
+		:param value: Value of the attribute
+		:type key: str
+		"""
+		self.__attributes[key] = value
+
+	def get(self, key, default=None):
+		"""
+		Get value of the key (or the default value).
+
+		:param key: Key string
+		:param default: Default value, defaults to None
+		:return: The value of the attribute.
+		"""
+		if key in self.__attributes:
+			return self.__attributes[key]
+		return default
+
+	def all(self):
+		"""
+		Get all attributes as dictionary. Please don't change attributes this way as the backend of the attributes may change
+		over time!
+
+		:return: Dict of attributes.
+		:rtype: dict
+		"""
+		return self.__attributes

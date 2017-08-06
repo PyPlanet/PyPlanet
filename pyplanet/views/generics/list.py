@@ -85,9 +85,6 @@ class ListView(TemplateView):
 
 		self.provide_search = True
 
-		#if self.single_list:
-			#self.id = 'pyplanet__generics_list'
-
 		# Setup the receivers.
 		self.subscribe('list_button_close', self.close)
 		self.subscribe('list_button_refresh', self.refresh)
@@ -198,6 +195,10 @@ class ListView(TemplateView):
 			del self.player_data[player.login]
 		await self.hide(player_logins=[player.login])
 
+		if self.single_list:
+			# Clear the lock on the player list display.
+			player.attributes.set('pyplanet.views.list_displayed', None)
+
 	async def refresh(self, player, *args, **kwargs):
 		"""
 		Refresh list with current properties for a specific player. Can be used to show new data changes.
@@ -217,6 +218,23 @@ class ListView(TemplateView):
 		login = player.login if isinstance(player, Player) else player
 		if not player:
 			raise Exception('No player/login given to display the list to!')
+
+		# Check and close other list of user.
+		if self.single_list:
+			player = player if isinstance(player, Player) \
+				else await self.manager.instance.player_manager.get_player(login=login, lock=False)
+			other_list = player.attributes.get('pyplanet.views.list_displayed', None)
+			if other_list and isinstance(other_list, str):
+				# Try to get the other list instance.
+				other_manialink = self.manager.instance.ui_manager.get_manialink_by_id(other_list)
+
+				# Close other list and clear lock.
+				if isinstance(other_manialink, ListView):
+					await other_manialink.close(player)
+
+			# Set lock on player.
+			player.attributes.set('pyplanet.views.list_displayed', self.id)
+
 		return await super().display(player_logins=[login])
 
 	async def get_fields(self):

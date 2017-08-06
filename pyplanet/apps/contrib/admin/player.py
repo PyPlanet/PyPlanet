@@ -22,6 +22,8 @@ class PlayerAdmin:
 		await self.instance.permission_manager.register('unban', 'Unban a player', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('manage_admins', 'Manage admin', app=self.app, min_level=3)
 		await self.instance.permission_manager.register('force_spec', 'Force player into spectate', app=self.app, min_level=1)
+		await self.instance.permission_manager.register('force_team', 'Force player into a team', app=self.app, min_level=1)
+		await self.instance.permission_manager.register('switch_team', 'Force player into the other team', app=self.app, min_level=1)
 
 		await self.instance.command_manager.register(
 			Command(command='mute', aliases=['ignore'], target=self.ignore_player, perms='admin:ignore', admin=True).add_param(name='login', required=True),
@@ -33,6 +35,11 @@ class PlayerAdmin:
 				.add_param(name='login', required=True)
 				.add_param(name='level', required=False, help='Level, 0 = player, 1 = operator, 2 = admin, 3 = master admin.', type=int, default=0),
 			Command(command='forcespec', target=self.force_spec, perms='admin:force_spec', description='Force player into spectate', admin=True)
+				.add_param(name='login', required=True),
+			Command(command='forceteam', target=self.force_team, perms='admin:force_team', description='Force player into a team', admin=True)
+				.add_param(name='login', required=True, type=str)
+				.add_param(name='team', required=True, help='Team, blue/0 = left, red/1 = right'),
+			Command(command='switchteam', target=self.switch_team, perms='admin:switch_team', description='Force player into the other team', admin=True)
 				.add_param(name='login', required=True),
 		)
 
@@ -51,6 +58,59 @@ class PlayerAdmin:
 		except Exception:
 			message = '$i$f00Unknown login!'
 			await self.instance.chat(message, player)
+
+	async def force_team(self, player, data, **kwargs):
+		dest_player = [p for p in self.instance.player_manager.online if p.login == data.login]
+		if not len(dest_player) == 1:
+			message = '$i$f00Unknown login!'
+			await self.instance.chat(message, player)
+			return
+
+		new_team = None
+		team_name = ''
+		if data.team == 'blue' or data.team == '0':
+			new_team = 0
+			team_name = '$00fBLUE'
+		elif data.team == 'red' or data.team == '1':
+			new_team = 1
+			team_name = '$f00RED'
+
+		if new_team is None:
+			message = '$i$f00Unknown team identifier ($fff{}$z$s$f00)!'.format(data.team)
+			await self.instance.chat(message, player)
+			return
+
+		message = '$ff0Admin $fff{}$z$s$ff0 has forced $fff{}$z$s$ff0 into team $fff{}$ff0.'.format(
+			player.nickname, dest_player[0].nickname, team_name
+		)
+		await self.instance.gbx.multicall(
+			self.instance.gbx('ForcePlayerTeam', dest_player[0].login, new_team),
+			self.instance.chat(message)
+		)
+
+	async def switch_team(self, player, data, **kwargs):
+		dest_player = [p for p in self.instance.player_manager.online if p.login == data.login]
+		if not len(dest_player) == 1:
+			message = '$i$f00Unknown login!'
+			await self.instance.chat(message, player)
+			return
+
+		new_team = None
+		team_name = ''
+		if dest_player[0].flow.team_id == 1:
+			new_team = 0
+			team_name = '$00fBLUE'
+		elif dest_player[0].flow.team_id == 0:
+			new_team = 1
+			team_name = '$f00RED'
+
+		message = '$ff0Admin $fff{}$z$s$ff0 has forced $fff{}$z$s$ff0 into team $fff{}$ff0.'.format(
+			player.nickname, dest_player[0].nickname, team_name
+		)
+		await self.instance.gbx.multicall(
+			self.instance.gbx('ForcePlayerTeam', dest_player[0].login, new_team),
+			self.instance.chat(message)
+		)
 
 	async def ignore_player(self, player, data, **kwargs):
 		try:

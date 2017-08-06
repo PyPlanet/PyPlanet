@@ -47,6 +47,19 @@ class _BaseUIManager:
 				logger.exception(e)
 				handle_exception(exception=e, module_name=__name__, func_name='send_loop')
 
+	def get_manialink_by_id(self, identifier):
+		"""
+		Get Manialink instance by ManiaLink identifier.
+
+		:param identifier: Identifier string
+		:type identifier: str
+		:return: ManiaLink instance or None
+		:rtype: pyplanet.core.ui.components.manialink._ManiaLink
+		"""
+		if identifier in self.manialinks:
+			return self.manialinks[identifier]
+		return None
+
 	async def send(self, manialink, players=None, **kwargs):
 		"""
 		Send manialink to player(s).
@@ -196,6 +209,24 @@ class GlobalUIManager(_BaseUIManager):
 		await asyncio.gather(*[
 			m.on_start() for m in self.app_managers.values()
 		])
+
+	def get_manialink_by_id(self, identifier):
+		"""
+		Get Manialink instance by ManiaLink identifier. (From all apps ui managers as well).
+
+		:param identifier: Identifier string
+		:type identifier: str
+		:return: ManiaLink instance or None
+		:rtype: pyplanet.core.ui.components.manialink._ManiaLink
+		"""
+		global_ui = super().get_manialink_by_id(identifier)
+		if global_ui is not None:
+			return global_ui
+
+		for app_manager in self.app_managers.values():
+			app_manialink = app_manager.get_manialink_by_id(identifier)
+			if app_manialink is not None:
+				return app_manialink
 
 	def create_app_manager(self, app_config):
 		"""
