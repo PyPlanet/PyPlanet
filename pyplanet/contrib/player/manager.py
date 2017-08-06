@@ -44,6 +44,7 @@ class PlayerManager(CoreContrib):
 
 		# Online contains all currently online players.
 		self._online = set()
+		self._online_logins = set()
 
 		# Counters.
 		self._counter_lock = asyncio.Lock()
@@ -133,6 +134,7 @@ class PlayerManager(CoreContrib):
 				self._players_count += 1
 
 		self._online.add(player)
+		self._online_logins.add(login)
 		self.performance_mode = len(self._online) >= await performance_mode.get_value()
 
 		return player
@@ -195,6 +197,9 @@ class PlayerManager(CoreContrib):
 
 		if player in self._online:
 			self._online.remove(player)
+		if login in self._online_logins:
+			self._online_logins.remove(login)
+
 		try:
 			del Player.CACHE[login]
 		except:
@@ -249,6 +254,13 @@ class PlayerManager(CoreContrib):
 		Online player list.
 		"""
 		return self._online.copy()
+
+	@property
+	def online_logins(self):
+		"""
+		Online player logins list.
+		"""
+		return self._online_logins.copy()
 
 	@property
 	def count_all(self):
