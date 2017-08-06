@@ -143,6 +143,9 @@ class PlayerManager(CoreContrib):
 		if not player:
 			return
 
+		if player not in self._online:
+			return
+
 		async with self._counter_lock:
 			if player.flow.is_spectator is True and not is_spectator:
 				self._spectators_count -= 1
