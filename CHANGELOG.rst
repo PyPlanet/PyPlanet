@@ -1,6 +1,17 @@
 Changelog
 =========
 
+0.4.4
+-----
+
+Core
+~~~~
+
+* Feature: Add UAseco convert script. See documentation on converting from old controller for instructions.
+* Improved: Updated libraries and dependencies.
+* Bugfix: Catch error when server initiated callvote, thanks to @teemann.
+* Bugfix: Fix the release/update checker.
+
 0.4.3
 -----
 
