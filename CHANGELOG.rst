@@ -14,7 +14,7 @@ Core
   More info: https://github.com/PyPlanet/PyPlanet/issues/392
 
   **The old way will break your app from version 0.8.0**
-  
+
 * Improvement: Retry 5 times when connecting to the dedicated server, making it possible to start both at the same time.
 
 Apps
@@ -22,6 +22,13 @@ Apps
 
 * Improvement: Applied context aware signal manager everywhere.
 
+0.4.4
+-----
+
+* Feature: Add UAseco convert script. See documentation on converting from old controller for instructions.
+* Improved: Updated libraries and dependencies.
+* Bugfix: Catch error when server initiated callvote, thanks to @teemann.
+* Bugfix: Fix the release/update checker.
 
 0.4.3
 -----
