@@ -6,7 +6,7 @@ from pyplanet.core.management import BaseCommand
 
 
 class Command(BaseCommand):
-	help = 'Convert the database from XAseco2, eXpansion and other formats to PyPlanet.'
+	help = 'Convert the database from XAseco2, eXpansion, ManiaControl and other formats to PyPlanet.'
 
 	requires_migrations_checks = True
 	requires_system_checks = True
@@ -17,7 +17,7 @@ class Command(BaseCommand):
 	def add_arguments(self, parser):
 		parser.add_argument(
 			'--source-format', required=True, help='The source format/controller type.',
-			choices=['xaseco2', 'uaseco'],
+			choices=['xaseco2', 'uaseco', 'maniacontrol'],
 		)
 		parser.add_argument(
 			'--source-db-type', default='mysql', help='The source database type.',
