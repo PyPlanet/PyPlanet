@@ -1,6 +1,20 @@
 Changelog
 =========
 
+0.4.5
+-----
+
+Core
+~~~~
+
+* Feature: Add ManiaControl convert script. See documentation on converting from old controller for instructions.
+* Improved: Add documentation on how to convert to the right database collation.
+
+Apps
+~~~~
+
+* Bugfix: Fixing issue in the Dymanic Pointlimit app that results in 3 settings having the same key name.
+
 0.4.4
 -----
 
