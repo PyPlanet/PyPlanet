@@ -31,12 +31,12 @@ class DynamicPoints(AppConfig):
 			default=10, change_target=self.on_changes
 		)
 		self.setting_max_points = Setting(
-			'min_points', 'Maximum number of points', Setting.CAT_GENERAL, type=int,
+			'max_points', 'Maximum number of points', Setting.CAT_GENERAL, type=int,
 			description='The points limit will never go above this number of points. Leave at 0 to disable.',
 			default=0, change_target=self.on_changes
 		)
 		self.setting_points_per_player = Setting(
-			'min_points', 'Points per player', Setting.CAT_GENERAL, type=int,
+			'per_player_points', 'Points per player', Setting.CAT_GENERAL, type=int,
 			description='The points every player should increase the total points limit of the map.',
 			default=10, change_target=self.on_changes
 		)
