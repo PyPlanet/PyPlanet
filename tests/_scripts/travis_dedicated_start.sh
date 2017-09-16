@@ -17,7 +17,7 @@ cd "$(dirname "$0")"
 cd ../../dedicated
 
 # Start the dedicated server.
-./ManiaPlanetServer /dedicated_cfg=dedicated_cfg.txt /title=TMCanyon@nadeo /game_settings=MatchSettings/matchsettings_1.txt /login=${MP_USER} /password=${MP_PASS} /loadcache /lan
+./ManiaPlanetServer /dedicated_cfg=dedicated_cfg.txt /title=TMCanyon@nadeo /game_settings=MatchSettings/matchsettings_1.txt /login=$MP_USER /password=$MP_PASS
 # Make sure we exit with non-zero code on error
 if [ $? -ne 0 ]; then
   echo "Starting failed!"
