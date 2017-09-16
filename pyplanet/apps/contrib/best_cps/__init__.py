@@ -22,10 +22,10 @@ class BestCpTimes(AppConfig):
         self.widget = None
 
     async def on_start(self):
-        self.instance.signal_manager.listen(tm_signals.waypoint, self.player_cp)
-        self.instance.signal_manager.listen(mp_signals.player.player_connect, self.player_connect)
-        self.instance.signal_manager.listen(mp_signals.map.map_begin, self.map_begin)
-        self.instance.signal_manager.listen(mp_signals.map.map_start__end, self.map_end)
+        self.context.signals.listen(tm_signals.waypoint, self.player_cp)
+        self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
+        self.context.signals.listen(mp_signals.map.map_begin, self.map_begin)
+        self.context.signals.listen(mp_signals.map.map_start__end, self.map_end)
         self.best_cp_times.clear()
         self.widget = BestCpTimesWidget(self)
         asyncio.ensure_future(self.widget.display())
