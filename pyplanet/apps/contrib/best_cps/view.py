@@ -10,7 +10,7 @@ class BestCpTimesWidget(TimesWidgetView):
     size_y = 18
     title = 'Best CPs'
 
-    template_name = 'cpwidget/widget_top.xml'
+    template_name = 'best_cps/widget_top.xml'
 
     def __init__(self, app):
         super().__init__(self)
