@@ -171,3 +171,22 @@ class DedimaniaRecordsListView(ManualListView):
 		super().__init__(self)
 		self.app = app
 		self.manager = app.context.ui
+
+	async def get_title(self):
+		return 'Dedimania Records on {}'.format(self.app.instance.map_manager.current_map.name)
+
+	async def get_data(self):
+		index = 1
+		items = []
+		async with self.app.lock:
+			first_time = self.app.current_records[0].score
+			for item in self.app.current_records:
+				record_time_difference = ''
+				if index > 1:
+					record_time_difference = '$f00 + ' + times.format_time((item.score - first_time))
+				items.append({'index': index, 'nickname': item.nickname,
+								  'record_time': times.format_time(item.score),
+								  'record_time_difference': record_time_difference})
+				index += 1
+
+		return items
