@@ -8,6 +8,7 @@ from argparse import Namespace
 from pyplanet.apps.core.maniaplanet.models import Map
 from pyplanet.conf import settings
 from pyplanet.contrib.command import Command
+from pyplanet.contrib.setting import Setting
 from pyplanet.utils import gbxparser
 from pyplanet.views.generics import ask_confirmation
 
@@ -23,6 +24,12 @@ class MapAdmin:
 		self.app = app
 		self.instance = app.instance
 
+		self.setting_juke_after_adding = Setting(
+			'juke_after_adding', 'Juke map after adding to the server', Setting.CAT_BEHAVIOUR, type=bool,
+			description='Add the map just added from file or MX to the jukebox.',
+			default=True
+		)
+
 	async def on_start(self):
 		await self.instance.permission_manager.register('previous', 'Skip to the previous map', app=self.app, min_level=1)
 		await self.instance.permission_manager.register('next', 'Skip to the next map', app=self.app, min_level=1)
@@ -33,6 +40,8 @@ class MapAdmin:
 		await self.instance.permission_manager.register('write_map_list', 'Write Matchsettings to file', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('read_map_list', 'Read and load specific Matchsettings file', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('shuffle', 'Shuffle map list order', app=self.app, min_level=2)
+
+		await self.app.context.setting.register(self.setting_juke_after_adding)
 
 		await self.instance.command_manager.register(
 			Command(command='next', target=self.next_map, perms='admin:next', admin=True),
@@ -190,12 +199,19 @@ class MapAdmin:
 	async def add_local_map(self, player, data, **kwargs):
 		map_file = data.map
 
+		# Check for the file.
 		if not await self.instance.storage.driver.exists('UserData/Maps/{}'.format(
 			map_file
 		)):
 			message = '$ff0Error: Can\'t add map because the file is not found!'
 			await self.instance.chat(message, player.login)
 			return
+
+		# Fetch setting if juke after adding is enabled.
+		juke_maps = await self.setting_juke_after_adding.get_value()
+		if 'jukebox' not in self.instance.apps.apps:
+			juke_maps = False
+		juke_list = list()
 
 		try:
 			# Parse GBX file.
@@ -211,8 +227,12 @@ class MapAdmin:
 			result = await self.instance.map_manager.add_map(map_file)
 
 			if result:
-				message = '$ff0Admin $fff{}$z$s$ff0 has added the map $fff{}$z$s$ff0 by $fff{}$z$s$ff0.'.format(
-					player.nickname, map_info['name'], map_info['author_nickname']
+				# Juke if setting has been provided.
+				if juke_maps:
+					juke_list.append(map_info['uid'])
+
+				message = '$ff0Admin $fff{}$z$s$ff0 has added{} the map $fff{}$z$s$ff0 by $fff{}$z$s$ff0.'.format(
+					player.nickname, ' and juked' if juke_maps else '', map_info['name'], map_info['author_nickname']
 				)
 				await self.instance.chat(message)
 			else:
@@ -221,6 +241,20 @@ class MapAdmin:
 			logger.warning('Error when player {} was adding map from local disk: {}'.format(player.login, str(e)))
 			message = '$ff0Error: Can\'t add map, Error: {}'.format(str(e))
 			await self.instance.chat(message, player.login)
+
+		# Save match settings after inserting maps.
+		try:
+			await self.instance.map_manager.save_matchsettings()
+		except:
+			pass
+
+		# Jukebox all the maps requested, in order.
+		if juke_maps and len(juke_list) > 0:
+			# Fetch map objects.
+			for juke_uid in reversed(juke_list):
+				map_instance = await self.instance.map_manager.get_map(uid=juke_uid)
+				if map_instance:
+					self.instance.apps.apps['jukebox'].insert_map(player, map_instance)
 
 	async def erase_map(self, player, data, **kwargs):
 		kwargs['erase'] = True

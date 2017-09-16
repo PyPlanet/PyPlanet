@@ -69,6 +69,13 @@ class MX(AppConfig):  # pragma: no cover
 			await self.instance.chat(message, player.login)
 			return
 
+		# Fetch setting if juke after adding is enabled.
+		juke_after_adding = await self.instance.setting_manager.get_setting('admin', 'juke_after_adding', prefetch_values=True)
+		juke_maps = await juke_after_adding.get_value()
+		if 'jukebox' not in self.instance.apps.apps:
+			juke_maps = False
+		juke_list = list()
+
 		for mx_id, mx_info in infos:
 			if 'Name' not in mx_info:
 				continue
@@ -91,8 +98,12 @@ class MX(AppConfig):  # pragma: no cover
 				result = await self.instance.map_manager.add_map(map_filename, save_matchsettings=False)
 
 				if result:
-					message = '$ff0Admin $fff{}$z$s$ff0 has added the map $fff{}$z$s$ff0 by $fff{}$z$s$ff0 from MX..'.format(
-						player.nickname, mx_info['Name'], mx_info['Username']
+					# Juke if setting has been provided.
+					if juke_maps:
+						juke_list.append(mx_info['MapUID'])
+
+					message = '$ff0Admin $fff{}$z$s$ff0 has added{} the map $fff{}$z$s$ff0 by $fff{}$z$s$ff0 from MX..'.format(
+						player.nickname, ' and juked' if juke_maps else '', mx_info['Name'], mx_info['Username']
 					)
 					await self.instance.chat(message)
 				else:
@@ -107,3 +118,11 @@ class MX(AppConfig):  # pragma: no cover
 			await self.instance.map_manager.save_matchsettings()
 		except:
 			pass
+
+		# Jukebox all the maps requested, in order.
+		if juke_maps and len(juke_list) > 0:
+			# Fetch map objects.
+			for juke_uid in reversed(juke_list):
+				map_instance = await self.instance.map_manager.get_map(uid=juke_uid)
+				if map_instance:
+					self.instance.apps.apps['jukebox'].insert_map(player, map_instance)
