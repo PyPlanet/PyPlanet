@@ -54,13 +54,7 @@ class Jukebox(AppConfig):
 			async with self.lock:
 				if data.option == 'list' or data.option == 'display':
 					if len(self.jukebox) > 0:
-						index = 1
 						view = JukeboxListView(self)
-						view_data = []
-						for item in self.jukebox:
-							view_data.append({'index': index, 'map_name': item['map'].name, 'player_nickname': item['player'].nickname, 'player_login': item['player'].login})
-							index += 1
-						view.objects_raw = view_data
 						await view.display(player=player.login)
 					else:
 						message = '$i$f00There are currently no maps in the jukebox!'
