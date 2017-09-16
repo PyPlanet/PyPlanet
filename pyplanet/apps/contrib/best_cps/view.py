@@ -10,7 +10,7 @@ class BestCpTimesWidget(TimesWidgetView):
     size_y = 18
     title = 'Best CPs'
 
-    template_name = 'cpwidget/bestcpwidgetTop.xml'
+    template_name = 'cpwidget/widget_top.xml'
 
     def __init__(self, app):
         super().__init__(self)
@@ -19,7 +19,7 @@ class BestCpTimesWidget(TimesWidgetView):
         self.id = 'pyplanet__widget_bestcps'
         self.logins = []
         self.action = self.action_cptimeslist
-    
+
     async def get_player_data(self):
         self.logins = []
         for pcp in self.app.best_cp_times:
