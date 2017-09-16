@@ -18,12 +18,29 @@ class MapInfoWidget(WidgetView):
 		self.manager = app.context.ui
 		self.id = 'pyplanet__widgets_mapinfo'
 
+		self.mx_link_cache = dict()
+
 	async def get_context_data(self):
 		map = self.app.instance.map_manager.current_map
+
+		# Load related info from other apps if installed and enabled, such as MX link.
+		mx_link = None
+		if 'mx' in self.app.instance.apps.apps:
+			if map.uid in self.mx_link_cache:
+				mx_link = self.mx_link_cache[map.uid]
+			else:
+				# Fetch, validate and make link.
+				mx_info = await self.app.instance.apps.apps['mx'].api.map_info(map.uid)
+				if mx_info and len(mx_info) >= 1:
+					mx_link = 'https://{}.mania-exchange.com/s/tr/{}'.format(
+						self.app.instance.apps.apps['mx'].api.site, mx_info[0][0]
+					)
+				self.mx_link_cache[map.uid] = mx_link
 
 		context = await super().get_context_data()
 		context.update({
 			'map_name': map.name,
+			'map_mx_link': mx_link,
 			'map_author': map.author_login,
 			'map_authortime': times.format_time(map.time_author) if map.time_author and map.time_author > 0 else '-',
 			'map_environment': map.environment,
