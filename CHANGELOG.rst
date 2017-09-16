@@ -20,6 +20,9 @@ Core
 Apps
 ~~~~
 
+* NEW: Best CPS Widget for Trackmania, shows the best times per checkpoint above the screen.
+  Add the new app to your apps.py: `'pyplanet.apps.contrib.best_cps'`. More info on the documentation pages of the app.
+
 * Improvement: Applied context aware signal manager everywhere.
 
 0.4.5
