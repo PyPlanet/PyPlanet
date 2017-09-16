@@ -76,12 +76,8 @@ class DedimaniaRecordsWidget(TimesWidgetView):
 				list_record = dict()
 				list_record['index'] = index
 				list_record['color'] = '$fff'
-				if index < player_index:
-					list_record['color'] = '$f00'
 				if index <= self.top_entries:
 					list_record['color'] = '$ff0'
-				if index > player_index:
-					list_record['color'] = '$bbb'
 				if index == player_index:
 					list_record['color'] = '$0f3'
 				list_record['nickname'] = record.nickname

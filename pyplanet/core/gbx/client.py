@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import re
 
 from pyplanet.core.gbx.query import Query, ScriptQuery
 from pyplanet.utils.functional import empty
@@ -17,8 +18,10 @@ class GbxClient(GbxRemote):
 
 	AUTO_RESPONSE_ID = object()
 	SUPPORTED_SCRIPT_API_VERSIONS = [
-		'2.0.0', '2.1.0', '2.2.0'
+		'2.3.0',
 	]
+	MINIMUM_DEDICATED_VERSION = ['2017', '07', '12',
+								 '17', '31']
 
 	def __init__(self, *args, script_api_version=empty, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -139,8 +142,35 @@ class GbxClient(GbxRemote):
 		class instance which is a singleton class instance holding information about the server that is public and
 		should be stable.
 		"""
-		# Clear the previous created Manialinks.
-		await self('SendHideManialinkPage')
+		# Verify the dedicated version.
+		if self.dedicated_build:
+			# Try to parse and verify version.
+			matches_minimum_version = False
+			try:
+				matches = re.findall('(\d+)', self.dedicated_build)
+				for part_nr, part_version in enumerate(matches):
+					if part_nr <= len(self.MINIMUM_DEDICATED_VERSION):
+						if int(part_version) > int(self.MINIMUM_DEDICATED_VERSION[part_nr]):
+							matches_minimum_version = True
+							break
+						elif part_version == self.MINIMUM_DEDICATED_VERSION[part_nr]:
+							if part_nr == len(self.MINIMUM_DEDICATED_VERSION) - 1:
+								matches_minimum_version = True
+								break
+						else:
+							matches_minimum_version = False
+							break
+			except:
+				pass
+
+			if not matches_minimum_version:
+				logger.error(
+					'Current dedicated version seems to be not supported by the current PyPlanet version! Minimum: {}_{}'.format(
+						'-'.join(self.MINIMUM_DEDICATED_VERSION[:3]),
+						'_'.join(self.MINIMUM_DEDICATED_VERSION[3:])
+					)
+				)
+				await asyncio.sleep(5)
 
 		# Try to get the script api_versions.
 		try:
@@ -152,6 +182,9 @@ class GbxClient(GbxRemote):
 			logger.error('Can\'t set the script API Version! {}'.format(str(e)))
 
 		await self.refresh_info()
+
+		# Clear the previous created Manialinks.
+		await self('SendHideManialinkPage')
 
 		# Schedule refresh every minute!
 		self.refresh_task = asyncio.ensure_future(self.__refresh_info_call())

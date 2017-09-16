@@ -12,7 +12,7 @@ class _UpdateChecker:  # pragma: no cover
 		self.current = None
 		self.instance = None
 
-		self.url = 'https://api.github.com/repos/{}/tags'.format('PyPlanet/PyPlanet')
+		self.url = 'https://api.github.com/repos/{}/releases'.format('PyPlanet/PyPlanet')
 
 	async def init_checker(self, instance):
 		"""
@@ -42,7 +42,11 @@ class _UpdateChecker:  # pragma: no cover
 
 		async with aiohttp.ClientSession() as session:
 			async with session.get(self.url) as resp:
-				self.latest = (await resp.json())[0]['name']
+				for release in await resp.json():
+					if not release['draft'] and not release['prerelease']:
+						self.latest = release['tag_name']
+						break
+
 				self.current = current_version
 				logging.debug('Version check, your version: {}, online version: {}'.format(self.current, self.latest))
 

@@ -1,8 +1,8 @@
 -r requirements.txt
 
 # Documentation Building.
-sphinx==1.6.2
-sphinx-autobuild==0.6.0
+sphinx==1.6.3
+sphinx-autobuild==0.7.1
 sphinx_rtd_theme==0.2.4
 
 # Testing Utilities.

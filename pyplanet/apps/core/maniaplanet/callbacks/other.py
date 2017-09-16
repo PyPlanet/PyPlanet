@@ -1,5 +1,6 @@
 from pyplanet.core import Controller
 from pyplanet.core.events import Callback, handle_generic, Signal
+from pyplanet.contrib.player.exceptions import PlayerNotFound
 
 
 async def handle_bill_updated(source, signal, **kwargs):
@@ -10,7 +11,11 @@ async def handle_bill_updated(source, signal, **kwargs):
 
 async def handle_vote_updated(source, signal, **kwargs):
 	state, login, cmd_name, cmd_param = source
-	player = await Controller.instance.player_manager.get_player(login)
+	player = None
+	try:
+		player = await Controller.instance.player_manager.get_player(login)
+	except PlayerNotFound:
+		player = None
 	return dict(
 		player=player, state=state, cmd_name=cmd_name, cmd_param=cmd_param
 	)

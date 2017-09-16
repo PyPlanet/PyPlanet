@@ -1,0 +1,21 @@
+{% extends 'core.views/generics/widget.xml' %}
+
+  <frame pos="+35.65 0">
+    {% block content %}
+      {% if cps != None %}
+        {% for time in cps %}
+          {% if loop.index0 < 18 %}
+            <frame pos="{% if (time.index-1) % 6 == 0 %}35.65{% else %}{{ ((time.index-1) % 6 * 35.65)+35.65 }}{% endif %} -{{ ((time.index-1) // 6 * 3.5) - 6.5 }}">
+              <quad pos="0 0" z-index="0" size="4 3" bgcolor="00000070"/>
+              <label pos="2 -1.5" z-index="1" size="4 3" text="{{ time.index }}" textsize="0.3" textfont="RajdhaniMono"  textemboss="1" halign="center" valign="center2"/>
+              <quad pos="4.25 0" z-index="0" size="20.5 3" bgcolor="00000070"/>
+              <label pos="4.5 -1.5" z-index="1" size="20 3" text="{{ time.nickname }}" textsize="0.2" textfont="RajdhaniMono"  textemboss="1" halign="left" valign="center2" style="TextCardSmall" action="pyplanet__widgets_currentcps__spec_{{ time.login }}"/>
+              <quad pos="25 0" z-index="0" size="10 3" bgcolor="00000070"/>
+              <label pos="30 -1.5" z-index="1" size="10 3" text="{{ time.color }}{{ time.cptime }}" textsize="0.2" textfont="RajdhaniMono"  textemboss="1" halign="center" valign="center2"/>
+            </frame>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    {% endblock %}
+  </frame>
+</frame>

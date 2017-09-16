@@ -87,7 +87,7 @@
 		<guestlist_filename></guestlist_filename>
 		<blacklist_filename></blacklist_filename>
 
-		<title>TMCanyon</title>		<!-- SMStorm, TMCanyon, ... -->
+		<title>TMCanyon@nadeo</title>		<!-- SMStorm, TMCanyon, ... -->
 
 		<minimum_client_build></minimum_client_build>			<!-- Only accept updated client to a specific version. ex: 2011-10-06 -->
 

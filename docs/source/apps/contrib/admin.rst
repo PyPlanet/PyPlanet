@@ -154,6 +154,29 @@ Functionality:
 Required permission:
   ``admin:force_spec``, requires admin level 1.
 
+Force player to team
+~~~~~~~~~~~~~~~~~~~~
+Command:
+  ``//forceteam``
+Parameters:
+  * Player login.
+  * Team identifier (0/blue or 1/red)
+Functionality:
+  Force player into a specific team.
+Required permission:
+  ``admin:force_team``, requires admin level 1.
+
+Switch player to team
+~~~~~~~~~~~~~~~~~~~~~
+Command:
+  ``//switchteam``
+Parameters:
+  * Player login.
+Functionality:
+  Switches the player into the other team.
+Required permission:
+  ``admin:switch_team``, requires admin level 1.
+
 Mute player
 ~~~~~~~~~~~
 Command:

@@ -50,6 +50,9 @@ class GbxRemote:
 		self.api_version = api_version
 		self.instance = instance
 
+		self.dedicated_version = None
+		self.dedicated_build = None
+
 		self.event_loop = event_pool or asyncio.get_event_loop()
 		self.gbx_methods = list()
 
@@ -131,8 +134,13 @@ class GbxRemote:
 			self.execute('EnableCallbacks', True),
 		)
 
-		# Fetch gbx methods.
-		self.gbx_methods = await self.execute('system.listMethods')
+		# Fetch gbx methods and dedicated server version.
+		self.gbx_methods, versions = await asyncio.gather(
+			self.execute('system.listMethods'),
+			self.execute('GetVersion')
+		)
+		self.dedicated_version = versions['Version']
+		self.dedicated_build = versions['Build']
 
 		# Check for scripted mode.
 		mode = await self.execute('GetGameMode')
