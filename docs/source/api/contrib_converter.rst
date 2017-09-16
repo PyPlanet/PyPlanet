@@ -10,3 +10,6 @@ pyplanet.contrib.converter
 
 .. automodule:: pyplanet.contrib.converter.xaseco2
   :members:
+
+.. automodule:: pyplanet.contrib.converter.uaseco
+  :members:

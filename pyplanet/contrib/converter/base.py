@@ -5,7 +5,7 @@ import pymysql.cursors
 class BaseConverter:
 	"""
 	Base Converter is the abstract converter class.
-	
+
 	Please take a look at the other classes bellow.
 	"""
 	def __init__(
@@ -14,7 +14,7 @@ class BaseConverter:
 	):
 		"""
 		Create converter.
-		
+
 		:param instance: Controller instance.
 		:param db_type: Type, mysql by default.
 		:param db_host: Hostname
@@ -24,6 +24,7 @@ class BaseConverter:
 		:param db_port: Port.
 		:param prefix: Table prefix.
 		:param charset: Charset of source db. Only supporting utf8 now.
+		:param extra: Any extra parameters given.
 		:type instance: pyplanet.core.instance.Instance
 		"""
 		self.instance = instance

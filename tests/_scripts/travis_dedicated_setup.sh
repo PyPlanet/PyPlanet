@@ -13,7 +13,7 @@ cd ../../
 # From now we are in the project root.
 
 # Download the latest dedicated server.
-wget http://files.v04.maniaplanet.com/server/ManiaplanetServer_2017-07-12.zip -O ./dedicated.zip
+wget http://files.v04.maniaplanet.com/server/ManiaplanetServer_2017-08-30.zip -O ./dedicated.zip
 
 # Unzip the dedicated into the subdirectory.
 mkdir -p ./dedicated

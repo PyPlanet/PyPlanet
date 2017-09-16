@@ -22,7 +22,7 @@ class Migrator:
 	def __init__(self, instance, db):
 		"""
 		Initiate migrator.
-		
+
 		:param instance: Instance of controller
 		:param db: Database instance.
 		:type instance: pyplanet.core.instance.Instance
@@ -66,14 +66,12 @@ class Migrator:
 				if len(result) == 1:
 					if result[0] != 'utf8mb4_unicode_ci':
 						logger.error(
-							'Your database collate is \'{}\' and it should be \'utf8mb4_unicode_ci\'! '
+							'Your database, tables and column collate is \'{}\' and it should be \'utf8mb4_unicode_ci\'! '
 							'Please change your database collate right now!'.format(result[0])
 						)
 						logger.warning(
-							'Change with: '
-							'ALTER SCHEMA {} DEFAULT CHARACTER SET utf8mb4  DEFAULT COLLATE utf8mb4_unicode_ci ;'.format(
-								self.db.engine.database
-							)
+							'Please read the information on this page on how to convert your collate: '
+							'http://www.pypla.net/en/stable/howto/dbcollate.html'
 						)
 						logger.info('Wait 5 seconds to ignore!... (We strongly advice to change it!)')
 						await asyncio.sleep(5)
@@ -83,7 +81,7 @@ class Migrator:
 	async def migrate(self):
 		"""
 		Migrate all models.
-		
+
 		:return:
 		"""
 		from .models.migration import Migration
@@ -124,7 +122,7 @@ class Migrator:
 	def run_migration(self, name, app_label, app_module, save_migration=True):
 		"""
 		Run + apply migration to the actual database.
-		
+
 		:param name: Name of migration.
 		:param app_label: App label.
 		:param app_module: App module path.
