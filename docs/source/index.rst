@@ -57,6 +57,7 @@ Information about development of apps and the core is also available under:
     intro/starting
     intro/upgrading
     convert/index
+    howto/index
 
 
 .. _app-docs:

@@ -7,6 +7,8 @@
 * [ ] Check the Travis CI build status of the ``master`` branch.
 * [ ] Make sure we update the version number according to Semver 2.0.0.
 * [ ] Update `CHANGELOG.rst`.
+* [ ] Update documentation version `conf.py`.
+* [ ] Update code version `__init__.py`.
 * [ ] Run build commands with `make build` and test the cli with pip installation.
 * [ ] Create new branch for the big releases (if major/minor update, not for bugfix):
 ```
@@ -21,4 +23,3 @@
     $ make publish
 ```
 * [ ] Create/update release notes on Github releases page.
-* [ ] Update the documentation. Use `make gh-deploy` in the ./docs folder.

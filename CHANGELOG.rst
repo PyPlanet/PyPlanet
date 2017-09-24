@@ -14,14 +14,41 @@ Core
   More info: https://github.com/PyPlanet/PyPlanet/issues/392
 
   **The old way will break your app from version 0.8.0**
-  
+
 * Improvement: Retry 5 times when connecting to the dedicated server, making it possible to start both at the same time.
 
 Apps
 ~~~~
 
-* Improvement: Applied context aware signal manager everywhere.
+* NEW: Best CPS Widget for Trackmania, shows the best times per checkpoint above the screen.
+  Add the new app to your apps.py: `'pyplanet.apps.contrib.best_cps'`. More info on the documentation pages of the app.
 
+* Improvement: Applied context aware signal manager everywhere.
+* Improvement: Moving logic to view in dedimania app.
+* Improvement: Adding the MX link of the map to the icon on the map info widget.
+* Improvement: Adding setting to juke map after //add (mx and local) the map. Enabled by default!
+
+0.4.5
+-----
+
+Core
+~~~~
+
+* Feature: Add ManiaControl convert script. See documentation on converting from old controller for instructions.
+* Improved: Add documentation on how to convert to the right database collation.
+
+Apps
+~~~~
+
+* Bugfix: Fixing issue in the Dymanic Pointlimit app that results in 3 settings having the same key name.
+
+0.4.4
+-----
+
+* Feature: Add UAseco convert script. See documentation on converting from old controller for instructions.
+* Improved: Updated libraries and dependencies.
+* Bugfix: Catch error when server initiated callvote, thanks to @teemann.
+* Bugfix: Fix the release/update checker.
 
 0.4.3
 -----
