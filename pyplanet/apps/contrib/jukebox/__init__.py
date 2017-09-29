@@ -3,6 +3,7 @@ from xmlrpc.client import Fault
 
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.jukebox.views import MapListView, JukeboxListView
+from pyplanet.apps.contrib.jukebox.folders import JukeboxFolders
 from pyplanet.contrib.command import Command
 
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
@@ -18,6 +19,7 @@ class Jukebox(AppConfig):
 
 		self.lock = asyncio.Lock()
 		self.jukebox = []
+		self.folders = JukeboxFolders(self)
 
 	async def on_start(self):
 		# Register permissions + commands.

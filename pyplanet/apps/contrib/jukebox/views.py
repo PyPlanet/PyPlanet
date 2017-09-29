@@ -108,8 +108,20 @@ class MapListView(ManualListView):
 	async def get_actions(self):
 		return self.custom_actions
 
+	async def get_buttons(self):
+		return [
+			{
+				'title': 'Folders',
+				'width': 20,
+				'action': self.action_folders
+			}
+		]
+
 	async def action_jukebox(self, player, values, map_info, **kwargs):
 		await self.app.add_to_jukebox(player, await self.app.instance.map_manager.get_map(map_info['uid']))
+
+	async def action_folders(self, player, values, **kwargs):
+		await self.app.folders.display_all(player)
 
 	@classmethod
 	def add_action(cls, target, name, text, text_size='1.2', require_confirm=False):
