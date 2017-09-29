@@ -15,13 +15,13 @@ class JukeboxFolders:
 	async def display_all(self, player):
 		if len(self.folders) == 0:
 			if 'local_records' in self.app.instance.apps.apps:
-				self.folders.append({'id': 'length_shorter_30s', 'name': 'Maps shorter than 30 seconds (based on Local Record)'})
-				self.folders.append({'id': 'length_longer_60s', 'name': 'Maps longer than 60 seconds (based on Local Record)'})
+				self.folders.append({'id': 'length_shorter_30s', 'name': 'Maps length: shorter than 30 seconds (based on Local Record)', 'owner': 'PyPlanet'})
+				self.folders.append({'id': 'length_longer_60s', 'name': 'Maps length: longer than 60 seconds (based on Local Record)', 'owner': 'PyPlanet'})
 
 			if 'karma' in self.app.instance.apps.apps:
-				self.folders.append({'id': 'karma_none', 'name': 'Maps with no karma votes'})
-				self.folders.append({'id': 'karma_negative', 'name': 'Maps with a negative karma'})
-				self.folders.append({'id': 'karma_positive', 'name': 'Maps with a positive karma'})
+				self.folders.append({'id': 'karma_none', 'name': 'Map karma: no votes', 'owner': 'PyPlanet'})
+				self.folders.append({'id': 'karma_negative', 'name': 'Map karma: negative', 'owner': 'PyPlanet'})
+				self.folders.append({'id': 'karma_positive', 'name': 'Map karma: positive', 'owner': 'PyPlanet'})
 
 		view = FoldersListView(self)
 		await view.display(player=player)
@@ -117,21 +117,20 @@ class FoldersListView(ManualListView):
 	async def get_fields(self):
 		return [
 			{
-				'name': '#',
-				'index': 'index',
-				'sorting': True,
-				'searching': False,
-				'width': 10,
-				'type': 'label'
-			},
-			{
-				'name': 'Folder name',
+				'name': 'Folder',
 				'index': 'name',
-				'sorting': True,
+				'sorting': False,
 				'searching': True,
-				'width': 100,
+				'width': 140,
 				'type': 'label',
 				'action': self.action_show
+			},
+			{
+				'name': 'Owner',
+				'index': 'owner',
+				'sorting': False,
+				'searching': False,
+				'width': 80,
 			},
 		]
 
@@ -139,10 +138,4 @@ class FoldersListView(ManualListView):
 		await self.folders.display_folder(player, instance)
 
 	async def get_data(self):
-		index = 1
-		items = []
-		for item in self.folders.folders:
-			items.append({'index': index, 'id': item['id'], 'name': item['name']})
-			index += 1
-
-		return items
+		return self.folders.folders
