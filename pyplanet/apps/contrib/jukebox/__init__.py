@@ -28,7 +28,8 @@ class Jukebox(AppConfig):
 			Command(command='cjb', target=self.clear_jukebox, perms='jukebox:clear', admin=True),
 			Command(command='clearjukebox', target=self.clear_jukebox, perms='jukebox:clear', admin=True),
 			Command(command='list', target=self.show_map_list).add_param(name='search', required=False),
-			Command(command='jukebox', target=self.chat_command).add_param(name='option', required=False)
+			Command(command='jukebox', target=self.chat_command).add_param(name='option', required=False),
+			Command(command='mapfolders', target=self.show_map_folders)
 		)
 
 		# Register callback.
@@ -48,6 +49,9 @@ class Jukebox(AppConfig):
 		if data.search is not None:
 			view.search_text = data.search
 		await view.display(player=player)
+
+	async def show_map_folders(self, player, data, **kwargs):
+		await self.folders.display_all(player)
 
 	async def chat_command(self, player, data, **kwargs):
 		if data.option is None:
