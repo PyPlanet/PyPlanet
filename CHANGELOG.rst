@@ -24,6 +24,9 @@ Apps
   Add the new app to your apps.py: `'pyplanet.apps.contrib.best_cps'`. More info on the documentation pages of the app.
 
 * Improvement: Applied context aware signal manager everywhere.
+* Improvement: Moving logic to view in dedimania app.
+* Improvement: Adding the MX link of the map to the icon on the map info widget.
+* Improvement: Adding setting to juke map after //add (mx and local) the map. Enabled by default!
 
 0.4.5
 -----
