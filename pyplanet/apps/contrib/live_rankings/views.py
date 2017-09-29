@@ -94,20 +94,19 @@ class LiveRankingsWidget(TimesWidgetView):
 
 			list_record['cp_difference'] = None
 
-			if self.display_cpdifference:
-				if 'cps' in best and 'cps' in record:
-					list_record['cp_difference'] = (best['cps'] - record['cps'])
+			if self.display_cpdifference and 'cps' in best and 'cps' in record:
+				list_record['cp_difference'] = (best['cps'] - record['cps'])
 
-					if index > 1 and not record['finish']:
-						# Calculate difference to first player
-						best_cp = best['cp_times'][(record['cps'] - 1)]
-						current_diff = (record['score'] - best['cp_times'][(record['cps'] - 1)])
-						list_record['score'] = '+ ' + times.format_time(int(current_diff))
+				if index > 1 and not record['finish']:
+					# Calculate difference to first player
+					best_cp = best['cp_times'][(record['cps'] - 1)]
+					current_diff = (record['score'] - best['cp_times'][(record['cps'] - 1)])
+					list_record['score'] = '+ ' + times.format_time(int(current_diff))
 
-					if record['finish']:
-						list_record['score'] = '$i' + str(list_record['score'])
-					elif record['giveup']:
-						list_record['score'] = '$iDNF'
+				if record['finish']:
+					list_record['score'] = '$i' + str(list_record['score'])
+				elif record['giveup']:
+					list_record['score'] = '$iDNF'
 
 			if index == self.top_entries:
 				index = custom_start_index
