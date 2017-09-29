@@ -113,6 +113,18 @@ class Karma(AppConfig):
 						self.widget.display()
 					)
 
+	@staticmethod
+	async def get_map_vote_count(self, map):
+		vote_list = await KarmaModel.objects.execute(KarmaModel.select().where(KarmaModel.map_id == map.get_id()))
+		return len(vote_list)
+
+	@staticmethod
+	async def get_map_karma(self, map):
+		vote_list = await KarmaModel.objects.execute(KarmaModel.select().where(KarmaModel.map_id == map.get_id()))
+		current_positive_votes = [x for x in vote_list if x.score == 1]
+		current_negative_votes = [x for x in vote_list if x.score == -1]
+		return len(current_positive_votes) - len(current_negative_votes)
+
 	async def get_votes_list(self, map):
 		vote_list = await KarmaModel.objects.execute(KarmaModel.select().where(KarmaModel.map_id == map.get_id()))
 		self.current_votes = list(vote_list)

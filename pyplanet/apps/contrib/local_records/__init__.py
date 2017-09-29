@@ -56,6 +56,17 @@ class LocalRecords(AppConfig):
 		self.widget = LocalRecordsWidget(self)
 		await self.widget.display()
 
+	@staticmethod
+	async def get_map_record(self, map):
+		record_list = await LocalRecord.objects.execute(
+			LocalRecord.select(LocalRecord, Player)
+				.join(Player)
+				.where(LocalRecord.map_id == map.get_id())
+				.order_by(LocalRecord.score.asc())
+		)
+
+		return {'record_count': len(record_list), 'first_record': record_list[0].score if len(record_list) > 0 else 0}
+
 	async def refresh_locals(self):
 		record_list = await LocalRecord.objects.execute(
 			LocalRecord.select(LocalRecord, Player)

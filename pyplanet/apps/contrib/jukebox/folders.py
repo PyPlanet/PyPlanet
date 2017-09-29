@@ -12,12 +12,17 @@ class JukeboxFolders:
 	def __init__(self, app):
 		self.app = app
 
-		self.folders.append({'id': 'length_shorter_30s', 'name': 'Maps shorter than 30 seconds'})
-		self.folders.append({'id': 'length_longer_60s', 'name': 'Maps longer than 60 seconds'})
-		#self.folders.append({'id': 'karma_none', 'name': 'Maps with no karma votes'})
-		#self.folders.append({'id': 'karma_negative', 'name': 'Maps with a negative karma'})
-
 	async def display_all(self, player):
+		if len(self.folders) == 0:
+			if 'local_records' in self.app.instance.apps.apps:
+				self.folders.append({'id': 'length_shorter_30s', 'name': 'Maps shorter than 30 seconds (based on Local Record)'})
+				self.folders.append({'id': 'length_longer_60s', 'name': 'Maps longer than 60 seconds (based on Local Record)'})
+
+			if 'karma' in self.app.instance.apps.apps:
+				self.folders.append({'id': 'karma_none', 'name': 'Maps with no karma votes'})
+				self.folders.append({'id': 'karma_negative', 'name': 'Maps with a negative karma'})
+				self.folders.append({'id': 'karma_positive', 'name': 'Maps with a positive karma'})
+
 		view = FoldersListView(self)
 		await view.display(player=player)
 
@@ -26,17 +31,32 @@ class JukeboxFolders:
 		fields = []
 
 		if folder['id'] is 'length_shorter_30s':
-			map_list = [m for m in self.app.instance.map_manager.maps if m.time_author < 30000]
+			map_list = [m for m in self.app.instance.map_manager.maps if (await self.app.instance.apps.apps['local_records'].get_map_record(self, m))['first_record'] < 30000]
 		elif folder['id'] is 'length_longer_60s':
-			map_list = [m for m in self.app.instance.map_manager.maps if m.time_author > 60000]
+			map_list = [m for m in self.app.instance.map_manager.maps if (await self.app.instance.apps.apps['local_records'].get_map_record(self, m))['first_record'] > 60000]
+		elif folder['id'] is 'karma_none':
+			map_list = [m for m in self.app.instance.map_manager.maps if await self.app.instance.apps.apps['karma'].get_map_vote_count(self, m) is 0]
+		elif folder['id'] is 'karma_negative':
+			map_list = [m for m in self.app.instance.map_manager.maps if await self.app.instance.apps.apps['karma'].get_map_karma(self, m) < 0]
+		elif folder['id'] is 'karma_positive':
+			map_list = [m for m in self.app.instance.map_manager.maps if await self.app.instance.apps.apps['karma'].get_map_karma(self, m) > 0]
 
 		if folder['id'].startswith('length_'):
 			fields.append({
-				'name': 'Author time',
-				'index': 'time_author',
+				'name': 'Local Record',
+				'index': 'local_record',
 				'sorting': True,
 				'searching': False,
-				'width': 25,
+				'width': 40,
+			})
+
+		if folder['id'].startswith('karma_'):
+			fields.append({
+				'name': 'Karma',
+				'index': 'karma',
+				'sorting': True,
+				'searching': False,
+				'width': 40,
 			})
 
 		view = ManualMapListView(self.app, map_list, fields)
@@ -63,10 +83,16 @@ class ManualMapListView(MapListView):
 		return fields
 
 	async def get_data(self):
+		karma = any(f['index'] == "karma" for f in self.fields)
+		length = any(f['index'] == "local_record" for f in self.fields)
+
 		items = []
 		for item in self.map_list:
 			dict_item = model_to_dict(item)
-			dict_item['time_author'] = times.format_time(dict_item['time_author'])
+			if length:
+				dict_item['local_record'] = times.format_time((await self.app.instance.apps.apps['local_records'].get_map_record(self, item))['first_record'])
+			if karma:
+				dict_item['karma'] = await self.app.instance.apps.apps['karma'].get_map_karma(self, item)
 			items.append(dict_item)
 
 		return items
@@ -103,7 +129,7 @@ class FoldersListView(ManualListView):
 				'index': 'name',
 				'sorting': True,
 				'searching': True,
-				'width': 50,
+				'width': 100,
 				'type': 'label',
 				'action': self.action_show
 			},
