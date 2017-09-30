@@ -1,8 +1,11 @@
 from playhouse.shortcuts import model_to_dict
 
 from pyplanet.views.generics.list import ManualListView
+from pyplanet.apps.core.maniaplanet.models import Player, Map
 from pyplanet.apps.contrib.jukebox.views import MapListView
 from pyplanet.utils import times
+
+from .models import MapFolder as Folders, MapInFolder
 
 
 class JukeboxFolders:
@@ -24,6 +27,17 @@ class JukeboxFolders:
 				self.folders.append({'id': 'karma_negative', 'name': 'Map karma: negative', 'owner': 'PyPlanet'})
 				self.folders.append({'id': 'karma_positive', 'name': 'Map karma: positive', 'owner': 'PyPlanet'})
 
+			folder_list = await Folders.objects.execute(
+				Folders.select(Folders, Player)
+					.join(Player)
+					.where(Player.login == player.login or Folders.public is True)
+					.order_by(Folders.public.desc())
+			)
+
+			for folder in folder_list:
+				folder_id = 'database_{}'.format(folder.get_id())
+				self.folders.append({'id': folder_id, 'name': folder.name, 'owner': folder.player.nickname})
+
 		view = FoldersListView(self)
 		await view.display(player=player)
 
@@ -43,8 +57,17 @@ class JukeboxFolders:
 			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'karma') and m.karma['map_karma'] < 0]
 		elif folder['id'] is 'karma_positive':
 			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'karma') and m.karma['map_karma'] > 0]
+		elif folder['id'].startswith('database_'):
+			# Personal folder from database
+			maps_in_folder = [m.map.uid for m in await MapInFolder.objects.execute(
+				MapInFolder.select(MapInFolder, Map)
+					.join(Map)
+					.where(MapInFolder.folder == int(folder['id'].replace('database_', '')))
+			)]
 
-		if folder['id'].startswith('length_'):
+			map_list = [m for m in self.app.instance.map_manager.maps if m.uid in maps_in_folder]
+
+		if folder['id'].startswith('length_') or folder['id'].startswith('database_'):
 			fields.append({
 				'name': 'Local Record',
 				'index': 'local_record',
@@ -53,7 +76,7 @@ class JukeboxFolders:
 				'width': 40,
 			})
 
-		if folder['id'].startswith('karma_'):
+		if folder['id'].startswith('karma_') or folder['id'].startswith('database_'):
 			fields.append({
 				'name': 'Karma',
 				'index': 'karma',

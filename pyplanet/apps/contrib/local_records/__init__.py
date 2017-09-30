@@ -161,7 +161,7 @@ class LocalRecords(AppConfig):
 			# (Re)sort the record list.
 			self.current_records.sort(key=lambda x: x.score)
 			new_index = self.current_records.index(current_record) + 1
-			
+
 			if new_index == 1:
 				map = next((m for m in self.instance.map_manager.maps if m.uid == self.instance.map_manager.current_map.uid), None)
 				if map is not None:
