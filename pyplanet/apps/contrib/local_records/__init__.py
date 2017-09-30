@@ -56,7 +56,12 @@ class LocalRecords(AppConfig):
 		self.widget = LocalRecordsWidget(self)
 		await self.widget.display()
 
-	@staticmethod
+		await self.load_map_locals()
+
+	async def load_map_locals(self):
+		for map in self.instance.map_manager.maps:
+			map.local = await self.get_map_record(map)
+
 	async def get_map_record(self, map):
 		record_list = await LocalRecord.objects.execute(
 			LocalRecord.select(LocalRecord, Player)
@@ -65,7 +70,10 @@ class LocalRecords(AppConfig):
 				.order_by(LocalRecord.score.asc())
 		)
 
-		return {'record_count': len(record_list), 'first_record': record_list[0].score if len(record_list) > 0 else 0}
+		return {
+			'record_count': len(record_list),
+			'first_record': record_list[0] if len(record_list) > 0 else None
+		}
 
 	async def refresh_locals(self):
 		record_list = await LocalRecord.objects.execute(
@@ -180,6 +188,11 @@ class LocalRecords(AppConfig):
 				'own_records': current_records,
 				'own_record': current_record
 			})
+
+		if new_index == 1:
+			map = next((m for m in self.instance.map_manager.maps if m.uid == self.instance.map_manager.current_map.uid), None)
+			if map is not None:
+				map.karma = await self.get_map_record(self.instance.map_manager.current_map)
 
 		coros = [self.widget.display()]
 		if record_limit == 0 or new_index <= record_limit:

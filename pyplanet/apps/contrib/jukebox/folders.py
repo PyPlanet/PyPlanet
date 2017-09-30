@@ -15,8 +15,8 @@ class JukeboxFolders:
 	async def display_all(self, player):
 		if len(self.folders) == 0:
 			if 'local_records' in self.app.instance.apps.apps:
-				self.folders.append({'id': 'length_shorter_30s', 'name': 'Maps length: shorter than 30 seconds (based on Local Record)', 'owner': 'PyPlanet'})
-				self.folders.append({'id': 'length_longer_60s', 'name': 'Maps length: longer than 60 seconds (based on Local Record)', 'owner': 'PyPlanet'})
+				self.folders.append({'id': 'length_shorter_30s', 'name': 'Maps length: shorter than 30 seconds (Local Record)', 'owner': 'PyPlanet'})
+				self.folders.append({'id': 'length_longer_60s', 'name': 'Maps length: longer than 60 seconds (Local Record)', 'owner': 'PyPlanet'})
 
 			if 'karma' in self.app.instance.apps.apps:
 				self.folders.append({'id': 'karma_none', 'name': 'Map karma: no votes', 'owner': 'PyPlanet'})
@@ -31,9 +31,9 @@ class JukeboxFolders:
 		fields = []
 
 		if folder['id'] is 'length_shorter_30s':
-			map_list = [m for m in self.app.instance.map_manager.maps if (await self.app.instance.apps.apps['local_records'].get_map_record(self, m))['first_record'] < 30000]
+			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'local') and m.local['first_record'] is not None and m.local['first_record'].score < 30000]
 		elif folder['id'] is 'length_longer_60s':
-			map_list = [m for m in self.app.instance.map_manager.maps if (await self.app.instance.apps.apps['local_records'].get_map_record(self, m))['first_record'] > 60000]
+			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'local') and m.local['first_record'] is not None and m.local['first_record'].score > 60000]
 		elif folder['id'] is 'karma_none':
 			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'karma') and m.karma['vote_count'] is 0]
 		elif folder['id'] is 'karma_negative':
@@ -90,7 +90,7 @@ class ManualMapListView(MapListView):
 		for item in self.map_list:
 			dict_item = model_to_dict(item)
 			if length:
-				dict_item['local_record'] = times.format_time((await self.app.instance.apps.apps['local_records'].get_map_record(self, item))['first_record'])
+				dict_item['local_record'] = times.format_time((item.local['first_record'].score if hasattr(item, 'local') else 0))
 			if karma:
 				dict_item['karma'] = item.karma['map_karma'] if hasattr(item, 'karma') else 0
 			items.append(dict_item)
