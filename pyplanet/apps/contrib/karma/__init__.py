@@ -51,6 +51,12 @@ class Karma(AppConfig):
 		self.widget = KarmaWidget(self)
 		await self.widget.display()
 
+		await self.load_map_votes()
+
+	async def load_map_votes(self):
+		for map in self.instance.map_manager.maps:
+			map.karma = await self.get_map_karma(map)
+
 	async def show_map_list(self, player, map=None, **kwargs):
 		"""
 		Show map list to player for current map or map provided.. Provide player instance.
@@ -94,6 +100,10 @@ class Karma(AppConfig):
 						player_vote.score = score
 						await player_vote.save()
 
+						map = next((m for m in self.instance.map_manager.maps if m.uid == self.instance.map_manager.current_map.uid), None)
+						if map is not None:
+							map.karma = await self.get_map_karma(self.instance.map_manager.current_map)
+
 						message = '$ff0Successfully changed your karma vote to $fff{}$ff0!'.format(text)
 						await self.calculate_karma()
 						await asyncio.gather(
@@ -107,23 +117,21 @@ class Karma(AppConfig):
 					self.current_votes.append(new_vote)
 					await self.calculate_karma()
 
+					map = next((m for m in self.instance.map_manager.maps if m.uid == self.instance.map_manager.current_map.uid), None)
+					if map is not None:
+						map.karma = await self.get_map_karma(self.instance.map_manager.current_map)
+
 					message = '$ff0Successfully voted $fff{}$ff0!'.format(text)
 					await asyncio.gather(
 						self.instance.chat(message, player),
 						self.widget.display()
 					)
 
-	@staticmethod
-	async def get_map_vote_count(self, map):
-		vote_list = await KarmaModel.objects.execute(KarmaModel.select().where(KarmaModel.map_id == map.get_id()))
-		return len(vote_list)
-
-	@staticmethod
 	async def get_map_karma(self, map):
 		vote_list = await KarmaModel.objects.execute(KarmaModel.select().where(KarmaModel.map_id == map.get_id()))
 		current_positive_votes = [x for x in vote_list if x.score == 1]
 		current_negative_votes = [x for x in vote_list if x.score == -1]
-		return len(current_positive_votes) - len(current_negative_votes)
+		return {'vote_count': len(vote_list), 'map_karma': len(current_positive_votes) - len(current_negative_votes)}
 
 	async def get_votes_list(self, map):
 		vote_list = await KarmaModel.objects.execute(KarmaModel.select().where(KarmaModel.map_id == map.get_id()))

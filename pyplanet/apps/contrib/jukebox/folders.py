@@ -35,11 +35,11 @@ class JukeboxFolders:
 		elif folder['id'] is 'length_longer_60s':
 			map_list = [m for m in self.app.instance.map_manager.maps if (await self.app.instance.apps.apps['local_records'].get_map_record(self, m))['first_record'] > 60000]
 		elif folder['id'] is 'karma_none':
-			map_list = [m for m in self.app.instance.map_manager.maps if await self.app.instance.apps.apps['karma'].get_map_vote_count(self, m) is 0]
+			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'karma') and m.karma['vote_count'] is 0]
 		elif folder['id'] is 'karma_negative':
-			map_list = [m for m in self.app.instance.map_manager.maps if await self.app.instance.apps.apps['karma'].get_map_karma(self, m) < 0]
+			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'karma') and m.karma['map_karma'] < 0]
 		elif folder['id'] is 'karma_positive':
-			map_list = [m for m in self.app.instance.map_manager.maps if await self.app.instance.apps.apps['karma'].get_map_karma(self, m) > 0]
+			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'karma') and m.karma['map_karma'] > 0]
 
 		if folder['id'].startswith('length_'):
 			fields.append({
@@ -92,7 +92,7 @@ class ManualMapListView(MapListView):
 			if length:
 				dict_item['local_record'] = times.format_time((await self.app.instance.apps.apps['local_records'].get_map_record(self, item))['first_record'])
 			if karma:
-				dict_item['karma'] = await self.app.instance.apps.apps['karma'].get_map_karma(self, item)
+				dict_item['karma'] = item.karma['map_karma'] if hasattr(item, 'karma') else 0
 			items.append(dict_item)
 
 		return items
