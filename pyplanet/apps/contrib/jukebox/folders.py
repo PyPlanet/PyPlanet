@@ -160,8 +160,20 @@ class FoldersListView(ManualListView):
 			},
 		]
 
+	async def get_buttons(self):
+		return [
+			{
+				'title': 'Create folder',
+				'width': 28,
+				'action': self.create_folder
+			}
+		]
+
 	async def action_show(self, player, values, instance, **kwargs):
 		await self.folders.display_folder(player, instance)
+
+	async def create_folder(self, player, values, **kwargs):
+		pass
 
 	async def get_data(self):
 		return self.folders.folders
