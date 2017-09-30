@@ -13,7 +13,7 @@
   <quad pos="99 59.5 0" size="7 7" z-index="1" style="Icons128x32_1" substyle="Close" action="{{ id }}__list_button_close"/>
   <quad pos="94 59 0" size="6 6" z-index="1" style="Icons64x64_1" substyle="Refresh" action="{{ id }}__list_button_refresh" />
 
-  {% if provide_search or buttons.length > 1 %}
+  {% if provide_search or (buttons is defined and buttons.length > 0) %}
     <frame pos="-109 49.5" id="list_search_frame">
       <quad pos="0 0" size="218 8.5" z-index="-50" style="Bgs1InRace" substyle="BgCardList"/>
       {% if provide_search %}
@@ -30,7 +30,7 @@
     </frame>
   {% endif %}
 
-  {% if provide_search or buttons.length > 1 %}
+  {% if provide_search or (buttons is defined and buttons.length > 0) %}
     <frame pos="-109 39.5">
   {% else %}
     <frame pos="-109 49.5">
