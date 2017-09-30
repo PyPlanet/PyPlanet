@@ -161,6 +161,11 @@ class LocalRecords(AppConfig):
 			# (Re)sort the record list.
 			self.current_records.sort(key=lambda x: x.score)
 			new_index = self.current_records.index(current_record) + 1
+			
+			if new_index == 1:
+				map = next((m for m in self.instance.map_manager.maps if m.uid == self.instance.map_manager.current_map.uid), None)
+				if map is not None:
+					map.local = {'record_count': len(self.current_records), 'first_record': current_record}
 
 		# Prepare messages.
 		if previous_index is not None and (record_limit == 0 or previous_index <= record_limit):
@@ -188,11 +193,6 @@ class LocalRecords(AppConfig):
 				'own_records': current_records,
 				'own_record': current_record
 			})
-
-		if new_index == 1:
-			map = next((m for m in self.instance.map_manager.maps if m.uid == self.instance.map_manager.current_map.uid), None)
-			if map is not None:
-				map.karma = await self.get_map_record(self.instance.map_manager.current_map)
 
 		coros = [self.widget.display()]
 		if record_limit == 0 or new_index <= record_limit:

@@ -15,8 +15,9 @@ class JukeboxFolders:
 	async def display_all(self, player):
 		if len(self.folders) == 0:
 			if 'local_records' in self.app.instance.apps.apps:
-				self.folders.append({'id': 'length_shorter_30s', 'name': 'Maps length: shorter than 30 seconds (Local Record)', 'owner': 'PyPlanet'})
-				self.folders.append({'id': 'length_longer_60s', 'name': 'Maps length: longer than 60 seconds (Local Record)', 'owner': 'PyPlanet'})
+				self.folders.append({'id': 'local_none', 'name': 'Map record: none', 'owner': 'PyPlanet'})
+				self.folders.append({'id': 'length_shorter_30s', 'name': 'Map record: below 30 seconds', 'owner': 'PyPlanet'})
+				self.folders.append({'id': 'length_longer_60s', 'name': 'Map record: above 60 seconds', 'owner': 'PyPlanet'})
 
 			if 'karma' in self.app.instance.apps.apps:
 				self.folders.append({'id': 'karma_none', 'name': 'Map karma: no votes', 'owner': 'PyPlanet'})
@@ -30,7 +31,9 @@ class JukeboxFolders:
 		map_list = []
 		fields = []
 
-		if folder['id'] is 'length_shorter_30s':
+		if folder['id'] is 'local_none':
+			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'local') and m.local['record_count'] == 0]
+		elif folder['id'] is 'length_shorter_30s':
 			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'local') and m.local['first_record'] is not None and m.local['first_record'].score < 30000]
 		elif folder['id'] is 'length_longer_60s':
 			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'local') and m.local['first_record'] is not None and m.local['first_record'].score > 60000]
