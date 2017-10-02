@@ -29,10 +29,10 @@ class StatisticsScores(AppConfig):  # pragma: no cover
 				.order_by(Score.created_at.asc())
 		)
 
-		personal_list = [s for s in score_list if s.player.get_id() == player.get_id()]
+		personal_list = [s for s in score_list if s.player.id == player.get_id()]
 
 		if len(personal_list) == 0:
-			message = '$i$f00You have never finished $fff{}$z$s$f00$i!'.format(self.instance.map_manager.current_map.name)
+			message = '$i$f00There are no personal scores available for $fff{}$z$s$f00$i!'.format(self.instance.map_manager.current_map.name)
 			await self.instance.chat(message, player)
 			return
 

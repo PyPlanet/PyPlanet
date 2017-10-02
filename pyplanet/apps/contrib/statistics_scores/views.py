@@ -6,8 +6,6 @@ class ScoresListView(ManualListView):
 	icon_style = 'Icons128x128_1'
 	icon_substyle = 'Statistics'
 
-	scores = []
-
 	def __init__(self, app, scores):
 		super().__init__(self)
 		self.app = app
