@@ -29,7 +29,7 @@ class LiveRankingsWidget(TimesWidgetView):
 
 		player_index = len(self.app.current_rankings) + 1
 		if player:
-			player_record = [x for x in self.app.current_rankings if x['nickname'] == player.nickname]
+			player_record = [x for x in self.app.current_rankings if x['login'] == player.login]
 		else:
 			player_record = list()
 
