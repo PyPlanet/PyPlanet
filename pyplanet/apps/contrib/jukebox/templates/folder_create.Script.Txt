@@ -1,0 +1,31 @@
+
+declare Entry_FolderName_Value <=> (Page.GetFirstChild("folder_name") as CMlEntry);
+declare Entry_FolderPrivacy_Value <=> (Page.GetFirstChild("folder_privacy") as CMlEntry);
+declare Entry_AdminStatus_Value <=> (Page.GetFirstChild("folder_is_admin") as CMlEntry);
+
+declare Quad_FolderPrivacy_Public_Boolean <=> (Page.GetFirstChild("folder_privacy_public") as CMlQuad);
+declare Quad_FolderPrivacy_Private_Boolean <=> (Page.GetFirstChild("folder_privacy_private") as CMlQuad);
+
+while(True) {
+  foreach (Event in PendingEvents) {
+    if (Event.Type == CMlScriptEvent::Type::MouseClick && Event.ControlId == "folder_privacy_public") {
+      // Check Admin status
+      if (Entry_AdminStatus_Value.Value == "1") {
+        // Uncheck other one.
+        Quad_FolderPrivacy_Private_Boolean.StyleSelected = False;
+        Quad_FolderPrivacy_Public_Boolean.StyleSelected = True;
+
+        Entry_FolderPrivacy_Value.Value = "public";
+      }
+    }
+
+    if (Event.Type == CMlScriptEvent::Type::MouseClick && Event.ControlId == "folder_privacy_private") {
+      // Uncheck other one.
+      Quad_FolderPrivacy_Private_Boolean.StyleSelected = True;
+      Quad_FolderPrivacy_Public_Boolean.StyleSelected = False;
+
+      Entry_FolderPrivacy_Value.Value = "private";
+    }
+  }
+  yield;
+}
