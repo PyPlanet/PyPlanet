@@ -2,10 +2,12 @@ import asyncio
 from xmlrpc.client import Fault
 
 from pyplanet.apps.config import AppConfig
-from pyplanet.apps.contrib.jukebox.views import MapListView, JukeboxListView
+from pyplanet.apps.contrib.jukebox.views import MapListView, JukeboxListView, FolderListView, AddToFolderView
+from pyplanet.apps.contrib.jukebox.folders import FolderManager
 from pyplanet.contrib.command import Command
 
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
+from pyplanet.views.generics.alert import show_alert
 
 
 class Jukebox(AppConfig):
@@ -18,6 +20,7 @@ class Jukebox(AppConfig):
 
 		self.lock = asyncio.Lock()
 		self.jukebox = []
+		self.folder_manager = FolderManager(self)
 
 	async def on_start(self):
 		# Register permissions + commands.
@@ -26,11 +29,18 @@ class Jukebox(AppConfig):
 			Command(command='cjb', target=self.clear_jukebox, perms='jukebox:clear', admin=True),
 			Command(command='clearjukebox', target=self.clear_jukebox, perms='jukebox:clear', admin=True),
 			Command(command='list', target=self.show_map_list).add_param(name='search', required=False),
-			Command(command='jukebox', target=self.chat_command).add_param(name='option', required=False)
+			Command(command='jukebox', target=self.chat_command).add_param(name='option', required=False),
+			Command(command='mapfolders', target=self.show_map_folders)
 		)
 
 		# Register callback.
 		self.context.signals.listen(mp_signals.flow.podium_start, self.podium_start)
+
+		# Add button to the map list for adding to a folder.
+		MapListView.add_action(self.add_to_folder, 'Add to folder', '&#xf07b;', order=-50)
+
+		# Fetch all folders.
+		await self.folder_manager.on_start()
 
 	def insert_map(self, player, map):
 		self.jukebox = [{'player': player, 'map': map}] + self.jukebox
@@ -46,6 +56,9 @@ class Jukebox(AppConfig):
 		if data.search is not None:
 			view.search_text = data.search
 		await view.display(player=player)
+
+	async def show_map_folders(self, player, data, **kwargs):
+		await self.folder_manager.display_folder_list(player)
 
 	async def chat_command(self, player, data, **kwargs):
 		if data.option is None:
@@ -152,6 +165,15 @@ class Jukebox(AppConfig):
 				await self.podium_start()
 			else:
 				raise
+
+	async def add_to_folder(self, player, values, map_dictionary, view, **kwargs):
+		view = AddToFolderView(self, player, map_dictionary['id'], self.folder_manager)
+		await view.display()
+		result = await view.wait_for_response()
+		await view.destroy()
+
+		if result:
+			await show_alert(player, 'Map has been added to the folder!', 'sm')
 
 	def add_maplist_action(self):
 		pass

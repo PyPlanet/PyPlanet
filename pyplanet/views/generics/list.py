@@ -64,6 +64,7 @@ class ListView(TemplateView):
 	icon_substyle = None
 	fields = []
 	actions = []
+	buttons = []
 
 	template_name = 'core.views/generics/list.xml'
 
@@ -180,6 +181,26 @@ class ListView(TemplateView):
 			else:
 				action(player, values, instance, view=self)
 
+		elif action.startswith('list_buttons_'):
+			match = re.search('^list_buttons_([0-9]+)$', action)
+
+			if len(match.groups()) != 1:
+				return
+
+			try:
+				button = int(match.group(1))
+				field = (await self.get_buttons())[button]
+				action = field['action']
+			except Exception as e:
+				logger.warning('Got invalid result in list item click: {}'.format(str(e)))
+				return
+
+			# Execute action/target method.
+			if iscoroutinefunction(action):
+				await action(player, values, view=self)
+			else:
+				action(player, values, view=self)
+
 	@property
 	def num_pages(self):
 		return int(math.ceil(self.count / self.num_per_page))
@@ -246,6 +267,9 @@ class ListView(TemplateView):
 	async def get_actions(self):
 		return self.actions
 
+	async def get_buttons(self):
+		return self.buttons
+
 	async def get_query(self):
 		if self.query is not None:
 			return self.query
@@ -290,6 +314,7 @@ class ListView(TemplateView):
 
 		fields = await self.get_fields()
 		actions = await self.get_actions()
+		buttons = await self.get_buttons()
 
 		# Process fields + actions (normalize)
 		# Calculate positions of fields
@@ -317,11 +342,17 @@ class ListView(TemplateView):
 				action['safe'] = False
 		actions_width = int(left)
 
+		right = 215.5
+		for button in buttons:
+			button['right'] = (right - button['width'] / 2)
+			right -= button['width'] + 3
+
 		# Add facts.
 		context.update({
 			'field_renderer': self._render_field,
 			'fields': fields,
 			'actions': actions,
+			'buttons': buttons,
 			'provide_search': self.provide_search,
 			'title': await self.get_title(),
 			'icon_style': self.icon_style,

@@ -255,6 +255,7 @@ class PromptView(AlertView):
 		self.data['errors'] = message
 		await self.display([player.login])
 
+
 # Util methods.
 async def ask_confirmation(player, message, size='md', buttons=None):  # pragma: no cover
 	"""
@@ -267,6 +268,30 @@ async def ask_confirmation(player, message, size='md', buttons=None):  # pragma:
 	:return: Number of button that is clicked.
 	"""
 	buttons = buttons or [{'name': 'Yes'}, {'name': 'No'}]
+	view = AlertView(message, size, buttons)
+	if isinstance(player, Player):
+		player = player.login
+	await view.display(player_logins=[player])
+	reaction = await view.wait_for_reaction()
+	try:
+		reaction = int(reaction)
+	except:
+		reaction = None
+	del view
+	return reaction
+
+
+async def show_alert(player, message, size='md', buttons=None):  # pragma: no cover
+	"""
+	Show an alert to the player with given details. This is a shortcut method for the class itself.
+
+	:param player: Player login or instance.
+	:param message: Message in string.
+	:param size: Size, could be 'sm', 'md', or 'lg'.
+	:param buttons: Buttons, optional, default is 'OK'.
+	:return: Number of the clicked button. (in Future).
+	"""
+	buttons = buttons or [{'name': 'OK'}]
 	view = AlertView(message, size, buttons)
 	if isinstance(player, Player):
 		player = player.login
