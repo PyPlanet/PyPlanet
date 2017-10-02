@@ -33,7 +33,7 @@ class ScoresListView(ManualListView):
 				'index': 'score',
 				'sorting': False,
 				'searching': False,
-				'width': 30,
+				'width': 25,
 				'type': 'label'
 			},
 			{
@@ -41,12 +41,36 @@ class ScoresListView(ManualListView):
 				'index': 'difference_to_pb',
 				'sorting': False,
 				'searching': False,
+				'width': 28,
+				'type': 'label'
+			},
+			{
+				'name': 'From prev. PB',
+				'index': 'difference_to_prev',
+				'sorting': False,
+				'searching': False,
+				'width': 34,
+				'type': 'label'
+			},
+			{
+				'name': 'From Local',
+				'index': 'difference_to_local',
+				'sorting': False,
+				'searching': False,
 				'width': 30,
 				'type': 'label'
 			},
 			{
-				'name': 'From previous PB',
-				'index': 'difference_to_prev',
+				'name': 'Hist. Local',
+				'index': 'historical_local',
+				'sorting': False,
+				'searching': False,
+				'width': 28,
+				'type': 'label'
+			},
+			{
+				'name': 'From hist. Local',
+				'index': 'difference_to_hist_local',
 				'sorting': False,
 				'searching': False,
 				'width': 34,
