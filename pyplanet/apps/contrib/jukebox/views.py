@@ -201,7 +201,7 @@ class FolderMapListView(MapListView):
 		# Check permission on folder.
 		if (self.folder_instance.public and player.level < player.LEVEL_ADMIN)\
 			or (not self.folder_instance.public and self.folder_instance.player_id != player.id):
-			show_alert(player, 'You are not allowed to remove the map from the folder!')
+			await show_alert(player, 'You are not allowed to remove the map from the folder!', size='sm')
 			return
 
 		# Ask for confirmation.
@@ -273,7 +273,7 @@ class FolderListView(ManualListView):
 				'index': 'name',
 				'sorting': False,
 				'searching': True,
-				'width': 140,
+				'width': 130,
 				'renderer': self.render_folder_name,
 				'type': 'label',
 				'action': self.action_show
@@ -305,6 +305,52 @@ class FolderListView(ManualListView):
 				'action': self.create_folder
 			}
 		]
+
+	async def get_actions(self):
+		return [
+			dict(
+				name='Delete folder',
+				action=self.delete_folder,
+				text='&#xf1f8;',
+				textsize='1.2',
+				safe=True,
+				type='label',
+				order=49,
+				require_confirm=False,
+			)]
+
+	async def delete_folder(self, player, values, folder_dictionary, view, **kwargs):
+		# Check permission on folder.
+		if folder_dictionary['type'] == 'auto':
+			await show_alert(player, 'You can not remove an auto-folder!', size='sm')
+			return
+
+		# Check permission on folder.
+		if folder_dictionary['owner_login'] != player.login:
+			await show_alert(player, 'You can not remove folders made by others!', size='sm')
+			return
+
+		# Ask for confirmation.
+		cancel = bool(await ask_confirmation(player, 'Are you sure you want to remove folder \'{}\'$z$s?'.format(
+			folder_dictionary['name']
+		), size='sm'))
+		if cancel is True:
+			return
+
+		# Remove maps from folder.
+		await MapInFolder.execute(
+			MapInFolder.delete()
+				.where(MapInFolder.folder == folder_dictionary['id'].replace('database_', ''))
+		)
+
+		# Remove folder.
+		await MapFolder.execute(
+			MapFolder.delete()
+				.where(MapFolder.id == folder_dictionary['id'].replace('database_', ''))
+		)
+
+		# Refresh list.
+		await self.refresh(player)
 
 	async def action_show(self, player, values, instance, **kwargs):
 		await self.folder_manager.display_folder(player, instance)

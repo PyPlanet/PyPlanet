@@ -54,8 +54,8 @@ class FolderManager:
 			folder_id = 'database_{}'.format(folder.get_id())
 			folder_list.append(
 				{
-					'id': folder_id, 'name': folder.name, 'owner': folder.player.nickname,
-					'type': 'public' if folder.public else 'private'
+					'id': folder_id, 'name': folder.name, 'owner_login': folder.player.login,
+					'owner': folder.player.nickname, 'type': 'public' if folder.public else 'private'
 				}
 			)
 
