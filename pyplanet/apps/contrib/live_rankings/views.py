@@ -29,7 +29,7 @@ class LiveRankingsWidget(TimesWidgetView):
 
 		player_index = len(self.app.current_rankings) + 1
 		if player:
-			player_record = [x for x in self.app.current_rankings if x['nickname'] == player.nickname]
+			player_record = [x for x in self.app.current_rankings if x['login'] == player.login]
 		else:
 			player_record = list()
 
@@ -92,7 +92,9 @@ class LiveRankingsWidget(TimesWidgetView):
 			else:
 				list_record['score'] = int(record['score'])
 
-			if self.display_cpdifference:
+			list_record['cp_difference'] = None
+
+			if self.display_cpdifference and 'cps' in best and 'cps' in record:
 				list_record['cp_difference'] = (best['cps'] - record['cps'])
 
 				if index > 1 and not record['finish']:
@@ -105,8 +107,6 @@ class LiveRankingsWidget(TimesWidgetView):
 					list_record['score'] = '$i' + str(list_record['score'])
 				elif record['giveup']:
 					list_record['score'] = '$iDNF'
-			else:
-				list_record['cp_difference'] = None
 
 			if index == self.top_entries:
 				index = custom_start_index

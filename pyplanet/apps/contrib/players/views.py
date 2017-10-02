@@ -17,7 +17,7 @@ class PlayerListView(ManualListView):
 		self.manager = app.context.ui
 
 	async def get_data(self):
-		return [model_to_dict(m) for m in self.app.instance.player_manager.online]
+		return [{'nickname': m.nickname, 'login': m.login, 'is_spectator': 'Yes' if m.flow.is_spectator else 'No'} for m in self.app.instance.player_manager.online]
 
 	async def get_fields(self):
 		return [
@@ -35,6 +35,14 @@ class PlayerListView(ManualListView):
 				'sorting': True,
 				'searching': True,
 				'width': 50,
+				'type': 'label'
+			},
+			{
+				'name': 'Is spectator',
+				'index': 'is_spectator',
+				'sorting': True,
+				'searching': False,
+				'width': 25,
 				'type': 'label'
 			},
 		]

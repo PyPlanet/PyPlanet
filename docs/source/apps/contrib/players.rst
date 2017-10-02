@@ -28,6 +28,17 @@ Functionality:
 Required permission:
   None.
 
+Show last online date of player
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Command:
+  ``/laston`` / ``/lastseen``
+Parameters:
+  * Login of the player.
+Functionality:
+  Display the last date and time the user has been seen on the server.
+Required permission:
+  None.
+
 Signal handlers
 ---------------
 None.

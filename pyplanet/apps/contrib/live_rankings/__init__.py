@@ -59,11 +59,11 @@ class LiveRankings(AppConfig):
 			for player in players:
 				if 'best_race_time' in player:
 					if player['best_race_time'] != -1:
-						new_ranking = dict(nickname=player['player'].nickname, score=player['best_race_time'])
+						new_ranking = dict(login=player['player'].login, nickname=player['player'].nickname, score=player['best_race_time'])
 						self.current_rankings.append(new_ranking)
 				elif 'bestracetime' in player:
 					if player['bestracetime'] != -1:
-						new_ranking = dict(nickname=player['name'], score=player['bestracetime'])
+						new_ranking = dict(login=player['player'].login, nickname=player['name'], score=player['bestracetime'])
 						self.current_rankings.append(new_ranking)
 
 			self.current_rankings.sort(key=lambda x: x['score'])
@@ -71,11 +71,11 @@ class LiveRankings(AppConfig):
 			for player in players:
 				if 'map_points' in player:
 					if player['map_points'] != -1:
-						new_ranking = dict(nickname=player['player'].nickname, score=player['map_points'])
+						new_ranking = dict(login=player['player'].login, nickname=player['player'].nickname, score=player['map_points'])
 						self.current_rankings.append(new_ranking)
 				elif 'mappoints' in player:
 					if player['mappoints'] != -1:
-						new_ranking = dict(nickname=player['name'], score=player['mappoints'])
+						new_ranking = dict(login=player['login'], nickname=player['name'], score=player['mappoints'])
 						self.current_rankings.append(new_ranking)
 
 			self.current_rankings.sort(key=lambda x: x['score'])
@@ -92,7 +92,7 @@ class LiveRankings(AppConfig):
 		if 'Laps' not in await self.instance.mode_manager.get_current_script():
 			return
 
-		current_rankings = [x for x in self.current_rankings if x['nickname'] == player.nickname]
+		current_rankings = [x for x in self.current_rankings if x['login'] == player.login]
 		if len(current_rankings) > 0:
 			current_ranking = current_rankings[0]
 			current_ranking['giveup'] = True
@@ -103,7 +103,7 @@ class LiveRankings(AppConfig):
 		if 'laps' not in (await self.instance.mode_manager.get_current_script()).lower():
 			return
 
-		current_rankings = [x for x in self.current_rankings if x['nickname'] == player.nickname]
+		current_rankings = [x for x in self.current_rankings if x['login'] == player.login]
 		if len(current_rankings) > 0:
 			current_ranking = current_rankings[0]
 			current_ranking['score'] = raw['racetime']
@@ -116,7 +116,7 @@ class LiveRankings(AppConfig):
 			best_cps = 0
 			if len(self.current_rankings) > 0:
 				best_cps = (self.current_rankings[0]['cps'])
-			new_ranking = dict(nickname=player.nickname, score=raw['racetime'], cps=(raw['checkpointinrace'] + 1), best_cps=best_cps, cp_times=raw['curracecheckpoints'], finish=raw['isendrace'], giveup=False)
+			new_ranking = dict(login=player.login, nickname=player.nickname, score=raw['racetime'], cps=(raw['checkpointinrace'] + 1), best_cps=best_cps, cp_times=raw['curracecheckpoints'], finish=raw['isendrace'], giveup=False)
 			self.current_rankings.append(new_ranking)
 
 		self.current_rankings.sort(key=lambda x: (-x['cps'], x['score']))
@@ -131,7 +131,7 @@ class LiveRankings(AppConfig):
 		if 'timeattack' not in current_script:
 			return
 
-		current_rankings = [x for x in self.current_rankings if x['nickname'] == player.nickname]
+		current_rankings = [x for x in self.current_rankings if x['login'] == player.login]
 		score = lap_time
 		if len(current_rankings) > 0:
 			current_ranking = current_rankings[0]
@@ -141,7 +141,7 @@ class LiveRankings(AppConfig):
 				self.current_rankings.sort(key=lambda x: x['score'])
 				await self.widget.display()
 		else:
-			new_ranking = dict(nickname=player.nickname, score=score)
+			new_ranking = dict(login=player.login, nickname=player.nickname, score=score)
 			self.current_rankings.append(new_ranking)
 			self.current_rankings.sort(key=lambda x: x['score'])
 			await self.widget.display()
