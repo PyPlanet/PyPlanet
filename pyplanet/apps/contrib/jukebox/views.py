@@ -2,9 +2,10 @@ import asyncio
 
 from playhouse.shortcuts import model_to_dict
 
+from pyplanet.apps.contrib.jukebox.models import MapFolder, MapInFolder
 from pyplanet.apps.core.maniaplanet.models import Map
 from pyplanet.views import TemplateView
-from pyplanet.views.generics.alert import show_alert
+from pyplanet.views.generics.alert import show_alert, ask_confirmation
 from pyplanet.views.generics.list import ManualListView
 
 from pyplanet.utils import times
@@ -101,11 +102,11 @@ class MapListView(ManualListView):
 				'searching': True,
 				'search_strip_styles': True,
 				'renderer': lambda row, field:
-					row['author_login'],
-					# TODO: Activate after resolving #83.
-					# row['author_nickname']
-					# if 'author_nickname' in row and row['author_nickname'] and len(row['author_nickname'])
-					# else row['author_login'],
+				row['author_login'],
+				# TODO: Activate after resolving #83.
+				# row['author_nickname']
+				# if 'author_nickname' in row and row['author_nickname'] and len(row['author_nickname'])
+				# else row['author_login'],
 				'width': 50,
 			},
 		]
@@ -129,7 +130,7 @@ class MapListView(ManualListView):
 		await self.app.folder_manager.display_folder_list(player)
 
 	@classmethod
-	def add_action(cls, target, name, text, text_size='1.2', require_confirm=False):
+	def add_action(cls, target, name, text, text_size='1.2', require_confirm=False, order=0):
 		cls.custom_actions.append(dict(
 			name=name,
 			action=target,
@@ -137,8 +138,11 @@ class MapListView(ManualListView):
 			textsize=text_size,
 			safe=True,
 			type='label',
+			order=order,
 			require_confirm=require_confirm,
 		))
+
+		cls.custom_actions = sorted(cls.custom_actions, key=lambda k: k['order'])
 
 	@classmethod
 	def remove_action(cls, target):
@@ -148,11 +152,22 @@ class MapListView(ManualListView):
 
 
 class FolderMapListView(MapListView):
-	def __init__(self, app, map_list, fields):
-		super().__init__(app)
+	def __init__(self, folder_manager, folder_code):
+		"""
+		Folder Map list
 
-		self.map_list = map_list
-		self.fields = fields
+		:param folder_manager: Folder manager
+		:param folder_code: Folder code that can be parsed.
+		:type folder_manager: pyplanet.apps.contrib.jukebox.folders.FolderManager
+		"""
+		super().__init__(folder_manager.app)
+
+		self.folder_manager = folder_manager
+		self.folder_code = folder_code
+
+		self.map_list = list()
+		self.folder_info = None
+		self.folder_instance = None
 
 	async def get_fields(self):
 		fields = await super().get_fields()
@@ -163,6 +178,11 @@ class FolderMapListView(MapListView):
 		return fields
 
 	async def get_data(self):
+		self.fields, self.map_list, self.folder_info, self.folder_instance = \
+			await self.folder_manager.get_folder_code_contents(self.folder_code)
+
+		self.title = 'Folder: ' + self.folder_info['name']
+
 		karma = any(f['index'] == "karma" for f in self.fields)
 		length = any(f['index'] == "local_record" for f in self.fields)
 
@@ -170,12 +190,53 @@ class FolderMapListView(MapListView):
 		for item in self.map_list:
 			dict_item = model_to_dict(item)
 			if length:
-				dict_item['local_record'] = times.format_time((item.local['first_record'].score if hasattr(item, 'local') else 0))
+				dict_item['local_record'] = times.format_time((item.local['first_record'].score if hasattr(item, 'local') and item.local['first_record'] else 0))
 			if karma:
 				dict_item['karma'] = item.karma['map_karma'] if hasattr(item, 'karma') else 0
 			items.append(dict_item)
 
 		return items
+
+	async def remove_from_folder(self, player, values, map_dictionary, view, **kwargs):
+		# Check permission on folder.
+		if (self.folder_instance.public and player.level < player.LEVEL_ADMIN)\
+			or (not self.folder_instance.public and self.folder_instance.player_id != player.id):
+			show_alert(player, 'You are not allowed to remove the map from the folder!')
+			return
+
+		# Ask for confirmation.
+		cancel = bool(await ask_confirmation(player, 'Are you sure you want to remove the map \'{}\'$z$s from the folder?'.format(
+			map_dictionary['name']
+		), size='sm'))
+		if cancel is True:
+			return
+
+		# Remove from folder.
+		await MapInFolder.execute(
+			MapInFolder.delete()
+				.where((MapInFolder.map_id == map_dictionary['id']) & (MapInFolder.folder_id == self.folder_instance.id))
+		)
+
+		# Refresh list.
+		await self.refresh(player)
+
+	async def get_actions(self):
+		super_actions = (await super().get_actions()).copy()
+
+		# If this folder is not a dynamic one, add remove button.
+		if self.folder_instance:
+			super_actions.append(dict(
+				name='Remove from folder',
+				action=self.remove_from_folder,
+				text='&#xf056;',
+				textsize='1.2',
+				safe=True,
+				type='label',
+				order=49,
+				require_confirm=False,
+			))
+
+		return sorted(super_actions, key=lambda k: k['order'])
 
 
 class FolderListView(ManualListView):
@@ -354,4 +415,96 @@ class CreateFolderView(TemplateView):
 
 		# Return response.
 		self.response_future.set_result(None)
+		self.response_future.done()
+
+
+class AddToFolderView(TemplateView):
+	"""
+	Add map to folder view.
+	"""
+	template_name = 'jukebox/folder_add.xml'
+
+	def __init__(self, app, player, map_id, folder_manager):
+		"""
+		Initiate child add-to-folder view.
+
+		:param app: App Instance.
+		:param player: Player instance.
+		:param map_id: Map database ID.
+		:param folder_manager: Folder manager instance.
+		:type app: pyplanet.apps.contrib.jukebox.Jukebox
+		:type player: pyplanet.apps.core.maniaplanet.models.player.Player
+		:type folder_manager: pyplanet.apps.contrib.jukebox.folders.FolderManager
+		"""
+		super().__init__(app.context.ui)
+		self.app = app
+		self.player = player
+		self.map_id = map_id
+		self.folder_manager = folder_manager
+
+		self.response_future = asyncio.Future()
+
+		self.subscribe('button_close', self.close)
+		self.subscribe('button_cancel', self.close)
+
+	async def display(self, **kwargs):
+		await super().display(player_logins=[self.player.login])
+
+	async def get_context_data(self):
+		context = await super().get_context_data()
+		context['folders'] = (await self.folder_manager.get_writable_folders(self.player))[:20]
+		return context
+
+	async def close(self, player, *args, **kwargs):
+		"""
+		Close the link for a specific player. Will hide manialink and destroy data for player specific to save memory.
+
+		:param player: Player model instance.
+		:type player: pyplanet.apps.core.maniaplanet.models.Player
+		"""
+		if self.player_data and player.login in self.player_data:
+			del self.player_data[player.login]
+		await self.hide(player_logins=[player.login])
+
+		self.response_future.set_result(None)
+		self.response_future.done()
+
+	async def wait_for_response(self):
+		return await self.response_future
+
+	async def handle_catch_all(self, player, action, values, **kwargs):
+		# Filter out the folder selection.
+		if not action.startswith('folder_select__'):
+			return
+
+		# Fetch the folder from the database.
+		try:
+			folder = await MapFolder.get(id=action[15:])
+		except:
+			return  # Ignore exceptions here, could be that the folder has been deleted recently.
+
+		# Check permission on folder.
+		if folder.public and player.level < player.LEVEL_ADMIN:
+			return
+		if not folder.public and folder.player_id != player.id:
+			return
+
+		# Check for duplicates.
+		existing = await MapInFolder.execute(
+			MapInFolder.select(MapInFolder)
+				.where((MapInFolder.folder == folder) & (MapInFolder.map_id == self.map_id))
+		)
+
+		if len(existing) > 0:
+			await show_alert(player, 'Map already in folder!', 'sm')
+			return
+
+		# Add map to folder.
+		map_in_folder = MapInFolder(
+			map_id=self.map_id,
+			folder=folder
+		)
+		await map_in_folder.save()
+
+		self.response_future.set_result(True)
 		self.response_future.done()

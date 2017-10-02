@@ -42,7 +42,7 @@ class FolderManager:
 		raw_list = await Folders.objects.execute(
 			Folders.select(Folders, Player)
 				.join(Player)
-				.where(Player.login == player.login or Folders.public is True)
+				.where((Player.login == player.login) | (Folders.public == True))
 				.order_by(Folders.public.desc())
 		)
 
@@ -66,12 +66,34 @@ class FolderManager:
 		Get the private folders of the given player.
 
 		:param player: Player instance.
+		:type player: pyplanet.apps.core.maniaplanet.models.Player
 		:return:
 		"""
 		return await Folders.objects.execute(
 			Folders.select(Folders, Player)
 				.join(Player)
-				.where(Player.login == player.login and Folders.public is False)
+				.where((Player.login == player.login) & (Folders.public == False))
+		)
+
+	async def get_writable_folders(self, player):
+		"""
+		Get writable folders for the given player.
+
+		:param player: Player instance
+		:type player: pyplanet.apps.core.maniaplanet.models.Player
+		:return: List with writable folders.
+		"""
+		if player.level >= player.LEVEL_ADMIN:
+			return await Folders.objects.execute(
+				Folders.select(Folders, Player)
+					.join(Player)
+					.where((Player.login == player.login) | (Folders.public == True))
+			)
+
+		return await Folders.objects.execute(
+			Folders.select(Folders, Player)
+				.join(Player)
+				.where((Player.login == player.login) | (Folders.public == False))
 		)
 
 	async def create_folder(self, **kwargs):
@@ -96,9 +118,12 @@ class FolderManager:
 		await view.display(player=player)
 		return view
 
-	async def display_folder(self, player, folder):
+	async def get_folder_code_contents(self, folder_code):
+		folder = folder_code
+
 		map_list = []
 		fields = []
+		folder_instance = None
 
 		if folder['id'] is 'local_none':
 			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'local') and m.local['record_count'] == 0]
@@ -113,6 +138,9 @@ class FolderManager:
 		elif folder['id'] is 'karma_positive':
 			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'karma') and m.karma['map_karma'] > 0]
 		elif folder['id'].startswith('database_'):
+			# Get the real folder model instance.
+			folder_instance = await Folders.get(id=int(folder['id'].replace('database_', '')))
+
 			# Personal folder from database
 			maps_in_folder = [m.map.uid for m in await MapInFolder.objects.execute(
 				MapInFolder.select(MapInFolder, Map)
@@ -140,7 +168,9 @@ class FolderManager:
 				'width': 40,
 			})
 
+		return fields, map_list, folder, folder_instance
+
+	async def display_folder(self, player, folder_code):
 		# Initiate folder contents list view.
-		view = FolderMapListView(self.app, map_list, fields)
-		view.title = 'Folder: ' + folder['name']
+		view = FolderMapListView(self, folder_code)
 		await view.display(player=player)

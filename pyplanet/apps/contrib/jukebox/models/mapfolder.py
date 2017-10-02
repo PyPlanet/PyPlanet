@@ -27,6 +27,12 @@ class MapFolder(TimedModel):
 	Is folder public (only for admins)?
 	"""
 
+	@property
+	def icon(self):
+		if self.public:
+			return '\uf0c0'
+		return '\uf023'
+
 
 class MapInFolder(TimedModel):
 	map = ForeignKeyField(Map, index=True)
