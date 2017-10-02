@@ -53,10 +53,37 @@ class FolderManager:
 		for folder in raw_list:
 			folder_id = 'database_{}'.format(folder.get_id())
 			folder_list.append(
-				{'id': folder_id, 'name': folder.name, 'owner': folder.player.nickname, 'type': 'public' if folder.public else 'private'}
+				{
+					'id': folder_id, 'name': folder.name, 'owner': folder.player.nickname,
+					'type': 'public' if folder.public else 'private'
+				}
 			)
 
 		return folder_list
+
+	async def get_private_folders(self, player):
+		"""
+		Get the private folders of the given player.
+
+		:param player: Player instance.
+		:return:
+		"""
+		return await Folders.objects.execute(
+			Folders.select(Folders, Player)
+				.join(Player)
+				.where(Player.login == player.login and Folders.public is False)
+		)
+
+	async def create_folder(self, **kwargs):
+		"""
+		Create folder, based on the paramters given.
+
+		:param kwargs:
+		:return: Folder instance.
+		"""
+		folder = Folders(**kwargs)
+		await folder.save()
+		return folder
 
 	async def display_folder_list(self, player):
 		"""

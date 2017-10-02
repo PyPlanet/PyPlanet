@@ -1,6 +1,10 @@
+import asyncio
+
 from playhouse.shortcuts import model_to_dict
 
 from pyplanet.apps.core.maniaplanet.models import Map
+from pyplanet.views import TemplateView
+from pyplanet.views.generics.alert import show_alert
 from pyplanet.views.generics.list import ManualListView
 
 from pyplanet.utils import times
@@ -187,6 +191,8 @@ class FolderListView(ManualListView):
 		self.app = folder_manager.app
 		self.manager = folder_manager.app.context.ui
 
+		self.child = None
+
 	@staticmethod
 	def render_folder_name(row, field):
 		icon = ''
@@ -243,7 +249,109 @@ class FolderListView(ManualListView):
 		await self.folder_manager.display_folder(player, instance)
 
 	async def create_folder(self, player, values, **kwargs):
-		pass
+		if self.child:
+			return
+
+		self.child = CreateFolderView(self, player, self.folder_manager)
+		await self.child.display()
+		await self.child.wait_for_response()
+		await self.child.destroy()
+		await self.display(self.player)  # refresh.
+		self.child = None
 
 	async def get_data(self):
 		return await self.folder_manager.get_folders(self.player)
+
+
+class CreateFolderView(TemplateView):
+	"""
+	View to create new folder.
+	"""
+	template_name = 'jukebox/folder_create.xml'
+
+	def __init__(self, parent, player, folder_manager):
+		"""
+		Initiate child create view.
+
+		:param parent: Parent view.
+		:param player: Player instance.
+		:param folder_manager: Folder manager instance.
+		:type parent: pyplanet.view.base.View
+		:type player: pyplanet.apps.core.maniaplanet.models.player.Player
+		:type folder_manager: pyplanet.apps.contrib.jukebox.folders.FolderManager
+		"""
+		super().__init__(parent.manager)
+
+		self.parent = parent
+		self.player = player
+		self.folder_manager = folder_manager
+		self.app = folder_manager.app
+
+		self.response_future = asyncio.Future()
+
+		self.subscribe('button_close', self.close)
+		self.subscribe('button_save', self.save)
+		self.subscribe('button_cancel', self.close)
+
+	async def display(self, **kwargs):
+		await super().display(player_logins=[self.player.login])
+
+	async def get_context_data(self):
+		context = await super().get_context_data()
+		context['is_admin'] = self.player.level >= self.player.LEVEL_ADMIN
+		return context
+
+	async def close(self, player, *args, **kwargs):
+		"""
+		Close the link for a specific player. Will hide manialink and destroy data for player specific to save memory.
+
+		:param player: Player model instance.
+		:type player: pyplanet.apps.core.maniaplanet.models.Player
+		"""
+		if self.player_data and player.login in self.player_data:
+			del self.player_data[player.login]
+		await self.hide(player_logins=[player.login])
+
+		self.response_future.set_result(None)
+		self.response_future.done()
+
+	async def wait_for_response(self):
+		return await self.response_future
+
+	async def save(self, player, action, values, *args, **kwargs):
+		"""
+		Save action.
+
+		:param player: Player instance
+		:param action: Action label
+		:param values: Values from manialink
+		:param args: *
+		:param kwargs: **
+		:type player: pyplanet.apps.core.maniaplanet.models.Player
+		"""
+
+		folder_name = values['folder_name']
+		folder_privacy = values['folder_privacy']
+
+		if folder_privacy == 'public' and player.level < player.LEVEL_ADMIN:
+			folder_privacy = 'private'
+
+		# Check if the user has already created 5 private folders
+		current_folders = await self.folder_manager.get_private_folders(player)
+		if folder_privacy == 'private' and len(current_folders) >= 5 and player.level < player.LEVEL_ADMIN:
+			self.response_future.set_result(None)
+			self.response_future.done()
+			return await show_alert(player, 'You reached the maximum of 5 private folders!', 'sm')
+
+		# Check if name is valid.
+		if len(folder_name) < 3:
+			self.response_future.set_result(None)
+			self.response_future.done()
+			return await show_alert(player, 'The name you gave is not valid. Please provide a name with at least 3 characters.', 'sm')
+
+		# Create folder.
+		await self.folder_manager.create_folder(name=folder_name, player=player, public=folder_privacy == 'public')
+
+		# Return response.
+		self.response_future.set_result(None)
+		self.response_future.done()
