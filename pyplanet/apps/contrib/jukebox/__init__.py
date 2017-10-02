@@ -2,8 +2,8 @@ import asyncio
 from xmlrpc.client import Fault
 
 from pyplanet.apps.config import AppConfig
-from pyplanet.apps.contrib.jukebox.views import MapListView, JukeboxListView
-from pyplanet.apps.contrib.jukebox.folders import JukeboxFolders
+from pyplanet.apps.contrib.jukebox.views import MapListView, JukeboxListView, FolderListView
+from pyplanet.apps.contrib.jukebox.folders import FolderManager
 from pyplanet.contrib.command import Command
 
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
@@ -19,7 +19,7 @@ class Jukebox(AppConfig):
 
 		self.lock = asyncio.Lock()
 		self.jukebox = []
-		self.folders = JukeboxFolders(self)
+		self.folder_manager = FolderManager(self)
 
 	async def on_start(self):
 		# Register permissions + commands.
@@ -34,6 +34,9 @@ class Jukebox(AppConfig):
 
 		# Register callback.
 		self.context.signals.listen(mp_signals.flow.podium_start, self.podium_start)
+
+		# Fetch all folders.
+		await self.folder_manager.on_start()
 
 	def insert_map(self, player, map):
 		self.jukebox = [{'player': player, 'map': map}] + self.jukebox
@@ -51,7 +54,7 @@ class Jukebox(AppConfig):
 		await view.display(player=player)
 
 	async def show_map_folders(self, player, data, **kwargs):
-		await self.folders.display_all(player)
+		await self.folder_manager.display_all(player)
 
 	async def chat_command(self, player, data, **kwargs):
 		if data.option is None:

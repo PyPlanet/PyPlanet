@@ -1,45 +1,73 @@
-from playhouse.shortcuts import model_to_dict
-
-from pyplanet.views.generics.list import ManualListView
 from pyplanet.apps.core.maniaplanet.models import Player, Map
-from pyplanet.apps.contrib.jukebox.views import MapListView
-from pyplanet.utils import times
+from pyplanet.apps.contrib.jukebox.views import FolderListView, FolderMapListView
 
 from .models import MapFolder as Folders, MapInFolder
 
 
-class JukeboxFolders:
-	app = None
-	folders = []
-
+class FolderManager:
 	def __init__(self, app):
 		self.app = app
 
-	async def display_all(self, player):
-		if len(self.folders) == 0:
-			if 'local_records' in self.app.instance.apps.apps:
-				self.folders.append({'id': 'local_none', 'name': 'Map record: none', 'owner': 'PyPlanet'})
-				self.folders.append({'id': 'length_shorter_30s', 'name': 'Map record: below 30 seconds', 'owner': 'PyPlanet'})
-				self.folders.append({'id': 'length_longer_60s', 'name': 'Map record: above 60 seconds', 'owner': 'PyPlanet'})
+		# Initiate global folders.
+		self.auto_folders = list()
+		self.public_folders = list()
 
-			if 'karma' in self.app.instance.apps.apps:
-				self.folders.append({'id': 'karma_none', 'name': 'Map karma: no votes', 'owner': 'PyPlanet'})
-				self.folders.append({'id': 'karma_negative', 'name': 'Map karma: negative', 'owner': 'PyPlanet'})
-				self.folders.append({'id': 'karma_positive', 'name': 'Map karma: positive', 'owner': 'PyPlanet'})
+	async def on_start(self):
+		"""
+		Called after startup of PyPlanet so it can investigate the automatic folders.
 
-			folder_list = await Folders.objects.execute(
-				Folders.select(Folders, Player)
-					.join(Player)
-					.where(Player.login == player.login or Folders.public is True)
-					.order_by(Folders.public.desc())
+		:return:
+		"""
+		self.auto_folders = list()
+
+		if 'local_records' in self.app.instance.apps.apps:
+			self.auto_folders.append({'id': 'local_none', 'name': 'Map record: none', 'owner': 'PyPlanet', 'type': 'auto'})
+			self.auto_folders.append({'id': 'length_shorter_30s', 'name': 'Map record: below 30 seconds', 'owner': 'PyPlanet', 'type': 'auto'})
+			self.auto_folders.append({'id': 'length_longer_60s', 'name': 'Map record: above 60 seconds', 'owner': 'PyPlanet', 'type': 'auto'})
+
+		if 'karma' in self.app.instance.apps.apps:
+			self.auto_folders.append({'id': 'karma_none', 'name': 'Map karma: no votes', 'owner': 'PyPlanet', 'type': 'auto'})
+			self.auto_folders.append({'id': 'karma_negative', 'name': 'Map karma: negative', 'owner': 'PyPlanet', 'type': 'auto'})
+			self.auto_folders.append({'id': 'karma_positive', 'name': 'Map karma: positive', 'owner': 'PyPlanet', 'type': 'auto'})
+
+	async def get_folders(self, player):
+		"""
+		Get the folders, as combined object, for the specific player.
+
+		:param player: Player instance
+		:type player: pyplanet.apps.core.maniaplanet.models.Player
+		:return:
+		"""
+		# Fetch the public or private folders of the users.
+		raw_list = await Folders.objects.execute(
+			Folders.select(Folders, Player)
+				.join(Player)
+				.where(Player.login == player.login or Folders.public is True)
+				.order_by(Folders.public.desc())
+		)
+
+		# Convert to the wanted objects.
+		folder_list = list()
+		folder_list.extend(self.auto_folders.copy())
+
+		for folder in raw_list:
+			folder_id = 'database_{}'.format(folder.get_id())
+			folder_list.append(
+				{'id': folder_id, 'name': folder.name, 'owner': folder.player.nickname, 'type': 'public' if folder.public else 'private'}
 			)
 
-			for folder in folder_list:
-				folder_id = 'database_{}'.format(folder.get_id())
-				self.folders.append({'id': folder_id, 'name': folder.name, 'owner': folder.player.nickname})
+		return folder_list
 
-		view = FoldersListView(self)
+	async def display_folder_list(self, player):
+		"""
+		Create folder listview, display and return instance.
+
+		:param player:
+		:return:
+		"""
+		view = FolderListView(self, player)
 		await view.display(player=player)
+		return view
 
 	async def display_folder(self, player, folder):
 		map_list = []
@@ -85,95 +113,7 @@ class JukeboxFolders:
 				'width': 40,
 			})
 
-		view = ManualMapListView(self.app, map_list, fields)
+		# Initiate folder contents list view.
+		view = FolderMapListView(self.app, map_list, fields)
 		view.title = 'Folder: ' + folder['name']
 		await view.display(player=player)
-
-
-class ManualMapListView(MapListView):
-	app = None
-
-	def __init__(self, app, map_list, fields):
-		super().__init__(app)
-		self.app = app
-		self.manager = app.context.ui
-		self.map_list = map_list
-		self.fields = fields
-
-	async def get_fields(self):
-		fields = await super().get_fields()
-
-		for field in self.fields:
-			fields.append(field)
-
-		return fields
-
-	async def get_data(self):
-		karma = any(f['index'] == "karma" for f in self.fields)
-		length = any(f['index'] == "local_record" for f in self.fields)
-
-		items = []
-		for item in self.map_list:
-			dict_item = model_to_dict(item)
-			if length:
-				dict_item['local_record'] = times.format_time((item.local['first_record'].score if hasattr(item, 'local') else 0))
-			if karma:
-				dict_item['karma'] = item.karma['map_karma'] if hasattr(item, 'karma') else 0
-			items.append(dict_item)
-
-		return items
-
-
-class FoldersListView(ManualListView):
-	app = None
-	folders = None
-
-	title = 'Maplist folders'
-	icon_style = 'Icons128x128_1'
-	icon_substyle = 'Browse'
-
-	data = []
-
-	def __init__(self, folders):
-		super().__init__(self)
-		self.folders = folders
-		self.app = folders.app
-		self.manager = folders.app.context.ui
-
-	async def get_fields(self):
-		return [
-			{
-				'name': 'Folder',
-				'index': 'name',
-				'sorting': False,
-				'searching': True,
-				'width': 140,
-				'type': 'label',
-				'action': self.action_show
-			},
-			{
-				'name': 'Owner',
-				'index': 'owner',
-				'sorting': False,
-				'searching': False,
-				'width': 80,
-			},
-		]
-
-	async def get_buttons(self):
-		return [
-			{
-				'title': 'Create folder',
-				'width': 28,
-				'action': self.create_folder
-			}
-		]
-
-	async def action_show(self, player, values, instance, **kwargs):
-		await self.folders.display_folder(player, instance)
-
-	async def create_folder(self, player, values, **kwargs):
-		pass
-
-	async def get_data(self):
-		return self.folders.folders

@@ -1,8 +1,9 @@
 from playhouse.shortcuts import model_to_dict
 
 from pyplanet.apps.core.maniaplanet.models import Map
-
 from pyplanet.views.generics.list import ManualListView
+
+from pyplanet.utils import times
 
 
 class JukeboxListView(ManualListView):
@@ -121,7 +122,7 @@ class MapListView(ManualListView):
 		await self.app.add_to_jukebox(player, await self.app.instance.map_manager.get_map(map_info['uid']))
 
 	async def action_folders(self, player, values, **kwargs):
-		await self.app.folders.display_all(player)
+		await self.app.folder_manager.display_folder_list(player)
 
 	@classmethod
 	def add_action(cls, target, name, text, text_size='1.2', require_confirm=False):
@@ -140,3 +141,109 @@ class MapListView(ManualListView):
 		for idx, custom in enumerate(cls.custom_actions):
 			if custom['action'] == target:
 				del cls.custom_actions[idx]
+
+
+class FolderMapListView(MapListView):
+	def __init__(self, app, map_list, fields):
+		super().__init__(app)
+
+		self.map_list = map_list
+		self.fields = fields
+
+	async def get_fields(self):
+		fields = await super().get_fields()
+
+		for field in self.fields:
+			fields.append(field)
+
+		return fields
+
+	async def get_data(self):
+		karma = any(f['index'] == "karma" for f in self.fields)
+		length = any(f['index'] == "local_record" for f in self.fields)
+
+		items = []
+		for item in self.map_list:
+			dict_item = model_to_dict(item)
+			if length:
+				dict_item['local_record'] = times.format_time((item.local['first_record'].score if hasattr(item, 'local') else 0))
+			if karma:
+				dict_item['karma'] = item.karma['map_karma'] if hasattr(item, 'karma') else 0
+			items.append(dict_item)
+
+		return items
+
+
+class FolderListView(ManualListView):
+	title = 'Maplist folders'
+	icon_style = 'Icons128x128_1'
+	icon_substyle = 'Browse'
+
+	def __init__(self, folder_manager, player):
+		super().__init__()
+
+		self.folder_manager = folder_manager
+		self.player = player
+		self.app = folder_manager.app
+		self.manager = folder_manager.app.context.ui
+
+	@staticmethod
+	def render_folder_name(row, field):
+		icon = ''
+		if row['type'] == 'auto':
+			icon = '\uf013'
+		elif row['type'] == 'public':
+			icon = '\uf0c0'
+		elif row['type'] == 'private':
+			icon = '\uf023'
+
+		return '{} {}'.format(icon, row[field['index']])
+
+	async def get_fields(self):
+		return [
+			{
+				'name': 'Folder',
+				'index': 'name',
+				'sorting': False,
+				'searching': True,
+				'width': 140,
+				'renderer': self.render_folder_name,
+				'type': 'label',
+				'action': self.action_show
+			},
+			{
+				'name': 'Type',
+				'index': 'type',
+				'sorting': True,
+				'searching': False,
+				'width': 30,
+				'renderer': lambda row, field:
+					row[field['index']].capitalize(),
+				'type': 'label'
+			},
+			{
+				'name': 'Owner',
+				'index': 'owner',
+				'sorting': False,
+				'searching': False,
+				'width': 80,
+			},
+		]
+
+	async def get_buttons(self):
+		return [
+			{
+				'title': 'Create folder',
+				'width': 28,
+				'action': self.create_folder
+			}
+		]
+
+	async def action_show(self, player, values, instance, **kwargs):
+		await self.folder_manager.display_folder(player, instance)
+
+	async def create_folder(self, player, values, **kwargs):
+		pass
+
+	async def get_data(self):
+		return await self.folder_manager.get_folders(self.player)
