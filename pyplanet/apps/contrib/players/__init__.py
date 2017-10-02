@@ -3,6 +3,7 @@ from pyplanet.contrib.command import Command
 
 from pyplanet.apps.contrib.players.views import PlayerListView
 from pyplanet.apps.core.maniaplanet.callbacks import player as player_signals
+from pyplanet.contrib.player.exceptions import PlayerNotFound
 from pyplanet.contrib.setting import Setting
 
 
@@ -25,7 +26,8 @@ class Players(AppConfig):
 
 	async def on_start(self):
 		await self.instance.command_manager.register(
-			Command(command='players', target=self.player_list)
+			Command(command='players', target=self.player_list),
+			Command(command='laston', aliases=['lastseen'], target=self.command_laston).add_param(name='login', required=True),
 		)
 		await self.context.setting.register(
 			self.setting_enable_join_msg, self.setting_enable_leave_msg
@@ -37,6 +39,15 @@ class Players(AppConfig):
 	async def player_list(self, player, data, **kwargs):
 		view = PlayerListView(self)
 		await view.display(player=player.login)
+
+	async def command_laston(self, player, data, **kwargs):
+		try:
+			laston_player = await self.instance.player_manager.get_player(data.login, None, False)
+			message = '$ff0Player $fff{}$z$s$ff0 was last online on $fff{}$ff0 at $fff{}$ff0.'.format(laston_player.nickname, laston_player.last_seen.strftime('%d-%m-%Y'), laston_player.last_seen.strftime('%H:%M:%S'))
+			await self.instance.chat(message, player)
+		except PlayerNotFound:
+			message = '$i$f00Unknown login!'
+			await self.instance.chat(message, player)
 
 	async def player_connect(self, player, **kwargs):
 		if not await self.setting_enable_join_msg.get_value():
