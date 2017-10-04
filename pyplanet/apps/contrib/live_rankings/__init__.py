@@ -63,7 +63,7 @@ class LiveRankings(AppConfig):
 						self.current_rankings.append(new_ranking)
 				elif 'bestracetime' in player:
 					if player['bestracetime'] != -1:
-						new_ranking = dict(login=player['player'].login, nickname=player['name'], score=player['bestracetime'])
+						new_ranking = dict(login=player['login'], nickname=player['name'], score=player['bestracetime'])
 						self.current_rankings.append(new_ranking)
 
 			self.current_rankings.sort(key=lambda x: x['score'])
