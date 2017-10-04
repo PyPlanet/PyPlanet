@@ -1,9 +1,12 @@
+import asyncio
 import math
 
 from pyplanet.apps.config import AppConfig
 from pyplanet.contrib.command import Command
 
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
+from pyplanet.apps.contrib.voting.views import VoteWidget
+from pyplanet.apps.contrib.voting.vote import Vote
 
 
 class Voting(AppConfig):
@@ -15,6 +18,7 @@ class Voting(AppConfig):
 		super().__init__(*args, **kwargs)
 
 		self.current_vote = None
+		self.widget = None
 
 	async def on_start(self):
 		await self.instance.permission_manager.register('cancel', 'Cancel the current vote', app=self, min_level=1)
@@ -28,8 +32,18 @@ class Voting(AppConfig):
 			Command(command='skip', target=self.vote_skip),
 		)
 
+		self.widget = VoteWidget(self)
+		await self.widget.display()
+
 		# Register callback.
 		self.context.signals.listen(mp_signals.flow.podium_start, self.podium_start)
+		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
+
+	async def player_connect(self, player, is_spectator, source, signal):
+		if self.widget is None:
+			self.widget = VoteWidget(self)
+
+		await self.widget.display(player=player)
 
 	async def cancel_vote(self, player, data, **kwargs):
 		if self.current_vote is None:
@@ -54,11 +68,11 @@ class Voting(AppConfig):
 			message = '$fff{}$z$s$ff0 voted to $fff{}$ff0.'.format(player.nickname, vote.action)
 			await self.instance.chat(message)
 		else:
-			message = '$fff{}$z$s$ff0 voted to $fff{}$ff0, it requires $fff{}$ff0 more votes to pass (use $fff/y$ff0 to vote).'.format(player.nickname, vote.action, (vote.votes_required - len(vote.votes_current)))
+			message = '$fff{}$z$s$ff0 voted to $fff{}$ff0, $fff{}$ff0 more votes are needed (use $fff/y$ff0 or $fffF5$ff0 to vote).'.format(player.nickname, vote.action, (vote.votes_required - len(vote.votes_current)))
 			await self.instance.chat(message)
 
 	async def vote_removed(self, vote, player):
-		message = '$ff0There are still $fff{}$ff0 more votes needed to pass the vote to $fff{}$ff0 (use $fff/y$ff0 to vote).'.format((vote.votes_required - len(vote.votes_current)), vote.action)
+		message = '$ff0There are $fff{}$ff0 votes needed to $fff{}$ff0 (use $fff/y$ff0 or $fffF5$ff0 to vote).'.format((vote.votes_required - len(vote.votes_current)), vote.action)
 		await self.instance.chat(message)
 
 	async def vote_yes(self, player, data, **kwargs):
@@ -76,6 +90,8 @@ class Voting(AppConfig):
 			message = '$i$f00You have already voted on this vote!'
 			await self.instance.chat(message, player)
 
+		asyncio.ensure_future(self.vote_reminder(self.current_vote))
+
 	async def vote_no(self, player, data, **kwargs):
 		if self.current_vote is None:
 			message = '$i$f00There is currently no vote in progress.'
@@ -90,6 +106,8 @@ class Voting(AppConfig):
 		await self.current_vote.remove_vote(player)
 		message = '$ff0You have successfully voted $fffno$ff0.'
 		await self.instance.chat(message, player)
+
+		asyncio.ensure_future(self.vote_reminder(self.current_vote))
 
 	async def vote_replay(self, player, data, **kwargs):
 		if self.current_vote is not None:
@@ -116,9 +134,8 @@ class Voting(AppConfig):
 
 		self.current_vote = self.create_vote('replay this map', player, self.vote_replay_finished)
 
-		message = '$ff0A vote to $fff{}$ff0 was started by $fff{}$z$s$ff0, $fff{}$ff0 votes are required to pass (use $fff/y$ff0 to vote).'.format(self.current_vote.action, player.nickname, self.current_vote.votes_required)
+		message = '$fff{}$z$s$ff0 wants to $fff{}$ff0, $fff{}$ff0 more votes needed ($fff/y$ff0 or $fffF5$ff0 to vote).'.format(player.nickname, self.current_vote.action, (self.current_vote.votes_required - 1))
 		await self.instance.chat(message)
-		await self.current_vote.add_vote(player)
 
 	async def vote_replay_finished(self, vote):
 		if 'jukebox' not in self.instance.apps.apps:
@@ -150,9 +167,8 @@ class Voting(AppConfig):
 
 		self.current_vote = self.create_vote('restart this map', player, self.vote_restart_finished)
 
-		message = '$ff0A vote to $fff{}$ff0 was started by $fff{}$z$s$ff0, $fff{}$ff0 votes are required to pass (use $fff/y$ff0 to vote).'.format(self.current_vote.action, player.nickname, self.current_vote.votes_required)
+		message = '$fff{}$z$s$ff0 wants to $fff{}$ff0, $fff{}$ff0 more votes needed ($fff/y$ff0 or $fffF5$ff0 to vote).'.format(player.nickname, self.current_vote.action, (self.current_vote.votes_required - 1))
 		await self.instance.chat(message)
-		await self.current_vote.add_vote(player)
 
 	async def vote_restart_finished(self, vote):
 		message = '$ff0Vote to $fff{}$ff0 has passed.'.format(vote.action)
@@ -177,9 +193,8 @@ class Voting(AppConfig):
 
 		self.current_vote = self.create_vote('skip this map', player, self.vote_skip_finished)
 
-		message = '$ff0A vote to $fff{}$ff0 was started by $fff{}$z$s$ff0, $fff{}$ff0 votes are required to pass (use $fff/y$ff0 to vote).'.format(self.current_vote.action, player.nickname, self.current_vote.votes_required)
+		message = '$fff{}$z$s$ff0 wants to $fff{}$ff0, $fff{}$ff0 more votes needed ($fff/y$ff0 or $fffF5$ff0 to vote).'.format(player.nickname, self.current_vote.action, (self.current_vote.votes_required - 1))
 		await self.instance.chat(message)
-		await self.current_vote.add_vote(player)
 
 	async def vote_skip_finished(self, vote):
 		message = '$ff0Vote to $fff{}$ff0 has passed.'.format(vote.action)
@@ -191,62 +206,32 @@ class Voting(AppConfig):
 			self.instance.chat(message)
 		)
 
+	async def vote_reminder(self, vote):
+		asyncio.sleep(30)
+
+		if self.current_vote is not None:
+			required_votes = (self.current_vote.votes_required - len(self.current_vote.votes_current))
+			if self.current_vote.action == vote.action and vote.votes_required == required_votes:
+				message = '$ff0There are $fff{}$ff0 votes needed to $fff{}$ff0 (use $fff/y$ff0 or $fffF5$ff0 to vote).'.format(vote.votes_required, self.current_vote.action)
+				await self.instance.chat(message)
+
+				asyncio.ensure_future(self.vote_reminder(vote))
+
 	def create_vote(self, action, player, finished_event):
-		vote = Vote()
-		vote.action = action
-		vote.requester = player
+		new_vote = Vote()
+		new_vote.action = action
+		new_vote.requester = player
+		new_vote.votes_current = [player.login]
 		needed_votes = math.ceil(self.instance.player_manager.count_players / 2)
 		if needed_votes == math.floor(self.instance.player_manager.count_players / 2):
 			needed_votes += 1
 		if needed_votes > self.instance.player_manager.count_players:
 			needed_votes = self.instance.player_manager.count_players
-		vote.votes_required = needed_votes
-		vote.vote_added = self.vote_added
-		vote.vote_removed = self.vote_removed
-		vote.vote_finished = finished_event
+		new_vote.votes_required = needed_votes + 10
+		new_vote.vote_added = self.vote_added
+		new_vote.vote_removed = self.vote_removed
+		new_vote.vote_finished = finished_event
 
-		return vote
+		asyncio.ensure_future(self.vote_reminder(new_vote))
 
-
-class Vote:
-	def __init__(self):
-		self.action = ''
-		self.requester = None
-		self.votes_required = 0
-		self.votes_current = []
-
-		self.vote_added = None
-		self.vote_removed = None
-		self.vote_finished = None
-
-	async def add_vote(self, player):
-		if player.login in self.votes_current:
-			return False
-
-		self.votes_current.append(player.login)
-
-		await self.fire_added_event(player)
-		if len(self.votes_current) >= self.votes_required:
-			await self.fire_finished_event()
-
-		return True
-
-	async def remove_vote(self, player):
-		if player.login in self.votes_current:
-			self.votes_current.remove(player.login)
-			await self.fire_removed_event(player)
-			return True
-
-		return False
-
-	async def fire_added_event(self, player):
-		if self.vote_added is not None:
-			await self.vote_added(vote=self, player=player)
-
-	async def fire_removed_event(self, player):
-		if self.vote_removed is not None:
-			await self.vote_removed(vote=self, player=player)
-
-	async def fire_finished_event(self):
-		if self.vote_finished is not None:
-			await self.vote_finished(vote=self)
+		return new_vote

@@ -1,0 +1,4 @@
+<frame pos="0 0">
+  <quad pos="0 0" size="0 0" action="{{ id }}__yes" actionkey="1" />
+  <quad pos="0 0" size="0 0" action="{{ id }}__no" actionkey="2" />
+</frame>
