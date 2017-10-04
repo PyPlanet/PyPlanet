@@ -1,0 +1,41 @@
+<frame pos="0 0">
+  <quad pos="0 0" size="320 180" halign="center" valign="center" style="Bgs1" substyle="BgDialogBlur" z-index="50" />
+  <quad pos="{{ sizes.top__pos }}" size="{{ sizes.top__size }}" halign="center" style="Bgs1InRace" substyle="BgGlow2" z-index="52" />
+  <quad size="{{ sizes.box__size }}" halign="center" valign="center" style="Bgs1InRace" substyle="BgWindow2" z-index="51" />
+  <quad pos="{{ sizes.bottom__pos }}" size="{{ sizes.bottom__size }}" halign="center" style="Bgs1InRace" substyle="BgMetalBar" z-index="52" />
+
+  <frame z-index="55" pos="0 60">
+    {% block body %}
+      <label pos="-5 -3" size="180 8" halign="left" valign="center2" textsize="2.5" textcolor="FFF" text="Statistics" />
+      <quad pos="90 1" size="7 7" style="Icons128x32_1" substyle="Close" action="{{ id }}__button_close"/>
+
+      <!-- Left Column -->
+      <frame z-index="56" pos="-100 -10">
+
+        <!-- Numbers -->
+        <quad pos="0 0" size="100 25" bgcolor="FFFFFF11" />
+        <label pos="1.5 -1.5" size="70 8" halign="left" valign="left" textsize="2.0" textcolor="FFF" text="$oPersonal Facts and numbers" />
+        <label pos="85 -3.5" style="CardButtonSmallS" valign="center" halign="center" text="More" translate="1" action="{{ id }}__button_facts" />
+
+        <label pos="1.5 -7" size="60 8" halign="left" valign="left" textsize="1.5" textcolor="FFF" text="Number of finishes" />
+        <label pos="70 -7" size="60 8" halign="left" valign="left" textsize="1.5" textcolor="FFF" text="{{ numbers.finishes }}" />
+
+        <label pos="1.5 -11" size="60 8" halign="left" valign="left" textsize="1.5" textcolor="FFF" text="Number of top 3 records" />
+        <label pos="70 -11" size="60 8" halign="left" valign="left" textsize="1.5" textcolor="FFF" text="{{ numbers.top_3 }}" />
+
+        <label pos="1.5 -15.5" size="60 8" halign="left" valign="left" textsize="1.5" textcolor="FFF" text="Number of local records" />
+        <label pos="70 -15.5" size="60 8" halign="left" valign="left" textsize="1.5" textcolor="FFF" text="{{ numbers.records }}" />
+
+        {% if numbers.top_3 and numbers.records %}
+          {% set percentage_top3 = ((numbers.top_3 / numbers.records) * 100) %}
+        {% else %}
+          {% set percentage_top3 = False %}
+        {% endif %}
+        {% if percentage_top3 %}
+          <quad pos="82 -7" size="17.5 17.5" image="https://image-charts.com/chart?cht=p&chf=a,s,00000080&chd=t:{{ percentage_top3 }},{{ 100 - percentage_top3 }}&chs=200x200&chl=Top 3%7CRecords%7C.png" />
+        {% endif %}
+      </frame>
+
+    {% endblock %}
+  </frame>
+</frame>
