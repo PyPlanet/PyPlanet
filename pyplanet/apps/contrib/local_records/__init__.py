@@ -105,6 +105,10 @@ class LocalRecords(AppConfig):
 
 	async def map_begin(self, map):
 		await self.refresh_locals()
+
+		if self.widget is None:
+			self.widget = LocalRecordsWidget(self)
+
 		await asyncio.gather(
 			self.chat_current_record(),
 			self.widget.display()
@@ -193,6 +197,9 @@ class LocalRecords(AppConfig):
 				'own_records': current_records,
 				'own_record': current_record
 			})
+
+		if self.widget is None:
+			self.widget = LocalRecordsWidget(self)
 
 		coros = [self.widget.display()]
 		if record_limit == 0 or new_index <= record_limit:
