@@ -3,6 +3,7 @@ Trackmania app component.
 """
 from pyplanet.apps.core.statistics.models import Score
 from pyplanet.apps.core.statistics.views.dashboard import StatsDashboardView
+from pyplanet.apps.core.statistics.views.score import StatsScoresListView
 from pyplanet.apps.core.trackmania.callbacks import finish
 from pyplanet.contrib.command import Command
 
@@ -25,8 +26,12 @@ class TrackmaniaComponent:
 		self.app.context.signals.listen(finish, self.on_finish)
 
 		# Register commands.
+		# TODO: Finish work here!
+		# await self.app.instance.command_manager.register(
+		# 	Command('stats', target=self.open_stats)
+		# )
 		await self.app.instance.command_manager.register(
-			Command('stats', target=self.open_stats)
+			Command(command='scoreprogression', aliases=['progression'], target=self.open_score_progression),
 		)
 
 	async def on_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
@@ -41,3 +46,7 @@ class TrackmaniaComponent:
 	async def open_stats(self, player, **kwargs):
 		view = StatsDashboardView(self.app, self.app.context.ui, player)
 		await view.display()
+
+	async def open_score_progression(self, player, **kwargs):
+		view = StatsScoresListView(self.app, player)
+		await view.display(player)
