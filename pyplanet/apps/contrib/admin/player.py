@@ -20,6 +20,8 @@ class PlayerAdmin:
 		await self.instance.permission_manager.register('kick', 'Kick a player', app=self.app, min_level=1)
 		await self.instance.permission_manager.register('ban', 'Ban a player', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('unban', 'Unban a player', app=self.app, min_level=2)
+		await self.instance.permission_manager.register('blacklist', 'Blacklist a player', app=self.app, min_level=3)
+		await self.instance.permission_manager.register('unblacklist', 'Unblacklist a player', app=self.app, min_level=3)
 		await self.instance.permission_manager.register('manage_admins', 'Manage admin', app=self.app, min_level=3)
 		await self.instance.permission_manager.register('force_spec', 'Force player into spectate', app=self.app, min_level=1)
 		await self.instance.permission_manager.register('force_team', 'Force player into a team', app=self.app, min_level=1)
@@ -31,6 +33,8 @@ class PlayerAdmin:
 			Command(command='kick', target=self.kick_player, perms='admin:kick', admin=True).add_param(name='login', required=True),
 			Command(command='ban', target=self.ban_player, perms='admin:ban', admin=True).add_param(name='login', required=True),
 			Command(command='unban', target=self.unban_player, perms='admin:unban', admin=True).add_param(name='login', required=True),
+			Command(command='blacklist', aliases=['black'], target=self.blacklist_player, perms='admin:blacklist', admin=True).add_param(name='login', required=True),
+			Command(command='unblacklist', aliases=['unblack'], target=self.unblacklist_player, perms='admin:unblacklist', admin=True).add_param(name='login', required=True),
 			Command(command='level', target=self.change_level, perms='admin:manage_admins', description='Change admin level for player.', admin=True)
 				.add_param(name='login', required=True)
 				.add_param(name='level', required=False, help='Level, 0 = player, 1 = operator, 2 = admin, 3 = master admin.', type=int, default=0),
@@ -191,8 +195,11 @@ class PlayerAdmin:
 				self.instance.chat(message)
 			)
 		except PlayerNotFound:
-			message = '$i$f00Unknown login!'
-			await self.instance.chat(message, player)
+			message = '$ff0Admin $fff{}$z$s$ff0 has blacklisted $fff{}$z$s$ff0.'.format(player.nickname, data.login)
+			await self.instance.gbx.multicall(
+				self.instance.gbx('BlackList', data.login),
+				self.instance.chat(message)
+			)
 
 	async def unblacklist_player(self, player, data, **kwargs):
 		message = '$ff0Admin $fff{}$z$s$ff0 has un-blacklisted $fff{}$z$s$ff0.'.format(player.nickname, data.login)
