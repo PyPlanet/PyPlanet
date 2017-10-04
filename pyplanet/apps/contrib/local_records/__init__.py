@@ -53,7 +53,9 @@ class LocalRecords(AppConfig):
 		await self.refresh_locals()
 		await self.chat_current_record()
 
-		self.widget = LocalRecordsWidget(self)
+		if self.widget is None:
+			self.widget = LocalRecordsWidget(self)
+
 		await self.widget.display()
 
 		await self.load_map_locals()
