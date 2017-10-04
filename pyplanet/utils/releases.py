@@ -70,7 +70,7 @@ class _UpdateChecker:  # pragma: no cover
 					player
 				),
 				self.instance.chat(
-					'$fffClick $l[http://pypla.net/intro/upgrading.html]here$l to open the upgrade instructions.',
+					'$fffClick $l[http://pypla.net/en/stable/intro/upgrading.html]here$l to open the upgrade instructions.',
 					player
 				)
 			)
