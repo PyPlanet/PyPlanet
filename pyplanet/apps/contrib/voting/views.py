@@ -6,9 +6,8 @@ class VoteWidget(TemplateView):
 	template_name = 'voting/voting.xml'
 
 	def __init__(self, app):
-		super().__init__(self)
+		super().__init__(app.context.ui)
 		self.app = app
-		self.manager = app.context.ui
 		self.id = 'pyplanet__widgets_voting'
 
 		self.subscribe('yes', self.vote_yes)
