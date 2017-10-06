@@ -24,7 +24,7 @@ class Clock(AppConfig):
     async def player_connect(self, player, **kwargs):
         await self.widget.display(player)
 
-    async def map_start(self):
+    async def map_start(self, *args, **kwargs):
         await self.widget.display()
 
     async def on_after_start(self, *args, **kwargs):
