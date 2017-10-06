@@ -18,7 +18,7 @@ class Clock(AppConfig):
 
     async def on_start(self):
         self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
-        self.context.signals.listen(mp_signals.map.map_start, self.map_start)
+        self.context.signals.listen(mp_signals.map.map_begin, self.map_start)
         self.context.signals.listen(pyplanet_start_after, self.on_after_start)
 
     async def player_connect(self, player, **kwargs):
