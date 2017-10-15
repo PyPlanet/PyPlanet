@@ -205,7 +205,8 @@ class DedimaniaAPI:
 			return dict(
 				banned=bool(response['Banned']), login=response['Login'], max_rank=response['MaxRank'],
 			)
-		except DedimaniaTransportException:
+		except DedimaniaTransportException as e:
+			logging.exception(e)
 			return None
 
 	async def player_disconnect(self, login, tool_option):
