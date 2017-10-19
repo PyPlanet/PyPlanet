@@ -26,6 +26,7 @@ class PlayerAdmin:
 		await self.instance.permission_manager.register('force_spec', 'Force player into spectate', app=self.app, min_level=1)
 		await self.instance.permission_manager.register('force_team', 'Force player into a team', app=self.app, min_level=1)
 		await self.instance.permission_manager.register('switch_team', 'Force player into the other team', app=self.app, min_level=1)
+		await self.instance.permission_manager.register('warn', 'Warn a player', app=self.app, min_level=1)
 
 		await self.instance.command_manager.register(
 			Command(command='mute', aliases=['ignore'], target=self.ignore_player, perms='admin:ignore', admin=True).add_param(name='login', required=True),
@@ -45,6 +46,8 @@ class PlayerAdmin:
 				.add_param(name='team', required=True, help='Team, blue/0 = left, red/1 = right'),
 			Command(command='switchteam', target=self.switch_team, perms='admin:switch_team', description='Force player into the other team', admin=True)
 				.add_param(name='login', required=True),
+			Command(command='warn', aliases=['warning'], target=self.warn_player, perms='admin:warn', description='Warn a player', admin=True)
+				.add_param(name='login', required=True)
 		)
 
 	async def force_spec(self, player, data, **kwargs):
@@ -235,3 +238,14 @@ class PlayerAdmin:
 				player.nickname, target_player.nickname, old_level_name
 			)
 		await self.instance.chat(message)
+
+	async def warn_player(self, player, data, **kwargs):
+		try:
+			warn_player = await self.instance.player_manager.get_player(login=data.login)
+			message = '$ff0Admin $fff{}$z$s$ff0 has warned $fff{}$z$s$ff0.'.format(player.nickname, warn_player.nickname)
+			for i in range(7):
+				await self.instance.gbx('ChatSendToLogin', message, warn_player.login)
+		except PlayerNotFound:
+			message = '$i$f00Unknown login!'
+			await self.instance.chat(message, player.login)
+			return
