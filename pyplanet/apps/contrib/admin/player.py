@@ -245,6 +245,7 @@ class PlayerAdmin:
 			message = '$ff0Admin $fff{}$z$s$ff0 has warned $fff{}$z$s$ff0.'.format(player.nickname, warn_player.nickname)
 			for i in range(7):
 				await self.instance.gbx('ChatSendToLogin', message, warn_player.login)
+			await self.instance.chat('$i$ff0 Player {} $i$ff0has received a warning'.format(warn_player.nickname), player)
 		except PlayerNotFound:
 			message = '$i$f00Unknown login!'
 			await self.instance.chat(message, player.login)
