@@ -244,6 +244,7 @@ class PlayerAdmin:
 		try:
 			warn_player = await self.instance.player_manager.get_player(login=data.login)
 			await show_alert(warn_player, 'You have just been warned! Ask the present admin for further information and / or potential consequences.', size='sm', buttons=None)
+			await self.instance.chat('$i$ff0 Player {} $i$ff0has received a warning'.format(warn_player.nickname), player)
 		except PlayerNotFound:
 			message = '$i$f00Unknown login!'
 			await self.instance.chat(message, player.login)
