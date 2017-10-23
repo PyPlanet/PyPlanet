@@ -3,6 +3,7 @@ Player Admin methods and functions.
 """
 from pyplanet.contrib.command import Command
 from pyplanet.contrib.player.exceptions import PlayerNotFound
+from pyplanet.views.generics.alert import show_alert
 
 
 class PlayerAdmin:
@@ -242,10 +243,7 @@ class PlayerAdmin:
 	async def warn_player(self, player, data, **kwargs):
 		try:
 			warn_player = await self.instance.player_manager.get_player(login=data.login)
-			message = '$ff0Admin $fff{}$z$s$ff0 has warned $fff{}$z$s$ff0.'.format(player.nickname, warn_player.nickname)
-			for i in range(7):
-				await self.instance.gbx('ChatSendToLogin', message, warn_player.login)
-			await self.instance.chat('$i$ff0 Player {} $i$ff0has received a warning'.format(warn_player.nickname), player)
+			await show_alert(warn_player, 'You have just been warned! Ask the present admin for further information and / or potential consequences.', size='sm', buttons=None)
 		except PlayerNotFound:
 			message = '$i$f00Unknown login!'
 			await self.instance.chat(message, player.login)
