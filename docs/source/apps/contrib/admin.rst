@@ -177,6 +177,17 @@ Functionality:
 Required permission:
   ``admin:switch_team``, requires admin level 1.
 
+  Warn player
+  ~~~~~~~~~~~
+  Command:
+    ``//warn`` / ``//warning``
+  Parameters:
+    * Player login.
+  Functionality:
+    Displays a warning message in chat for the player
+  Required permission:
+    ``admin:warn``, requires admin level 1.
+
 Mute player
 ~~~~~~~~~~~
 Command:
