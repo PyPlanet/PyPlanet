@@ -452,11 +452,11 @@ class ManualListView(ListView):
 			if 'searching' in field and field['searching']:
 				if 'search_strip_styles' in field and field['search_strip_styles']:
 					query.append(
-						frame[field['index']].apply(lambda x: self.search_text.lower() in style.style_strip(x.lower()) if x else False)
+						frame[field['index']].apply(lambda x: self.search_text.lower() in style.style_strip(str(x).lower()) if x else False)
 					)
 				else:
 					query.append(
-						frame[field['index']].apply(lambda x: self.search_text.lower() in x.lower() if x else False)
+						frame[field['index']].apply(lambda x: self.search_text.lower() in str(x).lower() if x else False)
 					)
 		if query:
 			query = np.logical_or.reduce(query)
