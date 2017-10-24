@@ -15,18 +15,66 @@ Core
 
   **The old way will break your app from version 0.8.0**
 
+* Feature: Add multiple configuration backends. You can now use JSON or YAML as configuration as well. This is in a beta
+  stage and can still change in upcoming versions. See the documentation for usage.
+* Feature: Add logging to file option for starting PyPlanet. You can set this up inside of your settings `base.py`.
+  More information can be found in the documentation for configuring PyPlanet.
+* Feature: Add detach switch to the PyPlanet starter so it can fork itself to the background and write a PID file.
+  More information can be found in the documentation for starting PyPlanet.
+* Feature: Add player attributes that can be set by apps for caching or maintaining user settings or data during the session. (Technical)
+
 * Improvement: Retry 5 times when connecting to the dedicated server, making it possible to start both at the same time.
+* Improvement: Update library versions.
+* Improvement: Add minimum required version of the dedicated server to prevent starting PyPlanet for non-supported dedicated versions.
+* Improvement: Only check for stable new versions. Now check for releases instead of tags on Github.
+* Improvement: Add online players login list in the player_manager. (Technical)
+
+* Bugfix: Fixing issue with the release checker.
+* Bugfix: Fixing the link to the upgrade documentation page (Thanks to @thefifthisa).
+* Bugfix: Only handle player info change event when this player is still on the server to prevent errors.
+* Bugfix: Handle exception when the server initiated a callvote (Thanks to @teemann).
+* Bugfix: Correctly handle None column values when searching and/or sorting generic lists.
+* Bugfix: Correctly handle non-string column values when searching and/or sorting generic lists.
+
 
 Apps
 ~~~~
 
 * NEW: Best CPS Widget for Trackmania, shows the best times per checkpoint above the screen.
-  Add the new app to your apps.py: `'pyplanet.apps.contrib.best_cps'`. More info on the documentation pages of the app.
+  Add the new app to your apps.py: `'pyplanet.apps.contrib.best_cps'`. More info on the documentation pages of the app. (Big thanks to @froznsm)
+
+* NEW: Clock Widget, shows the local time of the players computer on the PyPlanet logo.
+  Add the new app to your apps.py: `'pyplanet.apps.contrib.clock'`. More info on the documentation pages of the app. (Big thanks to @froznsm)
+
+* NEW: Chat-based Vote App, want to have votes in the chat instead of the callvotes? Enable this app now!
+  Add the new app to your apps.py: `'pyplanet.apps.contrib.voting'`. More info on the documentation pages of the app.
+
+* Feature: Add folders to the /list interface. There are two types of folders, automatic folders based on facts and manual per player/admin folders.
+* Feature: Add folders for karma related information when karma app is enabled.
+* Feature: Add spectator status in the /players list.
+* Feature: Add /scoreprogression command to see your current score progressions statistics on the current track.
+* Feature: Add team switch commands (//forceteam and //switchteam) to the admin app.
+* Feature: Add warning command (//warn) and alert to the admin app to warn players.
+* Feature: Add the MX link of the current map to the logo left from the map name.
+* Feature: Add setting to directly juke after adding map from MX or local (defaults to on).
+* Feature: Add //blacklist and //unblacklist to the admin app.
 
 * Improvement: Applied context aware signal manager everywhere.
 * Improvement: Moving logic to view in dedimania app.
 * Improvement: Adding the MX link of the map to the icon on the map info widget.
 * Improvement: Adding setting to juke map after //add (mx and local) the map. Enabled by default!
+* Improvement: Adding help text to jukebox app command.
+* Improvement: Remove workaround for the fixed dedicated issue caused problems with the dedimania app.
+* Improvement: Only show login in /list for now as it was causing inconsistency.
+* Improvement: Check if the player is online before taking admin actions like kicking the player.
+* Improvement: Refactor logic of viewing dedimania records to the desired view class. (Technical)
+* Improvement: Further investigate dedimania problems for some specific players. Internal cause is known, exact reason not yet, we will further investigate this issue.
+
+* Bugfix: Make sure to skip jukeboxed map when it's deleted from the server.
+* Bugfix: Fix the double live rankings entry when changing nickname.
+* Bugfix: Check if we have data to compare before calculating CP difference in the live rankings widget.
+* Bugfix: Local record widget display fix when player joined during a very specific time that causes it to not display to the user.
+
 
 0.4.5
 -----
