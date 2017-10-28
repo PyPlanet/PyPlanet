@@ -400,7 +400,9 @@ class ListView(TemplateView):
 	async def _next_10_pages(self, player, *args, **kwargs):
 		if self.page + 10 <= self.num_pages:
 			self.page += 10
-			await self.refresh(player)
+		else:
+			self.page = self.num_pages
+		await self.refresh(player)
 
 	async def _prev_page(self, player, *args, **kwargs):
 		if self.page - 1 > 0:
@@ -410,7 +412,10 @@ class ListView(TemplateView):
 	async def _prev_10_pages(self, player, *args, **kwargs):
 		if self.page - 10 > 0:
 			self.page -= 10
-			await self.refresh(player)
+		else:
+			self.page = 1
+		await self.refresh(player)
+
 
 
 class ManualListView(ListView):
