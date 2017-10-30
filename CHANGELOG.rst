@@ -27,6 +27,7 @@ Core
 * Improvement: Update library versions.
 * Improvement: Add minimum required version of the dedicated server to prevent starting PyPlanet for non-supported dedicated versions.
 * Improvement: Only check for stable new versions. Now check for releases instead of tags on Github.
+* Improvement: Let the list view skip 10 pages buttons skip to end or begin when less than 10 pages difference. (Thanks @froznsm)
 * Improvement: Add online players login list in the player_manager. (Technical)
 
 * Bugfix: Fixing issue with the release checker.
@@ -35,6 +36,7 @@ Core
 * Bugfix: Handle exception when the server initiated a callvote (Thanks to @teemann).
 * Bugfix: Correctly handle None column values when searching and/or sorting generic lists.
 * Bugfix: Correctly handle non-string column values when searching and/or sorting generic lists.
+* Bugfix: Refresh and fixed the player and spectator counters.
 
 
 Apps
@@ -51,6 +53,7 @@ Apps
 
 * Feature: Add folders to the /list interface. There are two types of folders, automatic folders based on facts and manual per player/admin folders.
 * Feature: Add folders for karma related information when karma app is enabled.
+* Feature: Add folder for newest maps (added within 14 days).
 * Feature: Add spectator status in the /players list.
 * Feature: Add /scoreprogression command to see your current score progressions statistics on the current track.
 * Feature: Add team switch commands (//forceteam and //switchteam) to the admin app.
