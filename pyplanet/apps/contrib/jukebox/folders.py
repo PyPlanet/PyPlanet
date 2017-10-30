@@ -1,3 +1,5 @@
+import datetime
+
 from pyplanet.apps.core.maniaplanet.models import Player, Map
 from pyplanet.apps.contrib.jukebox.views import FolderListView, FolderMapListView
 
@@ -19,6 +21,8 @@ class FolderManager:
 		:return:
 		"""
 		self.auto_folders = list()
+
+		self.auto_folders.append({'id': 'newest', 'name': 'Newest maps (last 14 days)', 'owner': 'PyPlanet', 'type': 'auto'})
 
 		if 'local_records' in self.app.instance.apps.apps:
 			self.auto_folders.append({'id': 'local_none', 'name': 'Map record: none', 'owner': 'PyPlanet', 'type': 'auto'})
@@ -125,17 +129,20 @@ class FolderManager:
 		fields = []
 		folder_instance = None
 
-		if folder['id'] is 'local_none':
+		if folder['id'] == 'newest':
+			filter_from = datetime.datetime.now() - datetime.timedelta(days=14)
+			map_list = [m for m in self.app.instance.map_manager.maps if m.created_at > filter_from]
+		elif folder['id'] == 'local_none':
 			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'local') and m.local['record_count'] == 0]
-		elif folder['id'] is 'length_shorter_30s':
+		elif folder['id'] == 'length_shorter_30s':
 			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'local') and m.local['first_record'] is not None and m.local['first_record'].score < 30000]
-		elif folder['id'] is 'length_longer_60s':
+		elif folder['id'] == 'length_longer_60s':
 			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'local') and m.local['first_record'] is not None and m.local['first_record'].score > 60000]
-		elif folder['id'] is 'karma_none':
+		elif folder['id'] == 'karma_none':
 			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'karma') and m.karma['vote_count'] is 0]
-		elif folder['id'] is 'karma_negative':
+		elif folder['id'] == 'karma_negative':
 			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'karma') and m.karma['map_karma'] < 0]
-		elif folder['id'] is 'karma_positive':
+		elif folder['id'] == 'karma_positive':
 			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'karma') and m.karma['map_karma'] > 0]
 		elif folder['id'].startswith('database_'):
 			# Get the real folder model instance.
