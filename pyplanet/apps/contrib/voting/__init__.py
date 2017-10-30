@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import math
 
 from pyplanet.apps.config import AppConfig
@@ -7,6 +8,8 @@ from pyplanet.apps.contrib.voting.views import VoteWidget
 from pyplanet.apps.contrib.voting.vote import Vote
 from pyplanet.contrib.command import Command
 from pyplanet.contrib.setting import Setting
+
+logger = logging.getLogger(__name__)
 
 
 class Voting(AppConfig):
@@ -196,6 +199,15 @@ class Voting(AppConfig):
 		message = '$ff0Vote to $fff{}$ff0 has passed.'.format(vote.action)
 
 		self.current_vote = None
+
+		# Dedimania save vreplay/ghost replays first.
+		if 'dedimania' in self.instance.apps.apps:
+			logger.info('Saving dedimania (v)replays first!..')
+			if hasattr(self.instance.apps.apps['dedimania'], 'podium_start'):
+				try:
+					await self.instance.apps.apps['dedimania'].podium_start()
+				except Exception as e:
+					logger.exception(e)
 
 		await self.instance.gbx.multicall(
 			self.instance.gbx('RestartMap'),

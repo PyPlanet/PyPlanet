@@ -117,6 +117,16 @@ class MapAdmin:
 
 	async def restart_map(self, player, data, **kwargs):
 		message = '$ff0Admin $fff{}$z$s$ff0 has restarted the map.'.format(player.nickname)
+
+		# Dedimania save vreplay/ghost replays first.
+		if 'dedimania' in self.instance.apps.apps:
+			logger.info('Saving dedimania (v)replays first!..')
+			if hasattr(self.instance.apps.apps['dedimania'], 'podium_start'):
+				try:
+					await self.instance.apps.apps['dedimania'].podium_start()
+				except Exception as e:
+					logger.exception(e)
+
 		await self.instance.gbx.multicall(
 			self.instance.gbx('RestartMap'),
 			self.instance.chat(message)
