@@ -264,7 +264,7 @@ class Dedimania(AppConfig):
 				)
 				if await self.setting_sent_announce.get_value():
 					await self.instance.chat(
-						'$0b3Dedimania records has been sent successfully!'
+						'$0b3Dedimania records have been sent successfully!'
 					)
 			except DedimaniaNotSupportedException:
 				pass
