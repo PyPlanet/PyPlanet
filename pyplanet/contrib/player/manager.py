@@ -81,6 +81,44 @@ class PlayerManager(CoreContrib):
 		player_list = await self._instance.gbx('GetPlayerList', -1, 0)
 		await asyncio.gather(*[self.handle_connect(player['Login']) for player in player_list])
 
+		self._instance.signal_manager.listen('maniaplanet:loading_map_end', self.map_loaded)
+
+	async def map_loaded(self, *args, **kwargs):
+		"""
+		Reindex the current number of players and spectators.
+
+		:param args:
+		:param kwargs:
+		:return:
+		"""
+		# Update player and spectator counters.
+		player_list = await self._instance.gbx('GetPlayerList', -1, 0)
+
+		total = 0
+		specs = 0
+		players = 0
+
+		for player in player_list:
+			if self._instance.game.server_is_dedicated and self._instance.game.server_player_login == player['Login']:
+				continue
+
+			try:
+				info = await self._instance.gbx('GetDetailedPlayerInfo', player['Login'])
+			except:
+				# Player has left during this time.
+				continue
+
+			total += 1
+			if info['IsSpectator']:
+				specs += 1
+			else:
+				players += 1
+
+		async with self._counter_lock:
+			self._total_count = total
+			self._spectators_count = specs
+			self._players_count = players
+
 	async def handle_connect(self, login):
 		"""
 		Handle a connection of a player, this call is being called inside of the Glue of the callbacks.
