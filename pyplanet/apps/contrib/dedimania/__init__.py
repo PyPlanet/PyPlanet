@@ -175,7 +175,9 @@ class Dedimania(AppConfig):
 
 	async def map_start(self, map, restarted, **kwargs):
 		if restarted:
-			await self.podium_start()
+			# Disable this line as the replays are already removed from the memory of the dedicated.
+			# The method calling //restart should call this one from there.
+			# await self.podium_start()
 
 			# Clear the current map.
 			self.map_uid = None
