@@ -24,6 +24,12 @@ class Voting(AppConfig):
 		self.widget = None
 		self.podium_stage = False
 
+		self.setting_voting_enabled = Setting(
+			'voting_enabled', 'Voting enabled', Setting.CAT_BEHAVIOUR, type=bool,
+			description='Whether or not chat-based voting is enabled.',
+			default=True
+		)
+
 		self.setting_remind_interval = Setting(
 			'remind_interval', 'Vote reminder interval', Setting.CAT_BEHAVIOUR, type=int,
 			description='Interval in seconds before players are reminded to vote.',
@@ -31,7 +37,7 @@ class Voting(AppConfig):
 		)
 
 	async def on_start(self):
-		await self.context.setting.register(self.setting_remind_interval)
+		await self.context.setting.register(self.setting_voting_enabled, self.setting_remind_interval)
 
 		await self.instance.permission_manager.register('cancel', 'Cancel the current vote', app=self, min_level=1)
 
@@ -139,6 +145,11 @@ class Voting(AppConfig):
 			await self.instance.chat(message, player)
 			return
 
+		if await self.setting_voting_enabled.get_value() is False:
+			message = '$i$f00Chat-based voting has been disabled via the server settings!'
+			await self.instance.chat(message, player)
+			return
+
 		if self.podium_stage:
 			message = '$i$f00You cannot start a vote during the podium!'
 			await self.instance.chat(message, player)
@@ -193,6 +204,11 @@ class Voting(AppConfig):
 			await self.instance.chat(message, player)
 			return
 
+		if await self.setting_voting_enabled.get_value() is False:
+			message = '$i$f00Chat-based voting has been disabled via the server settings!'
+			await self.instance.chat(message, player)
+			return
+
 		if self.podium_stage:
 			message = '$i$f00You cannot start a vote during the podium!'
 			await self.instance.chat(message, player)
@@ -234,6 +250,11 @@ class Voting(AppConfig):
 	async def vote_skip(self, player, data, **kwargs):
 		if self.current_vote is not None:
 			message = '$i$f00You cannot start a vote while one is already in progress.'
+			await self.instance.chat(message, player)
+			return
+
+		if await self.setting_voting_enabled.get_value() is False:
+			message = '$i$f00Chat-based voting has been disabled via the server settings!'
 			await self.instance.chat(message, player)
 			return
 
