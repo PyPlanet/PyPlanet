@@ -22,6 +22,7 @@ class Voting(AppConfig):
 
 		self.current_vote = None
 		self.widget = None
+		self.podium_stage = False
 
 		self.setting_remind_interval = Setting(
 			'remind_interval', 'Vote reminder interval', Setting.CAT_BEHAVIOUR, type=int,
@@ -49,12 +50,25 @@ class Voting(AppConfig):
 		# Register callback.
 		self.context.signals.listen(mp_signals.flow.podium_start, self.podium_start)
 		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
+		self.context.signals.listen(mp_signals.map.map_begin, self.map_start)
 
 	async def player_connect(self, player, is_spectator, source, signal):
 		if self.widget is None:
 			self.widget = VoteWidget(self)
 
 		await self.widget.display(player=player)
+
+	async def podium_start(self, **kwargs):
+		self.podium_stage = True
+
+		if self.current_vote is not None:
+			message = '$ff0Vote to $fff{}$ff0 has been cancelled.'.format(self.current_vote.action)
+			await self.instance.chat(message)
+
+			self.current_vote = None
+
+	async def map_start(self, *args, **kwargs):
+		self.podium_stage = False
 
 	async def cancel_vote(self, player, data, **kwargs):
 		if self.current_vote is None:
@@ -66,13 +80,6 @@ class Voting(AppConfig):
 
 		message = '$ff0Admin $fff{}$z$s$ff0 cancelled the current vote.'.format(player.nickname)
 		await self.instance.chat(message)
-
-	async def podium_start(self, **kwargs):
-		if self.current_vote is not None:
-			message = '$ff0Vote to $fff{}$ff0 has been cancelled.'.format(self.current_vote.action)
-			await self.instance.chat(message)
-
-			self.current_vote = None
 
 	async def vote_added(self, vote, player):
 		if vote.votes_required == len(vote.votes_current):
@@ -132,6 +139,11 @@ class Voting(AppConfig):
 			await self.instance.chat(message, player)
 			return
 
+		if self.podium_stage:
+			message = '$i$f00You cannot start a vote during the podium!'
+			await self.instance.chat(message, player)
+			return
+
 		if player.flow.is_spectator:
 			message = '$i$f00Only players are allowed to vote.'
 			await self.instance.chat(message, player)
@@ -181,6 +193,11 @@ class Voting(AppConfig):
 			await self.instance.chat(message, player)
 			return
 
+		if self.podium_stage:
+			message = '$i$f00You cannot start a vote during the podium!'
+			await self.instance.chat(message, player)
+			return
+
 		if player.flow.is_spectator:
 			message = '$i$f00Only players are allowed to vote.'
 			await self.instance.chat(message, player)
@@ -217,6 +234,11 @@ class Voting(AppConfig):
 	async def vote_skip(self, player, data, **kwargs):
 		if self.current_vote is not None:
 			message = '$i$f00You cannot start a vote while one is already in progress.'
+			await self.instance.chat(message, player)
+			return
+
+		if self.podium_stage:
+			message = '$i$f00You cannot start a vote during the podium!'
 			await self.instance.chat(message, player)
 			return
 
