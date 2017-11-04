@@ -17,7 +17,7 @@ class Command(BaseCommand):
 	def add_arguments(self, parser):
 		parser.add_argument(
 			'--source-format', required=True, help='The source format/controller type.',
-			choices=['xaseco2', 'uaseco', 'maniacontrol'],
+			choices=['xaseco2', 'uaseco', 'maniacontrol', 'expansion'],
 		)
 		parser.add_argument(
 			'--source-db-type', default='mysql', help='The source database type.',

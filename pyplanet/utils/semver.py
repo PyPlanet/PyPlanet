@@ -21,7 +21,7 @@ _REGEX = re.compile(
 	(?P<minor>(?:0|[1-9][0-9]*))
 	\.
 	(?P<patch>(?:0|[1-9][0-9]*))
-	(\-(?P<prerelease>
+	(\-*(?P<prerelease>
 		(?:0|[1-9A-Za-z-][0-9A-Za-z-]*)
 		(\.(?:0|[1-9A-Za-z-][0-9A-Za-z-]*))*
 	))?
