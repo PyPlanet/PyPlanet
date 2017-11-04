@@ -81,7 +81,7 @@ class PlayerManager(CoreContrib):
 		player_list = await self._instance.gbx('GetPlayerList', -1, 0)
 		await asyncio.gather(*[self.handle_connect(player['Login']) for player in player_list])
 
-		self._instance.signal_manager.listen('maniaplanet:loading_map_end', self.map_loaded)
+		self._instance.signals.listen('maniaplanet:loading_map_end', self.map_loaded)
 
 	async def map_loaded(self, *args, **kwargs):
 		"""
