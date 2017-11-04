@@ -22,6 +22,7 @@ Core
 * Feature: Add detach switch to the PyPlanet starter so it can fork itself to the background and write a PID file.
   More information can be found in the documentation for starting PyPlanet.
 * Feature: Add player attributes that can be set by apps for caching or maintaining user settings or data during the session. (Technical)
+* Feature: Add migration script for eXpansion database. Look at the manual on http://www.pypla.net/en/stable/convert/index.html for more information.
 
 * Improvement: Retry 5 times when connecting to the dedicated server, making it possible to start both at the same time.
 * Improvement: Update library versions.
