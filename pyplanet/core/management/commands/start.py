@@ -1,14 +1,14 @@
 import os
 import signal
 import threading
-
 import logging
-
 import sys
-
-import fcntl
-
 import atexit
+
+try:
+	import fcntl
+except:
+	fcntl = dict()  # Windows only.
 
 from pyplanet.conf import settings
 from pyplanet.core.management import BaseCommand
