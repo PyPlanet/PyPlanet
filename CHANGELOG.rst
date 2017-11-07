@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.5.1
+-----
+
+* Bugfix: Fix for Windows users and import error.
+
+
 0.5.0
 -----
 
