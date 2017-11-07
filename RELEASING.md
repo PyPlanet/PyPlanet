@@ -12,7 +12,7 @@
 * [ ] Run build commands with `make build` and test the cli with pip installation.
 * [ ] Create new branch for the big releases (if major/minor update, not for bugfix):
 ```
-    $ git branch 2.9.x
+    $ git checkout -b release/2.9.x
     $ git tag 2.9.0
     $ git push --all
     $ git push --tags
