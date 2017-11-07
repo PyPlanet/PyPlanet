@@ -26,3 +26,6 @@ To correct this you can execute the following query. You have to change one part
 
 
 In this code-snippet, `pyplanet` is the database name. Make sure you change it to your database name.
+
+The results you will get are queries that you need to execute one by one. Please make sure you create a backup before
+executing the queries.

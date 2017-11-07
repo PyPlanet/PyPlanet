@@ -6,4 +6,5 @@ How To's and troubleshooting
     :maxdepth: 2
 
     dbcollate
+    dbindex
 

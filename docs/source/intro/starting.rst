@@ -294,6 +294,6 @@ Make sure you activated your virtual environment.
   ./manage.py start
 
   # Windows
-  manage.py start
+  python manage.py start
 
 This will start your PyPlanet setup.

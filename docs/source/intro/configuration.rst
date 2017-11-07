@@ -143,7 +143,8 @@ these *database drivers*:
 **Creating database**:
 
 You will have to create the database scheme yourself. Make sure you create it with a database collate that is based on
-UTF-8. We recommend for MySQL: ``utf8mb4_unicode_ci`` to work with the new symbols in Maniaplanet.
+UTF-8. We require for MySQL: ``utf8mb4_unicode_ci`` to work with the new symbols in Maniaplanet. Also, please make sure
+your MySQL installation uses InnoDB by default, more information can be found here: :doc:`MySQL Index Error </howto/dbindex>`
 
 Create MySQL Database by running this command:
 

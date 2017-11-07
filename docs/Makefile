@@ -55,6 +55,11 @@ livehtml:
 	sphinx-autobuild -b html "$(SOURCEDIR)" "$(BUILDDIR)/html" -i *___jb_*___
 
 
+.PHONY: locale-update
+locale-update:
+	sphinx-intl update -p build/gettext -l fr
+
+
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
