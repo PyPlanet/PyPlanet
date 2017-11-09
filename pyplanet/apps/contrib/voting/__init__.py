@@ -63,7 +63,7 @@ class Voting(AppConfig):
 
 	async def on_stop(self):
 		# Enable callvoting again on unloading the plugin.
-		await self.instance.gbx('SetCallVoteTimeOut', 60)
+		await self.instance.gbx('SetCallVoteTimeOut', 60000)
 
 	async def player_connect(self, player, is_spectator, source, signal):
 		if self.widget is None:
