@@ -172,12 +172,12 @@ class FolderManager:
 				'index': 'karma',
 				'sorting': True,
 				'searching': False,
-				'width': 40,
+				'width': 20,
 			})
 
 		return fields, map_list, folder, folder_instance
 
 	async def display_folder(self, player, folder_code):
 		# Initiate folder contents list view.
-		view = FolderMapListView(self, folder_code)
+		view = FolderMapListView(self, folder_code, player)
 		await view.display(player=player)
