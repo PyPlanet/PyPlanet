@@ -22,12 +22,14 @@ class ServerAdmin:
 		self.chat_redirection = False
 
 	async def on_start(self):
+		await self.instance.permission_manager.register('callvoting', 'Handle server callvoting', app=self.app, min_level=1)
 		await self.instance.permission_manager.register('password', 'Set the server passwords', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('servername', 'Set the server name', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('mode', 'Set the server game mode', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('chat_toggle', 'Turn the public chat on or off', app=self.app, min_level=2)
 
 		await self.instance.command_manager.register(
+			Command(command='cancelcallvote', aliases=['cancelcall'], target=self.cancel_callvote, perms='admin:callvoting', admin=True),
 			Command(command='setpassword', aliases=['srvpass'], target=self.set_password, perms='admin:password', admin=True).add_param(name='password', required=False),
 			Command(command='setspecpassword', aliases=['spectpass'], target=self.set_spec_password, perms='admin:password', admin=True).add_param(name='password', required=False),
 			Command(command='servername', target=self.set_servername, perms='admin:servername', admin=True).add_param(name='server_name', required=True, nargs='*'),
@@ -41,6 +43,19 @@ class ServerAdmin:
 
 		# Register signal receivers.
 		player_chat.register(self.on_chat)
+
+	async def cancel_callvote(self, player, data, **kwargs):
+		current_callvote = await self.instance.gbx('GetCurrentCallVote')
+
+		if current_callvote['CmdName'] == '':
+			message = '$i$f00There is currently no callvote active.'
+			await self.instance.chat(message, player)
+		else:
+			message = '$ff0Admin $fff{}$z$s$ff0 has cancelled the current call vote.'.format(player.nickname)
+			await self.instance.gbx.multicall(
+				self.instance.gbx('CancelVote'),
+				self.instance.chat(message)
+			)
 
 	async def chat_toggle(self, player, data, **kwargs):
 		if data.enable:
