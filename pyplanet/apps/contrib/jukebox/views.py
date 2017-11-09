@@ -224,16 +224,14 @@ class FolderMapListView(MapListView):
 	async def get_buttons(self):
 		buttons = await super().get_buttons()
 
-		if self.folder_code['type'] == 'auto' \
-			or (self.folder_code['type'] == 'public' and self.player.level < self.player.LEVEL_ADMIN) \
-			or (not self.folder_code['type'] == 'private' and self.folder_code['owner_login'] != self.player.login):
-			return buttons
-
-		buttons.append({
-			'title': 'Add current map',
-			'width': 38,
-			'action': self.action_add_current
-		})
+		if (self.folder_code['type'] == 'public' and self.player.level >= self.player.LEVEL_ADMIN) \
+			or (self.folder_code['type'] == 'public' and self.folder_code['owner_login'] == self.player.login) \
+			or (self.folder_code['type'] == 'private' and self.folder_code['owner_login'] == self.player.login):
+			buttons.append({
+				'title': 'Add current map',
+				'width': 38,
+				'action': self.action_add_current
+			})
 
 		return buttons
 
