@@ -58,6 +58,13 @@ class Voting(AppConfig):
 		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
 		self.context.signals.listen(mp_signals.map.map_begin, self.map_start)
 
+		# Disable callvoting
+		await self.instance.gbx('SetCallVoteTimeOut', 0)
+
+	async def on_stop(self):
+		# Enable callvoting again on unloading the plugin.
+		await self.instance.gbx('SetCallVoteTimeOut', 60000)
+
 	async def player_connect(self, player, is_spectator, source, signal):
 		if self.widget is None:
 			self.widget = VoteWidget(self)
