@@ -75,7 +75,7 @@ Required permission:
 Cancel Vote
 ~~~~~~~~~~~
 Command:
-  ``//skip``
+  ``//cancel``
 Parameters:
   None.
 Functionality:
