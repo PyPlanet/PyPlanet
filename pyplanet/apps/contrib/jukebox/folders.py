@@ -98,7 +98,7 @@ class FolderManager:
 		return await Folders.objects.execute(
 			Folders.select(Folders, Player)
 				.join(Player)
-				.where((Player.login == player.login) | (Folders.public == False))
+				.where((Player.login == player.login))
 		)
 
 	async def create_folder(self, **kwargs):
