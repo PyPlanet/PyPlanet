@@ -30,6 +30,18 @@ class Voting(AppConfig):
 			default=True
 		)
 
+		self.setting_callvoting_disable = Setting(
+			'callvoting_disable', 'Disable callvoting', Setting.CAT_BEHAVIOUR, type=bool,
+			description='Disable callvoting when chat-based voting is enabled.',
+			default=True
+		)
+
+		self.setting_callvoting_timeout = Setting(
+			'callvoting_timeout', 'Callvote time-out (chat disabled)', Setting.CAT_BEHAVIOUR, type=int,
+			description='Callvote time-out in milliseconds, set when the chat-voting plugin is disabled (0 = disabled).',
+			default=60000
+		)
+
 		self.setting_enabled_replay = Setting(
 			'enabled_replay', 'Replay vote enabled', Setting.CAT_BEHAVIOUR, type=bool,
 			description='Whether or not the replay vote is enabled.',
@@ -57,7 +69,8 @@ class Voting(AppConfig):
 	async def on_start(self):
 		await self.context.setting.register(self.setting_voting_enabled, self.setting_remind_interval,
 											self.setting_enabled_replay, self.setting_enabled_restart,
-											self.setting_enabled_skip)
+											self.setting_enabled_skip, self.setting_callvoting_disable,
+											self.setting_callvoting_timeout)
 
 		await self.instance.permission_manager.register('cancel', 'Cancel the current vote', app=self, min_level=1)
 
@@ -78,12 +91,14 @@ class Voting(AppConfig):
 		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
 		self.context.signals.listen(mp_signals.map.map_begin, self.map_start)
 
-		# Disable callvoting
-		await self.instance.gbx('SetCallVoteTimeOut', 0)
+		if await self.setting_callvoting_disable.get_value() is True:
+			# Disable callvoting
+			await self.instance.gbx('SetCallVoteTimeOut', 0)
 
 	async def on_stop(self):
 		# Enable callvoting again on unloading the plugin.
-		await self.instance.gbx('SetCallVoteTimeOut', 60000)
+		timeout = await self.setting_callvoting_timeout.get_value()
+		await self.instance.gbx('SetCallVoteTimeOut', timeout)
 
 	async def player_connect(self, player, is_spectator, source, signal):
 		if self.widget is None:
