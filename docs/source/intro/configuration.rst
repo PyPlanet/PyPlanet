@@ -395,8 +395,8 @@ Cache (base)
 Logging (base)
 ~~~~~~~~~~~~~~
 
-By default (from version 0.5.0) rotating logging is enabled by default. The settings bellow can be adjusted to meet
-your requirements.
+By default (from version 0.5.0) rotating logging is enabled by default but writing is disabled by default.
+The settings bellow can be adjusted to meet your requirements.
 
 .. code-block:: python
   :caption: base.py
