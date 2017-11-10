@@ -15,8 +15,6 @@ class MapFolder(TimedModel):
 	name = CharField(
 		max_length=50,
 		null=False,
-		index=True,
-		unique=True,
 	)
 	"""
 	Folder name
