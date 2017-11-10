@@ -363,6 +363,18 @@ Functionality:
 Required permission:
   ``admin:password``, requires admin level 2.
 
+Cancel CallVote
+~~~~~~~~~~~~~~~
+Command:
+  ``//cancelcallvote`` / ``//cancelcall``
+Parameters:
+  None
+Functionality:
+  Cancel a current started call vote.
+Required permission:
+  ``admin:callvoting``, requires admin level 1.
+
+
 Signal handlers
 ---------------
 None.
