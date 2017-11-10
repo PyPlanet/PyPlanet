@@ -91,7 +91,7 @@ class MapListView(ManualListView):
 				'sorting': True,
 				'searching': True,
 				'search_strip_styles': True,
-				'width': 100,
+				'width': 90,
 				'type': 'label',
 				'action': self.action_jukebox
 			},
@@ -152,7 +152,7 @@ class MapListView(ManualListView):
 
 
 class FolderMapListView(MapListView):
-	def __init__(self, folder_manager, folder_code):
+	def __init__(self, folder_manager, folder_code, player):
 		"""
 		Folder Map list
 
@@ -164,6 +164,7 @@ class FolderMapListView(MapListView):
 
 		self.folder_manager = folder_manager
 		self.folder_code = folder_code
+		self.player = player
 
 		self.map_list = list()
 		self.folder_info = None
@@ -220,6 +221,20 @@ class FolderMapListView(MapListView):
 		# Refresh list.
 		await self.refresh(player)
 
+	async def get_buttons(self):
+		buttons = await super().get_buttons()
+
+		if (self.folder_code['type'] == 'public' and self.player.level >= self.player.LEVEL_ADMIN) \
+			or (self.folder_code['type'] == 'public' and self.folder_code['owner_login'] == self.player.login) \
+			or (self.folder_code['type'] == 'private' and self.folder_code['owner_login'] == self.player.login):
+			buttons.append({
+				'title': 'Add current map',
+				'width': 38,
+				'action': self.action_add_current
+			})
+
+		return buttons
+
 	async def get_actions(self):
 		super_actions = (await super().get_actions()).copy()
 
@@ -237,6 +252,21 @@ class FolderMapListView(MapListView):
 			))
 
 		return sorted(super_actions, key=lambda k: k['order'])
+
+	async def action_add_current(self, player, values, **kwargs):
+		if self.app.instance.map_manager.current_map.id in [m.id for m in self.map_list]:
+			await show_alert(player, 'The current map is already in this folder!', 'sm')
+			return
+
+		# Add map to folder.
+		map_in_folder = MapInFolder(
+			map_id=self.app.instance.map_manager.current_map.id,
+			folder=self.folder_instance
+		)
+		await map_in_folder.save()
+
+		await show_alert(player, 'Map has been added to the folder!', 'sm')
+		await self.display(player)
 
 
 class FolderListView(ManualListView):
