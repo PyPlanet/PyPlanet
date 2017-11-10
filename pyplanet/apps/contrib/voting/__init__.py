@@ -30,6 +30,24 @@ class Voting(AppConfig):
 			default=True
 		)
 
+		self.setting_enabled_replay = Setting(
+			'enabled_replay', 'Replay vote enabled', Setting.CAT_BEHAVIOUR, type=bool,
+			description='Whether or not the replay vote is enabled.',
+			default=True
+		)
+
+		self.setting_enabled_restart = Setting(
+			'enabled_restart', 'Restart vote enabled', Setting.CAT_BEHAVIOUR, type=bool,
+			description='Whether or not the restart vote is enabled.',
+			default=True
+		)
+
+		self.setting_enabled_skip = Setting(
+			'enabled_skip', 'Skip vote enabled', Setting.CAT_BEHAVIOUR, type=bool,
+			description='Whether or not the skip vote is enabled.',
+			default=True
+		)
+
 		self.setting_remind_interval = Setting(
 			'remind_interval', 'Vote reminder interval', Setting.CAT_BEHAVIOUR, type=int,
 			description='Interval in seconds before players are reminded to vote.',
@@ -37,7 +55,9 @@ class Voting(AppConfig):
 		)
 
 	async def on_start(self):
-		await self.context.setting.register(self.setting_voting_enabled, self.setting_remind_interval)
+		await self.context.setting.register(self.setting_voting_enabled, self.setting_remind_interval,
+											self.setting_enabled_replay, self.setting_enabled_restart,
+											self.setting_enabled_skip)
 
 		await self.instance.permission_manager.register('cancel', 'Cancel the current vote', app=self, min_level=1)
 
@@ -58,6 +78,13 @@ class Voting(AppConfig):
 		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
 		self.context.signals.listen(mp_signals.map.map_begin, self.map_start)
 
+		# Disable callvoting
+		await self.instance.gbx('SetCallVoteTimeOut', 0)
+
+	async def on_stop(self):
+		# Enable callvoting again on unloading the plugin.
+		await self.instance.gbx('SetCallVoteTimeOut', 60000)
+
 	async def player_connect(self, player, is_spectator, source, signal):
 		if self.widget is None:
 			self.widget = VoteWidget(self)
@@ -68,7 +95,7 @@ class Voting(AppConfig):
 		self.podium_stage = True
 
 		if self.current_vote is not None:
-			message = '$ff0Vote to $fff{}$ff0 has been cancelled.'.format(self.current_vote.action)
+			message = '$0cfVote to $fff{}$0cf has been cancelled.'.format(self.current_vote.action)
 			await self.instance.chat(message)
 
 			self.current_vote = None
@@ -84,23 +111,23 @@ class Voting(AppConfig):
 
 		self.current_vote = None
 
-		message = '$ff0Admin $fff{}$z$s$ff0 cancelled the current vote.'.format(player.nickname)
+		message = '$0cfAdmin $fff{}$z$s$0cf cancelled the current vote.'.format(player.nickname)
 		await self.instance.chat(message)
 
 	async def vote_added(self, vote, player):
 		if vote.votes_required == len(vote.votes_current):
-			message = '$fff{}$z$s$ff0 voted to $fff{}$ff0.'.format(player.nickname, vote.action)
+			message = '$fff{}$z$s$0cf voted to $fff{}$0cf.'.format(player.nickname, vote.action)
 			await self.instance.chat(message)
 		else:
 			required_votes = (vote.votes_required - len(vote.votes_current))
-			message = '$fff{}$z$s$ff0 voted to $fff{}$ff0, $fff{}$ff0 more {} are needed (use $fffF5$ff0 to vote).'.format(
+			message = '$fff{}$z$s$0cf voted to $fff{}$0cf, $fff{}$0cf more {} are needed (use $fffF5$0cf to vote).'.format(
 				player.nickname, vote.action, required_votes, ('votes' if required_votes > 1 else 'vote')
 			)
 			await self.instance.chat(message)
 
 	async def vote_removed(self, vote, player):
 		required_votes = (vote.votes_required - len(vote.votes_current))
-		message = '$ff0There are $fff{}$ff0 more {} needed to $fff{}$ff0 (use $fffF5$ff0 to vote).'.format(
+		message = '$0cfThere are $fff{}$0cf more {} needed to $fff{}$0cf (use $fffF5$0cf to vote).'.format(
 			required_votes, ('votes' if required_votes > 1 else 'vote'), vote.action
 		)
 		await self.instance.chat(message)
@@ -134,7 +161,7 @@ class Voting(AppConfig):
 			return
 
 		await self.current_vote.remove_vote(player)
-		message = '$ff0You have successfully voted $fffno$ff0.'
+		message = '$0cfYou have successfully voted $fffno$0cf.'
 		await self.instance.chat(message, player)
 
 		asyncio.ensure_future(self.vote_reminder(self.current_vote))
@@ -147,6 +174,11 @@ class Voting(AppConfig):
 
 		if await self.setting_voting_enabled.get_value() is False:
 			message = '$i$f00Chat-based voting has been disabled via the server settings!'
+			await self.instance.chat(message, player)
+			return
+
+		if await self.setting_enabled_replay.get_value() is False:
+			message = '$i$f00Replay voting has been disabled via the server settings!'
 			await self.instance.chat(message, player)
 			return
 
@@ -174,7 +206,7 @@ class Voting(AppConfig):
 
 		self.current_vote = await self.create_vote('replay this map', player, self.vote_replay_finished)
 
-		message = '$fff{}$z$s$ff0 wants to $fff{}$ff0, $fff{}$ff0 more {} needed (use $fffF5$ff0 to vote).'.format(
+		message = '$fff{}$z$s$0cf wants to $fff{}$0cf, $fff{}$0cf more {} needed (use $fffF5$0cf to vote).'.format(
 			player.nickname, self.current_vote.action, self.current_vote.votes_required, ('votes' if self.current_vote.votes_required > 1 else 'vote')
 		)
 		await self.instance.chat(message)
@@ -193,7 +225,7 @@ class Voting(AppConfig):
 
 		self.instance.apps.apps['jukebox'].jukebox = [{'player': vote.requester, 'map': self.instance.map_manager.current_map}] + self.instance.apps.apps['jukebox'].jukebox
 
-		message = '$ff0Vote to $fff{}$ff0 has passed.'.format(vote.action)
+		message = '$0cfVote to $fff{}$0cf has passed.'.format(vote.action)
 		await self.instance.chat(message)
 
 		self.current_vote = None
@@ -209,6 +241,11 @@ class Voting(AppConfig):
 			await self.instance.chat(message, player)
 			return
 
+		if await self.setting_enabled_restart.get_value() is False:
+			message = '$i$f00Restart voting has been disabled via the server settings!'
+			await self.instance.chat(message, player)
+			return
+
 		if self.podium_stage:
 			message = '$i$f00You cannot start a vote during the podium!'
 			await self.instance.chat(message, player)
@@ -221,7 +258,7 @@ class Voting(AppConfig):
 
 		self.current_vote = await self.create_vote('restart this map', player, self.vote_restart_finished)
 
-		message = '$fff{}$z$s$ff0 wants to $fff{}$ff0, $fff{}$ff0 more {} needed (use $fffF5$ff0 to vote).'.format(
+		message = '$fff{}$z$s$0cf wants to $fff{}$0cf, $fff{}$0cf more {} needed (use $fffF5$0cf to vote).'.format(
 			player.nickname, self.current_vote.action, self.current_vote.votes_required, ('votes' if self.current_vote.votes_required > 1 else 'vote')
 		)
 		await self.instance.chat(message)
@@ -229,7 +266,7 @@ class Voting(AppConfig):
 		await self.current_vote.add_vote(player)
 
 	async def vote_restart_finished(self, vote):
-		message = '$ff0Vote to $fff{}$ff0 has passed.'.format(vote.action)
+		message = '$0cfVote to $fff{}$0cf has passed.'.format(vote.action)
 
 		self.current_vote = None
 
@@ -258,6 +295,11 @@ class Voting(AppConfig):
 			await self.instance.chat(message, player)
 			return
 
+		if await self.setting_enabled_skip.get_value() is False:
+			message = '$i$f00Skip voting has been disabled via the server settings!'
+			await self.instance.chat(message, player)
+			return
+
 		if self.podium_stage:
 			message = '$i$f00You cannot start a vote during the podium!'
 			await self.instance.chat(message, player)
@@ -270,7 +312,7 @@ class Voting(AppConfig):
 
 		self.current_vote = await self.create_vote('skip this map', player, self.vote_skip_finished)
 
-		message = '$fff{}$z$s$ff0 wants to $fff{}$ff0, $fff{}$ff0 more {} needed (use $fffF5$ff0 to vote).'.format(
+		message = '$fff{}$z$s$0cf wants to $fff{}$0cf, $fff{}$0cf more {} needed (use $fffF5$0cf to vote).'.format(
 			player.nickname, self.current_vote.action, self.current_vote.votes_required, ('votes' if self.current_vote.votes_required > 1 else 'vote')
 		)
 		await self.instance.chat(message)
@@ -278,7 +320,7 @@ class Voting(AppConfig):
 		await self.current_vote.add_vote(player)
 
 	async def vote_skip_finished(self, vote):
-		message = '$ff0Vote to $fff{}$ff0 has passed.'.format(vote.action)
+		message = '$0cfVote to $fff{}$0cf has passed.'.format(vote.action)
 
 		self.current_vote = None
 
@@ -294,7 +336,7 @@ class Voting(AppConfig):
 			required_votes = (self.current_vote.votes_required - len(self.current_vote.votes_current))
 			current_required_votes = (vote.votes_required - len(vote.votes_current))
 			if self.current_vote.action == vote.action and current_required_votes == required_votes:
-				message = '$ff0There are $fff{}$ff0 more {} needed to $fff{}$ff0 (use $fffF5$ff0 to vote).'.format(
+				message = '$0cfThere are $fff{}$0cf more {} needed to $fff{}$0cf (use $fffF5$0cf to vote).'.format(
 					current_required_votes, ('votes' if current_required_votes > 1 else 'vote'), self.current_vote.action
 				)
 				await self.instance.chat(message)

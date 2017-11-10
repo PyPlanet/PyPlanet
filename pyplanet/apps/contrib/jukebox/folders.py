@@ -32,6 +32,7 @@ class FolderManager:
 		if 'karma' in self.app.instance.apps.apps:
 			self.auto_folders.append({'id': 'karma_none', 'name': 'Map karma: no votes', 'owner': 'PyPlanet', 'type': 'auto'})
 			self.auto_folders.append({'id': 'karma_negative', 'name': 'Map karma: negative', 'owner': 'PyPlanet', 'type': 'auto'})
+			self.auto_folders.append({'id': 'karma_undecided', 'name': 'Map karma: undecided', 'owner': 'PyPlanet', 'type': 'auto'})
 			self.auto_folders.append({'id': 'karma_positive', 'name': 'Map karma: positive', 'owner': 'PyPlanet', 'type': 'auto'})
 
 	async def get_folders(self, player):
@@ -97,7 +98,7 @@ class FolderManager:
 		return await Folders.objects.execute(
 			Folders.select(Folders, Player)
 				.join(Player)
-				.where((Player.login == player.login) | (Folders.public == False))
+				.where((Player.login == player.login))
 		)
 
 	async def create_folder(self, **kwargs):
@@ -142,6 +143,8 @@ class FolderManager:
 			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'karma') and m.karma['vote_count'] is 0]
 		elif folder['id'] == 'karma_negative':
 			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'karma') and m.karma['map_karma'] < 0]
+		elif folder['id'] == 'karma_undecided':
+			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'karma') and m.karma['map_karma'] == 0]
 		elif folder['id'] == 'karma_positive':
 			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'karma') and m.karma['map_karma'] > 0]
 		elif folder['id'].startswith('database_'):
