@@ -30,6 +30,24 @@ class Voting(AppConfig):
 			default=True
 		)
 
+		self.setting_enabled_replay = Setting(
+			'enabled_replay', 'Replay vote enabled', Setting.CAT_BEHAVIOUR, type=bool,
+			description='Whether or not the replay vote is enabled.',
+			default=True
+		)
+
+		self.setting_enabled_restart = Setting(
+			'enabled_restart', 'Restart vote enabled', Setting.CAT_BEHAVIOUR, type=bool,
+			description='Whether or not the restart vote is enabled.',
+			default=True
+		)
+
+		self.setting_enabled_skip = Setting(
+			'enabled_skip', 'Skip vote enabled', Setting.CAT_BEHAVIOUR, type=bool,
+			description='Whether or not the skip vote is enabled.',
+			default=True
+		)
+
 		self.setting_remind_interval = Setting(
 			'remind_interval', 'Vote reminder interval', Setting.CAT_BEHAVIOUR, type=int,
 			description='Interval in seconds before players are reminded to vote.',
@@ -37,7 +55,9 @@ class Voting(AppConfig):
 		)
 
 	async def on_start(self):
-		await self.context.setting.register(self.setting_voting_enabled, self.setting_remind_interval)
+		await self.context.setting.register(self.setting_voting_enabled, self.setting_remind_interval,
+											self.setting_enabled_replay, self.setting_enabled_restart,
+											self.setting_enabled_skip)
 
 		await self.instance.permission_manager.register('cancel', 'Cancel the current vote', app=self, min_level=1)
 
@@ -157,6 +177,11 @@ class Voting(AppConfig):
 			await self.instance.chat(message, player)
 			return
 
+		if await self.setting_enabled_replay.get_value() is False:
+			message = '$i$f00Replay voting has been disabled via the server settings!'
+			await self.instance.chat(message, player)
+			return
+
 		if self.podium_stage:
 			message = '$i$f00You cannot start a vote during the podium!'
 			await self.instance.chat(message, player)
@@ -216,6 +241,11 @@ class Voting(AppConfig):
 			await self.instance.chat(message, player)
 			return
 
+		if await self.setting_enabled_restart.get_value() is False:
+			message = '$i$f00Restart voting has been disabled via the server settings!'
+			await self.instance.chat(message, player)
+			return
+
 		if self.podium_stage:
 			message = '$i$f00You cannot start a vote during the podium!'
 			await self.instance.chat(message, player)
@@ -262,6 +292,11 @@ class Voting(AppConfig):
 
 		if await self.setting_voting_enabled.get_value() is False:
 			message = '$i$f00Chat-based voting has been disabled via the server settings!'
+			await self.instance.chat(message, player)
+			return
+
+		if await self.setting_enabled_skip.get_value() is False:
+			message = '$i$f00Skip voting has been disabled via the server settings!'
 			await self.instance.chat(message, player)
 			return
 
