@@ -1,10 +1,8 @@
-import importlib
 import logging
 import logging.config
 import os
 import sys
 import traceback
-from pprint import pprint
 
 from raven import Client
 from logging.handlers import QueueHandler as BaseQueueHandler
@@ -62,11 +60,11 @@ def initiate_logger():  # pragma: no cover
 		# Determinate handler and initiate it.
 		if settings.LOGGING_ROTATE_LOGS:
 			handler = logging.handlers.TimedRotatingFileHandler(
-				path, when='D', interval=1, backupCount=14
+				path, when='D', interval=1, backupCount=14, encoding='utf-8'
 			)
 		else:
 			handler = logging.FileHandler(
-				path,
+				path, encoding='utf-8'
 			)
 
 		# Change the formatter.
