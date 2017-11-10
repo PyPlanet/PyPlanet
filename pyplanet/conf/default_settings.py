@@ -113,7 +113,7 @@ LOGGING = {
 }
 
 # Global logging handlers.
-LOGGING_WRITE_LOGS = True
+LOGGING_WRITE_LOGS = False
 LOGGING_ROTATE_LOGS = True
 LOGGING_DIRECTORY = 'logs'
 
