@@ -286,7 +286,7 @@ class MapAdmin:
 
 			# Send message to all.
 			message = '$ff0Admin $fff{}$z$s$ff0 has {} the map $fff{}$z$s$ff0.'.format(
-				player.nickname, ('erased' if erase else 'removed'), map_instance.name
+				player.nickname, 'erased' if erase else 'removed', map_instance.name
 			)
 			await self.instance.chat(message)
 		except Exception as e:
