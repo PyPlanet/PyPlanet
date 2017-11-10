@@ -285,8 +285,8 @@ class MapAdmin:
 			await self.instance.map_manager.remove_map(map_instance, delete_file=erase)
 
 			# Send message to all.
-			message = '$ff0Admin $fff{}$z$s$ff0 has removed the map $fff{}$z$s$ff0.'.format(
-				player.nickname, map_instance.name
+			message = '$ff0Admin $fff{}$z$s$ff0 has {} the map $fff{}$z$s$ff0.'.format(
+				player.nickname, 'erased' if erase else 'removed', map_instance.name
 			)
 			await self.instance.chat(message)
 		except Exception as e:
