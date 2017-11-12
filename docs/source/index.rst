@@ -27,6 +27,8 @@ a event loop and have simultaneously processing of received events from the dedi
 * App: Live Rankings, Show the live rankings of the game mode. (Trackmania).
 * App: Sector Times, Compare your checkpoint time against your local or dedimania record. (Trackmania).
 * App: Dynamic Pointlimit, Royal point limit adjustment based on the number of players. (Shootmania Royal).
+* App: CP Times, Show the best checkpoint times on top of your screen
+* App: Chat based voting, No more uncontrollable and unfair Call Votes. Use chat based voting.
 
 Do you want to install PyPlanet, head towards our :doc:`Getting Started Manual </intro/index>`.
 Want to see PyPlanet in action, head to :ref:`screenshots-ref`.
