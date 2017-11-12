@@ -152,7 +152,6 @@ class ModeSettingEditView(TemplateView):
 		:type setting: dict
 		"""
 		super().__init__(parent.manager)
-		self.id = 'pyplanet_mode_settings_edit'
 		self.parent = parent
 		self.player = player
 		self.setting = setting
