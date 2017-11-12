@@ -29,11 +29,11 @@ Git Structure
 Master is always the latest development environment. We develop features in different branches ``feature/*`` or ``bugfix/*`` appending
 with the issue key of GitHub.
 
-Crafting releases is done at the ``release/vX.X.0`` branches. The branch is created from the master at the moment the freeze moment goes in.
+Crafting releases is done at the ``release/v1.1.x`` branches. The branch is created from the master at the moment the freeze moment goes in.
 Only bug fixes are accepted to be merged into the release/* or master branches (and merged into release again), name these branches ``bugfix/ISSUE-ID``.
 
 After releasing (from the release branch) it gets a version tag. From this point there is no way back, new bug releases will be crafted
-from the release branch (``release/v0.1.0`` for example).
+from the release branch (``release/v0.1.x`` for example).
 
 Visualization of our current release schedule can be found here: `Release Schedule <https://github.com/PyPlanet/PyPlanet/projects/3>`_
 

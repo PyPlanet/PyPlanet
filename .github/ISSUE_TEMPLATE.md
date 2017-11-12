@@ -1,14 +1,23 @@
-### Type of issue
+<!-- Please replace {Please write here} with your description -->
 
--- Problem / Suggestion / Idea / Bug?
+### Expected Behavior
 
-### Description
+{Please write here}
 
-### What versions of PyPlanet, which apps, and Python are you using?
+### Actual Behavior
 
-- Operating system: x
-- PyPlanet: x.x.x
-- Python: x.x.x
+{Please write here}
 
-Apps:
-  (paste your apps settings here)
+### Steps to Reproduce (including precondition)
+
+{Please write here}
+
+### Screenshot on This Problem (if possible)
+
+{Please write here}
+
+### Your Environment
+
+- OS: {Please write here}
+- PyPlanet version: {Please write here}
+- Python version: {Please write here}

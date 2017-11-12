@@ -1,11 +1,12 @@
+<!-- Thank you for your contribution! Please replace {Please write here} with your description -->
 
 ## Motivation or cause
 
-
+{Please write here}
 
 ## Change description
 
-
+{Please write here}
 
 ## Checklist of pull request
 
@@ -17,3 +18,7 @@ Make sure that your pull request follow the following 'rules':
 - My change requires a change to the documentation.
 
 Please leave a comment here if your pull need any updates for the docs or tests.
+
+### Additional Comments (optional)
+
+{Please write here}
