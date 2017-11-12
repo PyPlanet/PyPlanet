@@ -148,7 +148,6 @@ class SettingEditView(TemplateView):
 		:type setting: pyplanet.contrib.setting.setting.Setting
 		"""
 		super().__init__(parent.manager)
-		self.id = 'pyplanet_settings_edit'
 		self.parent = parent
 		self.player = player
 		self.setting = setting
