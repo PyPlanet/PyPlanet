@@ -3,7 +3,7 @@ from pyplanet.views.generics.widget import WidgetView
 
 class ClockWidget(WidgetView):
     widget_x = 150
-    widget_y = -54
+    widget_y = -59
     template_name = 'clock/clock.xml'
 
     def __init__(self, app):
