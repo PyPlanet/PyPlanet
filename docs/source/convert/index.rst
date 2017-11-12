@@ -21,7 +21,7 @@ Command to convert, change the parameters to meet your needs:
 
 .. code-block:: bash
 
-  ./manage.py db_convert --pool default --source-format xaseco2 --source-db-username root --source-db-name xaseco2
+  python manage.py db_convert --pool default --source-format xaseco2 --source-db-username root --source-db-name xaseco2
 
 
 Migrating from UAseco
@@ -42,7 +42,7 @@ Command to convert, change the parameters to meet your needs:
 
 .. code-block:: bash
 
-  ./manage.py db_convert --pool default --source-format uaseco --source-db-username root --source-db-name uaseco
+  python manage.py db_convert --pool default --source-format uaseco --source-db-username root --source-db-name uaseco
 
 .. warning::
 
@@ -50,7 +50,7 @@ Command to convert, change the parameters to meet your needs:
 
 .. note::
 
-  For additional arguments, see ./manage.py db_convert --help
+  For additional arguments, see python manage.py db_convert --help
 
 
 Migrating from eXpansion
@@ -70,7 +70,7 @@ Command to convert, change the parameters to meet your needs:
 
 .. code-block:: bash
 
-  ./manage.py db_convert --pool default --source-format expansion --source-db-username root --source-db-name uaseco
+  python manage.py db_convert --pool default --source-format expansion --source-db-username root --source-db-name expansion
 
 .. warning::
 
@@ -79,7 +79,7 @@ Command to convert, change the parameters to meet your needs:
 
 .. note::
 
-  For additional arguments, see ./manage.py db_convert --help
+  For additional arguments, see python manage.py db_convert --help
 
 
 Migrating from ManiaControl
@@ -99,7 +99,7 @@ Command to convert, change the parameters to meet your needs:
 
 .. code-block:: bash
 
-  ./manage.py db_convert --pool default --source-format maniacontrol --source-db-username root --source-db-name maniacontrol
+  python manage.py db_convert --pool default --source-format maniacontrol --source-db-username root --source-db-name maniacontrol
 
 .. warning::
 
@@ -107,4 +107,4 @@ Command to convert, change the parameters to meet your needs:
 
 .. note::
 
-  For additional arguments, see ./manage.py db_convert --help
+  For additional arguments, see python manage.py db_convert --help
