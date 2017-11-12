@@ -1,8 +1,41 @@
 Changelog
 =========
 
+0.5.2
+-----
+
+Core
+~~~~
+
+* Improvement: Disable writing log files by default from 0.5.2.
+* Improvement: Move logo and clock down so it doesn't interfere with the spectator icon.
+
+* Bugfix: Logging on windows should be fixed now.
+* Bugfix: Issue with multiple users editting modesettings or PyPlanet settings at the same time.
+
+Apps
+~~~~
+
+* Feature: Add zero karma folder (auto-folder)
+* Feature: Added settings to enable or disable specific chat votes.
+* Feature: Add //cancelcall (//cancelcallvote) for cancelling a call vote as an admin.
+* Feature: Add //pass to pass a chat vote with your admin powers.
+* Feature: Add button to add current map to folder on the folder list.
+
+* Improvement: Change chat color of the chat vote lines.
+* Improvement: Disable callvotes when chatvotes is turned on (made setting for this as well).
+
+* Bugfix: Only show the folders of the user when adding maps to a folder.
+* Bugfix: Fix error when player has not been online and users trying to get the last on date of the player.
+* Bugfix: Remove unique index on the folder name so folders can have the same name over all. (auto-migration made).
+* Bugfix: Fix bug that prevented added maps to be auto-juked.
+
+
 0.5.1
 -----
+
+Core
+~~~~
 
 * Bugfix: Fix for Windows users and import error.
 
