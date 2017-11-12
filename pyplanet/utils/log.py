@@ -18,6 +18,7 @@ IGNORED_PATHS = [
 IGNORED_TEXT = [
 	'InternalError: Packet sequence number wrong',
 	'Lost connection to',
+	'MemoryError',
 ]
 
 
