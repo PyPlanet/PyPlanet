@@ -258,6 +258,12 @@ class MapAdmin:
 		except:
 			pass
 
+		# Reindex and create maps in database.
+		try:
+			await self.instance.map_manager.update_list(full_update=True)
+		except:
+			pass
+
 		# Jukebox all the maps requested, in order.
 		if juke_maps and len(juke_list) > 0:
 			# Fetch map objects.
