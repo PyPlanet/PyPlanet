@@ -252,7 +252,7 @@ class PlayerAdmin:
 					'You have just been warned! Ask the present admin for further information and / or potential consequences.',
 					size='sm', buttons=None
 				),
-				self.instance.chat('$i$ff0 Player {} $z$s$i$ff0has received a warning'.format(warn_player.nickname), player)
+				self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has warned $fff{}$z$s$ff0.'.format(player.nickname, warn_player.nickname))
 			)
 		except PlayerNotFound:
 			message = '$i$f00Unknown login!'
