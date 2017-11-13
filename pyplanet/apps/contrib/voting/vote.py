@@ -37,6 +37,6 @@ class Vote:
 		if self.vote_removed is not None:
 			await self.vote_removed(vote=self, player=player)
 
-	async def fire_finished_event(self):
+	async def fire_finished_event(self, forced=False):
 		if self.vote_finished is not None:
-			await self.vote_finished(vote=self)
+			await self.vote_finished(vote=self, forced=forced)
