@@ -177,8 +177,6 @@ class Voting(AppConfig):
 			message = '$i$f00You have already voted on this vote!'
 			await self.instance.chat(message, player)
 
-		asyncio.ensure_future(self.vote_reminder(self.current_vote))
-
 	async def vote_no(self, player, data, **kwargs):
 		if self.current_vote is None:
 			message = '$i$f00There is currently no vote in progress.'
@@ -193,8 +191,6 @@ class Voting(AppConfig):
 		await self.current_vote.remove_vote(player)
 		message = '$0cfYou have successfully voted $fffno$0cf.'
 		await self.instance.chat(message, player)
-
-		asyncio.ensure_future(self.vote_reminder(self.current_vote))
 
 	async def vote_replay(self, player, data, **kwargs):
 		if self.current_vote is not None:
