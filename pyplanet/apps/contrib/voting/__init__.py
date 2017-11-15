@@ -384,7 +384,7 @@ class Voting(AppConfig):
 			needed_votes += 1
 		if needed_votes > self.instance.player_manager.count_players:
 			needed_votes = self.instance.player_manager.count_players
-		new_vote.votes_required = needed_votes + 2
+		new_vote.votes_required = needed_votes
 		new_vote.vote_added = self.vote_added
 		new_vote.vote_removed = self.vote_removed
 		new_vote.vote_finished = finished_event
