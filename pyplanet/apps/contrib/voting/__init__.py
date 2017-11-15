@@ -137,10 +137,10 @@ class Voting(AppConfig):
 			await self.instance.chat(message, player)
 			return
 
-		await self.current_vote.fire_finished_event()
-
 		message = '$0cfAdmin $fff{}$z$s$0cf passed the current vote to $fff{}$z$s$0cf.'.format(player.nickname, self.current_vote.action)
 		await self.instance.chat(message)
+
+		await self.current_vote.fire_finished_event(True)
 
 		self.current_vote = None
 
@@ -243,7 +243,7 @@ class Voting(AppConfig):
 
 		await self.current_vote.add_vote(player)
 
-	async def vote_replay_finished(self, vote):
+	async def vote_replay_finished(self, vote, forced):
 		if 'jukebox' not in self.instance.apps.apps:
 			return
 
@@ -255,8 +255,9 @@ class Voting(AppConfig):
 
 		self.instance.apps.apps['jukebox'].jukebox = [{'player': vote.requester, 'map': self.instance.map_manager.current_map}] + self.instance.apps.apps['jukebox'].jukebox
 
-		message = '$0cfVote to $fff{}$0cf has passed.'.format(vote.action)
-		await self.instance.chat(message)
+		if not forced:
+			message = '$0cfVote to $fff{}$0cf has passed.'.format(vote.action)
+			await self.instance.chat(message)
 
 		self.current_vote = None
 
@@ -295,7 +296,7 @@ class Voting(AppConfig):
 
 		await self.current_vote.add_vote(player)
 
-	async def vote_restart_finished(self, vote):
+	async def vote_restart_finished(self, vote, forced):
 		message = '$0cfVote to $fff{}$0cf has passed.'.format(vote.action)
 
 		self.current_vote = None
@@ -309,10 +310,10 @@ class Voting(AppConfig):
 				except Exception as e:
 					logger.exception(e)
 
-		await self.instance.gbx.multicall(
-			self.instance.gbx('RestartMap'),
-			self.instance.chat(message)
-		)
+		await self.instance.gbx('RestartMap')
+
+		if not forced:
+			await self.instance.chat(message)
 
 	async def vote_skip(self, player, data, **kwargs):
 		if self.current_vote is not None:
@@ -349,15 +350,15 @@ class Voting(AppConfig):
 
 		await self.current_vote.add_vote(player)
 
-	async def vote_skip_finished(self, vote):
+	async def vote_skip_finished(self, vote, forced):
 		message = '$0cfVote to $fff{}$0cf has passed.'.format(vote.action)
 
 		self.current_vote = None
 
-		await self.instance.gbx.multicall(
-			self.instance.gbx('NextMap'),
-			self.instance.chat(message)
-		)
+		await self.instance.gbx('NextMap')
+
+		if not forced:
+			await self.instance.chat(message)
 
 	async def vote_reminder(self, vote):
 		await asyncio.sleep(await self.setting_remind_interval.get_value())
