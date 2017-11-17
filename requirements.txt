@@ -7,7 +7,7 @@ Jinja2==2.9.6
 
 # DB/Storage
 peewee==2.10.2
-peewee-async==0.5.7
+peewee-async==0.5.10
 aiopg==0.13.1
 aiomysql==0.0.9
 pymysql==0.7.11
