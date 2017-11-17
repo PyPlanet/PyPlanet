@@ -7,16 +7,16 @@ Jinja2==2.9.6
 
 # DB/Storage
 peewee==2.10.2
-peewee-async==0.5.7
+peewee-async==0.5.9
 aiopg==0.13.1
 aiomysql==0.0.9
 pymysql==0.7.11
 apyio==0.2.0
 aiofiles==0.3.2
-asyncssh==1.11.0
+asyncssh==1.11.1
 
 # Network
-aiohttp==2.3.2
+aiohttp==2.3.3
 requests==2.18.4
 urllib3==1.22
 
