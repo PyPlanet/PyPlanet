@@ -1,6 +1,16 @@
 Changelog
 =========
 
+0.5.3
+-----
+
+Apps
+~~~~
+
+* Bugfix: Fixing issue with spamming chat vote reminder.
+* Bugfix: Fixing admin pass message when forcing pass a vote.
+
+
 0.5.2
 -----
 
