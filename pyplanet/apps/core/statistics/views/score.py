@@ -33,21 +33,25 @@ class StatsScoresListView(ManualListView):
 				.order_by(Score.created_at.asc())
 		)
 
-		personal_list = [s for s in score_list if s.player.id == self.player.get_id()]
+		scores_list = list(score_list)
+
+		personal_list = [s for s in scores_list if s.player.id == self.player.get_id()]
 
 		if len(personal_list) == 0:
 			message = '$i$f00There are no personal scores available for $fff{}$z$s$f00$i!'.format(self.app.instance.map_manager.current_map.name)
 			await self.app.instance.chat(message, self.player)
 			return
 
-		local_record = min([s.score for s in score_list])
+		print([s for s in scores_list if s.player.id == self.player.get_id()])
+
+		local_record = min([s.score for s in scores_list])
 
 		scores = list()
 		last_best = 0
 		last_best_index = 1
 		personal_best = min([s.score for s in personal_list])
 		for score_in_list in personal_list:
-			historical_local = min([s.score for s in score_list if s.created_at <= score_in_list.created_at])
+			historical_local = min([s.score for s in scores_list if s.created_at <= score_in_list.created_at])
 
 			score = dict()
 			score['index'] = ''
