@@ -98,6 +98,14 @@ class MapManager(CoreContrib):
 			maps = await asyncio.gather(*coroutines)
 			async with self.lock:
 				self._maps = set(maps)
+
+			# Reload locals for all maps.
+			if 'local_records' in self._instance.apps.apps:
+				await self._instance.apps.apps['local_records'].load_map_locals()
+
+			# Reload karma for all maps.
+			if 'karma' in self._instance.apps.apps:
+				await self._instance.apps.apps['karma'].load_map_votes()
 		else:
 			# Only update/insert the changed bits, (not checking for removed maps!!).
 			async with self.lock:
