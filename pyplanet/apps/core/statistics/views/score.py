@@ -42,8 +42,6 @@ class StatsScoresListView(ManualListView):
 			await self.app.instance.chat(message, self.player)
 			return
 
-		print([s for s in scores_list if s.player.id == self.player.get_id()])
-
 		local_record = min([s.score for s in scores_list])
 
 		scores = list()
