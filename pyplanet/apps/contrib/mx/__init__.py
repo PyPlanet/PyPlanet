@@ -128,7 +128,7 @@ class MX(AppConfig):  # pragma: no cover
 		# Jukebox all the maps requested, in order.
 		if juke_maps and len(juke_list) > 0:
 			# Fetch map objects.
-			for juke_uid in reversed(juke_list):
+			for juke_uid in juke_list:
 				map_instance = await self.instance.map_manager.get_map(uid=juke_uid)
 				if map_instance:
 					self.instance.apps.apps['jukebox'].insert_map(player, map_instance)
