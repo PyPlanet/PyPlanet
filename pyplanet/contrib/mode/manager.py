@@ -72,11 +72,17 @@ class ModeManager(CoreContrib):
 		"""
 		if refresh or not self._current_script:
 			payload = await self._instance.gbx('GetScriptName')
-			self._current_script = payload['CurrentValue'].partition('.')[0]
+			current_value = payload['CurrentValue'].partition('.')[0]
+			if '\\' in current_value:
+				current_value = current_value.rpartition('\\')[2]
+			self._current_script = current_value
+
 			if 'NextValue' in payload:
-				self._next_script = payload['NextValue'].partition('.')[0]
-		# if isinstance(self._current_script, str):
-		# 	return self._current_script.lower()
+				next_value = payload['NextValue'].partition('.')[0]
+				if '\\' in next_value:
+					next_value = next_value.rpartition('\\')[2]
+				self._next_script = next_value
+
 		return self._current_script
 
 	async def get_next_script(self, refresh=False):
@@ -85,11 +91,7 @@ class ModeManager(CoreContrib):
 
 		:param refresh: Refresh from server.
 		"""
-		if refresh or not self._current_script:
-			payload = await self._instance.gbx('GetScriptName')
-			self._current_script = payload['CurrentValue'].partition('.')[0]
-			if 'NextValue' in payload:
-				self._next_script = payload['NextValue'].partition('.')[0]
+		await self.get_current_script(refresh=refresh)
 		return self._next_script
 
 	async def get_current_script_info(self):
@@ -105,7 +107,10 @@ class ModeManager(CoreContrib):
 		:param name: Name
 		"""
 		await self._instance.gbx('SetScriptName', name)
-		self._next_script = name.partition('.')[0]
+		name = name.partition('.')[0]
+		if '\\' in name:
+			name = name.rpartition('\\')[2]
+		self._next_script = name
 
 	async def get_settings(self):
 		"""
