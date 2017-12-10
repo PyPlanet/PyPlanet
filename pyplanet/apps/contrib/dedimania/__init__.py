@@ -174,11 +174,6 @@ class Dedimania(AppConfig):
 		return view
 
 	async def map_start(self, map, restarted, **kwargs):
-		print('IS RESTARTED: {}'.format(restarted))
-		print('IS RESTARTED: {}'.format(restarted))
-		print('IS RESTARTED: {}'.format(restarted))
-		print('IS RESTARTED: {}'.format(restarted))
-
 		if restarted:
 			# Disable this line as the replays are already removed from the memory of the dedicated.
 			# The method calling //restart should call this one from there.
