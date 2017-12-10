@@ -174,6 +174,11 @@ class Dedimania(AppConfig):
 		return view
 
 	async def map_start(self, map, restarted, **kwargs):
+		print('IS RESTARTED: {}'.format(restarted))
+		print('IS RESTARTED: {}'.format(restarted))
+		print('IS RESTARTED: {}'.format(restarted))
+		print('IS RESTARTED: {}'.format(restarted))
+
 		if restarted:
 			# Disable this line as the replays are already removed from the memory of the dedicated.
 			# The method calling //restart should call this one from there.
@@ -195,9 +200,12 @@ class Dedimania(AppConfig):
 
 		self.api.retries = 0
 
+		# Current script refresh. Save to local later because we need to compare it first.
+		current_script = (await self.instance.mode_manager.get_current_script()).lower()
+
 		# If the map uid already has been filled and the same we are starting double. Return immediately.
-		# This is because of issue #276.
-		if self.map_uid == self.instance.map_manager.current_map.uid:
+		# This is because of issue #276. Also check if the current script isn't changed, resolves #538.
+		if self.map_uid == self.instance.map_manager.current_map.uid and current_script == self.current_script:
 			return
 		self.map_uid = self.instance.map_manager.current_map.uid
 
@@ -209,7 +217,7 @@ class Dedimania(AppConfig):
 			return await self.instance.chat(message)
 
 		# Refresh script.
-		self.current_script = (await self.instance.mode_manager.get_current_script()).lower()
+		self.current_script = current_script
 
 		# Fetch records + update widget.
 		async with self.lock:
