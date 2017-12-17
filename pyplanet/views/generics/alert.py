@@ -225,6 +225,8 @@ class PromptView(AlertView):
 		self.default = default
 		self.validator = validator or self.validate_input
 
+		self.data['default'] = self.default
+
 	async def wait_for_input(self):  # pragma: no cover
 		"""
 		Wait for input and return it.
@@ -279,6 +281,28 @@ async def ask_confirmation(player, message, size='md', buttons=None):  # pragma:
 		reaction = None
 	del view
 	return reaction
+
+
+async def ask_input(player, message, size='md', buttons=None, default=None, validator=None):  # pragma: no cover
+	"""
+	Ask the player a question and prompt for input.
+
+	:param player: Player login or instance.
+	:param message: Message to display.
+	:param size: Size, could be 'sm', 'md', or 'lg'
+	:param buttons: Buttons, optional, default is ok.
+	:param default: The default and pre-filled value. Default empty.
+	:param validator: Validator method, default is only checking if the input isn't empty.
+	:return: Input given by the user.
+	"""
+	buttons = buttons or [{'name': 'OK'}]
+	view = PromptView(message, size, buttons, default=default, validator=validator)
+	if isinstance(player, Player):
+		player = player.login
+	await view.display(player_logins=[player])
+	output = await view.wait_for_input()
+	del view
+	return output
 
 
 async def show_alert(player, message, size='md', buttons=None):  # pragma: no cover
