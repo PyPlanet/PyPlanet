@@ -1,4 +1,6 @@
 import os
+
+import asyncio
 import asynctest
 
 from pyplanet.core import Controller
@@ -22,12 +24,14 @@ class TestStorageManager(asynctest.TestCase):
 	async def test_touch(self):
 		await self.instance.storage.driver.touch(self.tmp_file)
 		assert await self.instance.storage.driver.exists(self.tmp_file) is True
+		await asyncio.sleep(0.1)
 		await self.instance.storage.driver.remove(self.tmp_file)
 		assert await self.instance.storage.driver.exists(self.tmp_file) is False
 
 	async def test_remove(self):
 		await self.instance.storage.driver.touch(self.tmp_file)
 		assert await self.instance.storage.driver.exists(self.tmp_file) is True
+		await asyncio.sleep(0.1)
 		await self.instance.storage.driver.remove(self.tmp_file)
 		assert await self.instance.storage.driver.exists(self.tmp_file) is False
 
