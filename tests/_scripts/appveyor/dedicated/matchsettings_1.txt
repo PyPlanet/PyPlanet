@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<playlist>
+	<gameinfos>
+		<game_mode>0</game_mode>
+		<chat_time>10000</chat_time>
+		<finishtimeout>1</finishtimeout>
+		<allwarmupduration>0</allwarmupduration>
+		<disablerespawn>0</disablerespawn>
+		<forceshowallopponents>0</forceshowallopponents>
+		<script_name>TimeAttack.Script.txt</script_name>
+		<rounds_pointslimit>50</rounds_pointslimit>
+		<rounds_usenewrules>0</rounds_usenewrules>
+		<rounds_forcedlaps>0</rounds_forcedlaps>
+		<rounds_pointslimitnewrules>5</rounds_pointslimitnewrules>
+		<team_pointslimit>5</team_pointslimit>
+		<team_maxpoints>6</team_maxpoints>
+		<team_usenewrules>0</team_usenewrules>
+		<team_pointslimitnewrules>5</team_pointslimitnewrules>
+		<timeattack_limit>300000</timeattack_limit>
+		<timeattack_synchstartperiod>0</timeattack_synchstartperiod>
+		<laps_nblaps>5</laps_nblaps>
+		<laps_timelimit>0</laps_timelimit>
+		<cup_pointslimit>100</cup_pointslimit>
+		<cup_roundsperchallenge>5</cup_roundsperchallenge>
+		<cup_nbwinners>3</cup_nbwinners>
+		<cup_warmupduration>2</cup_warmupduration>
+	</gameinfos>
+
+	<hotseat>
+		<game_mode>0</game_mode>
+		<time_limit>300000</time_limit>
+		<rounds_count>5</rounds_count>
+	</hotseat>
+
+	<filter>
+		<is_lan>1</is_lan>
+		<is_internet>1</is_internet>
+		<is_solo>0</is_solo>
+		<is_hotseat>0</is_hotseat>
+		<sort_index>1000</sort_index>
+		<random_map_order>0</random_map_order>
+	</filter>
+
+	<startindex>0</startindex>
+	<map>
+    <file>canyon1.Map.Gbx</file>
+  </map>
+  <map>
+    <file>canyon2.Map.Gbx</file>
+  </map>
+</playlist>
