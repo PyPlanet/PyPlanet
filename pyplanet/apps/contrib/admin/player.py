@@ -292,7 +292,8 @@ class PlayerAdmin:
 
 		if not setting and not data.file:
 			message = '$ff0Default blacklist file setting not configured in your settings file!'
-			return await self.instance.chat(message, player)
+			await self.instance.chat(message, player)
+			return
 
 		if data.file:
 			file_name = data.file
@@ -302,7 +303,7 @@ class PlayerAdmin:
 		message = '$ff0Blacklist has been saved to the file: {}'.format(file_name)
 		try:
 			await self.instance.player_manager.save_blacklist(filename=file_name)
-			self.instance.chat(message, player)
+			await self.instance.chat(message, player)
 		except:
 			await self.instance.chat('$ff0Blacklist saving failed to {}'.format(file_name), player)
 
@@ -315,7 +316,8 @@ class PlayerAdmin:
 
 		if not setting and not data.file:
 			message = '$ff0Default blacklist file setting not configured in your settings file!'
-			return await self.instance.chat(message, player)
+			await self.instance.chat(message, player)
+			return
 
 		if data.file:
 			file_name = data.file
@@ -325,6 +327,6 @@ class PlayerAdmin:
 		message = '$ff0Blacklist has been loaded from the file: {}'.format(file_name)
 		try:
 			await self.instance.player_manager.save_blacklist(filename=file_name)
-			self.instance.chat(message, player)
+			await self.instance.chat(message, player)
 		except:
 			await self.instance.chat('$ff0Blacklist loading failed from {}'.format(file_name), player)
