@@ -44,6 +44,3 @@ class TestStorageManager(asynctest.TestCase):
 
 		async with self.instance.storage.driver.open(file) as fh:
 			assert await fh.read() == 'Test OK'
-
-		await self.instance.storage.driver.remove(file)
-		assert await self.instance.storage.driver.exists(file) is False
