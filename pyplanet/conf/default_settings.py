@@ -168,6 +168,12 @@ MAP_MATCHSETTINGS = {
 	'default': 'maplist.txt'
 }
 
+# Blacklist file is managed by the dedicated server and will be loaded and writen to by PyPlanet once a
+# player gets blacklisted. The default will be the filename Maniaplanet always uses and is generic.
+BLACKLIST_FILE = {
+	'default': 'blacklist.txt'
+}
+
 # The storage configuration contains the same instance mapping of the dedicated servers and is used
 # to access the filesystem on the dedicated server location.
 # Please refer to the documentation for more information.
