@@ -3,6 +3,7 @@ Player Admin methods and functions.
 """
 import asyncio
 
+from pyplanet.conf import settings
 from pyplanet.contrib.command import Command
 from pyplanet.contrib.player.exceptions import PlayerNotFound
 from pyplanet.views.generics.alert import show_alert
@@ -30,6 +31,8 @@ class PlayerAdmin:
 		await self.instance.permission_manager.register('force_team', 'Force player into a team', app=self.app, min_level=1)
 		await self.instance.permission_manager.register('switch_team', 'Force player into the other team', app=self.app, min_level=1)
 		await self.instance.permission_manager.register('warn', 'Warn a player', app=self.app, min_level=1)
+		await self.instance.permission_manager.register('write_blacklist', 'Write blacklist file', app=self.app, min_level=3)
+		await self.instance.permission_manager.register('read_blacklist', 'Read blacklist file', app=self.app, min_level=3)
 
 		await self.instance.command_manager.register(
 			Command(command='mute', aliases=['ignore'], target=self.ignore_player, perms='admin:ignore', admin=True).add_param(name='login', required=True),
@@ -50,7 +53,11 @@ class PlayerAdmin:
 			Command(command='switchteam', target=self.switch_team, perms='admin:switch_team', description='Force player into the other team', admin=True)
 				.add_param(name='login', required=True),
 			Command(command='warn', aliases=['warning'], target=self.warn_player, perms='admin:warn', description='Warn a player', admin=True)
-				.add_param(name='login', required=True)
+				.add_param(name='login', required=True),
+			Command(command='writeblacklist', aliases=['wbl'], target=self.write_blacklist, perms='admin:write_blacklist', description='Write blacklist file', admin=True)
+				.add_param('file', required=False, type=str, help='Give custom blacklist file to save to.'),
+			Command(command='readblacklist', aliases=['rbl'], target=self.read_blacklist, perms='admin:read_blacklist', description='Read blacklist file', admin=True)
+				.add_param('file', required=False, type=str, help='Give custom blacklist file to load from.'),
 		)
 
 	async def force_spec(self, player, data, **kwargs):
@@ -195,11 +202,22 @@ class PlayerAdmin:
 		try:
 			blacklist_player = await self.instance.player_manager.get_player(data.login)
 			message = '$ff0Admin $fff{}$z$s$ff0 has blacklisted $fff{}$z$s$ff0.'.format(player.nickname, blacklist_player.nickname)
-			await self.instance.gbx.multicall(
-				self.instance.gbx('BlackList', data.login),
-				self.instance.gbx('Kick', data.login),
-				self.instance.chat(message)
-			)
+
+			try:
+				await self.instance.gbx.multicall(
+					self.instance.gbx('BlackList', data.login),
+					self.instance.gbx('Kick', data.login),
+				)
+			except:
+				return await self.instance.chat('$ff0Blacklisting failed!', player)
+
+			await self.instance.chat(message)
+
+			# Try to save to file.
+			try:
+				await self.instance.player_manager.save_blacklist()
+			except:
+				pass
 		except PlayerNotFound:
 			message = '$ff0Admin $fff{}$z$s$ff0 has blacklisted $fff{}$z$s$ff0.'.format(player.nickname, data.login)
 			await self.instance.gbx.multicall(
@@ -213,6 +231,12 @@ class PlayerAdmin:
 			self.instance.gbx('UnBlackList', data.login),
 			self.instance.chat(message)
 		)
+
+		# Try to save to file.
+		try:
+			await self.instance.player_manager.save_blacklist()
+		except:
+			pass
 
 	async def change_level(self, player, data, **kwargs):
 		try:
@@ -258,3 +282,51 @@ class PlayerAdmin:
 			message = '$i$f00Unknown login!'
 			await self.instance.chat(message, player.login)
 			return
+
+	async def write_blacklist(self, player, data, **kwargs):
+		setting = settings.BLACKLIST_FILE
+		if isinstance(setting, dict) and self.instance.process_name in setting:
+			setting = setting[self.instance.process_name]
+		if not isinstance(setting, str):
+			setting = None
+
+		if not setting and not data.file:
+			message = '$ff0Default blacklist file setting not configured in your settings file!'
+			await self.instance.chat(message, player)
+			return
+
+		if data.file:
+			file_name = data.file
+		else:
+			file_name = setting.format(server_login=self.instance.game.server_player_login)
+
+		message = '$ff0Blacklist has been saved to the file: {}'.format(file_name)
+		try:
+			await self.instance.player_manager.save_blacklist(filename=file_name)
+			await self.instance.chat(message, player)
+		except:
+			await self.instance.chat('$ff0Blacklist saving failed to {}'.format(file_name), player)
+
+	async def read_blacklist(self, player, data, **kwargs):
+		setting = settings.BLACKLIST_FILE
+		if isinstance(setting, dict) and self.instance.process_name in setting:
+			setting = setting[self.instance.process_name]
+		if not isinstance(setting, str):
+			setting = None
+
+		if not setting and not data.file:
+			message = '$ff0Default blacklist file setting not configured in your settings file!'
+			await self.instance.chat(message, player)
+			return
+
+		if data.file:
+			file_name = data.file
+		else:
+			file_name = setting.format(server_login=self.instance.game.server_player_login)
+
+		message = '$ff0Blacklist has been loaded from the file: {}'.format(file_name)
+		try:
+			await self.instance.player_manager.save_blacklist(filename=file_name)
+			await self.instance.chat(message, player)
+		except:
+			await self.instance.chat('$ff0Blacklist loading failed from {}'.format(file_name), player)

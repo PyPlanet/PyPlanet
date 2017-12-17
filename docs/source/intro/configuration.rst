@@ -262,10 +262,10 @@ This one is pretty important, and pretty simple too. Look at the examples bellow
   }
 
 
-Map settings (base)
-~~~~~~~~~~~~~~~~~~~
+Server files settings (base)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Some of these settings are required to be able to save match settings for example.
+Some of these settings are required to be able to save match settings and to save the blacklisted players for example.
 
 .. code-block:: python
   :caption: base.py
@@ -281,11 +281,20 @@ Some of these settings are required to be able to save match settings for exampl
     'default': '{server_login}.txt',
   }
 
+  # Blacklist file is managed by the dedicated server and will be loaded and writen to by PyPlanet once a
+  # player gets blacklisted. The default will be the filename Maniaplanet always uses and is generic.
+  BLACKLIST_FILE = {
+    'default': 'blacklist.txt'
+  }
+
 .. code-block:: yaml
   :caption: base.yaml
 
   MAP_MATCHSETTINGS:
     default: 'maplist.txt'
+
+  BLACKLIST_FILE:
+    default: 'blacklist.txt'
 
 .. code-block:: json
   :caption: base.json
@@ -293,6 +302,9 @@ Some of these settings are required to be able to save match settings for exampl
   {
     "MAP_MATCHSETTINGS": {
       "default": "maplist.txt"
+    },
+    "BLACKLIST_FILE": {
+      "default": "blacklist.txt"
     }
   }
 

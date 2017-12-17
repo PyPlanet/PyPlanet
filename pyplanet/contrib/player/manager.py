@@ -9,7 +9,9 @@ from pyplanet.conf import settings
 from pyplanet.contrib import CoreContrib
 from pyplanet.contrib.player.exceptions import PlayerNotFound
 from pyplanet.contrib.setting.core_settings import performance_mode
+from pyplanet.core.exceptions import ImproperlyConfigured
 from pyplanet.core.signals import pyplanet_performance_mode_begin, pyplanet_performance_mode_end
+from pyplanet.core.storage.exceptions import StorageException
 
 logger = logging.getLogger(__name__)
 
@@ -80,6 +82,12 @@ class PlayerManager(CoreContrib):
 		"""
 		player_list = await self._instance.gbx('GetPlayerList', -1, 0)
 		await asyncio.gather(*[self.handle_connect(player['Login']) for player in player_list])
+
+		# Load and activate blacklist.
+		try:
+			await self.load_blacklist()
+		except:
+			pass  # Ignore any exception thrown
 
 		self._instance.signals.listen('maniaplanet:loading_map_end', self.map_loaded)
 
@@ -284,10 +292,74 @@ class PlayerManager(CoreContrib):
 				raise PlayerNotFound('Player not found.')
 
 	async def get_player_by_id(self, identifier):
+		"""
+		Get player object by ID.
+
+		:param identifier: Identifier.
+		:return: Player object or None
+		"""
 		for player in self._online:
 			if player.flow.player_id == identifier:
 				return player
 		return None
+
+	async def save_blacklist(self, filename=None):
+		"""
+		Save the current blacklisted players to file given or fetch from config.
+
+		:param filename: Give the filename of the blacklist, Leave empty to use the current loaded and configured one.
+		:type filename: str
+		:raise: pyplanet.core.exceptions.ImproperlyConfigured
+		:raise: pyplanet.core.storage.exceptions.StorageException
+		"""
+		setting = settings.BLACKLIST_FILE
+		if isinstance(setting, dict) and self._instance.process_name in setting:
+			setting = setting[self._instance.process_name]
+		if not isinstance(setting, str):
+			setting = None
+
+		if not filename and not setting:
+			raise ImproperlyConfigured(
+				'The setting \'BLACKLIST_FILE\' is not configured for this server! We can\'t save the Blacklist!'
+			)
+		if not filename:
+			filename = setting.format(server_login=self._instance.game.server_player_login)
+
+		try:
+			await self._instance.gbx('SaveBlackList', filename)
+		except Exception as e:
+			logging.exception(e)
+			raise StorageException('Can\'t save blacklist file to \'{}\'!'.format(filename)) from e
+
+	async def load_blacklist(self, filename=None):
+		"""
+		Load blacklist file.
+
+		:param filename: File to load or will get from settings.
+		:raise: pyplanet.core.exceptions.ImproperlyConfigured
+		:raise: pyplanet.core.storage.exceptions.StorageException
+		:return: Boolean if loaded.
+		"""
+		setting = settings.BLACKLIST_FILE
+		if isinstance(setting, dict) and self._instance.process_name in setting:
+			setting = setting[self._instance.process_name]
+		if not isinstance(setting, str):
+			setting = None
+
+		if not filename and not setting:
+			raise ImproperlyConfigured(
+				'The setting \'BLACKLIST_FILE\' is not configured for this server! We can\'t load the Blacklist!'
+			)
+		if not filename:
+			filename = setting.format(server_login=self._instance.game.server_player_login)
+
+		try:
+			self._instance.gbx('LoadBlackList', filename)
+		except Exception as e:
+			logging.exception(e)
+			raise StorageException('Can\'t load blacklist according the dedicated server, tried loading from \'{}\'!'.format(
+				filename
+			)) from e
 
 	@property
 	def online(self):
