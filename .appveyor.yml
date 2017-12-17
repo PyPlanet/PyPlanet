@@ -22,29 +22,29 @@ environment:
       PYTHON_HOME: C:\Python35
       PYTHON_VERSION: '3.5'
       PYTHON_ARCH: '32'
-
-    - TOXENV: 'py35-unit-mysql'
-      TOXPYTHON: C:\Python35-x64\python.exe
-      PYTHON_HOME: C:\Python35-x64
-      PYTHON_VERSION: '3.5'
-      PYTHON_ARCH: '64'
-
-    - TOXENV: 'py36-unit-mysql'
-      TOXPYTHON: C:\Python36\python.exe
-      PYTHON_HOME: C:\Python36
-      PYTHON_VERSION: '3.6'
-      PYTHON_ARCH: '32'
-
-    - TOXENV: 'py36-unit-mysql'
-      TOXPYTHON: C:\Python36-x64\python.exe
-      PYTHON_HOME: C:\Python36-x64
-      PYTHON_VERSION: '3.6'
-      PYTHON_ARCH: '64'
+#
+#    - TOXENV: 'py35-unit-mysql'
+#      TOXPYTHON: C:\Python35-x64\python.exe
+#      PYTHON_HOME: C:\Python35-x64
+#      PYTHON_VERSION: '3.5'
+#      PYTHON_ARCH: '64'
+#
+#    - TOXENV: 'py36-unit-mysql'
+#      TOXPYTHON: C:\Python36\python.exe
+#      PYTHON_HOME: C:\Python36
+#      PYTHON_VERSION: '3.6'
+#      PYTHON_ARCH: '32'
+#
+#    - TOXENV: 'py36-unit-mysql'
+#      TOXPYTHON: C:\Python36-x64\python.exe
+#      PYTHON_HOME: C:\Python36-x64
+#      PYTHON_VERSION: '3.6'
+#      PYTHON_ARCH: '64'
 
 init:
   - ps: echo $env:TOXENV
   - ps: ls C:\Python*
-  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+#  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 install:
   # Install Python.
@@ -71,5 +71,5 @@ artifacts:
   - path: dist\*
 
 ### To enable remote debugging uncomment this (also, see: http://www.appveyor.com/docs/how-to/rdp-to-build-worker):
-on_finish:
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+#on_finish:
+#  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
