@@ -50,19 +50,15 @@ install:
   # Install Python.
   - python -u tests\_scripts\appveyor_init.py
 
-  # Prepare Database.
-  - mysql -u root -e "CREATE DATABASE pyplanet CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-
   # Print Versions.
   - '%PYTHON_HOME%\Scripts\virtualenv --version'
   - '%PYTHON_HOME%\Scripts\easy_install --version'
   - '%PYTHON_HOME%\Scripts\pip --version'
   - '%PYTHON_HOME%\Scripts\tox --version'
 
-#before_build
-
 before_test:
   - tests\_scripts\appveyor_config.cmd
+  - "C:\Program Files\MySQL\MySQL Server 5.7\bin\mysql" -u root -e "CREATE DATABASE pyplanet CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
 test_script:
   - '%WITH_COMPILER% %PYTHON_HOME%\Scripts\tox'
