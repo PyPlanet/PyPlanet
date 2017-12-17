@@ -22,27 +22,28 @@ class TestStorageManager(asynctest.TestCase):
 		assert await self.instance.storage.driver.exists(__file__) is True
 
 	async def test_touch(self):
-		await self.instance.storage.driver.touch(self.tmp_file)
-		assert await self.instance.storage.driver.exists(self.tmp_file) is True
-		await asyncio.sleep(1)
-		await self.instance.storage.driver.remove(self.tmp_file)
-		assert await self.instance.storage.driver.exists(self.tmp_file) is False
+		file = '1-{}'.format(self.tmp_file)
+		await self.instance.storage.driver.touch(file)
+		assert await self.instance.storage.driver.exists(file) is True
+		await self.instance.storage.driver.remove(file)
+		assert await self.instance.storage.driver.exists(file) is False
 
 	async def test_remove(self):
-		await self.instance.storage.driver.touch(self.tmp_file)
-		assert await self.instance.storage.driver.exists(self.tmp_file) is True
-		await asyncio.sleep(1)
-		await self.instance.storage.driver.remove(self.tmp_file)
-		assert await self.instance.storage.driver.exists(self.tmp_file) is False
+		file = '2-{}'.format(self.tmp_file)
+		await self.instance.storage.driver.touch(file)
+		assert await self.instance.storage.driver.exists(file) is True
+		await self.instance.storage.driver.remove(file)
+		assert await self.instance.storage.driver.exists(file) is False
 
 	async def test_open_read_write(self):
-		await self.instance.storage.driver.touch(self.tmp_file)
+		file = '3-{}'.format(self.tmp_file)
+		await self.instance.storage.driver.touch(file)
 
-		async with self.instance.storage.driver.open(self.tmp_file, 'w') as fh:
+		async with self.instance.storage.driver.open(file, 'w') as fh:
 			await fh.write('Test OK')
 
-		async with self.instance.storage.driver.open(self.tmp_file) as fh:
+		async with self.instance.storage.driver.open(file) as fh:
 			assert await fh.read() == 'Test OK'
 
-		await asyncio.sleep(1)
-		await self.instance.storage.driver.remove(self.tmp_file)
+		await self.instance.storage.driver.remove(file)
+		assert await self.instance.storage.driver.exists(file) is False
