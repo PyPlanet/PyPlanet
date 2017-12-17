@@ -5,7 +5,7 @@ from playhouse.shortcuts import model_to_dict
 from pyplanet.apps.contrib.jukebox.models import MapFolder, MapInFolder
 from pyplanet.apps.core.maniaplanet.models import Map
 from pyplanet.views import TemplateView
-from pyplanet.views.generics.alert import show_alert, ask_confirmation
+from pyplanet.views.generics.alert import show_alert, ask_confirmation, ask_input
 from pyplanet.views.generics.list import ManualListView
 
 from pyplanet.utils import times
@@ -233,6 +233,12 @@ class FolderMapListView(MapListView):
 				'action': self.action_add_current
 			})
 
+			buttons.append({
+				'title': 'Rename folder',
+				'width': 32,
+				'action': self.action_rename
+			})
+
 		return buttons
 
 	async def get_actions(self):
@@ -266,6 +272,20 @@ class FolderMapListView(MapListView):
 		await map_in_folder.save()
 
 		await show_alert(player, 'Map has been added to the folder!', 'sm')
+		await self.display(player)
+
+	async def action_rename(self, player, values, **kwargs):
+		new_name = await ask_input(
+			player, 'Please enter the new name of the folder', size='sm', default=self.folder_instance.name,
+		)
+
+		self.folder_instance.name = new_name
+		await self.folder_instance.save()
+
+		# Change the cached name so it shows when we refresh.
+		if self.folder_info and 'name' in self.folder_info:
+			self.folder_info['name'] = new_name
+
 		await self.display(player)
 
 
