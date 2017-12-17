@@ -145,7 +145,7 @@ class Voting(AppConfig):
 		self.current_vote = None
 
 	async def vote_added(self, vote, player):
-		if vote.votes_required == len(vote.votes_current):
+		if len(vote.votes_current) >= vote.votes_required:
 			message = '$fff{}$z$s$0cf voted to $fff{}$0cf.'.format(player.nickname, vote.action)
 			await self.instance.chat(message)
 		else:
