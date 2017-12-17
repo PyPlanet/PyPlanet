@@ -48,7 +48,7 @@ init:
 
 install:
   # Install Python.
-  - python -u tests\_scripts\appveyor_bootstrap.py
+  - python -u tests\_scripts\appveyor_init.py
 
   # Prepare Database.
   - mysql -u root -e "CREATE DATABASE pyplanet CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
