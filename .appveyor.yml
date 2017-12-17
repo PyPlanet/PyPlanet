@@ -57,8 +57,8 @@ install:
   - '%PYTHON_HOME%\Scripts\tox --version'
 
 before_test:
-  - tests\_scripts\appveyor_config.cmd
   - '"C:\\Program Files\\MySQL\\MySQL Server 5.7\\bin\\mysql" -u root -e "CREATE DATABASE pyplanet CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"'
+  - ps: tests\_scripts\appveyor_config.ps1
 
 test_script:
   - '%WITH_COMPILER% %PYTHON_HOME%\Scripts\tox'
