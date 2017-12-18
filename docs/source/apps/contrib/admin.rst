@@ -302,6 +302,28 @@ Functionality:
 Required permission:
   ``admin:points_repartition``, requires admin level 2.
 
+Write Blacklist
+~~~~~~~~~~~~~~~
+Command:
+  ``//writeblacklist`` / ``//wbl``
+Parameters:
+  * Optional blacklist file. Will use the file from your settings if not provided!
+Functionality:
+  Write blacklist to file.
+Required permission:
+  ``admin:write_blacklist``, requires admin level 3.
+
+Read Blacklist
+~~~~~~~~~~~~~~
+Command:
+  ``//readblacklist`` / ``//rbl``
+Parameters:
+  * Blacklist file (optional).
+Functionality:
+  Read blacklist from the file given or the one in the settings file.
+Required permission:
+  ``admin:read_blacklist``, requires admin level 3.
+
 
 Server
 ^^^^^^

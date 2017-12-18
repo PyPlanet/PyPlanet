@@ -1,6 +1,31 @@
 Changelog
 =========
 
+0.5.4
+-----
+
+Core
+~~~~
+
+* Improvement: Add unit testing on Windows platform (Technically, using AppVeyor).
+
+* Bugfix: Make sure script names with folders are cleaned and stripped from folder names in most cases.
+
+Apps
+~~~~
+
+* Feature: Add button and window to change a folder's name.
+
+* Improvement: Juke maps that are just added the correct order.
+* Improvement: Allow the best CP widget for all modes.
+* Improvement: Add blacklist write and read commands, now writes when adding player to blacklist and reads when PyPlanet starts.
+
+* Bugfix: Fix the scoreprogression command and window.
+* Bugfix: Fix issue when map list was saved to disk and all auto-folders where empty afterwards.
+* Bugfix: Fix issue where the dedimania records where not reloaded when game mode changed and map has been restarted.
+* Bugfix: Fix message when 2 players rapidly vote and the vote has passed.
+
+
 0.5.3
 -----
 
