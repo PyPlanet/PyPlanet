@@ -53,9 +53,12 @@ class Karma(AppConfig):
 
 		await self.load_map_votes()
 
-	async def load_map_votes(self):
-		for map in self.instance.map_manager.maps:
+	async def load_map_votes(self, map=None):
+		if map:
 			map.karma = await self.get_map_karma(map)
+		else:
+			for map in self.instance.map_manager.maps:
+				map.karma = await self.get_map_karma(map)
 
 	async def show_map_list(self, player, map=None, **kwargs):
 		"""
@@ -127,11 +130,24 @@ class Karma(AppConfig):
 						self.widget.display()
 					)
 
+				# Reload map referenced information
+				asyncio.ensure_future(self.load_map_votes(map=self.instance.map_manager.current_map))
+
 	async def get_map_karma(self, map):
 		vote_list = await KarmaModel.objects.execute(KarmaModel.select().where(KarmaModel.map_id == map.get_id()))
-		current_positive_votes = [x for x in vote_list if x.score == 1]
-		current_negative_votes = [x for x in vote_list if x.score == -1]
-		return {'vote_count': len(vote_list), 'map_karma': len(current_positive_votes) - len(current_negative_votes)}
+
+		current_positive_votes = list()
+		current_negative_votes = list()
+		for vote in vote_list:
+			if vote.score > 0:
+				current_positive_votes.append(vote)
+			elif vote.score < 0:
+				current_negative_votes.append(vote)
+
+		return dict(
+			vote_count=len(vote_list),
+			map_karma=len(current_positive_votes) - len(current_negative_votes)
+		)
 
 	async def get_votes_list(self, map):
 		vote_list = await KarmaModel.objects.execute(KarmaModel.select().where(KarmaModel.map_id == map.get_id()))

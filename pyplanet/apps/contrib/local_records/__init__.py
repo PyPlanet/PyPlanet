@@ -60,9 +60,12 @@ class LocalRecords(AppConfig):
 
 		await self.load_map_locals()
 
-	async def load_map_locals(self):
-		for map in self.instance.map_manager.maps:
+	async def load_map_locals(self, map=None):
+		if map:
 			map.local = await self.get_map_record(map)
+		else:
+			for map in self.instance.map_manager.maps:
+				map.local = await self.get_map_record(map)
 
 	async def get_map_record(self, map):
 		record_list = await LocalRecord.objects.execute(
@@ -210,6 +213,9 @@ class LocalRecords(AppConfig):
 			elif chat_announce != 0:
 				coros.append(self.instance.chat(message, player))
 		await asyncio.gather(*coros)
+
+		# Reload map referenced information
+		asyncio.ensure_future(self.load_map_locals(map=self.instance.map_manager.current_map))
 
 	async def chat_current_record(self):
 		record_limit = await self.setting_record_limit.get_value()

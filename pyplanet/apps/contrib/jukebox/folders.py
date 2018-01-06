@@ -140,9 +140,11 @@ class FolderManager:
 		elif folder['id'] == 'length_longer_60s':
 			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'local') and m.local['first_record'] is not None and m.local['first_record'].score > 60000]
 		elif folder['id'] == 'karma_none':
-			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'karma') and m.karma['vote_count'] is 0]
+			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'karma') and m.karma['vote_count'] == 0]
 		elif folder['id'] == 'karma_negative':
 			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'karma') and m.karma['map_karma'] < 0]
+			for m in self.app.instance.map_manager.maps:
+				print('{}: {}'.format(m.name, m.karma['map_karma']))
 		elif folder['id'] == 'karma_undecided':
 			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'karma') and m.karma['map_karma'] == 0]
 		elif folder['id'] == 'karma_positive':
