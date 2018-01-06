@@ -8,22 +8,22 @@ Jinja2==2.10.0
 # DB/Storage
 peewee==2.10.2
 peewee-async==0.5.10
-aiopg==0.13.1
+aiopg==0.13.2
 aiomysql==0.0.11
-pymysql==0.7.11
+pymysql==0.8.0
 apyio==0.2.0
 aiofiles==0.3.2
 asyncssh==1.11.1
 
 # Network
-aiohttp==2.3.6
+aiohttp==2.3.7
 requests==2.18.4
 urllib3==1.22
 
 # Utils
 cached-property==1.3.1
 watchdog==0.8.3
-pandas==0.21.1
+pandas==0.22.0
 numpy==1.13.3
 async_generator==1.8
 asyncio_extras==1.3.0
