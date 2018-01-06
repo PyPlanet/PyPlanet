@@ -192,8 +192,8 @@ class FolderMapListView(MapListView):
 			dict_item = model_to_dict(item)
 			if length:
 				dict_item['local_record'] = times.format_time((item.local['first_record'].score if hasattr(item, 'local') and item.local['first_record'] else 0))
-			if karma:
-				dict_item['karma'] = item.karma['map_karma'] if hasattr(item, 'karma') else 0
+			if karma and 'karma' in self.app.instance.apps.apps:
+				dict_item['karma'] = (await self.app.instance.apps.apps['karma'].get_map_karma(item))['map_karma']
 			items.append(dict_item)
 
 		return items
