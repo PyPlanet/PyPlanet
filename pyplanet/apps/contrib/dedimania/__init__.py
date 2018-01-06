@@ -56,7 +56,7 @@ class Dedimania(AppConfig):
 		)
 		self.setting_dedimania_code = Setting(
 			'dedimania_code', 'Dedimania Server Code', Setting.CAT_KEYS, type=str,
-			description='The secret dedimania code. Get one at $lhttp://dedimania.net/tm2stats/?do=register',
+			description='The secret dedimania code. Get one at their site: $lhttp://dedimania.net/tm2stats/?do=register',
 			default=None, change_target=self.reload_settings
 		)
 
