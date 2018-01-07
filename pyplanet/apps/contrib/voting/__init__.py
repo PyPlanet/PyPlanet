@@ -30,6 +30,12 @@ class Voting(AppConfig):
 			default=True
 		)
 
+		self.setting_voting_ratio = Setting(
+			'voting_ratio', 'Voting ratio', Setting.CAT_BEHAVIOUR, type=float,
+			description='Ratio of players that have to vote in favour for the vote to go through (between 0 and 1).',
+			default=0.6
+		)
+
 		self.setting_callvoting_disable = Setting(
 			'callvoting_disable', 'Disable callvoting', Setting.CAT_BEHAVIOUR, type=bool,
 			description='Disable callvoting when chat-based voting is enabled.',
@@ -67,10 +73,10 @@ class Voting(AppConfig):
 		)
 
 	async def on_start(self):
-		await self.context.setting.register(self.setting_voting_enabled, self.setting_remind_interval,
-											self.setting_enabled_replay, self.setting_enabled_restart,
-											self.setting_enabled_skip, self.setting_callvoting_disable,
-											self.setting_callvoting_timeout)
+		await self.context.setting.register(self.setting_voting_enabled, self.setting_voting_ratio,
+											self.setting_remind_interval, self.setting_enabled_replay,
+											self.setting_enabled_restart, self.setting_enabled_skip,
+											self.setting_callvoting_disable, self.setting_callvoting_timeout)
 
 		await self.instance.permission_manager.register('cancel', 'Cancel the current vote', app=self, min_level=1)
 		await self.instance.permission_manager.register('pass', 'Pass the current vote', app=self, min_level=1)
@@ -371,15 +377,16 @@ class Voting(AppConfig):
 				asyncio.ensure_future(self.vote_reminder(vote))
 
 	async def create_vote(self, action, player, finished_event):
+		ratio = await self.setting_voting_ratio.get_value()
+		players = self.instance.player_manager.count_players
+
 		new_vote = Vote()
 		new_vote.action = action
 		new_vote.requester = player
 		new_vote.votes_current = []
-		needed_votes = math.ceil(self.instance.player_manager.count_players / 2)
-		if needed_votes == math.floor(self.instance.player_manager.count_players / 2):
-			needed_votes += 1
-		if needed_votes > self.instance.player_manager.count_players:
-			needed_votes = self.instance.player_manager.count_players
+		needed_votes = round(players * ratio)
+		if needed_votes > players:
+			needed_votes = players
 		new_vote.votes_required = needed_votes
 		new_vote.vote_added = self.vote_added
 		new_vote.vote_removed = self.vote_removed
