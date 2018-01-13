@@ -21,10 +21,17 @@ class Karma(AppConfig):
 		super().__init__(*args, **kwargs)
 
 		self.current_votes = []
-		self.current_karma = 0
-		self.current_positive_votes = 0
-		self.current_negative_votes = 0
+		self.current_karma = 0.0
+		self.current_karma_percentage = 0.0
+		self.current_karma_positive = 0.0
+		self.current_karma_negative = 0.0
 		self.widget = None
+
+		self.setting_expanded_voting = Setting(
+			'expanded_voting', 'Expanded voting', Setting.CAT_BEHAVIOUR, type=bool,
+			description='Expands the karma voting to use --, -, +-, + and ++.',
+			default=False
+		)
 
 		self.setting_finishes_before_voting = Setting(
 			'finishes_before_voting', 'Finishes before voting', Setting.CAT_BEHAVIOUR, type=int,
@@ -41,7 +48,7 @@ class Karma(AppConfig):
 		self.context.signals.listen(mp_signals.player.player_chat, self.player_chat)
 		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
 
-		await self.context.setting.register(self.setting_finishes_before_voting)
+		await self.context.setting.register(self.setting_finishes_before_voting, self.setting_expanded_voting)
 
 		# Load initial data.
 		await self.get_votes_list(self.instance.map_manager.current_map)
@@ -86,7 +93,12 @@ class Karma(AppConfig):
 
 	async def player_chat(self, player, text, cmd):
 		if not cmd:
-			if text == '++' or text == '--':
+			if text == '++' or text == '+' or text == '+-' or text == '-' or text == '--':
+				expanded_voting = await self.setting_expanded_voting.get_value()
+				if expanded_voting is False:
+					if text == '+' or text == '+-' or text == '-':
+						return
+
 				if self.instance.game.game == 'tm':
 					finishes_required = await self.setting_finishes_before_voting.get_value()
 					player_finishes = await Score.objects.count(Score.select().where(Score.map_id == self.instance.map_manager.current_map.get_id()).where(Score.player_id == player.get_id()))
@@ -95,12 +107,22 @@ class Karma(AppConfig):
 						await self.instance.chat(message, player)
 						return
 
-				score = (1 if text == '++' else -1)
+				score = -1
+				if text == '++':
+					score = 1
+				elif text == '+':
+					score = 0.5
+				elif text == '+-':
+					score = 0
+				elif text == '-':
+					score = -0.5
+
 				player_votes = [x for x in self.current_votes if x.player_id == player.get_id()]
 				if len(player_votes) > 0:
 					player_vote = player_votes[0]
-					if player_vote.score != score:
-						player_vote.score = score
+					if (player_vote.expanded_score is not None and player_vote.expanded_score != score) or \
+						(player_vote.expanded_score is None and player_vote.score != score):
+						player_vote.expanded_score = score
 						await player_vote.save()
 
 						map = next((m for m in self.instance.map_manager.maps if m.uid == self.instance.map_manager.current_map.uid), None)
@@ -136,17 +158,16 @@ class Karma(AppConfig):
 	async def get_map_karma(self, map):
 		vote_list = await KarmaModel.objects.execute(KarmaModel.select().where(KarmaModel.map_id == map.get_id()))
 
-		current_positive_votes = list()
-		current_negative_votes = list()
+		total_score = 0.0
 		for vote in vote_list:
-			if vote.score > 0:
-				current_positive_votes.append(vote)
-			elif vote.score < 0:
-				current_negative_votes.append(vote)
+			if vote.expanded_score is not None:
+				total_score += vote.expanded_score
+			else:
+				total_score += vote.score
 
 		return dict(
 			vote_count=len(vote_list),
-			map_karma=len(current_positive_votes) - len(current_negative_votes)
+			map_karma=total_score
 		)
 
 	async def get_votes_list(self, map):
@@ -154,17 +175,30 @@ class Karma(AppConfig):
 		self.current_votes = list(vote_list)
 
 	async def calculate_karma(self):
-		self.current_positive_votes = [x for x in self.current_votes if x.score == 1]
-		self.current_negative_votes = [x for x in self.current_votes if x.score == -1]
-		self.current_karma = (len(self.current_positive_votes) - len(self.current_negative_votes))
+		total_score = 0.0
+		total_abs = 0.0
+		self.current_karma_positive = 0.0
+		self.current_karma_negative = 0.0
+
+		for vote in self.current_votes:
+			score = vote.score
+			if vote.expanded_score is not None:
+				score = vote.expanded_score
+
+			total_score += score
+			total_abs += abs(score)
+			if score > 0:
+				self.current_karma_positive += score
+
+		self.current_karma_negative = (total_abs - self.current_karma_positive)
+		self.current_karma = total_score
+		self.current_karma_percentage = 0
+		if self.current_karma_positive > 0:
+			self.current_karma_percentage = (self.current_karma_positive / total_abs)
 
 	async def chat_current_karma(self):
 		num_current_votes = len(self.current_votes)
-		message = '$ff0Current map karma: $fff{}$ff0 [$fff{}$ff0 votes, ++: $fff{}$ff0 ($fff{}%$ff0), --: $fff{}$ff0 ($fff{}%$ff0)]'.format(
-			self.current_karma, num_current_votes,
-			len(self.current_positive_votes),
-			round((len(self.current_positive_votes) / num_current_votes) * 100, 2) if num_current_votes > 0 else 0,
-			len(self.current_negative_votes),
-			round((len(self.current_negative_votes) / num_current_votes) * 100, 2) if num_current_votes > 0 else 0,
+		message = '$ff0Current map karma: $fff{}$ff0 ($fff{}%$ff0) [$fff{}$ff0 votes]'.format(
+			self.current_karma, round(self.current_karma_percentage * 100, 2), num_current_votes
 		)
 		await self.instance.chat(message)
