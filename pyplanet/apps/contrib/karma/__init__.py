@@ -8,6 +8,7 @@ from pyplanet.apps.core.statistics.models import Score
 
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 from pyplanet.apps.contrib.karma.views import KarmaWidget
+from pyplanet.apps.contrib.karma.mxkarma import MXKarma
 
 from .models import Karma as KarmaModel
 
@@ -39,12 +40,15 @@ class Karma(AppConfig):
 			default=0
 		)
 
+		self.mx_karma = MXKarma(self)
+
 	async def on_start(self):
 		# Register commands.
 		await self.instance.command_manager.register(Command(command='whokarma', target=self.show_map_list))
 
 		# Register signals.
 		self.context.signals.listen(mp_signals.map.map_begin, self.map_begin)
+		self.context.signals.listen(mp_signals.map.map_end, self.mx_karma.map_end)
 		self.context.signals.listen(mp_signals.player.player_chat, self.player_chat)
 		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
 
@@ -59,6 +63,11 @@ class Karma(AppConfig):
 		await self.widget.display()
 
 		await self.load_map_votes()
+
+		await self.mx_karma.on_start()
+
+	async def on_stop(self):
+		await self.mx_karma.on_stop()
 
 	async def load_map_votes(self, map=None):
 		if map:
@@ -85,10 +94,12 @@ class Karma(AppConfig):
 		await self.get_votes_list(map)
 		await self.calculate_karma()
 		await self.chat_current_karma()
+		await self.mx_karma.map_begin(map)
 
 		await self.widget.display()
 
 	async def player_connect(self, player, is_spectator, source, signal):
+		await self.mx_karma.player_connect(player=player)
 		await self.widget.display(player=player)
 
 	async def player_chat(self, player, text, cmd):
