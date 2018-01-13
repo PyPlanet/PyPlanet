@@ -93,10 +93,10 @@ class Karma(AppConfig):
 
 	async def player_chat(self, player, text, cmd):
 		if not cmd:
-			if text == '++' or text == '+' or text == '+-' or text == '-' or text == '--':
+			if text == '++' or text == '+' or text == '+-' or text == '-+' or text == '-' or text == '--':
 				expanded_voting = await self.setting_expanded_voting.get_value()
 				if expanded_voting is False:
-					if text == '+' or text == '+-' or text == '-':
+					if text == '+' or text == '+-' or text == '-+' or text == '-':
 						return
 
 				if self.instance.game.game == 'tm':
@@ -112,7 +112,7 @@ class Karma(AppConfig):
 					score = 1
 				elif text == '+':
 					score = 0.5
-				elif text == '+-':
+				elif text == '+-' or text == '-+':
 					score = 0
 				elif text == '-':
 					score = -0.5
