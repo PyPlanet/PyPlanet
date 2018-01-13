@@ -83,7 +83,7 @@ class MapManager(CoreContrib):
 	async def handle_playlist_change(self, source, **kwargs):
 		return await self.update_list()
 
-	async def update_list(self, full_update=False):
+	async def update_list(self, full_update=False, detach_fks=True):
 		raw_list = await self._instance.gbx('GetMapList', -1, 0)
 		updated = list()
 
@@ -101,11 +101,17 @@ class MapManager(CoreContrib):
 
 			# Reload locals for all maps.
 			if 'local_records' in self._instance.apps.apps:
-				await self._instance.apps.apps['local_records'].load_map_locals()
+				if detach_fks:
+					asyncio.ensure_future(self._instance.apps.apps['local_records'].load_map_locals())
+				else:
+					await self._instance.apps.apps['local_records'].load_map_locals()
 
 			# Reload karma for all maps.
 			if 'karma' in self._instance.apps.apps:
-				await self._instance.apps.apps['karma'].load_map_votes()
+				if detach_fks:
+					asyncio.ensure_future(self._instance.apps.apps['karma'].load_map_votes())
+				else:
+					await self._instance.apps.apps['karma'].load_map_votes()
 		else:
 			# Only update/insert the changed bits, (not checking for removed maps!!).
 			async with self.lock:

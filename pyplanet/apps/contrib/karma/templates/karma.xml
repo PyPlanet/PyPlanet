@@ -13,9 +13,9 @@
   <quad pos="6 0" z-index="2" size="{{ bar_width }} 6" bgcolor="00000080" /> <!-- max 24 -->
 
   <quad pos="0 -6.5" z-index="0" size="11.5 6" bgcolor="00000060"/>
-  <label pos="5.75 -9.5" z-index="1" size="11.5 6" text="{{ negative_votes }}"  textfont="RajdhaniMono" textsize="2.0"  halign="center" valign="center2"/>
+  <label pos="5.75 -9.5" z-index="1" size="11.5 6" text="{{ negative_votes }}"  textfont="RajdhaniMono" textsize="2.0"  halign="center" valign="center2" textcolor="FF7B7BBB"/>
   <quad pos="12  -6.5" z-index="0" size="11.5 6" bgcolor="00000099"/>
   <label pos="17.8 -9.5" z-index="1" size="11.5 6" text="{{ karma_percentage }}%"  textfont="RajdhaniMono" textsize="2.0"  halign="center" valign="center2"/>
   <quad pos="24  -6.5" z-index="0" size="11.5 6" bgcolor="00000060"/>
-  <label pos="29.8 -9.5" z-index="1" size="11.5 6" text="{{ positive_votes }}"  textfont="RajdhaniMono" textsize="2.0"  halign="center" valign="center2"/>
+  <label pos="29.8 -9.5" z-index="1" size="11.5 6" text="{{ positive_votes }}"  textfont="RajdhaniMono" textsize="2.0"  halign="center" valign="center2" textcolor="73FF51BB"/>
 {% endblock %}

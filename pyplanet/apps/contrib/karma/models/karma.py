@@ -18,8 +18,15 @@ class Karma(TimedModel):
 	"""
 
 	score = IntegerField(
-		null=False
+		null=True
 	)
 	"""
 	Karma vote (-1 or 1)
+	"""
+
+	expanded_score = FloatField(
+		null=True
+	)
+	"""
+	Karma vote (-1, -0.5, 0, 0.5 or 1)
 	"""
