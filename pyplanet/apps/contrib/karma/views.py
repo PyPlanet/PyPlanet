@@ -23,7 +23,7 @@ class KarmaWidget(WidgetView):
 	async def get_context_data(self):
 		context = await super().get_context_data()
 
-		karma_percentage = round((len(self.app.current_positive_votes) / (len(self.app.current_votes))) * 100, 1) \
+		karma_percentage = round(self.app.current_karma_percentage * 100, 1) \
 			if len(self.app.current_votes) > 0 else 0
 		bar_width = round(((karma_percentage / 100) * 24), 2)
 
@@ -31,8 +31,8 @@ class KarmaWidget(WidgetView):
 			'current_karma': self.app.current_karma,
 			'karma_percentage': karma_percentage,
 			'progress_percentage': karma_percentage if karma_percentage != 0 else 5,
-			'positive_votes': len(self.app.current_positive_votes),
-			'negative_votes': len(self.app.current_negative_votes),
+			'positive_votes': round(self.app.current_karma_positive, 2),
+			'negative_votes': round(self.app.current_karma_negative, 2),
 			'bar_width': bar_width,
 		})
 
@@ -45,7 +45,10 @@ class KarmaWidget(WidgetView):
 		for player in self.app.instance.player_manager.online:
 			player_vote = [x for x in self.app.current_votes if x.player_id == player.get_id()]
 			if len(player_vote) > 0:
-				votes[player.login] = {'player_vote': player_vote[0].score}
+				if player_vote[0].expanded_score is not None:
+					votes[player.login] = {'player_vote': player_vote[0].expanded_score}
+				else:
+					votes[player.login] = {'player_vote': player_vote[0].score}
 			else:
 				votes[player.login] = {'player_vote': 0}
 
@@ -102,6 +105,23 @@ class KarmaListView(ManualListView):
 				.join(Player)
 				.where(Karma.map_id == self.map.id)
 		)
-		return [
-			{'nickname': item.player.nickname, 'vote': '++' if item.score == 1 else '--'} for item in karma
-		]
+
+		votes = []
+		for item in karma:
+			score = item.score
+			if item.expanded_score is not None:
+				score = item.expanded_score
+
+			vote = '+-'
+			if score == 1:
+				vote = '++'
+			elif score == 0.5:
+				vote = '+'
+			elif score == -0.5:
+				vote = '-'
+			elif score == -1:
+				vote = '--'
+
+			votes.append({'nickname': item.player.nickname, 'vote': vote})
+
+		return votes
