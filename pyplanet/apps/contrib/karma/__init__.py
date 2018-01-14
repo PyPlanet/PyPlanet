@@ -5,6 +5,7 @@ from pyplanet.apps.contrib.karma.views import KarmaListView
 from pyplanet.contrib.command import Command
 from pyplanet.contrib.setting import Setting
 from pyplanet.apps.core.statistics.models import Score
+from pyplanet.apps.core.maniaplanet.models import Player
 
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 from pyplanet.apps.contrib.karma.views import KarmaWidget
@@ -57,14 +58,14 @@ class Karma(AppConfig):
 		# Load initial data.
 		await self.get_votes_list(self.instance.map_manager.current_map)
 		await self.calculate_karma()
+		await self.mx_karma.on_start()
+
 		await self.chat_current_karma()
 
 		self.widget = KarmaWidget(self)
 		await self.widget.display()
 
 		await self.load_map_votes()
-
-		await self.mx_karma.on_start()
 
 	async def on_stop(self):
 		await self.mx_karma.on_stop()
@@ -93,8 +94,8 @@ class Karma(AppConfig):
 	async def map_begin(self, map):
 		await self.get_votes_list(map)
 		await self.calculate_karma()
-		await self.chat_current_karma()
 		await self.mx_karma.map_begin(map)
+		await self.chat_current_karma()
 
 		await self.widget.display()
 
@@ -182,7 +183,7 @@ class Karma(AppConfig):
 		)
 
 	async def get_votes_list(self, map):
-		vote_list = await KarmaModel.objects.execute(KarmaModel.select().where(KarmaModel.map_id == map.get_id()))
+		vote_list = await KarmaModel.objects.execute(KarmaModel.select(KarmaModel, Player).join(Player).where(KarmaModel.map_id == map.get_id()))
 		self.current_votes = list(vote_list)
 
 	async def calculate_karma(self):
@@ -208,8 +209,12 @@ class Karma(AppConfig):
 			self.current_karma_percentage = (self.current_karma_positive / total_abs)
 
 	async def chat_current_karma(self):
+		mx_karma = ''
+		if self.mx_karma.api.activated:
+			mx_karma = ', MX: $fff{}%$ff0 [$fff{}$ff0 votes]'.format(round(self.mx_karma.current_average, 1), self.mx_karma.current_count)
+
 		num_current_votes = len(self.current_votes)
-		message = '$ff0Current map karma: $fff{}$ff0 ($fff{}%$ff0) [$fff{}$ff0 votes]'.format(
-			self.current_karma, round(self.current_karma_percentage * 100, 2), num_current_votes
+		message = '$ff0Current map karma: $fff{}$ff0 ($fff{}%$ff0) [$fff{}$ff0 votes]{}'.format(
+			self.current_karma, round(self.current_karma_percentage * 100, 2), num_current_votes, mx_karma
 		)
 		await self.instance.chat(message)

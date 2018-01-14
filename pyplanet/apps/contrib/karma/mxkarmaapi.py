@@ -44,7 +44,7 @@ class MXKarmaApi:
 		elif self.session is not None and self.key is None:
 			logger.debug('Starting MX Karma session ...')
 
-			url = '{url}/startSession?serverLogin={login}&applicationIdentifier={app}&testMode=true'.format(
+			url = '{url}/startSession?serverLogin={login}&applicationIdentifier={app}'.format(
 				url=self.api_url, login=self.app.app.instance.game.server_player_login,
 				app='PyPlanet {version}'.format(version=version)
 			)
@@ -94,19 +94,13 @@ class MXKarmaApi:
 			url=self.api_url, key=self.key
 		)
 
-		votes_only = False
-		logins = []
-		if player_login is not None:
-			votesonly = True
-			logins = [player_login]
-		else:
-			logins = [login for login in self.app.app.instance.player_manager.online_logins]
+		logins = [vote.player.login for vote in self.app.app.current_votes]
 
 		content = {
-			'gamemode': await self.app.app.instance.mode_manager.get_current_script(),
+			'gamemode': await self.app.app.instance.mode_manager.get_current_full_script(),
 			'titleid': self.app.app.instance.game.dedicated_title,
 			'mapuid': map.uid,
-			'getvotesonly': votes_only,
+			'getvotesonly': False,
 			'playerlogins': logins
 		}
 
@@ -118,7 +112,6 @@ class MXKarmaApi:
 		result = await response.json()
 
 		if result['success'] is False:
-			self.activated = False
 			logger.error('Error while getting information from ManiaExchange, error {code}: {message}'.format(
 				code=result['data']['code'], message=result['data']['message']
 			))
@@ -127,3 +120,40 @@ class MXKarmaApi:
 		else:
 			data = result['data']
 			return data
+
+	async def save_votes(self, map, is_import=False, map_length=0, votes=None):
+		if not self.activated:
+			return
+
+		if votes is None:
+			return
+
+		url = '{url}/saveVotes?sessionKey={key}'.format(
+			url=self.api_url, key=self.key
+		)
+
+		content = {
+			'gamemode': await self.app.app.instance.mode_manager.get_current_full_script(),
+			'titleid': self.app.app.instance.game.dedicated_title,
+			'mapuid': map.uid,
+			'mapname': map.name,
+			'mapauthor': map.author_login,
+			'isimport': is_import,
+			'maptime': map_length,
+			'votes': votes
+		}
+
+		response = await self.session.post(url, json=content)
+
+		if response.status < 200 or response.status > 399:
+			raise MXInvalidResponse('Got invalid response status from ManiaExchange: {}'.format(response.status))
+
+		result = await response.json()
+
+		if result['success'] is False:
+			logger.error('Error while saving information to ManiaExchange, error {code}: {message}'.format(
+				code=result['data']['code'], message=result['data']['message']
+			))
+			return False
+		else:
+			return result['data']['updated']
