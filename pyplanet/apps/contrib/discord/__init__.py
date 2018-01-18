@@ -67,9 +67,9 @@ class Discord(AppConfig):
 		online_users = len(non_bot_users)
 		return [int(online_users), int(len(bots))]
 
-	async def chat_msg(self, *args, **kwargs):
+	async def chat_msg(self, player, *args, **kwargs):
 		users = await self.get_online_users()
 		join_url_link = '$l[' + self.join_url + ']Join our Discord$l! '
 		message = '$ff0$i{}There are currently {} users and {} bots online.' \
 			.format(join_url_link, users[0], users[1])
-		await self.instance.chat(message)
+		await self.instance.chat(message, player)
