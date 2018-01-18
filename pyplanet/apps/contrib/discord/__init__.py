@@ -12,6 +12,7 @@ class Discord(AppConfig):
 	app_dependencies = ['core.maniaplanet']
 
 	join_url = 'https://discord.gg/teQ8Bsy'
+	server_id = '403261055498977291'
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -29,16 +30,23 @@ class Discord(AppConfig):
 		await self.Logo.display(player_logins=[player.login])
 
 	async def get_online_users(self):
-		url = "https://discordapp.com/api/guilds/403261055498977291/widget.json"
+		url = "https://discordapp.com/api/guilds/" + self.server_id + "/widget.json"
 		request = urllib.request.Request(url)
 		request.add_header('User-Agent', "PyPlanet")
 		data = json.loads(req.urlopen(request).read())
-		online_users = len(data['members'])
-		return int(online_users)
+		non_bot_users = []
+		bots = []
+		for i in data['members']:
+			if 'bot' in i:
+				bots.append(i)
+			else:
+				non_bot_users.append(i)
+		online_users = len(non_bot_users)
+		return [int(online_users), int(len(bots))]
 
 	async def chat_msg(self, *args, **kwargs):
-		number_of_online_users = await self.get_online_users()
-		join_url_link = '$l[{self.join_url}]Join our Discord$l! '
-		message = '$ff0$i{}There are currently {} users online.'\
-			.format(join_url_link, number_of_online_users)
+		users = await self.get_online_users()
+		join_url_link = '$l['+self.join_url+']Join our Discord$l! '
+		message = '$ff0$i{}There are currently {} users and {} bots online.'\
+			.format(join_url_link, users[0], users[1])
 		await self.instance.chat(message)
