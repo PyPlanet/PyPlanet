@@ -55,8 +55,13 @@ class MXKarmaApi:
 				raise MXInvalidResponse('Got invalid response status from ManiaExchange: {}'.format(response.status))
 
 			result = await response.json()
-			self.key = result['data']['sessionKey']
-			await self.activate_session(result['data']['sessionSeed'])
+			if result['success'] is False:
+				logger.error('Error while starting ManiaExchange session, error {code}: {message}'.format(
+					code=result['data']['code'], message=result['data']['message']
+				))
+			else:
+				self.key = result['data']['sessionKey']
+				await self.activate_session(result['data']['sessionSeed'])
 
 	async def activate_session(self, session_seed):
 		api_key = await self.app.setting_mx_karma_key.get_value()
