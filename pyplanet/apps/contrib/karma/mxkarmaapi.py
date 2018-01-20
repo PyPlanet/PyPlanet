@@ -44,7 +44,7 @@ class MXKarmaApi:
 		elif self.session is not None and self.key is None:
 			logger.debug('Starting MX Karma session ...')
 
-			url = '{url}/startSession?serverLogin={login}&applicationIdentifier={app}'.format(
+			url = '{url}/startSession?serverLogin={login}&applicationIdentifier={app}&testMode=false'.format(
 				url=self.api_url, login=self.app.app.instance.game.server_player_login,
 				app='PyPlanet {version}'.format(version=version)
 			)
