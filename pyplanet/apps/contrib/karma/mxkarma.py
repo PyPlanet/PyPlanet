@@ -1,3 +1,6 @@
+"""
+The module and class MXKarma is the communication between the API and the Karma class.
+"""
 import datetime
 
 from pyplanet.contrib.setting import Setting
@@ -6,6 +9,10 @@ from pyplanet.apps.contrib.karma.mxkarmaapi import MXKarmaApi
 
 
 class MXKarma:
+	"""
+	The MX Karma sub-app of the Karma app.
+	"""
+
 	def __init__(self, app):
 		self.app = app
 		self.api = MXKarmaApi(self)
@@ -28,6 +35,12 @@ class MXKarma:
 		)
 
 	async def reload_settings(self, *args, **kwargs):
+		"""
+		Reload the settings from the PyPlanet settings storage and reload/restart the session.
+
+		:param args: args
+		:param kwargs: kwargs
+		"""
 		enabled = await self.setting_mx_karma.get_value()
 		key = await self.setting_mx_karma_key.get_value()
 
@@ -38,6 +51,12 @@ class MXKarma:
 			await self.api.close_session()
 
 	async def determine_vote(self, vote):
+		"""
+		Convert a local vote to a MX vote value.
+
+		:param vote: vote value of PyPlanet karma app.
+		:return: MX Karma vote value
+		"""
 		mx_vote = 0
 		if vote == -0.5:
 			mx_vote = 25
@@ -51,6 +70,13 @@ class MXKarma:
 		return mx_vote
 
 	async def handle_rating(self, rating, importvotes=True):
+		"""
+		Handle the event of a rating.
+
+		:param rating: Rating dict
+		:param importvotes: Import boolean
+		:return:
+		"""
 		if rating is not None and rating['votecount'] != 0:
 			self.current_count = rating['votecount']
 			self.current_average = rating['voteaverage']
@@ -82,6 +108,9 @@ class MXKarma:
 			self.current_votes = None
 
 	async def on_start(self):
+		"""
+		On start of module.
+		"""
 		await self.app.context.setting.register(
 			self.setting_mx_karma, self.setting_mx_karma_key
 		)
@@ -98,15 +127,28 @@ class MXKarma:
 		await self.handle_rating(rating)
 
 	async def on_stop(self):
+		"""
+		On stop of module.
+		"""
 		if await self.setting_mx_karma.get_value() is False or await self.setting_mx_karma_key.get_value() is None:
 			return
 
 		await self.api.close_session()
 
 	async def player_connect(self, player):
+		"""
+		Get player rating on connection.
+
+		:param player: player instance
+		"""
 		rating = await self.api.get_map_rating(self.app.instance.map_manager.current_map, player.login)
 
 	async def map_begin(self, map):
+		"""
+		On map begin, load karma.
+
+		:param map: map instance
+		"""
 		if await self.setting_mx_karma.get_value() is False or await self.setting_mx_karma_key.get_value() is None:
 			return
 
@@ -119,6 +161,11 @@ class MXKarma:
 		await self.handle_rating(rating)
 
 	async def map_end(self, map):
+		"""
+		Map end, save votes to API if needed.
+
+		:param map: map instance.
+		"""
 		if await self.setting_mx_karma.get_value() is False or await self.setting_mx_karma_key.get_value() is None:
 			return
 
@@ -139,7 +186,7 @@ class MXKarma:
 			player_vote = []
 			if self.current_votes is not None:
 				player_vote = [v for v in self.current_votes if v['login'] == login]
-			
+
 			new_score = await self.determine_vote(score)
 			if len(player_vote) == 0 or (len(player_vote) == 1 and player_vote[0]['vote'] != new_score):
 				save_votes.append({'login': login, 'nickname': vote.player.nickname, 'vote': new_score})

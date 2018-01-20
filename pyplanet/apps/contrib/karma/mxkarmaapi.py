@@ -12,6 +12,9 @@ logger = logging.getLogger(__name__)
 
 
 class MXKarmaApi:
+	"""
+	MX Karma API Class will handle all the communication in async with the ManiaExchange Karma API.
+	"""
 	def __init__(self, app):
 		self.api_url = 'https://karma.mania-exchange.com/api2'
 		self.app = app
@@ -21,6 +24,9 @@ class MXKarmaApi:
 		self.activated = False
 
 	async def create_session(self):
+		"""
+		Create new async http session.
+		"""
 		if self.session is None:
 			logger.debug('Creating session for MX Karma communication.')
 
@@ -33,12 +39,19 @@ class MXKarmaApi:
 			).__aenter__()
 
 	async def close_session(self):
+		"""
+		Close the async http session
+		"""
 		if self.session and hasattr(self.session, '__aexit__'):
 			logger.debug('Closing session for MX Karma communication.')
 
 			await self.session.__aexit__()
 
 	async def start_session(self):
+		"""
+		Create the MX Karma session by authenticating with the API. This method will make sure the server is ready
+		to get and post karma entries to the API.
+		"""
 		if self.session is None:
 			await self.create_session()
 		elif self.session is not None and self.key is None:
@@ -64,6 +77,11 @@ class MXKarmaApi:
 				await self.activate_session(result['data']['sessionSeed'])
 
 	async def activate_session(self, session_seed):
+		"""
+		This method will activate the session based on the seed it created earlier.
+
+		:param session_seed: Seed of the session created earlier.
+		"""
 		api_key = await self.app.setting_mx_karma_key.get_value()
 		hash = hashlib.sha512('{apikey}{seed}'.format(apikey=api_key, seed=session_seed).encode('utf-8')).hexdigest()
 
@@ -92,6 +110,13 @@ class MXKarmaApi:
 				logger.warning('Unable to start a MX Karma session.')
 
 	async def get_map_rating(self, map, player_login = None):
+		"""
+		Get rating for the specific map instance.
+
+		:param map: Map model instance.
+		:param player_login: Player login, optional
+		:return: Dictionary with data for the given map, received from the API.
+		"""
 		if not self.activated:
 			return
 
@@ -127,6 +152,15 @@ class MXKarmaApi:
 			return data
 
 	async def save_votes(self, map, is_import=False, map_length=0, votes=None):
+		"""
+		Save votes to the MX Karma API.
+
+		:param map: Map instance
+		:param is_import: State if the votes are imported from local karma.
+		:param map_length: Map length.
+		:param votes: Votes payload.
+		:return: Status or updated value.
+		"""
 		if not self.activated:
 			return
 
