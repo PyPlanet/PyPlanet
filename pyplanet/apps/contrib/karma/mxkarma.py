@@ -127,6 +127,11 @@ class MXKarma:
 
 		current_map_length = int((datetime.datetime.now() - self.current_start).total_seconds())
 
+		self.current_start = datetime.datetime.now()
+
+		if self.current_votes is None:
+			return
+
 		save_votes = []
 		for vote in self.app.current_votes:
 			login = vote.player.login
