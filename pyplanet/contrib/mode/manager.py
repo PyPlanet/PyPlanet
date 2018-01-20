@@ -26,6 +26,8 @@ class ModeManager(CoreContrib):
 
 		self._current_script = None
 		self._next_script = None
+		self._current_full_script = None
+		self._next_full_script = None
 
 		self._next_settings_update = dict()
 		self._next_variables_update = dict()
@@ -76,12 +78,14 @@ class ModeManager(CoreContrib):
 			if '\\' in current_value:
 				current_value = current_value.rpartition('\\')[2]
 			self._current_script = current_value
+			self._current_full_script = payload['CurrentValue']
 
 			if 'NextValue' in payload:
 				next_value = payload['NextValue'].partition('.')[0]
 				if '\\' in next_value:
 					next_value = next_value.rpartition('\\')[2]
 				self._next_script = next_value
+				self._next_full_script = payload['NextValue']
 
 		return self._current_script
 
@@ -93,6 +97,28 @@ class ModeManager(CoreContrib):
 		"""
 		await self.get_current_script(refresh=refresh)
 		return self._next_script
+
+	async def get_current_full_script(self, refresh=False):
+		"""
+		Get the current full script name.
+
+		:param refresh: Refresh from server.
+		"""
+		if refresh or not self._current_full_script:
+			await self.get_current_script(True)
+
+		return self._current_full_script
+
+	async def get_next_full_script(self, refresh=False):
+		"""
+		Get the next full script name.
+
+		:param refresh: Refresh from server.
+		"""
+		if refresh or not self._next_full_script:
+			await self.get_current_script(True)
+
+		return self._next_full_script
 
 	async def get_current_script_info(self):
 		"""
