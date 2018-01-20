@@ -129,9 +129,6 @@ class MXKarma:
 
 		self.current_start = datetime.datetime.now()
 
-		if self.current_votes is None:
-			return
-
 		save_votes = []
 		for vote in self.app.current_votes:
 			login = vote.player.login
@@ -139,7 +136,10 @@ class MXKarma:
 			if vote.expanded_score is not None:
 				score = vote.expanded_score
 
-			player_vote = [v for v in self.current_votes if v['login'] == login]
+			player_vote = []
+			if self.current_votes is not None:
+				player_vote = [v for v in self.current_votes if v['login'] == login]
+			
 			new_score = await self.determine_vote(score)
 			if len(player_vote) == 0 or (len(player_vote) == 1 and player_vote[0]['vote'] != new_score):
 				save_votes.append({'login': login, 'nickname': vote.player.nickname, 'vote': new_score})
