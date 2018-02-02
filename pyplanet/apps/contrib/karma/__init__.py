@@ -5,9 +5,11 @@ from pyplanet.apps.contrib.karma.views import KarmaListView
 from pyplanet.contrib.command import Command
 from pyplanet.contrib.setting import Setting
 from pyplanet.apps.core.statistics.models import Score
+from pyplanet.apps.core.maniaplanet.models import Player
 
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 from pyplanet.apps.contrib.karma.views import KarmaWidget
+from pyplanet.apps.contrib.karma.mxkarma import MXKarma
 
 from .models import Karma as KarmaModel
 
@@ -39,12 +41,15 @@ class Karma(AppConfig):
 			default=0
 		)
 
+		self.mx_karma = MXKarma(self)
+
 	async def on_start(self):
 		# Register commands.
 		await self.instance.command_manager.register(Command(command='whokarma', target=self.show_map_list))
 
 		# Register signals.
 		self.context.signals.listen(mp_signals.map.map_begin, self.map_begin)
+		self.context.signals.listen(mp_signals.map.map_end, self.mx_karma.map_end)
 		self.context.signals.listen(mp_signals.player.player_chat, self.player_chat)
 		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
 
@@ -53,12 +58,17 @@ class Karma(AppConfig):
 		# Load initial data.
 		await self.get_votes_list(self.instance.map_manager.current_map)
 		await self.calculate_karma()
+		await self.mx_karma.on_start()
+
 		await self.chat_current_karma()
 
 		self.widget = KarmaWidget(self)
 		await self.widget.display()
 
 		await self.load_map_votes()
+
+	async def on_stop(self):
+		await self.mx_karma.on_stop()
 
 	async def load_map_votes(self, map=None):
 		if map:
@@ -84,11 +94,13 @@ class Karma(AppConfig):
 	async def map_begin(self, map):
 		await self.get_votes_list(map)
 		await self.calculate_karma()
+		await self.mx_karma.map_begin(map)
 		await self.chat_current_karma()
 
 		await self.widget.display()
 
 	async def player_connect(self, player, is_spectator, source, signal):
+		await self.mx_karma.player_connect(player=player)
 		await self.widget.display(player=player)
 
 	async def player_chat(self, player, text, cmd):
@@ -171,7 +183,7 @@ class Karma(AppConfig):
 		)
 
 	async def get_votes_list(self, map):
-		vote_list = await KarmaModel.objects.execute(KarmaModel.select().where(KarmaModel.map_id == map.get_id()))
+		vote_list = await KarmaModel.objects.execute(KarmaModel.select(KarmaModel, Player).join(Player).where(KarmaModel.map_id == map.get_id()))
 		self.current_votes = list(vote_list)
 
 	async def calculate_karma(self):
@@ -197,8 +209,12 @@ class Karma(AppConfig):
 			self.current_karma_percentage = (self.current_karma_positive / total_abs)
 
 	async def chat_current_karma(self):
+		mx_karma = ''
+		if self.mx_karma.api.activated:
+			mx_karma = ', MX: $fff{}%$ff0 [$fff{}$ff0 votes]'.format(round(self.mx_karma.current_average, 1), self.mx_karma.current_count)
+
 		num_current_votes = len(self.current_votes)
-		message = '$ff0Current map karma: $fff{}$ff0 ($fff{}%$ff0) [$fff{}$ff0 votes]'.format(
-			self.current_karma, round(self.current_karma_percentage * 100, 2), num_current_votes
+		message = '$ff0Current map karma: $fff{}$ff0 ($fff{}%$ff0) [$fff{}$ff0 votes]{}'.format(
+			self.current_karma, round(self.current_karma_percentage * 100, 2), num_current_votes, mx_karma
 		)
 		await self.instance.chat(message)
