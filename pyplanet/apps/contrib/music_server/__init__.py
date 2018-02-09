@@ -18,8 +18,8 @@ class MusicServer(AppConfig):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.setting_music_server_url_or_path = Setting(
-			'music_server_url_or_path', 'Music Files Path or URL', Setting.CAT_KEYS, type=str,
-			description='Local Path below "GameData" or http link to directory where all files must be downloadable',
+			'music_server_url', 'Music Server Files URL', Setting.CAT_KEYS, type=str,
+			description='Http link to directory where all song are. They must be in .ogg and downloadable',
 			default='http://5.230.142.8/tm/music/', change_target=self.reload_settings
 		)
 		self.context.signals.listen(mp_signals.map.map_end, self.map_end)
@@ -60,18 +60,22 @@ class MusicServer(AppConfig):
 
 	async def play_song(self, player, data, *args, **kwargs):
 		song = str(data.songname)
-		await self.instance.chat(song, player)
-		await self.instance.gbx('SetForcedMusic', True, song)
-		await self.instance.chat("song " + song + " started playing", player)
+		self.songs.insert(self.current_song+1, song)
 
 	async def play_index(self, player, data, *args, **kwargs):
-		if data == 0:
+		if data.index == 0:
 			for song in self.songs:
 				try:
 					# await self.instance.gbx('SetForcedMusic', True, song)
 					await self.instance.chat(song, player)
 				except Exception as e:
 					await self.instance.chat(str(e))
+		elif data.index == 1:
+			await self.instance.gbx('SetForcedMusic', True, 'Music\\dead.ogg')
+			self.songs.insert(self.current_song + 1, 'Music\\dead.ogg')
+		elif data.index == 2:
+			await self.instance.gbx('SetForcedMusic', True, 'dead.ogg')
+			self.songs.insert(self.current_song + 1, 'dead.ogg')
 		else:
 			await self.list.display(player=player.login)
 

@@ -1,4 +1,5 @@
 from pyplanet.views.generics.list import ManualListView
+from tinytag import TinyTag
 
 
 class MusicListView(ManualListView):
