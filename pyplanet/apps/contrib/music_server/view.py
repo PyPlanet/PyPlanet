@@ -1,5 +1,4 @@
 from pyplanet.views.generics.list import ManualListView
-from tinytag import TinyTag
 
 
 class MusicListView(ManualListView):
@@ -19,14 +18,14 @@ class MusicListView(ManualListView):
 		{
 			'name': 'Song',
 			'index': 'song_name',
-			'sorting': False,
+			'sorting': True,
 			'searching': True,
 			'width': 100,
 		},
 		{
 			'name': 'Artist',
 			'index': 'song_artist',
-			'sorting': False,
+			'sorting': True,
 			'searching': True,
 			'width': 100,
 		},
@@ -41,11 +40,11 @@ class MusicListView(ManualListView):
 	async def get_data(self):
 		items = []
 		song_list = self.app.songs
-		server_url = self.app.server
-		for idx, song in enumerate(song_list):
+		for song in song_list:
+			tags = dict(song[1])
 			items.append({
-				'index': idx,
-				'song_name': song.replace(server_url, "").split("-")[1],
-				'song_artist': song.replace(server_url, "").split("-")[0]
+				'index': song_list.index(song)+1,
+				'song_name': tags.get('title'),
+				'song_artist': tags.get('artist'),
 			})
 		return items

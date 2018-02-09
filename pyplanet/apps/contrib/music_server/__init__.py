@@ -3,6 +3,7 @@ import logging
 import os
 import requests
 from bs4 import BeautifulSoup
+import urllib.request
 
 from pyplanet.contrib.setting import Setting
 from pyplanet.apps.config import AppConfig
@@ -37,10 +38,13 @@ class MusicServer(AppConfig):
 		await self.instance.command_manager.register(
 			Command(command='play', target=self.play_song, admin=False)
 				.add_param(name='songname', type=str, required=True),
-			Command(command='playindex', target=self.play_index, admin=False)
-				.add_param(name='index', type=int, required=True),
-			Command(command='song', target=self.get_current_song, admin=False)
+			Command(command='song', target=self.get_current_song, admin=False),
+			Command(command='songlist', target=self.song_list, admin=False)
 		)
+
+	async def song_list(self, player, *args, **kwargs):
+		self.list = MusicListView(self)
+		await self.list.display(player=player.login)
 
 	async def reload_settings(self, *args, **kwargs):
 		self.server = await self.setting_music_server_url_or_path.get_value(refresh=True)
@@ -54,40 +58,47 @@ class MusicServer(AppConfig):
 			new_song = self.songs[self.current_song+1]
 			self.current_song += 1
 		try:
-			await self.instance.gbx('SetForcedMusic', True, new_song)
+			await self.instance.gbx('SetForcedMusic', True, new_song[0])
 		except Exception as e:
 			await self.instance.chat(str(e))
 
 	async def play_song(self, player, data, *args, **kwargs):
 		song = str(data.songname)
-		self.songs.insert(self.current_song+1, song)
+		self.songs.insert(self.current_song+1, (song, await self.get_tags(song)))
 
-	async def play_index(self, player, data, *args, **kwargs):
-		if data.index == 0:
-			for song in self.songs:
-				try:
-					# await self.instance.gbx('SetForcedMusic', True, song)
-					await self.instance.chat(song, player)
-				except Exception as e:
-					await self.instance.chat(str(e))
-		elif data.index == 1:
-			await self.instance.gbx('SetForcedMusic', True, 'Music\\dead.ogg')
-			self.songs.insert(self.current_song + 1, 'Music\\dead.ogg')
-		elif data.index == 2:
-			await self.instance.gbx('SetForcedMusic', True, 'dead.ogg')
-			self.songs.insert(self.current_song + 1, 'dead.ogg')
-		else:
-			await self.list.display(player=player.login)
+	async def get_tags(self, song_url, *args, **kwargs):
+		fs = str(urllib.request.urlopen(song_url).read(1000))
+		# TODO: ADD HEADER USER AGENT
+		tags = {
+			'album': 'album',
+			'albumartist': 'albumartist',
+			'title': 'title',
+			'artist': 'artist',
+			'date': 'year',
+			'tracknumber': 'track',
+			'discnumber': 'disc',
+			'genre': 'genre'
+		}
+		for key, value in tags.items():
+			if fs.find(key.upper()) > 0:
+				end_of_key = fs.find(key.upper()) + len(key) + 1
+				end_of_value = fs.find('\\', fs.find(key.upper()))
+				tags[key] = fs[end_of_key:end_of_value].replace(">", "")
+		return tags
 
 	async def get_songs(self):
+		self.songs.clear()
+		items = []
 		if self.server.startswith("http"):
 			page = requests.get(self.server).text
 			soup = BeautifulSoup(page, 'html.parser')
-			return [(self.server + node.get('href')).replace("%20", " ") for node in soup.find_all('a') if node.get('href').endswith('ogg')]
-		elif self.server:
-			path = os.path.join('GameData', self.server.replace("/", "").replace("\\", ""))
-			if await self.instance.storage.driver.exists(path):
-				return await self.instance.storage.driver.listdir(path)
+			for node in soup.find_all('a'):
+				if node.get('href').endswith('ogg'):
+					song_url = (self.server + node.get('href')).replace("%20", " ")
+					tags = await self.get_tags(self.server + node.get('href'))
+					items.append((song_url, tags))
+		return items
 
 	async def get_current_song(self, player, *args, **kwargs):
-		await self.instance.chat(self.songs[self.current_song], player)
+		song_url, tags = self.songs[self.current_song]
+		await self.instance.chat(song_url+" "+str(tags), player)
