@@ -41,7 +41,7 @@ class MusicListView(ManualListView):
 		items = []
 		song_list = self.app.songs
 		for song in song_list:
-			tags = dict(song[1])
+			tags = song[1]
 			items.append({
 				'index': song_list.index(song)+1,
 				'song_name': tags.get('title'),
