@@ -1,9 +1,9 @@
 import asyncio
-import logging
-import os
+import async_timeout
+import aiohttp
 import requests
+import logging
 from bs4 import BeautifulSoup
-import urllib.request
 
 from pyplanet.contrib.setting import Setting
 from pyplanet.apps.config import AppConfig
@@ -20,7 +20,7 @@ class MusicServer(AppConfig):
 		super().__init__(*args, **kwargs)
 		self.setting_music_server_url_or_path = Setting(
 			'music_server_url', 'Music Server Files URL', Setting.CAT_KEYS, type=str,
-			description='Http link to directory where all song are. They must be in .ogg and downloadable',
+			description='Http link to directory where all song are. They must be in .ogg and downloadable!',
 			default='http://5.230.142.8/tm/music/', change_target=self.reload_settings
 		)
 		self.context.signals.listen(mp_signals.map.map_end, self.map_end)
@@ -51,11 +51,11 @@ class MusicServer(AppConfig):
 		self.songs = await self.get_songs()
 
 	async def map_end(self, *args, **kwargs):
-		if self.current_song+1 > len(self.songs):
+		if self.current_song + 1 > len(self.songs):
 			new_song = self.songs[0]
 			self.current_song = 0
 		else:
-			new_song = self.songs[self.current_song+1]
+			new_song = self.songs[self.current_song + 1]
 			self.current_song += 1
 		try:
 			await self.instance.gbx('SetForcedMusic', True, new_song[0])
@@ -64,41 +64,46 @@ class MusicServer(AppConfig):
 
 	async def play_song(self, player, data, *args, **kwargs):
 		song = str(data.songname)
-		self.songs.insert(self.current_song+1, (song, await self.get_tags(song)))
+		async with aiohttp.ClientSession() as session:
+			self.songs.insert(self.current_song + 1, (song, await self.get_tags(session, song)))
 
-	async def get_tags(self, song_url, *args, **kwargs):
-		fs = str(urllib.request.urlopen(song_url).read(1000))
-		# TODO: ADD HEADER USER AGENT
-		tags = {
-			'album': 'album',
-			'albumartist': 'albumartist',
-			'title': 'title',
-			'artist': 'artist',
-			'date': 'year',
-			'tracknumber': 'track',
-			'discnumber': 'disc',
-			'genre': 'genre'
-		}
-		for key, value in tags.items():
-			if fs.find(key.upper()) > 0:
-				end_of_key = fs.find(key.upper()) + len(key) + 1
-				end_of_value = fs.find('\\', fs.find(key.upper()))
-				tags[key] = fs[end_of_key:end_of_value].replace(">", "")
-		return tags
+	async def get_tags(self, session, url):
+		with async_timeout.timeout(10):
+			async with session.get(url) as response:
+				fs = str(await response.content.read(1024))
+				tags = {
+					'album': 'album',
+					'albumartist': 'albumartist',
+					'title': 'title',
+					'artist': 'artist',
+					'date': 'year',
+					'tracknumber': 'track',
+					'discnumber': 'disc',
+					'genre': 'genre'
+				}
+				for key, value in tags.items():
+					if fs.find(key.upper()) > 0:
+						end_of_key = fs.find(key.upper()) + len(key) + 1
+						end_of_value = fs.find('\\', fs.find(key.upper()))
+						tags[key] = fs[end_of_key:end_of_value].replace(">", "")
+			await response.release()
+			return tags
 
 	async def get_songs(self):
 		self.songs.clear()
-		items = []
 		if self.server.startswith("http"):
 			page = requests.get(self.server).text
 			soup = BeautifulSoup(page, 'html.parser')
+			items = []
 			for node in soup.find_all('a'):
 				if node.get('href').endswith('ogg'):
-					song_url = (self.server + node.get('href')).replace("%20", " ")
-					tags = await self.get_tags(self.server + node.get('href'))
-					items.append((song_url, tags))
-		return items
+					song_url = self.server + node.get('href')
+					items.append(song_url)
+			async with aiohttp.ClientSession() as session:
+				tags = [self.get_tags(session, song) for song in items]
+				tag_list = await asyncio.gather(*tags)
+			return [(song.replace("%20", " "), tag_list[i]) for i, song in enumerate(items)]
 
 	async def get_current_song(self, player, *args, **kwargs):
 		song_url, tags = self.songs[self.current_song]
-		await self.instance.chat(song_url+" "+str(tags), player)
+		await self.instance.chat(song_url + " " + str(tags), player)
