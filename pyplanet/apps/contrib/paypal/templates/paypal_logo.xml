@@ -1,0 +1,3 @@
+<quad pos="112 -50" z-index="100" size="32 8" image="https://www.paypalobjects.com/webstatic/de_DE/i/de-pp-logo-200px.png"
+      autoscale="0" opacity ="0.7" halign="center" valign="center" url="{{ donation_url }}" />
+
