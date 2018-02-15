@@ -13,7 +13,7 @@ class PayPalLogoView(TemplateView):
 
 	async def get_context_data(self):
 		if 'discord' in self.app.instance.apps.apps:
-			self.widget_x = 112
+			self.widget_x = 121
 			self.widget_y = -50
 		else:
 			self.widget_x = 135
