@@ -4,7 +4,7 @@ PayPal
 Information
 -----------
 Name:
-  ``pyplanet.apps.contrib.PayPal``
+  ``pyplanet.apps.contrib.paypal``
 Depends on:
   ``core.maniaplanet``
 Game:
