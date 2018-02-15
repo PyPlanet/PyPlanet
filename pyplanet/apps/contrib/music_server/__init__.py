@@ -44,7 +44,7 @@ class MusicServer(AppConfig):
 			Command(command='play', target=self.play_song, admin=True)
 				.add_param(name='songname', type=str, required=True),
 			Command(command='song', target=self.get_current_song, admin=False),
-			Command(command='songlist', target=self.song_list, admin=False),
+			Command(command='songlist', aliases='musiclist', target=self.song_list, admin=False),
 			Command(command='playlist', target=self.show_playlist, admin=False),
 			Command(command='clearplaylist', target=self.clear_playlist, admin=True)
 		)
@@ -69,7 +69,7 @@ class MusicServer(AppConfig):
 		async with self.lock:
 			new_song = self.songs[song_index]
 			if player.level == 0 and any(item['player'].login == player.login for item in self.playlist):
-				message = '$i$f00You already have a map in the playlist! Wait till it\'s been played before adding another.'
+				message = '$i$f00You already have a song in the playlist! Wait till it\'s been played before adding another.'
 				await self.instance.chat(message, player)
 				return
 
