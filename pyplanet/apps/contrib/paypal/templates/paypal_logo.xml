@@ -1,3 +1,0 @@
-<quad pos="{{ pos_x }} {{ pos_y }}" z-index="100" size="15 15" image="http://csgo.keilerei.com/paypal_logo.png"
-      autoscale="0" opacity ="0.7" keepratio="Clip" halign="center" valign="center" url="{{ donation_url }}" />
-
