@@ -70,7 +70,7 @@ class TemplateView(View):
 		Get data per player, return dict with login => data dict.
 
 		.. deprecated:: 0.4.0
-			Use :func:`get_per_player_data` and :func:`get_all_player_data` instead. Will be removed in 0.6.0!
+			Use :func:`get_per_player_data` and :func:`get_all_player_data` instead. Will be removed in 0.8.0!
 
 		"""
 		return dict()
