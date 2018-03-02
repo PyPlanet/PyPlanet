@@ -18,7 +18,7 @@ class GbxClient(GbxRemote):
 
 	AUTO_RESPONSE_ID = object()
 	SUPPORTED_SCRIPT_API_VERSIONS = [
-		'2.3.0',
+		'2.3.0', '2.4.0',
 	]
 	MINIMUM_DEDICATED_VERSION = ['2017', '07', '12',
 								 '17', '31']
