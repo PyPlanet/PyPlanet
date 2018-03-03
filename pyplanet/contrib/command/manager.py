@@ -62,6 +62,27 @@ class CommandManager(CoreContrib):
 		"""
 		self._commands.extend(commands)
 
+	async def execute(self, player, command, *args):
+		"""
+		Execute a command for the given player with the given args.
+
+		:param player: Player instance.
+		:type player: pyplanet.apps.core.maniaplanet.models.player.Player
+		:param command: Command instance.
+		:type command: pyplanet.contrib.command.command.Command
+		:param args: Args for the command, will be concat into a string with spaces.
+		:return:
+		"""
+		if isinstance(command, Command):
+			command_text = '//' if command.admin else '/'
+			if command.namespace:
+				command_text += command.namespace + ' '
+			command_text += command.command
+		else:
+			command_text = command
+
+		return await self._on_chat(player, ' '.join([command_text] + list(args)), True)
+
 	async def _on_chat(self, player, text, cmd, **kwargs):
 		# Only take action if the chat entry is a command.
 		if not cmd:

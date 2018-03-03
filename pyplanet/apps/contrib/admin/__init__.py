@@ -4,6 +4,7 @@ from pyplanet.apps.contrib.admin.player import PlayerAdmin
 from pyplanet.apps.contrib.admin.server import ServerAdmin
 from pyplanet.apps.contrib.admin.pyplanet import PyPlanetAdmin
 from pyplanet.apps.contrib.admin.flow import FlowAdmin
+from pyplanet.apps.contrib.admin.toolbar import ToolbarAdmin
 
 
 class Admin(AppConfig):
@@ -13,6 +14,7 @@ class Admin(AppConfig):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
+		self.toolbar = ToolbarAdmin(self)
 		self.player = PlayerAdmin(self)
 		self.map = MapAdmin(self)
 		self.server = ServerAdmin(self)
@@ -20,6 +22,7 @@ class Admin(AppConfig):
 		self.flow = FlowAdmin(self)
 
 	async def on_start(self):
+		await self.toolbar.on_start()
 		await self.player.on_start()
 		await self.map.on_start()
 		await self.server.on_start()
