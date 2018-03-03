@@ -4,7 +4,6 @@ Toolbar interface and methods.
 import logging
 
 from pyplanet.apps.contrib.admin.views.toolbar import ToolbarView
-from pyplanet.contrib.command import Command
 from pyplanet.contrib.setting import Setting
 
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals

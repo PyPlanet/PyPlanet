@@ -15,8 +15,7 @@ main() {
 
     "admin_toolbar_bar_button_settings" => "PyPlanet Settings",
     "admin_toolbar_bar_button_modesettings" => "Game Settings",
-    "admin_toolbar_bar_button_players" => "Manage Players",
-    "admin_toolbar_bar_button_expand" => "Expand quick-settings"
+    "admin_toolbar_bar_button_players" => "Manage Players"
   ];
 
 
