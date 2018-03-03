@@ -35,10 +35,11 @@ class ToolbarAdmin:
 		self.app.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
 
 		# Display to all current online admins.
-		for player in self.app.instance.player_manager.online:
-			if player.level > player.LEVEL_PLAYER:
-				await self.view.display(player_logins=[player.login])
+		if await self.setting_enable_toolbar.get_value():
+			for player in self.app.instance.player_manager.online:
+				if player.level > player.LEVEL_PLAYER:
+					await self.view.display(player_logins=[player.login])
 
 	async def player_connect(self, player, is_spectator, source, **kwargs):
-		if player.level > player.LEVEL_PLAYER:
+		if player.level > player.LEVEL_PLAYER and await self.setting_enable_toolbar.get_value():
 			await self.view.display(player_logins=[player.login])
