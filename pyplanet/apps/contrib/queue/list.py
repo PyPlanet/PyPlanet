@@ -3,6 +3,7 @@ The list module contains the class to hold all the queued players.
 """
 
 import asyncio
+from random import shuffle
 
 from pyplanet.apps.contrib.queue.exception import PlayerAlreadyInQueue
 
@@ -16,6 +17,8 @@ class QueueList:
 		self.list = list()
 		self._lock = asyncio.Lock()
 		self.lock = asyncio.Lock()
+
+		self.change_hook = None
 
 	async def push(self, player):
 		"""
@@ -39,6 +42,10 @@ class QueueList:
 			index = self.list.index(player)
 			return index
 
+		# Call change hook.
+		if self.change_hook and callable(self.change_hook):
+			await self.change_hook(action='push', entity=player)
+
 	async def count(self):
 		"""
 		Get the current count of the queue.
@@ -57,8 +64,15 @@ class QueueList:
 		"""
 		with await self._lock:
 			if len(self.list) > 0:
-				return self.list.pop(0)
-			return None
+				player = self.list.pop(0)
+			else:
+				return None
+
+		# Call change hook.
+		if self.change_hook and callable(self.change_hook):
+			await self.change_hook(action='pop', entity=player)
+
+		return player
 
 	async def remove(self, player):
 		"""
@@ -74,7 +88,12 @@ class QueueList:
 				self.list.remove(player)
 			except ValueError:
 				return False
-			return True
+
+		# Call change hook.
+		if self.change_hook and callable(self.change_hook):
+			await self.change_hook(action='remove', entity=player)
+
+		return True
 
 	async def clear(self):
 		"""
@@ -82,3 +101,18 @@ class QueueList:
 		"""
 		with await self._lock:
 			self.list.clear()
+
+		# Call change hook.
+		if self.change_hook and callable(self.change_hook):
+			await self.change_hook(action='clear', entity=None)
+
+	async def shuffle(self):
+		"""
+		Shuffle the queue.
+		"""
+		with await self._lock:
+			shuffle(self.list)
+
+		# Call change hook.
+		if self.change_hook and callable(self.change_hook):
+			await self.change_hook(action='shuffle', entity=None)

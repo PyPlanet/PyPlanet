@@ -11,11 +11,14 @@ class Queue(AppConfig):
 		super().__init__(*args, **kwargs)
 
 		self.list = QueueList()
+		self.list.change_hook = self.change_hook
 
 	async def on_start(self):
-		# TODO: Loop every spectator player and put it in the queue, then randomize the queue for the first time.
+		# TODO: Display widget to queue members.
 		# TODO: Register settings for managing queue.
 		# TODO: Commands for managing the queue.
-		# TODO: Widget for the queue.
-		# TODO: Sub/pub system for queue player positioning etc.
+		pass
+
+	async def change_hook(self, action=None, entity=None, *args, **kwargs):
+		print('Change hook called with action={} and entity={}'.format(action, entity))
 		pass
