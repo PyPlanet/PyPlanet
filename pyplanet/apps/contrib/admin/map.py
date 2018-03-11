@@ -4,6 +4,7 @@ Map Admin methods and functions.
 import asyncio
 import logging
 from argparse import Namespace
+from random import shuffle
 
 from pyplanet.apps.core.maniaplanet.models import Map
 from pyplanet.conf import settings
@@ -184,25 +185,22 @@ class MapAdmin:
 		)
 
 	async def shuffle(self, player, data, **kwargs):
-		setting = settings.MAP_MATCHSETTINGS
-		if isinstance(setting, dict) and self.instance.process_name in setting:
-			setting = setting[self.instance.process_name]
-		if not isinstance(setting, str):
-			setting = None
+		# First, retrieve the current maplist.
+		map_list = await self.instance.gbx('GetMapList', -1, 0)
+		file_names = [m['FileName'] for m in map_list]
 
-		if not setting:
-			message = '$ff0Default match settings file not configured in your settings!'
-			return await self.instance.chat(message, player)
+		# Remove all maps from the server.
+		await self.instance.gbx('RemoveMapList', file_names)
 
-		try:
-			await self.instance.map_manager.load_matchsettings('MatchSettings/{}'.format(setting))
-			message = '$ff0Map list has been shuffled and reloaded from disk!'
-		except:
-			message = '$ff0Could not shuffle and reload map list.'
+		# Shuffle map file names.
+		shuffle(file_names)
+
+		# Re-add all maps in new order.
+		await self.instance.gbx('AddMapList', file_names)
 
 		# Send message + reload all maps in memory.
 		await asyncio.gather(
-			self.instance.chat(message, player),
+			self.instance.chat('$ff0Maps has been shuffled!', player),
 			self.instance.map_manager.update_list(full_update=True)
 		)
 
