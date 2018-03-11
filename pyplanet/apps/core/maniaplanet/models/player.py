@@ -61,6 +61,12 @@ class Player(TimedModel):
 
 	@property
 	def flow(self):
+		"""
+		Flow object of the player.
+
+		:return: flow object
+		:rtype: pyplanet.apps.core.maniaplanet.models.player.PlayerFlow
+		"""
 		return self.__flow
 
 	@property
