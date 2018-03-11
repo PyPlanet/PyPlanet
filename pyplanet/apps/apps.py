@@ -189,5 +189,15 @@ class Apps:
 			logging.debug('App is ready: {}'.format(label))
 		logging.info('Apps successfully started!')
 
+	async def stop(self):
+		"""
+		This method is executed when the instance is shutting down (will stop all the apps).
+		"""
+		for label, app in reversed(self.apps.items()):
+			if app.state == AppState.LOADED:
+				await app.on_stop()
+				logging.debug('Stopped app {}'.format(label))
+		logging.info('Apps successfully stopped!')
+
 	async def _on_mode_change(self, unloaded_script, loaded_script, **kwargs):
 		await self.check()

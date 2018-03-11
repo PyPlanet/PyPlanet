@@ -216,12 +216,13 @@ class PlayerManager(CoreContrib):
 			if self._total_count < 0:
 				self._total_count = 0
 
-		player.flow.is_spectator = is_spectator
-		player.flow.is_temp_spectator = is_temp_spectator
-		player.flow.is_pure_spectator = is_pure_spectator
-		player.flow.is_player = not is_spectator
-		player.flow.spectator_target = target
-		player.flow.team_id = team_id
+		# Update flow state.
+		payload = kwargs.copy()
+		payload.update(dict(
+			is_spectator=is_spectator, is_temp_spectator=is_temp_spectator, is_pure_spectator=is_pure_spectator,
+			target=target, team_id=team_id
+		))
+		player.flow.update_state(**payload)
 
 	async def handle_disconnect(self, login):
 		"""
@@ -257,10 +258,7 @@ class PlayerManager(CoreContrib):
 		await player.save()
 
 		# Clear player/spec state.
-		player.flow.is_player = None
-		player.flow.is_spectator = None
-		player.flow.is_pure_spectator = None
-		player.flow.is_temp_spectator = None
+		player.flow.reset_state()
 
 		# Update performance mode status.
 		self.performance_mode = self._total_count >= await performance_mode.get_value()

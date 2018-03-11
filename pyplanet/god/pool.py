@@ -71,7 +71,8 @@ class EnvironmentPool:
 		Shutdown all processes.
 		"""
 		for name, proc in self.pool.items():
-			proc.shutdown()
+			logger.info('Shutting down {}...'.format(name))
+			proc.graceful()
 		# self.dog_observer.stop()
 
 	def restart(self, name=None):
