@@ -83,6 +83,7 @@ Information about development of apps and the core is also available under:
     apps/contrib/live_rankings
     apps/contrib/sector_times
     apps/contrib/dynamic_points
+    apps/contrib/queue
 
 
 .. _dev-docs:
