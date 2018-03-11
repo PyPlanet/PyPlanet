@@ -99,6 +99,7 @@ class GbxRemote:
 
 		# Create socket (+ retry few times if not successful.
 		retries = 0
+		max_retries = 10
 		while True:
 			try:
 				self.reader, self.writer = await asyncio.open_connection(
@@ -108,13 +109,13 @@ class GbxRemote:
 				)
 				break
 			except Exception as exc:
-				if retries >= 5:
+				if retries >= max_retries:
 					raise
 				retries += 1
 
 				logger.info('Coudn\'t connect to Dedicated Server. Retry {} of {} (Error: {}'.format(
 					retries,
-					5,
+					max_retries,
 					str(exc)
 				))
 				await asyncio.sleep(2)

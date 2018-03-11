@@ -11,5 +11,8 @@ nose
 rednose
 coverage
 asynctest
-twine
 python-coveralls
+
+# Release Utilities.
+twine
+bumpversion==0.5.3
