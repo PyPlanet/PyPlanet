@@ -19,8 +19,8 @@ def _run(name, queue, options):
 
 	# Tokio Asyncio (EXPERIMENTAL).
 	if 'tokio' in options and options['tokio'] is True:
-		import tokio
 		import asyncio
+		import tokio
 		policy = tokio.TokioLoopPolicy()
 		asyncio.set_event_loop_policy(policy)
 		asyncio.set_event_loop(tokio.new_event_loop())
@@ -42,9 +42,11 @@ def _run(name, queue, options):
 	# Setting thread name to our process name.
 	threading.main_thread().setName(name)
 
-	# Start instance.
+	# Initiate instance.
 	instance = Controller.prepare(name).instance
 	instance._queue = queue
+
+	# Start and loop instance.
 	instance.start()
 
 
@@ -129,3 +131,9 @@ class InstanceProcess:
 		Shutdown (terminate) process.
 		"""
 		return self.process.terminate()
+
+	def graceful(self):
+		"""
+		Graceful shutdown the process.
+		"""
+		self.process.join(timeout=20)
