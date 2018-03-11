@@ -1,0 +1,36 @@
+
+#Include "TextLib" as TL
+#Include "AnimLib" as AL
+
+main() {
+  declare Toolbar_Tooltip_Quad <=> (Page.GetFirstChild("admin_toolbar_bar_tooltip_quad") as CMlQuad);
+  declare Toolbar_Tooltip_Label <=> (Page.GetFirstChild("admin_toolbar_bar_tooltip_text") as CMlLabel);
+
+  declare Text[Text] Tooltips = [
+    "admin_toolbar_bar_button_prev" => "Skip to previous map",
+    "admin_toolbar_bar_button_endround" => "Force end of round",
+    "admin_toolbar_bar_button_replay" => "Queue the map for replay",
+    "admin_toolbar_bar_button_skip" => "Skip the current map",
+    "admin_toolbar_bar_button_skip2" => "None",
+
+    "admin_toolbar_bar_button_settings" => "PyPlanet Settings",
+    "admin_toolbar_bar_button_modesettings" => "Game Settings",
+    "admin_toolbar_bar_button_players" => "Manage Players"
+  ];
+
+
+  while(True) {
+    foreach (Event in PendingEvents) {
+      if (Event.Type == CMlEvent::Type::MouseOver && TL::Find("admin_toolbar_bar_button", Event.ControlId, True, True)) {
+        Toolbar_Tooltip_Label.SetText(Tooltips[Event.ControlId]);
+        Toolbar_Tooltip_Label.Show();
+        Toolbar_Tooltip_Quad.Show();
+      }
+      if (Event.Type == CMlEvent::Type::MouseOut && TL::Find("admin_toolbar_bar_button", Event.ControlId, True, True)) {
+        Toolbar_Tooltip_Label.Hide();
+        Toolbar_Tooltip_Quad.Hide();
+      }
+    }
+    yield;
+  }
+}

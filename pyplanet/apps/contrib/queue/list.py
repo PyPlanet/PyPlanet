@@ -40,11 +40,12 @@ class QueueList:
 			# Add the player to the queue.
 			self.list.append(player)
 			index = self.list.index(player)
-			return index
 
 		# Call change hook.
 		if self.change_hook and callable(self.change_hook):
 			await self.change_hook(action='push', entity=player)
+
+		return index
 
 	async def count(self):
 		"""
@@ -55,6 +56,39 @@ class QueueList:
 		"""
 		with await self._lock:
 			return len(self.list)
+
+	async def has(self, player):
+		"""
+		Check if the player is in the queue list.
+
+		:param player: Player object
+		:return: boolean
+		:rtype: bool
+		"""
+		with await self._lock:
+			return self.list.count(player) != 0
+
+	async def get_position(self, player):
+		"""
+		Get the position of the player.
+
+		:param player: Player instance
+		:return: Integer of the position (index + 1) or None if not found.
+		"""
+		try:
+			with await self._lock:
+				return self.list.index(player) + 1
+		except ValueError:
+			return None
+
+	async def copy(self):
+		"""
+		Copy the list and return the copy.
+
+		:return: Copy of the player list.
+		"""
+		with await self._lock:
+			return self.list.copy()
 
 	async def pop(self):
 		"""
