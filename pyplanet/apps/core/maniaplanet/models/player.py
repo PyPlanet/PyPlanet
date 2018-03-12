@@ -61,6 +61,12 @@ class Player(TimedModel):
 
 	@property
 	def flow(self):
+		"""
+		Flow object of the player.
+
+		:return: flow object
+		:rtype: pyplanet.apps.core.maniaplanet.models.player.PlayerFlow
+		"""
 		return self.__flow
 
 	@property
@@ -113,6 +119,15 @@ class PlayerFlow:
 		self.is_temp_spectator = None
 		self.is_pure_spectator = None
 		self.spectator_target = None
+		self.force_spectator = None
+		self.is_referee = None
+		self.is_podium_ready = None
+		self.is_using_stereoscopy = None
+		self.is_managed_by_other_server = None
+		self.is_server = None
+		self.has_player_slot = None
+		self.is_broadcasting = None
+		self.has_joined_game = None
 		self.other = dict()
 
 	def start_run(self):
@@ -121,6 +136,30 @@ class PlayerFlow:
 	def reset_run(self):
 		if self.in_run:
 			self.in_run = False
+
+	def update_state(self, **data):
+		self.is_spectator = data.pop('is_spectator')
+		self.is_player = not self.is_spectator
+		self.spectator_target = data.pop('target')
+		self.team_id = data.pop('team_id')
+
+		for key, value in data.items():
+			setattr(self, key, value)
+
+	def reset_state(self):
+		self.is_player = None
+		self.is_spectator = None
+		self.is_pure_spectator = None
+		self.is_temp_spectator = None
+		self.force_spectator = None
+		self.is_referee = None
+		self.is_podium_ready = None
+		self.is_using_stereoscopy = None
+		self.is_managed_by_other_server = None
+		self.is_server = None
+		self.has_player_slot = None
+		self.is_broadcasting = None
+		self.has_joined_game = None
 
 
 class PlayerAttributes:

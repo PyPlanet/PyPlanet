@@ -24,6 +24,9 @@ class Voting(AppConfig):
 		self.widget = None
 		self.podium_stage = False
 
+		self.is_extended = False
+		self.original_ta = None
+
 		self.setting_voting_enabled = Setting(
 			'voting_enabled', 'Voting enabled', Setting.CAT_BEHAVIOUR, type=bool,
 			description='Whether or not chat-based voting is enabled.',
@@ -66,6 +69,12 @@ class Voting(AppConfig):
 			default=True
 		)
 
+		self.setting_enabled_time_extend = Setting(
+			'enabled_time_extend', 'Time Extend vote enabled', Setting.CAT_BEHAVIOUR, type=bool,
+			description='Whether or not the time extend vote is enabled (only works in TimeAttack mode).',
+			default=True
+		)
+
 		self.setting_remind_interval = Setting(
 			'remind_interval', 'Vote reminder interval', Setting.CAT_BEHAVIOUR, type=int,
 			description='Interval in seconds before players are reminded to vote.',
@@ -73,10 +82,11 @@ class Voting(AppConfig):
 		)
 
 	async def on_start(self):
-		await self.context.setting.register(self.setting_voting_enabled, self.setting_voting_ratio,
-											self.setting_remind_interval, self.setting_enabled_replay,
-											self.setting_enabled_restart, self.setting_enabled_skip,
-											self.setting_callvoting_disable, self.setting_callvoting_timeout)
+		await self.context.setting.register(
+			self.setting_voting_enabled, self.setting_voting_ratio, self.setting_remind_interval, self.setting_enabled_replay,
+			self.setting_enabled_restart, self.setting_enabled_skip, self.setting_callvoting_disable,
+			self.setting_callvoting_timeout, self.setting_enabled_time_extend
+		)
 
 		await self.instance.permission_manager.register('cancel', 'Cancel the current vote', app=self, min_level=1)
 		await self.instance.permission_manager.register('pass', 'Pass the current vote', app=self, min_level=1)
@@ -89,6 +99,7 @@ class Voting(AppConfig):
 			Command(command='replay', target=self.vote_replay),
 			Command(command='restart', aliases=['res'], target=self.vote_restart),
 			Command(command='skip', target=self.vote_skip),
+			Command(command='extend', target=self.vote_extend),
 		)
 
 		self.widget = VoteWidget(self)
@@ -122,6 +133,19 @@ class Voting(AppConfig):
 			await self.instance.chat(message)
 
 			self.current_vote = None
+
+		# Set back the timer if time has been extended.
+		if self.is_extended and self.original_ta:
+			self.is_extended = False
+
+			settings = await self.instance.mode_manager.get_settings()
+			if 'S_TimeLimit' not in settings:
+				return
+
+			settings['S_TimeLimit'] = self.original_ta
+			await self.instance.mode_manager.update_settings(settings)
+
+			self.original_ta = None
 
 	async def map_start(self, *args, **kwargs):
 		self.podium_stage = False
@@ -358,6 +382,65 @@ class Voting(AppConfig):
 		self.current_vote = None
 
 		await self.instance.gbx('NextMap')
+
+		if not forced:
+			await self.instance.chat(message)
+
+	async def vote_extend(self, player, data, **kwargs):
+		if self.current_vote is not None:
+			message = '$i$f00You cannot start a vote while one is already in progress.'
+			await self.instance.chat(message, player)
+			return
+
+		if await self.setting_voting_enabled.get_value() is False:
+			message = '$i$f00Chat-based voting has been disabled via the server settings!'
+			await self.instance.chat(message, player)
+			return
+
+		if await self.setting_enabled_time_extend.get_value() is False:
+			message = '$i$f00Skip voting has been disabled via the server settings!'
+			await self.instance.chat(message, player)
+			return
+
+		if 'timeattack' not in (await self.instance.mode_manager.get_current_script()).lower():
+			message = '$i$f00Time Extend voting is only supported in Time Attack modes!'
+			await self.instance.chat(message, player)
+			return
+
+		if self.podium_stage:
+			message = '$i$f00You cannot start a vote during the podium!'
+			await self.instance.chat(message, player)
+			return
+
+		if player.flow.is_spectator:
+			message = '$i$f00Only players are allowed to vote.'
+			await self.instance.chat(message, player)
+			return
+
+		self.current_vote = await self.create_vote('extend time limit on this map', player, self.vote_extend_finished)
+
+		message = '$fff{}$z$s$0cf wants to $fff{}$0cf, $fff{}$0cf more {} needed (use $fffF5$0cf to vote).'.format(
+			player.nickname, self.current_vote.action, self.current_vote.votes_required, ('votes' if self.current_vote.votes_required > 1 else 'vote')
+		)
+		await self.instance.chat(message)
+		await self.current_vote.add_vote(player)
+
+	async def vote_extend_finished(self, vote, forced):
+		message = '$0cfVote to $fff{}$0cf has passed.'.format(vote.action)
+		self.current_vote = None
+
+		settings = await self.instance.mode_manager.get_settings()
+		if 'S_TimeLimit' not in settings:
+			await self.instance.chat('$0cfVote to $fff{}$0cf has failed, current mode not Time Attack?')
+			return
+
+		temp_settings = settings.copy()
+		temp_settings['S_TimeLimit'] = temp_settings['S_TimeLimit'] * 2
+
+		self.original_ta = settings['S_TimeLimit']
+		self.is_extended = True
+
+		await self.instance.mode_manager.update_settings(temp_settings)
 
 		if not forced:
 			await self.instance.chat(message)

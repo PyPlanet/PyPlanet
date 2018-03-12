@@ -23,10 +23,6 @@ This app enables players to have their map records stored at Dedimania.net. Disp
 3. Type //settings and edit the two settings for dedimania, paste the code in the code entry.
 4. Save and restart PyPlanet.
 
-.. warning::
-
-  The Dedimania App has not yet been fully tested with Rounds and Laps modes.
-
 Commands
 --------
 

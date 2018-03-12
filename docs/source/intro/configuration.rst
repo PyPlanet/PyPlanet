@@ -462,6 +462,9 @@ The order doesn't make a difference when starting/loading PyPlanet.
       'pyplanet.apps.contrib.clock',
       'pyplanet.apps.contrib.best_cps',
       'pyplanet.apps.contrib.voting',
+
+      # New since 0.6.0:
+      'pyplanet.apps.contrib.queue',
     ],
   }
 
@@ -489,6 +492,9 @@ The order doesn't make a difference when starting/loading PyPlanet.
       - 'pyplanet.apps.contrib.best_cps'
       - 'pyplanet.apps.contrib.voting'
 
+      # New since 0.6.0:
+      - 'pyplanet.apps.contrib.queue'
+
 .. code-block:: json
   :caption: apps.json
 
@@ -510,7 +516,9 @@ The order doesn't make a difference when starting/loading PyPlanet.
 
         "pyplanet.apps.contrib.clock",
         "pyplanet.apps.contrib.best_cps",
-        "pyplanet.apps.contrib.voting"
+        "pyplanet.apps.contrib.voting",
+
+        "pyplanet.apps.contrib.queue"
       ]
     }
   }

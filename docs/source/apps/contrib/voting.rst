@@ -50,6 +50,17 @@ Functionality:
 Required permission:
   None.
 
+Extend TimeAttack Time
+~~~~~~~~~~~~~~~~~~~~~~
+Command:
+  ``/extend``
+Parameters:
+  None.
+Functionality:
+  Initiate time extend vote.
+Required permission:
+  None.
+
 Vote Yes
 ~~~~~~~~
 Command:
