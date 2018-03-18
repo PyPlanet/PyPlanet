@@ -52,7 +52,11 @@ class LocalRecords(AppConfig):
 		self.context.signals.listen(tm_signals.finish, self.player_finish)
 		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
 
+		# Register settings
 		await self.context.setting.register(self.setting_chat_announce, self.setting_record_limit)
+
+		# Register permissions
+		await self.instance.permission_manager.register('manage_records', 'Manage records', app=self, min_level=3)
 
 		# Load initial data.
 		await self.refresh_locals()
@@ -84,6 +88,19 @@ class LocalRecords(AppConfig):
 			'record_count': len(record_list),
 			'first_record': record_list[0] if len(record_list) > 0 else None
 		}
+
+	async def get_local(self, id):
+		return await LocalRecord.get(id=id)
+
+	async def refresh(self):
+		await self.refresh_locals()
+		if self.widget:
+			await self.widget.refresh()
+
+	async def delete_record(self, record):
+		await LocalRecord.execute(
+			LocalRecord.delete().where(LocalRecord.id == record.get_id())
+		)
 
 	async def refresh_locals(self):
 		record_list = await LocalRecord.objects.execute(

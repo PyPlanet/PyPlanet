@@ -2,6 +2,7 @@ import math
 
 from pyplanet.utils.style import style_strip
 from pyplanet.utils.times import format_time
+from pyplanet.views.generics import ask_confirmation
 from pyplanet.views.generics.widget import TimesWidgetView
 from pyplanet.views.generics.list import ManualListView
 from pyplanet.utils import times
@@ -204,12 +205,45 @@ class LocalRecordsListView(ManualListView):
 			record_time_difference = ''
 			if index > 1:
 				record_time_difference = '$f00 + ' + times.format_time((item.score - first_time))
-			items.append({'index': index, 'player_nickname': record_player.nickname,
-						  'record_time': times.format_time(item.score),
-						  'record_time_difference': record_time_difference})
+			items.append({
+				'id': item.get_id(),
+				'index': index, 'player_nickname': record_player.nickname,
+				'record_time': times.format_time(item.score),
+				'record_time_difference': record_time_difference
+			})
 			index += 1
 
 		return items
+
+	async def get_actions(self):
+		return [
+			dict(
+				name='Delete record',
+				action=self.delete_record,
+				text='&#xf1f8;',
+				textsize='1.2',
+				safe=True,
+				type='label',
+				order=49,
+				require_confirm=False,
+			)
+		]
+
+	async def delete_record(self, player, values, data, view, **kwargs):
+		if not await self.app.instance.permission_manager.has_permission(player, 'local_records:manage_records'):
+			return await self.app.instance.chat('$ff0You do not have permissions to manage local records!')
+
+		try:
+			record = await self.app.get_local(id=data['id'])
+		except:
+			return
+
+		if not await ask_confirmation(player, 'Are you sure you want to remove record {} by {}'.format(
+			format_time(record.score), style_strip((await record.get_related('player')).nickname)
+		), size='sm'):
+			await self.app.delete_record(record)
+			await self.app.refresh()
+			await self.refresh(player)
 
 
 class LocalRecordCpCompareListView(ManualListView):
