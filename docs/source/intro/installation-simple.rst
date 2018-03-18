@@ -4,7 +4,9 @@ Installation by Binary (Experimental)
 
 .. error::
 
-  **EXPERIMENTAL**: This method is new and can be unstable. Added since 0.5.0.
+  **EXPERIMENTAL**: This method is new and can be unstable.
+
+  **UNRELEASED**: This method is hold back and is not yet released.
 
 .. contents::
 

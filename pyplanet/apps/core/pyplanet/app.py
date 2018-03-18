@@ -3,7 +3,7 @@ import platform
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.core.pyplanet.dev import DevComponent
 from pyplanet.apps.core.pyplanet.setting import SettingComponent
-from pyplanet.apps.core.pyplanet.views.logo import LogoView
+from pyplanet.apps.core.pyplanet.views.controller import ControllerView
 from pyplanet.contrib.command import Command
 
 from pyplanet import __version__ as version
@@ -19,8 +19,8 @@ class PyPlanetConfig(AppConfig):
 		self.setting = SettingComponent(self)
 		self.dev = DevComponent(self)
 
-		# Initiate logo view.
-		self.logo = LogoView(manager=self.context.ui)
+		# Initiate app (global) view.
+		self.controller_view = ControllerView(manager=self.context.ui)
 
 	async def on_init(self):
 		# Call components.
@@ -38,14 +38,14 @@ class PyPlanetConfig(AppConfig):
 		self.instance.ui_manager.properties.set_attribute('warmup', 'pos', '86., 87., 5.')
 
 		# Display logo.
-		await self.logo.display()
+		await self.controller_view.display()
 
 		# Listeners.
 		self.context.signals.listen('maniaplanet:player_connect', self.on_connect)
 		await self.instance.command_manager.register(Command('version', self.chat_version))
 
 	async def on_connect(self, player, **kwargs):
-		await self.logo.display(player_logins=[player.login])
+		await self.controller_view.display(player_logins=[player.login])
 
 	async def chat_version(self, player, *args, **kwargs):
 		message = '$ff0PyPlanet: $fff{}$ff0 (Python $fff{}$ff0), current apps: $fff'.format(version, platform.python_version())

@@ -8,3 +8,5 @@
   <label pos="140 -86.5" z-index="100" size="52 5" text="Report issue / suggestion" style="TextButtonNav" scale="0.6"
          url="https://github.com/PyPlanet/PyPlanet/issues/new" halign="center" />
 {% endif %}
+
+<script><!-- {% include 'core.pyplanet/controller.Script.Txt' %} --></script>

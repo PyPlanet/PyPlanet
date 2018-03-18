@@ -1,0 +1,24 @@
+
+<frame pos="65 -70" z-index="60" id="queue_widget_frame">
+  <quad pos="0 0" z-index="0" size="26 6" bgcolor="00000060"/>
+  <quad pos="26.5 0" z-index="0" size="19.75 6" bgcolor="00000060"/>
+  <quad pos="26.5 0" z-index="0" size="19.75 6" bgcolor="00000060"/>
+
+  <label pos="13 -3" z-index="1" size="26 6"
+         text="{% if position != None %}Position {{ position }} / {{ total }}{% else %}Not in queue!{% endif %}"
+         textsize="1.6" textfont="RajdhaniMono" textemboss="1" halign="center" valign="center2"
+         id="queue_widget_text"/>
+
+  {% if position != None %}
+    <label pos="36.375 -3" z-index="1" size="19.75 6" text="&#xe940; Exit"
+           textsize="1.6" textfont="RajdhaniMono" textemboss="1" halign="center" valign="center2"
+           id="queue_widget_toggle_exit" scriptevents="1" action="{{ id }}__exit" />
+  {% else %}
+    <label pos="36.375 -3" z-index="1" size="19.75 6" text="&#xe93e; Enter"
+           textsize="1.6" textfont="RajdhaniMono" textemboss="1" halign="center" valign="center2"
+           id="queue_widget_toggle_enter" scriptevents="1" action="{{ id }}__enter" />
+  {% endif %}
+
+</frame>
+
+<script><!-- {% include 'queue/queue.Script.Txt' %} --></script>

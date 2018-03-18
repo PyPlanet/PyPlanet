@@ -23,12 +23,20 @@ This app enables players to have their map records stored at Dedimania.net. Disp
 3. Type //settings and edit the two settings for dedimania, paste the code in the code entry.
 4. Save and restart PyPlanet.
 
-.. warning::
-
-  The Dedimania App has not yet been fully tested with Rounds and Laps modes.
-
 Commands
 --------
+
+Compare checkpoints
+~~~~~~~~~~~~~~~~~~~
+Command:
+  ``/dedicps [record nr to compare with]``
+Parameters:
+  - Optional record number to compare with, will compare with record nr 1 if none is given.
+Functionality:
+  Displays a list with checkpoint times of the record and your dedimania record showing
+  the exact differences per checkpoint.
+Required permission:
+  None.
 
 
 Signal handlers

@@ -15,6 +15,7 @@ class WidgetView(TemplateView):
 	size_y = None
 	title = None
 	action = None
+	distraction_hide = True
 
 	template_name = 'core.views/generics/widget.xml'
 
@@ -83,6 +84,7 @@ class WidgetView(TemplateView):
 		context.update({
 			'widget_x': self.widget_x,
 			'widget_y': self.widget_y,
+			'distraction_hide': self.distraction_hide,
 			'size_x': self.size_x,
 			'size_y': self.size_y,
 			'hover_color': hover_color,

@@ -1,12 +1,12 @@
 from pyplanet.views import TemplateView
 
 
-class LogoView(TemplateView):
-	template_name = 'core.pyplanet/logo.xml'
+class ControllerView(TemplateView):
+	template_name = 'core.pyplanet/controller.xml'
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-		self.id = 'pyplanet__logo'
+		self.id = 'pyplanet__controller'
 
 	async def get_context_data(self):
 		from pyplanet.core import Controller

@@ -1,0 +1,15 @@
+
+declare netwrite Boolean Net_DistractionFreeMode for UI;
+
+while(True) {
+  foreach (Event in PendingEvents) {
+    if (Event.Type == CMlScriptEvent::Type::KeyPress && Event.KeyCode == 44) {
+      if (Net_DistractionFreeMode == True) {
+        Net_DistractionFreeMode = False;
+      } else {
+        Net_DistractionFreeMode = True;
+      }
+    }
+  }
+  yield;
+}
