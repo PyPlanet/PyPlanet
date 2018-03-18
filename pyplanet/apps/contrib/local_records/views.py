@@ -1,5 +1,7 @@
 import math
 
+from pyplanet.utils.style import style_strip
+from pyplanet.utils.times import format_time
 from pyplanet.views.generics.widget import TimesWidgetView
 from pyplanet.views.generics.list import ManualListView
 from pyplanet.utils import times
@@ -208,3 +210,97 @@ class LocalRecordsListView(ManualListView):
 			index += 1
 
 		return items
+
+
+class LocalRecordCpCompareListView(ManualListView):
+	title = 'Local Record checkpoint comparison'
+	icon_style = 'Icons128x128_1'
+	icon_substyle = 'Statistics'
+
+	def __init__(self, app, own_record, own_rank, compare_record, compare_rank):
+		"""
+		Init compare listview.
+
+		:param app: App instance
+		:param own_record: Own record
+		:param own_rank: Own rank number
+		:param compare_record: Compare with record.
+		:param compare_rank: Compare rank number
+		:type own_record: pyplanet.apps.contrib.local_records.models.local_record.LocalRecord
+		:type compare_record: pyplanet.apps.contrib.local_records.models.local_record.LocalRecord
+		"""
+		super().__init__(self)
+		self.app = app
+		self.manager = app.context.ui
+		self.provide_search = False
+
+		self.own_record = own_record
+		self.own_rank = own_rank
+		self.compare_record = compare_record
+		self.compare_rank = compare_rank
+
+	async def get_fields(self):
+		own_player = await self.own_record.get_related('player')
+		compare_player = await self.compare_record.get_related('player')
+
+		return [
+			{
+				'name': 'Checkpoint',
+				'index': 'cp',
+				'sorting': False,
+				'searching': False,
+				'width': 40,
+				'type': 'label'
+			},
+			{
+				'name': '#{}: $n{}'.format(self.own_rank, style_strip(own_player.nickname)),
+				'index': 'own_time',
+				'sorting': False,
+				'searching': False,
+				'width': 70
+			},
+			{
+				'name': '#{}: $n{}'.format(self.compare_rank, style_strip(compare_player.nickname)),
+				'index': 'compare_time',
+				'sorting': False,
+				'searching': False,
+				'width': 70,
+			},
+			{
+				'name': 'Difference',
+				'index': 'difference',
+				'sorting': False,
+				'searching': False,
+				'width': 50,
+				'type': 'label'
+			},
+		]
+
+	async def get_title(self):
+		return 'Local Record CP comparison on {}'.format(self.app.instance.map_manager.current_map.name)
+
+	def get_diff_text(self, a, b):
+		diff = a - b
+		diff_prefix = '$FFF'
+		if diff > 0:
+			diff_prefix = '$F66+'  # Red
+		elif diff < 0:
+			diff_prefix = '$6CF- '  # Blue
+
+		return '{}{}'.format(diff_prefix, format_time(abs(diff)))
+
+	async def get_data(self):
+		own_cps = [int(c) for c in self.own_record.checkpoints.split(',')]
+		compare_cps = [int(c) for c in self.compare_record.checkpoints.split(',')]
+		total_cps = len(own_cps)
+
+		data = list()
+		for cp, (own, compare) in enumerate(zip(own_cps, compare_cps)):
+			data.append(dict(
+				cp='Finish' if (cp + 1) == total_cps else cp + 1,
+				own_time=format_time(own),
+				compare_time=format_time(compare),
+				difference=self.get_diff_text(own, compare)
+			))
+
+		return data

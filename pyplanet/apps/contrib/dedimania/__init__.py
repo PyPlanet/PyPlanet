@@ -10,7 +10,6 @@ from pyplanet.apps.contrib.dedimania.exceptions import DedimaniaException, Dedim
 	DedimaniaNotSupportedException, DedimaniaFault, DedimaniaInvalidCredentials
 from pyplanet.apps.core.trackmania import callbacks as tm_signals
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
-from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.dedimania.api import DedimaniaAPI, DedimaniaRecord
 from pyplanet.apps.contrib.dedimania.exceptions import (
 	DedimaniaException, DedimaniaTransportException, DedimaniaNotSupportedException,

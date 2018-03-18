@@ -40,7 +40,12 @@ class LocalRecords(AppConfig):
 
 	async def on_start(self):
 		# Register commands
-		await self.instance.command_manager.register(Command(command='records', target=self.show_records_list))
+		await self.instance.command_manager.register(
+			Command(command='records', target=self.show_records_list),
+			Command(
+				'localcps', target=self.command_localcps, description='Compare your local record checkpoints with another record.'
+			).add_param('record', required=False, type=int, help='Custom record rank to compare with. Defaults to 1.', default=1)
+		)
 
 		# Register signals
 		self.context.signals.listen(mp_signals.map.map_begin, self.map_begin)
@@ -254,3 +259,32 @@ class LocalRecords(AppConfig):
 		else:
 			message = '$0f3You don\'t have a Local Record on this map yet.'
 			return self.instance.chat(message, player)
+
+	async def command_localcps(self, player, data, *args, **kwargs):
+		"""
+		Compare local checkpoints from your record to another record, defaults to 1st record.
+
+		:param player: Player instance
+		:param data: Arguments data
+		:param args: *
+		:param kwargs: **
+		:return:
+		"""
+		async with self.lock:
+			record = [x for x in self.current_records if x.player_id == player.get_id()]
+
+			if not len(record):
+				message = '$0b3You don\'t have a Local Record on this map yet.'
+				return await self.instance.chat(message, player)
+
+			if data.record > len(self.current_records):
+				message = '$0b3There is no record for rank {}!'.format(data.record)
+				return await self.instance.chat(message, player)
+
+			compare_record = self.current_records[data.record - 1]
+
+			record_index = self.current_records.index(record[0])
+			compare_index = self.current_records.index(compare_record)
+
+		view = views.LocalRecordCpCompareListView(self, record[0], record_index, compare_record, compare_index)
+		await view.display(player)
