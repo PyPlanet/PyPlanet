@@ -6,8 +6,11 @@ from pprint import pprint
 
 import asyncio
 
+from datetime import datetime
+from peewee import JOIN
+
 from pyplanet.apps.contrib.local_records import LocalRecord
-from pyplanet.apps.core.maniaplanet.models import Map
+from pyplanet.apps.core.maniaplanet.models import Map, Player
 from pyplanet.apps.core.statistics.models import Score, fn
 
 
@@ -24,6 +27,9 @@ class StatisticsProcessor:
 		:type app: pyplanet.apps.core.statistics.Statistics
 		"""
 		self.app = app
+
+		self.topsums_cache = None
+		self.topsums_cache_time = None
 
 	async def get_dashboard_data(self, player):
 		"""
@@ -101,3 +107,43 @@ class StatisticsProcessor:
 					top += 1
 			return top
 		return False
+
+	async def get_topsums(self):
+		"""
+		Get the topsums of the server.
+
+		:return: List of top 100 players on the server with the statistics.
+		"""
+		if 'local_records' not in self.app.instance.apps.apps:
+			return None
+
+		now = datetime.now()
+		diff = now - self.topsums_cache_time if self.topsums_cache_time else False
+		if not self.topsums_cache or not diff or diff.total_seconds() > 60:
+			self.topsums_cache = None
+			self.topsums_cache_time = None
+		elif self.topsums_cache:
+			return self.topsums_cache
+
+		maps = self.app.instance.map_manager.maps
+		players = dict()
+
+		for map_instance in maps:
+			res = await LocalRecord.objects.execute(
+				LocalRecord.select(LocalRecord, Player)
+					.join(Player)
+					.where(LocalRecord.map_id == map_instance)
+					.order_by(LocalRecord.score)
+					.limit(3)
+			)
+			for rank, entry in enumerate(res):
+				if entry.player not in players:
+					players[entry.player] = [0, 0, 0]
+				players[entry.player][rank] += 1
+
+		topsums = list(players.items())
+		topsums.sort(key=lambda item: item[1][0] + item[1][1] + item[1][2], reverse=True)
+
+		self.topsums_cache = topsums[:100]
+		self.topsums_cache_time = datetime.now()
+		return self.topsums_cache

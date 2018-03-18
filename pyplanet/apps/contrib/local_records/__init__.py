@@ -63,14 +63,14 @@ class LocalRecords(AppConfig):
 
 		await self.widget.display()
 
-		await self.load_map_locals()
-
 	async def load_map_locals(self, map=None):
 		if map:
 			map.local = await self.get_map_record(map)
 		else:
+			coros = list()
 			for map in self.instance.map_manager.maps:
-				map.local = await self.get_map_record(map)
+				coros.append(self.load_map_locals(map=map))
+			await asyncio.gather(*coros)
 
 	async def get_map_record(self, map):
 		record_list = await LocalRecord.objects.execute(

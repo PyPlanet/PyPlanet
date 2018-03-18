@@ -15,7 +15,7 @@
         <!-- Numbers -->
         <quad pos="0 0" size="100 25" bgcolor="FFFFFF11" />
         <label pos="1.5 -1.5" size="70 8" halign="left" valign="left" textsize="2.0" textcolor="FFF" text="$oPersonal Facts and numbers" />
-        <label pos="85 -3.5" style="CardButtonSmallS" valign="center" halign="center" text="More" translate="1" action="{{ id }}__button_facts" />
+{#        <label pos="85 -3.5" style="CardButtonSmallS" valign="center" halign="center" text="More" translate="1" action="{{ id }}__button_facts" />#}
 
         <label pos="1.5 -7" size="60 8" halign="left" valign="left" textsize="1.5" textcolor="FFF" text="Number of finishes" />
         <label pos="70 -7" size="60 8" halign="left" valign="left" textsize="1.5" textcolor="FFF" text="{{ numbers.finishes }}" />
