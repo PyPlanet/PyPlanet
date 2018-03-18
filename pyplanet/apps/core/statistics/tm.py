@@ -28,7 +28,7 @@ class TrackmaniaComponent:
 
 		# Register commands.
 		await self.app.instance.command_manager.register(
-			Command('stats', target=self.open_stats),
+			# Command('stats', target=self.open_stats),
 			Command('topsums', target=self.topsums),
 			Command(command='scoreprogression', aliases=['progression'], target=self.open_score_progression),
 		)
