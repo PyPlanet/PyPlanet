@@ -16,6 +16,7 @@ from pyplanet.apps.contrib.dedimania.exceptions import (
 	DedimaniaException, DedimaniaTransportException, DedimaniaNotSupportedException,
 	DedimaniaFault, DedimaniaInvalidCredentials
 )
+from pyplanet.contrib.command import Command
 from pyplanet.contrib.setting import Setting
 from pyplanet.utils import times
 from pyplanet.utils.log import handle_exception
@@ -97,6 +98,13 @@ class Dedimania(AppConfig):
 		self.context.signals.listen(tm_signals.finish, self.player_finish)
 		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
 		self.context.signals.listen(mp_signals.player.player_disconnect, self.player_disconnect)
+
+		# Register commands
+		await self.instance.command_manager.register(
+			Command(
+				'dedicps', target=self.command_dedicps, description='Compare your dedimania record checkpoints with another record.'
+			).add_param('record', required=False, type=int, help='Custom record rank to compare with. Defaults to 1.', default=1)
+		)
 
 		# Change round results widget location.
 
@@ -531,3 +539,29 @@ class Dedimania(AppConfig):
 		else:
 			message = '$0b3You don\'t have a Dedimania Record on this map yet.'
 			return self.instance.chat(message, player)
+
+	async def command_dedicps(self, player, data, *args, **kwargs):
+		"""
+		Compare dedi checkpoints from your record to another record, defaults to 1st record.
+
+		:param player: Player instance
+		:param data: Arguments data
+		:param args: *
+		:param kwargs: **
+		:return:
+		"""
+		async with self.lock:
+			record = [x for x in self.current_records if x.login == player.login]
+
+			if data.record > len(self.current_records):
+				message = '$0b3There is no record for rank {}!'.format(data.record)
+				return await self.instance.chat(message, player)
+
+			compare_record = self.current_records[data.record - 1]
+
+		if not len(record):
+			message = '$0b3You don\'t have a Dedimania Record on this map yet.'
+			return await self.instance.chat(message, player)
+
+		view = views.DedimaniaCpCompareListView(self, record[0], compare_record)
+		await view.display(player)
