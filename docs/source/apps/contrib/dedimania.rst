@@ -26,6 +26,18 @@ This app enables players to have their map records stored at Dedimania.net. Disp
 Commands
 --------
 
+Compare checkpoints
+~~~~~~~~~~~~~~~~~~~
+Command:
+  ``/dedicps [record nr to compare with]``
+Parameters:
+  - Optional record number to compare with, will compare with record nr 1 if none is given.
+Functionality:
+  Displays a list with checkpoint times of the record and your dedimania record showing
+  the exact differences per checkpoint.
+Required permission:
+  None.
+
 
 Signal handlers
 ---------------
