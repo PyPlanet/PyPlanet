@@ -74,8 +74,10 @@ class Karma(AppConfig):
 		if map:
 			map.karma = await self.get_map_karma(map)
 		else:
+			coros = list()
 			for map in self.instance.map_manager.maps:
-				map.karma = await self.get_map_karma(map)
+				coros.append(self.load_map_votes(map=map))
+			await asyncio.gather(*coros)
 
 	async def show_map_list(self, player, map=None, **kwargs):
 		"""
