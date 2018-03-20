@@ -1,10 +1,9 @@
 import asyncio
 import async_timeout
 import aiohttp
-from bs4 import BeautifulSoup
 import re
 
-from pyplanet.contrib.setting import Setting
+from pyplanet.conf import settings
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 from pyplanet.contrib.command import Command
@@ -18,11 +17,6 @@ class MusicServer(AppConfig):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-		self.setting_music_server_url_or_path = Setting(
-			'music_server_url', 'Music Server Files URL', Setting.CAT_KEYS, type=str,
-			description='Http link to directory where all song are. They must be in .ogg and downloadable!',
-			default='http://5.230.142.8/tm/music/', change_target=self.reload_settings
-		)
 		self.lock = asyncio.Lock()
 		self.context.signals.listen(mp_signals.map.map_end, self.map_end)
 		self.server = None
@@ -34,10 +28,7 @@ class MusicServer(AppConfig):
 		self.playlist_view = None
 
 	async def on_start(self):
-		await self.context.setting.register(
-			self.setting_music_server_url_or_path
-		)
-		await self.reload_settings()
+		self.songs = await self.get_songs()
 		self.list_view = MusicListView(self)
 		self.playlist_view = PlaylistView(self)
 		await self.instance.command_manager.register(
@@ -46,13 +37,9 @@ class MusicServer(AppConfig):
 			Command(command='song', target=self.get_current_song, admin=False),
 			Command(command='songlist', aliases='musiclist', target=self.song_list, admin=False),
 			Command(command='playlist', target=self.show_playlist, admin=False),
-			Command(command='clearplaylist', target=self.clear_playlist, admin=True)
+			Command(command='clearplaylist', target=self.clear_playlist, admin=True),
 		)
 		self.current_song_index = -1
-
-	async def reload_settings(self, *args, **kwargs):
-		self.server = await self.setting_music_server_url_or_path.get_value(refresh=True)
-		self.songs = await self.get_songs()
 
 	async def song_list(self, player, *args, **kwargs):
 		self.list_view = MusicListView(self)
@@ -162,18 +149,23 @@ class MusicServer(AppConfig):
 			return tags
 
 	async def get_songs(self):
+		setting = settings.SONGS
+		if isinstance(setting, dict) and self.instance.process_name in setting:
+			setting = setting[self.instance.process_name]
+		if not isinstance(setting, list):
+			setting = None
+
+		if not setting:
+			message = '$ff0Default music file setting not configured in your settings file!'
+			await self.instance.chat(message)
+			return
+
 		self.songs.clear()
-		if self.server.startswith("http"):
-			async with aiohttp.ClientSession() as session:
-				async with session.get(self.server) as response:
-					page = await response.text()
-					soup = BeautifulSoup(page, 'html.parser')
-					items = [self.server + node.get('href') for node in soup.find_all('a') if node.get('href').endswith('ogg')]
-					await response.release()
-				tags = [self.get_tags(session, song) for song in items]
-				tag_list = await asyncio.gather(*tags)
-				await session.close()
-			return [(song.replace("%20", " "), tag_list[i]) for i, song in enumerate(items)]
+		songlist = setting
+		async with aiohttp.ClientSession() as session:
+			tags = [self.get_tags(session, song) for song in songlist]
+			tag_list = await asyncio.gather(*tags)
+		return [(song.replace("%20", " "), tag_list[i]) for i, song in enumerate(songlist)]
 
 	async def get_current_song(self, player, *args, **kwargs):
 		if self.current_song:

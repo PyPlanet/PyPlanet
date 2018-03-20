@@ -188,3 +188,9 @@ STORAGE = {
 OWNERS = {
 	'default': []
 }
+
+# Songs is a list of URLs to .ogg files of song to be played by the music server.
+SONGS = {
+	'default': []
+}
+
