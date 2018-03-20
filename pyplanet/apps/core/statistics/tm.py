@@ -3,6 +3,7 @@ Trackmania app component.
 """
 from pyplanet.apps.core.statistics.models import Score
 from pyplanet.apps.core.statistics.views.dashboard import StatsDashboardView
+from pyplanet.apps.core.statistics.views.records import TopSumsView
 from pyplanet.apps.core.statistics.views.score import StatsScoresListView
 from pyplanet.apps.core.trackmania.callbacks import finish
 from pyplanet.contrib.command import Command
@@ -26,11 +27,9 @@ class TrackmaniaComponent:
 		self.app.context.signals.listen(finish, self.on_finish)
 
 		# Register commands.
-		# TODO: Finish work here!
-		# await self.app.instance.command_manager.register(
-		# 	Command('stats', target=self.open_stats)
-		# )
 		await self.app.instance.command_manager.register(
+			# Command('stats', target=self.open_stats),
+			Command('topsums', target=self.topsums),
 			Command(command='scoreprogression', aliases=['progression'], target=self.open_score_progression),
 		)
 
@@ -49,4 +48,9 @@ class TrackmaniaComponent:
 
 	async def open_score_progression(self, player, **kwargs):
 		view = StatsScoresListView(self.app, player)
+		await view.display(player)
+
+	async def topsums(self, player, *args, **kwargs):
+		await self.app.instance.chat('$0f3Loading Top Record Players ...', player)
+		view = TopSumsView(self.app, player, await self.app.processor.get_topsums())
 		await view.display(player)

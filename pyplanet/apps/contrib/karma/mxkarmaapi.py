@@ -45,7 +45,7 @@ class MXKarmaApi:
 		if self.session and hasattr(self.session, '__aexit__'):
 			logger.debug('Closing session for MX Karma communication.')
 
-			await self.session.__aexit__()
+			await self.session.__aexit__(None, None, None)
 
 	async def start_session(self):
 		"""

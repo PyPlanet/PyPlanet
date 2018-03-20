@@ -1,5 +1,7 @@
 import math
 
+from pyplanet.utils.style import style_strip
+from pyplanet.utils.times import format_time
 from pyplanet.views.generics.widget import TimesWidgetView
 from pyplanet.views.generics.list import ManualListView
 from pyplanet.utils import times
@@ -184,9 +186,98 @@ class DedimaniaRecordsListView(ManualListView):
 				record_time_difference = ''
 				if index > 1:
 					record_time_difference = '$f00 + ' + times.format_time((item.score - first_time))
-				items.append({'index': index, 'nickname': item.nickname,
-								  'record_time': times.format_time(item.score),
-								  'record_time_difference': record_time_difference})
+				items.append({
+					'index': index, 'nickname': item.nickname,
+					'record_time': times.format_time(item.score),
+					'record_time_difference': record_time_difference
+				})
 				index += 1
 
 		return items
+
+
+class DedimaniaCpCompareListView(ManualListView):
+	title = 'Dedimania checkpoint comparison'
+	icon_style = 'Icons128x128_1'
+	icon_substyle = 'Statistics'
+
+	def __init__(self, app, own_record, compare_record):
+		"""
+		Init compare listview.
+
+		:param app: App instance
+		:param own_record: Own record
+		:param compare_record: Compare with record.
+		:type own_record: pyplanet.apps.contrib.dedimania.api.DedimaniaRecord
+		:type compare_record: pyplanet.apps.contrib.dedimania.api.DedimaniaRecord
+		"""
+		super().__init__(self)
+		self.app = app
+		self.manager = app.context.ui
+		self.provide_search = False
+
+		self.own_record = own_record
+		self.compare_record = compare_record
+
+	async def get_fields(self):
+		return [
+			{
+				'name': 'Checkpoint',
+				'index': 'cp',
+				'sorting': False,
+				'searching': False,
+				'width': 40,
+				'type': 'label'
+			},
+			{
+				'name': '#{}: $n{}'.format(self.own_record.rank, style_strip(self.own_record.nickname)),
+				'index': 'own_time',
+				'sorting': False,
+				'searching': False,
+				'width': 70
+			},
+			{
+				'name': '#{}: $n{}'.format(self.compare_record.rank, style_strip(self.compare_record.nickname)),
+				'index': 'compare_time',
+				'sorting': False,
+				'searching': False,
+				'width': 70,
+			},
+			{
+				'name': 'Difference',
+				'index': 'difference',
+				'sorting': False,
+				'searching': False,
+				'width': 50,
+				'type': 'label'
+			},
+		]
+
+	async def get_title(self):
+		return 'Dedimania CP comparison on {}'.format(self.app.instance.map_manager.current_map.name)
+
+	def get_diff_text(self, a, b):
+		diff = a - b
+		diff_prefix = '$FFF'
+		if diff > 0:
+			diff_prefix = '$F66+'  # Red
+		elif diff < 0:
+			diff_prefix = '$6CF- '  # Blue
+
+		return '{}{}'.format(diff_prefix, format_time(abs(diff)))
+
+	async def get_data(self):
+		own_cps = [int(c) for c in self.own_record.cps.split(',')]
+		compare_cps = [int(c) for c in self.compare_record.cps.split(',')]
+		total_cps = len(own_cps)
+
+		data = list()
+		for cp, (own, compare) in enumerate(zip(own_cps, compare_cps)):
+			data.append(dict(
+				cp='Finish' if (cp + 1) == total_cps else cp + 1,
+				own_time=format_time(own),
+				compare_time=format_time(compare),
+				difference=self.get_diff_text(own, compare)
+			))
+
+		return data

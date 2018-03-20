@@ -1,15 +1,18 @@
 -r requirements.txt
 
 # Documentation Building.
-sphinx==1.7.0
+sphinx==1.7.1
 sphinx-autobuild==0.7.1
 sphinx_rtd_theme==0.2.4
-sphinx-intl==0.9.10
+sphinx-intl==0.9.11
 
 # Testing Utilities.
 nose
 rednose
 coverage
 asynctest
-twine
 python-coveralls
+
+# Release Utilities.
+twine
+bumpversion==0.5.3

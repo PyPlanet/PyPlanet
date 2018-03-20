@@ -40,14 +40,23 @@ class LocalRecords(AppConfig):
 
 	async def on_start(self):
 		# Register commands
-		await self.instance.command_manager.register(Command(command='records', target=self.show_records_list))
+		await self.instance.command_manager.register(
+			Command(command='records', target=self.show_records_list),
+			Command(
+				'localcps', target=self.command_localcps, description='Compare your local record checkpoints with another record.'
+			).add_param('record', required=False, type=int, help='Custom record rank to compare with. Defaults to 1.', default=1)
+		)
 
 		# Register signals
 		self.context.signals.listen(mp_signals.map.map_begin, self.map_begin)
 		self.context.signals.listen(tm_signals.finish, self.player_finish)
 		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
 
+		# Register settings
 		await self.context.setting.register(self.setting_chat_announce, self.setting_record_limit)
+
+		# Register permissions
+		await self.instance.permission_manager.register('manage_records', 'Manage records', app=self, min_level=3)
 
 		# Load initial data.
 		await self.refresh_locals()
@@ -58,14 +67,14 @@ class LocalRecords(AppConfig):
 
 		await self.widget.display()
 
-		await self.load_map_locals()
-
 	async def load_map_locals(self, map=None):
 		if map:
 			map.local = await self.get_map_record(map)
 		else:
+			coros = list()
 			for map in self.instance.map_manager.maps:
-				map.local = await self.get_map_record(map)
+				coros.append(self.load_map_locals(map=map))
+			await asyncio.gather(*coros)
 
 	async def get_map_record(self, map):
 		record_list = await LocalRecord.objects.execute(
@@ -79,6 +88,19 @@ class LocalRecords(AppConfig):
 			'record_count': len(record_list),
 			'first_record': record_list[0] if len(record_list) > 0 else None
 		}
+
+	async def get_local(self, id):
+		return await LocalRecord.get(id=id)
+
+	async def refresh(self):
+		await self.refresh_locals()
+		if self.widget:
+			await self.widget.refresh()
+
+	async def delete_record(self, record):
+		await LocalRecord.execute(
+			LocalRecord.delete().where(LocalRecord.id == record.get_id())
+		)
 
 	async def refresh_locals(self):
 		record_list = await LocalRecord.objects.execute(
@@ -254,3 +276,32 @@ class LocalRecords(AppConfig):
 		else:
 			message = '$0f3You don\'t have a Local Record on this map yet.'
 			return self.instance.chat(message, player)
+
+	async def command_localcps(self, player, data, *args, **kwargs):
+		"""
+		Compare local checkpoints from your record to another record, defaults to 1st record.
+
+		:param player: Player instance
+		:param data: Arguments data
+		:param args: *
+		:param kwargs: **
+		:return:
+		"""
+		async with self.lock:
+			record = [x for x in self.current_records if x.player_id == player.get_id()]
+
+			if not len(record):
+				message = '$0b3You don\'t have a Local Record on this map yet.'
+				return await self.instance.chat(message, player)
+
+			if data.record > len(self.current_records):
+				message = '$0b3There is no record for rank {}!'.format(data.record)
+				return await self.instance.chat(message, player)
+
+			compare_record = self.current_records[data.record - 1]
+
+			record_index = self.current_records.index(record[0])
+			compare_index = self.current_records.index(compare_record)
+
+		view = views.LocalRecordCpCompareListView(self, record[0], record_index, compare_record, compare_index)
+		await view.display(player)

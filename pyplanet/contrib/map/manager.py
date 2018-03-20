@@ -100,18 +100,23 @@ class MapManager(CoreContrib):
 				self._maps = set(maps)
 
 			# Reload locals for all maps.
+			# TODO: Find better way to remove this and handle it on the folders way.
+			coroutines = list()
 			if 'local_records' in self._instance.apps.apps:
 				if detach_fks:
 					asyncio.ensure_future(self._instance.apps.apps['local_records'].load_map_locals())
 				else:
-					await self._instance.apps.apps['local_records'].load_map_locals()
+					coroutines.append(self._instance.apps.apps['local_records'].load_map_locals())
 
 			# Reload karma for all maps.
 			if 'karma' in self._instance.apps.apps:
 				if detach_fks:
 					asyncio.ensure_future(self._instance.apps.apps['karma'].load_map_votes())
 				else:
-					await self._instance.apps.apps['karma'].load_map_votes()
+					coroutines.append(self._instance.apps.apps['karma'].load_map_votes())
+
+			if coroutines:
+				await asyncio.gather(*coroutines)
 		else:
 			# Only update/insert the changed bits, (not checking for removed maps!!).
 			async with self.lock:

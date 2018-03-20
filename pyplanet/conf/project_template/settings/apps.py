@@ -38,5 +38,8 @@ APPS = {
 
 		# Dynamic Points Limit is meant for Shootmania Royal.
 		# 'pyplanet.apps.contrib.dynamic_points',
+
+		# Waiting Queue. Enable on limited player servers to fairly queue players.
+		# 'pyplanet.apps.contrib.queue',
 	]
 }

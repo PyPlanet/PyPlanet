@@ -150,19 +150,6 @@ class AppConfig:
 	def __repr__(self):
 		return '<%s: %s>' % (self.__class__.__name__, self.label)
 
-	@property
-	def ui(self):
-		"""
-		.. deprecated:: 0.0.1
-			Use ``context.ui`` instead. Will be removed in 0.6.0!
-		"""
-		logging.warning(DeprecationWarning(
-			'AppConfig.ui is deprecated, use AppConfig.context.ui instead.'
-			'This is done to prevent collisions in future changes or feature adding.'
-			'Calling app.ui from app \'{}\''.format(self.label)
-		))
-		return self.context.ui
-
 	###################################################################################################
 	# Lifecycle Methods
 	###################################################################################################

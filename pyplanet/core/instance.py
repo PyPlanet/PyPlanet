@@ -117,14 +117,26 @@ class Instance:
 			# Start memleak checker.
 			memleak.checker.start()
 
-			# Initiate instance
+			# Initiate instance.
 			self.loop.run_until_complete(self._start())
 
 			# Run forever.
 			if run_forever:
 				self.loop.run_forever()
-		except KeyboardInterrupt:
+		except KeyboardInterrupt:  # pragma: no branch
 			pass
+		except Exception as e:
+			logger.exception(e)
+			raise
+		finally:
+			self.stop()
+
+	def stop(self):  # pragma: no cover
+		"""
+		Stop all the instance apps and managers.
+		"""
+		try:
+			self.loop.run_until_complete(self._stop())
 		except Exception as e:
 			logger.exception(e)
 			raise
@@ -189,6 +201,12 @@ class Instance:
 		# Finish signalling and send finish signal.
 		await self.signals.finish_start()
 		await self.__fire_signal(signals.pyplanet_start_after)
+
+	async def _stop(self):
+		"""
+		The stop coroutine is executed when the process exits with the SIGINT signal.
+		"""
+		await self.apps.stop()
 
 	async def print_header(self):  # pragma: no cover
 		await self.chat.execute(

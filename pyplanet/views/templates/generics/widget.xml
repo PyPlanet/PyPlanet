@@ -1,4 +1,4 @@
-<frame pos="{{ widget_x }} {{ widget_y }}">
+<frame pos="{{ widget_x }} {{ widget_y }}" class="{% if distraction_hide %}distraction-hide{% else %}{% endif %}">
   {% block title %}
     {% if title %}
       <quad pos="0 0" z-index="0" size="35 6" bgcolor="00000099"/>
@@ -16,3 +16,7 @@
     {% block content %}{% endblock %}
   </frame>
 </frame>
+
+{% block maniascript %}
+  <script><!-- {% include 'core.views/generics/widget.Script.Txt' %} --></script>
+{% endblock %}

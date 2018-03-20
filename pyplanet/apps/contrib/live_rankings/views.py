@@ -38,37 +38,42 @@ class LiveRankingsWidget(TimesWidgetView):
 			player_index = (self.app.current_rankings.index(player_record[0]) + 1)
 
 		records = list(self.app.current_rankings[:self.top_entries])
-		if player_index > len(self.app.current_rankings):
-			# No personal record, get the last records
-			records_start = (len(self.app.current_rankings) - self.record_amount + self.top_entries)
-			# If start of current slice is in the top entries, add more records below
-			if records_start < self.top_entries:
-				records_start = self.top_entries
-
-			records += list(self.app.current_rankings[records_start:])
-			custom_start_index = (records_start + 1)
+		if self.app.instance.performance_mode:
+			# Performance mode is turned on, get the top of the whole widget.
+			records += self.app.current_rankings[self.top_entries:self.record_amount]
+			custom_start_index = (self.top_entries + 1)
 		else:
-			if player_index <= self.top_entries:
-				# Player record is in top X, get following records (top entries + 1 onwards)
-				records += self.app.current_rankings[self.top_entries:self.record_amount]
-				custom_start_index = (self.top_entries + 1)
-			else:
-				# Player record is not in top X, get records around player record
-				# Same amount above the record as below, except when not possible (favors above)
-				records_to_fill = (self.record_amount - self.top_entries)
-				start_point = ((player_index - math.ceil((records_to_fill - 1) / 2)) - 1)
-				end_point = ((player_index + math.floor((records_to_fill - 1) / 2)) - 1)
-
-				# If end of current slice is outside the list, add more records above
-				if end_point > len(self.app.current_rankings):
-					end_difference = (end_point - len(self.app.current_rankings))
-					start_point = (start_point - end_difference)
+			if player_index > len(self.app.current_rankings):
+				# No personal record, get the last records
+				records_start = (len(self.app.current_rankings) - self.record_amount + self.top_entries)
 				# If start of current slice is in the top entries, add more records below
-				if start_point < self.top_entries:
-					start_point = self.top_entries
+				if records_start < self.top_entries:
+					records_start = self.top_entries
 
-				records += self.app.current_rankings[start_point:(start_point + records_to_fill)]
-				custom_start_index = (start_point + 1)
+				records += list(self.app.current_rankings[records_start:])
+				custom_start_index = (records_start + 1)
+			else:
+				if player_index <= self.top_entries:
+					# Player record is in top X, get following records (top entries + 1 onwards)
+					records += self.app.current_rankings[self.top_entries:self.record_amount]
+					custom_start_index = (self.top_entries + 1)
+				else:
+					# Player record is not in top X, get records around player record
+					# Same amount above the record as below, except when not possible (favors above)
+					records_to_fill = (self.record_amount - self.top_entries)
+					start_point = ((player_index - math.ceil((records_to_fill - 1) / 2)) - 1)
+					end_point = ((player_index + math.floor((records_to_fill - 1) / 2)) - 1)
+
+					# If end of current slice is outside the list, add more records above
+					if end_point > len(self.app.current_rankings):
+						end_difference = (end_point - len(self.app.current_rankings))
+						start_point = (start_point - end_difference)
+					# If start of current slice is in the top entries, add more records below
+					if start_point < self.top_entries:
+						start_point = self.top_entries
+
+					records += self.app.current_rankings[start_point:(start_point + records_to_fill)]
+					custom_start_index = (start_point + 1)
 
 		index = 1
 		best = None
