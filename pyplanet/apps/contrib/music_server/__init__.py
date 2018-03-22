@@ -156,7 +156,7 @@ class MusicServer(AppConfig):
 			setting = None
 
 		if not setting:
-			message = '$ff0Default music file setting not configured in your settings file!'
+			message = '$ff0Default song setting not configured in your settings file!'
 			await self.instance.chat(message)
 			return
 
