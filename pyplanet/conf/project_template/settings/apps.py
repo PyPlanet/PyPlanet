@@ -41,5 +41,8 @@ APPS = {
 
 		# Waiting Queue. Enable on limited player servers to fairly queue players.
 		# 'pyplanet.apps.contrib.queue',
+
+		# Music Server App. Enable to queue your music together on the server.
+		# 'pyplanet.apps.contrib.music_server',
 	]
 }

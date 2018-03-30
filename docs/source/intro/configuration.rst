@@ -404,6 +404,44 @@ Cache (base)
   This functionality is not (yet) implemented. Please don't define ``CACHE`` setting.
 
 
+Songs (base)
+~~~~~~~~~~~~
+
+.. note::
+
+  This setting only works in combination with the ``music_server`` app.
+  Enable the app by adding the app in your apps.py (or apps.json/apps.yaml).
+
+You can add URL's of the music to the SONGS list.
+
+.. code-block:: python
+  :caption: base.py
+
+    SONGS = {
+      'default': [
+        'http://urltoogg'
+      }
+    }
+
+.. code-block:: yaml
+  :caption: base.yaml
+
+    SONGS:
+      default:
+        - 'http://urltoogg'
+
+.. code-block:: json
+  :caption: base.json
+
+    {
+      "SONGS": {
+        "default": [
+          "http://urltoogg"
+        }
+      }
+    }
+
+
 Logging (base)
 ~~~~~~~~~~~~~~
 
@@ -465,6 +503,8 @@ The order doesn't make a difference when starting/loading PyPlanet.
 
       # New since 0.6.0:
       'pyplanet.apps.contrib.queue',
+      'pyplanet.apps.contrib.ads',
+      'pyplanet.apps.contrib.music_server',
     ],
   }
 
@@ -494,6 +534,8 @@ The order doesn't make a difference when starting/loading PyPlanet.
 
       # New since 0.6.0:
       - 'pyplanet.apps.contrib.queue'
+      - 'pyplanet.apps.contrib.ads'
+      - 'pyplanet.apps.contrib.music_server'
 
 .. code-block:: json
   :caption: apps.json
@@ -518,7 +560,9 @@ The order doesn't make a difference when starting/loading PyPlanet.
         "pyplanet.apps.contrib.best_cps",
         "pyplanet.apps.contrib.voting",
 
-        "pyplanet.apps.contrib.queue"
+        "pyplanet.apps.contrib.queue",
+        "pyplanet.apps.contrib.ads",
+        "pyplanet.apps.contrib.music_server"
       ]
     }
   }
