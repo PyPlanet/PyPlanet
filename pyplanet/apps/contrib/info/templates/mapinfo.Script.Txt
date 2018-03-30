@@ -1,4 +1,7 @@
 
+declare Boolean Prev_DistractionFreeMode = False;
+declare netwrite Boolean Net_DistractionFreeMode for UI;
+
 declare CMlLabel Author_Label <=> (Page.GetFirstChild("author_label") as CMlLabel);
 declare CMlQuad Author_Flag <=> (Page.GetFirstChild("author_flag") as CMlQuad);
 
@@ -7,6 +10,13 @@ declare Boolean Show_Login = False;
 if (Map != Null) {
   Author_Label.SetText(Map.AuthorNickName);
   Author_Flag.ChangeImageUrl(Map.AuthorZoneIconUrl);
+}
+
+if (Net_DistractionFreeMode == True) {
+  Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+  foreach (Control in Page.GetClassChildren_Result) {
+    Control.Hide();
+  }
 }
 
 while(True) {
@@ -18,6 +28,22 @@ while(True) {
       } else {
         Show_Login = True;
         Author_Label.SetText(Map.AuthorLogin);
+      }
+    }
+  }
+
+  if (Prev_DistractionFreeMode != Net_DistractionFreeMode) {
+    Prev_DistractionFreeMode = Net_DistractionFreeMode;
+
+    if (Net_DistractionFreeMode == True) {
+      Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+      foreach (Control in Page.GetClassChildren_Result) {
+        Control.Hide();
+      }
+    } else {
+      Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+      foreach (Control in Page.GetClassChildren_Result) {
+        Control.Show();
       }
     }
   }
