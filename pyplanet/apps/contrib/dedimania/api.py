@@ -257,9 +257,9 @@ class DedimaniaAPI:
 				'UId': map.uid, 'Name': map.name, 'Environment': map.environment, 'Author': map.author_login,
 				'NbCheckpoints': map.num_checkpoints, 'NbLaps': map.num_laps,
 			}, mode, {
-				 'SrvName': server_name, 'Comment': server_comment, 'Private': is_private, 'NumPlayers': num_players,
-				 'MaxPlayers': max_players, 'NumSpecs': num_specs, 'MaxSpecs': max_specs
-			 }, player_list)
+				'SrvName': server_name, 'Comment': server_comment, 'Private': is_private, 'NumPlayers': num_players,
+				'MaxPlayers': max_players, 'NumSpecs': num_specs, 'MaxSpecs': max_specs
+			}, player_list)
 		)
 		if not result or not isinstance(result, list):
 			raise DedimaniaTransportException('Result seems to be empty!')
