@@ -115,7 +115,7 @@ class MusicServer(AppConfig):
 			async with aiohttp.ClientSession() as session:
 				url, tags = (song, await self.get_tags(session, song))
 				self.songs.insert(self.current_song_index + 1, (url, tags))
-				message = '$fff{}$z$s$fa0 was added to the playlist by $fff{}$z$s$fa0.'\
+				message = '$fff{}$z$s$fa0 was added to the songlist by $fff{}$z$s$fa0.'\
 					.format(tags['title']+" - "+tags['artist'], player.nickname)
 				await self.instance.chat(message)
 				await session.close()
@@ -158,7 +158,7 @@ class MusicServer(AppConfig):
 		if not setting:
 			message = '$ff0Default song setting not configured in your settings file!'
 			await self.instance.chat(message)
-			return
+			return []
 
 		self.songs.clear()
 		songlist = setting
