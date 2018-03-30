@@ -437,7 +437,8 @@ class Voting(AppConfig):
 		temp_settings = settings.copy()
 		temp_settings['S_TimeLimit'] = temp_settings['S_TimeLimit'] * 2
 
-		self.original_ta = settings['S_TimeLimit']
+		if not self.is_extended or not self.original_ta:
+			self.original_ta = settings['S_TimeLimit']
 		self.is_extended = True
 
 		await self.instance.mode_manager.update_settings(temp_settings)
