@@ -257,9 +257,9 @@ class DedimaniaAPI:
 				'UId': map.uid, 'Name': map.name, 'Environment': map.environment, 'Author': map.author_login,
 				'NbCheckpoints': map.num_checkpoints, 'NbLaps': map.num_laps,
 			}, mode, {
-				 'SrvName': server_name, 'Comment': server_comment, 'Private': is_private, 'NumPlayers': num_players,
-				 'MaxPlayers': max_players, 'NumSpecs': num_specs, 'MaxSpecs': max_specs
-			 }, player_list)
+				'SrvName': server_name, 'Comment': server_comment, 'Private': is_private, 'NumPlayers': num_players,
+				'MaxPlayers': max_players, 'NumSpecs': num_specs, 'MaxSpecs': max_specs
+			}, player_list)
 		)
 		if not result or not isinstance(result, list):
 			raise DedimaniaTransportException('Result seems to be empty!')
@@ -273,7 +273,15 @@ class DedimaniaAPI:
 		response_players = result['Players']
 		raw_records = result['Records']
 		records = [
-			DedimaniaRecord(r['Login'], r['NickName'], r['Best'], r['Rank'], r['MaxRank'], r['Checks'], r['Vote'])
+			DedimaniaRecord(
+				r['Login'],
+				r['NickName'],
+				r['Best'],
+				r['Rank'],
+				r['MaxRank'],
+				[int(c) for c in r['Checks'].split(',')],
+				r['Vote']
+			)
 			for r in raw_records
 		]
 		return server_max_rank, allowed_modes, response_players, records or []

@@ -267,8 +267,8 @@ class DedimaniaCpCompareListView(ManualListView):
 		return '{}{}'.format(diff_prefix, format_time(abs(diff)))
 
 	async def get_data(self):
-		own_cps = [int(c) for c in self.own_record.cps.split(',')]
-		compare_cps = [int(c) for c in self.compare_record.cps.split(',')]
+		own_cps = self.own_record.cps
+		compare_cps = self.compare_record.cps
 		total_cps = len(own_cps)
 
 		data = list()
