@@ -255,6 +255,10 @@ Activate the service to have it started when your machine starts.
 Start standalone and in foreground (Linux and Windows)
 ------------------------------------------------------
 
+.. warning::
+
+  When you are using SSH to remotely access the server running PyPlanet, this starting option should only be used while testing your server. The moment you close the SSH terminal window, your PyPlanet instance will shutdown (crash). Use one of the methods above, if you want to run PyPlanet without having the terminal window open at all times.
+
 1. Go to your project folder
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
