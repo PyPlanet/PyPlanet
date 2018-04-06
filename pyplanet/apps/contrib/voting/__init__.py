@@ -435,7 +435,8 @@ class Voting(AppConfig):
 			return
 
 		temp_settings = settings.copy()
-		temp_settings['S_TimeLimit'] = temp_settings['S_TimeLimit'] * 2
+		original_ta = self.original_ta or temp_settings['S_TimeLimit']
+		temp_settings['S_TimeLimit'] = original_ta * 2
 
 		if not self.is_extended or not self.original_ta:
 			self.original_ta = settings['S_TimeLimit']
