@@ -7,6 +7,7 @@ from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 from pyplanet.apps.contrib.voting.views import VoteWidget
 from pyplanet.apps.contrib.voting.vote import Vote
 from pyplanet.contrib.command import Command
+from pyplanet.contrib.map.exceptions import ModeIncompatible
 from pyplanet.contrib.setting import Setting
 
 logger = logging.getLogger(__name__)
@@ -23,9 +24,6 @@ class Voting(AppConfig):
 		self.current_vote = None
 		self.widget = None
 		self.podium_stage = False
-
-		self.is_extended = False
-		self.original_ta = None
 
 		self.setting_voting_enabled = Setting(
 			'voting_enabled', 'Voting enabled', Setting.CAT_BEHAVIOUR, type=bool,
@@ -133,19 +131,6 @@ class Voting(AppConfig):
 			await self.instance.chat(message)
 
 			self.current_vote = None
-
-		# Set back the timer if time has been extended.
-		if self.is_extended and self.original_ta:
-			self.is_extended = False
-
-			settings = await self.instance.mode_manager.get_settings()
-			if 'S_TimeLimit' not in settings:
-				return
-
-			settings['S_TimeLimit'] = self.original_ta
-			await self.instance.mode_manager.update_settings(settings)
-
-			self.original_ta = None
 
 	async def map_start(self, *args, **kwargs):
 		self.podium_stage = False
@@ -429,23 +414,12 @@ class Voting(AppConfig):
 		message = '$0cfVote to $fff{}$0cf has passed.'.format(vote.action)
 		self.current_vote = None
 
-		settings = await self.instance.mode_manager.get_settings()
-		if 'S_TimeLimit' not in settings:
+		try:
+			await self.instance.map_manager.extend_ta()
+			if not forced:
+				await self.instance.chat(message)
+		except ModeIncompatible:
 			await self.instance.chat('$0cfVote to $fff{}$0cf has failed, current mode not Time Attack?')
-			return
-
-		temp_settings = settings.copy()
-		original_ta = self.original_ta or temp_settings['S_TimeLimit']
-		temp_settings['S_TimeLimit'] = original_ta * 2
-
-		if not self.is_extended or not self.original_ta:
-			self.original_ta = settings['S_TimeLimit']
-		self.is_extended = True
-
-		await self.instance.mode_manager.update_settings(temp_settings)
-
-		if not forced:
-			await self.instance.chat(message)
 
 	async def vote_reminder(self, vote):
 		await asyncio.sleep(await self.setting_remind_interval.get_value())
