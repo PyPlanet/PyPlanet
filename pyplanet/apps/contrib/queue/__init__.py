@@ -75,7 +75,11 @@ class Queue(AppConfig):
 		"""
 		if player.flow.is_spectator and player.flow.has_player_slot:
 			# Release the player slot to the game.
-			await self.instance.gbx('SpectatorReleasePlayerSlot', player.login)
+			try:
+				await self.instance.gbx('SpectatorReleasePlayerSlot', player.login)
+			except:
+				# Most likely the player just left the server. Ignore and return the method.
+				return
 			logger.debug('Release player slot of player {}'.format(player.login))
 
 		# Display widget if spectator.

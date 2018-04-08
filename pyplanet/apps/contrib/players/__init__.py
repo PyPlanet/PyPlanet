@@ -57,13 +57,19 @@ class Players(AppConfig):
 		if not await self.setting_enable_join_msg.get_value():
 			return
 
+		if player.flow.is_spectator:
+			message = '$ff0{} $fff{}$z$s$ff0 joined the server as spectator! Nation: $fff{}'
+		else:
+			message = '$ff0{} $fff{}$z$s$ff0 joined the server! Nation: $fff{}'
 		await self.instance.chat(
-			'$ff0{} $fff{}$z$s$ff0 joined the server!'.format(player.get_level_string(), player.nickname)
+			message.format(player.get_level_string(), player.nickname, player.flow.zone.country)
 		)
 
 	async def player_disconnect(self, player, **kwargs):
 		if not await self.setting_enable_leave_msg.get_value():
 			return
 		await self.instance.chat(
-			'$ff0{} $fff{}$z$s$ff0 left the server!'.format(player.get_level_string(), player.nickname)
+			'$ff0{} $fff{}$z$s$ff0 left the server! Nation: $fff{}'.format(
+				player.get_level_string(), player.nickname, player.flow.zone.country
+			)
 		)

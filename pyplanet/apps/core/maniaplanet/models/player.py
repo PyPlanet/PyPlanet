@@ -128,6 +128,7 @@ class PlayerFlow:
 		self.has_player_slot = None
 		self.is_broadcasting = None
 		self.has_joined_game = None
+		self.zone = None
 		self.other = dict()
 
 	def start_run(self):
