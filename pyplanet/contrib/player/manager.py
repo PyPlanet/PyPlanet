@@ -12,6 +12,7 @@ from pyplanet.contrib.setting.core_settings import performance_mode
 from pyplanet.core.exceptions import ImproperlyConfigured
 from pyplanet.core.signals import pyplanet_performance_mode_begin, pyplanet_performance_mode_end
 from pyplanet.core.storage.exceptions import StorageException
+from pyplanet.utils.zone import parse_path
 
 logger = logging.getLogger(__name__)
 
@@ -172,6 +173,7 @@ class PlayerManager(CoreContrib):
 			player.flow.team_id = info['TeamId']
 			player.flow.is_spectator = bool(info['IsSpectator'])
 			player.flow.is_player = not bool(info['IsSpectator'])
+			player.flow.zone = parse_path(info['Path'])
 
 			self._total_count += 1
 			if player.flow.is_spectator:
