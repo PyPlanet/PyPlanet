@@ -3,6 +3,7 @@ Player Admin methods and functions.
 """
 import asyncio
 
+from pyplanet.apps.contrib.admin.views.players import PlayerListView
 from pyplanet.conf import settings
 from pyplanet.contrib.command import Command
 from pyplanet.contrib.player.exceptions import PlayerNotFound
@@ -27,7 +28,9 @@ class PlayerAdmin:
 		await self.instance.permission_manager.register('blacklist', 'Blacklist a player', app=self.app, min_level=3)
 		await self.instance.permission_manager.register('unblacklist', 'Unblacklist a player', app=self.app, min_level=3)
 		await self.instance.permission_manager.register('manage_admins', 'Manage admin', app=self.app, min_level=3)
+		await self.instance.permission_manager.register('list_players', 'List players', app=self.app, min_level=1)
 		await self.instance.permission_manager.register('force_spec', 'Force player into spectate', app=self.app, min_level=1)
+		await self.instance.permission_manager.register('force_play', 'Force player into player slot', app=self.app, min_level=1)
 		await self.instance.permission_manager.register('force_team', 'Force player into a team', app=self.app, min_level=1)
 		await self.instance.permission_manager.register('switch_team', 'Force player into the other team', app=self.app, min_level=1)
 		await self.instance.permission_manager.register('warn', 'Warn a player', app=self.app, min_level=1)
@@ -35,6 +38,7 @@ class PlayerAdmin:
 		await self.instance.permission_manager.register('read_blacklist', 'Read blacklist file', app=self.app, min_level=3)
 
 		await self.instance.command_manager.register(
+			Command(command='players', target=self.player_list, perms='admin:list_players', admin=True),
 			Command(command='mute', aliases=['ignore'], target=self.ignore_player, perms='admin:ignore', admin=True).add_param(name='login', required=True),
 			Command(command='unmute', aliases=['unignore'], target=self.unignore_player, perms='admin:unignore', admin=True).add_param(name='login', required=True),
 			Command(command='kick', target=self.kick_player, perms='admin:kick', admin=True).add_param(name='login', required=True),
@@ -46,6 +50,8 @@ class PlayerAdmin:
 				.add_param(name='login', required=True)
 				.add_param(name='level', required=False, help='Level, 0 = player, 1 = operator, 2 = admin, 3 = master admin.', type=int, default=0),
 			Command(command='forcespec', target=self.force_spec, perms='admin:force_spec', description='Force player into spectate', admin=True)
+				.add_param(name='login', required=True),
+			Command(command='forceplay', target=self.force_play, perms='admin:force_play', description='Force player into player slot', admin=True)
 				.add_param(name='login', required=True),
 			Command(command='forceteam', target=self.force_team, perms='admin:force_team', description='Force player into a team', admin=True)
 				.add_param(name='login', required=True, type=str)
@@ -74,6 +80,26 @@ class PlayerAdmin:
 			)
 		except Exception:
 			message = '$i$f00Unknown login!'
+			await self.instance.chat(message, player)
+
+	async def force_play(self, player, data, **kwargs):
+		try:
+			dest_player = [p for p in self.instance.player_manager.online if p.login == data.login]
+			if not len(dest_player) == 1:
+				raise Exception()
+			message = '$ff0Admin $fff{}$z$s$ff0 has forced $fff{}$z$s$ff0 into player slot.'.format(
+				player.nickname, dest_player[0].nickname
+			)
+			await self.instance.gbx('ForceSpectator', dest_player[0].login, 2)
+			await self.instance.gbx.multicall(
+				self.instance.gbx('ForceSpectator', dest_player[0].login, 0),
+				self.instance.chat(message)
+			)
+		except Exception as e:
+			if 'There are too many players' in str(e):
+				message = '$i$f00Too many players!'
+			else:
+				message = '$i$f00Unknown login!'
 			await self.instance.chat(message, player)
 
 	async def force_team(self, player, data, **kwargs):
@@ -330,3 +356,7 @@ class PlayerAdmin:
 			await self.instance.chat(message, player)
 		except:
 			await self.instance.chat('$ff0Blacklist loading failed from {}'.format(file_name), player)
+
+	async def player_list(self, player, data, **kwargs):
+		view = PlayerListView(self.app, player)
+		await view.display()

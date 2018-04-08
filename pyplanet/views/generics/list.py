@@ -417,7 +417,6 @@ class ListView(TemplateView):
 		await self.refresh(player)
 
 
-
 class ManualListView(ListView):
 	"""
 	The ManualListView will act as a ListView, but not based on a model or query.
