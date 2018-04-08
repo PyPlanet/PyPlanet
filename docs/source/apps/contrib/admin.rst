@@ -166,6 +166,17 @@ Functionality:
 Required permission:
   ``admin:force_spec``, requires admin level 1.
 
+Force player to player
+~~~~~~~~~~~~~~~~~~~~~~
+Command:
+  ``//forceplayer``
+Parameters:
+  * Player login.
+Functionality:
+  Force player into player slot.
+Required permission:
+  ``admin:force_player``, requires admin level 1.
+
 Force player to team
 ~~~~~~~~~~~~~~~~~~~~
 Command:
