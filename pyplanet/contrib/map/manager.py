@@ -9,7 +9,7 @@ from pyplanet.utils.log import handle_exception
 from pyplanet.apps.core.maniaplanet.models import Map
 from pyplanet.conf import settings
 from pyplanet.contrib import CoreContrib
-from pyplanet.contrib.map.exceptions import MapNotFound, MapException
+from pyplanet.contrib.map.exceptions import MapNotFound, MapException, ModeIncompatible
 from pyplanet.core.exceptions import ImproperlyConfigured
 
 
@@ -48,8 +48,13 @@ class MapManager(CoreContrib):
 		self._current_map = None
 		self._next_map = None
 
+		# Hold the original TA limit for the /extend and //extend functions.
+		self._is_extended = False
+		self._original_ta = None
+
 	async def on_start(self):
 		self._instance.signals.listen('maniaplanet:playlist_modified', lambda: '')
+		self._instance.signals.listen('maniaplanet:podium_start', self._podium_start)
 
 		# Fully update list + database.
 		await self.update_list(full_update=True)
@@ -82,6 +87,26 @@ class MapManager(CoreContrib):
 
 	async def handle_playlist_change(self, source, **kwargs):
 		return await self.update_list()
+
+	async def _podium_start(self, **kwargs):
+		"""
+		Handle start of podium to reset ta limit if extended.
+
+		:param kwargs:
+		:return:
+		"""
+		# Set back the timer if time has been extended.
+		if self._is_extended and self._original_ta:
+			self._is_extended = False
+
+			mode_settings = await self._instance.mode_manager.get_settings()
+			if 'S_TimeLimit' not in mode_settings:
+				return
+
+			mode_settings['S_TimeLimit'] = self._original_ta
+			await self._instance.mode_manager.update_settings(mode_settings)
+
+			self._original_ta = None
 
 	async def update_list(self, full_update=False, detach_fks=True):
 		raw_list = await self._instance.gbx('GetMapList', -1, 0)
@@ -388,3 +413,30 @@ class MapManager(CoreContrib):
 		except Exception as e:
 			logging.warning('Can\'t load match settings!')
 			raise MapException('Can\'t load matchsettings according the dedicated server, tried loading from \'{}\'!'.format(filename)) from e
+
+	async def extend_ta(self, extend_with=None):
+		"""
+		Extend time limit of the current map.
+		Extend with given seconds, or double the original TA timer if None is given.
+
+		:param extend_with: Extend with the given seconds, or None for adding the original TA limit to the current limit(double)
+		:type extend_with: int
+		:return:
+		"""
+		mode_settings = await self._instance.mode_manager.get_settings()
+		if 'S_TimeLimit' not in mode_settings:
+			raise ModeIncompatible('Current mode doesn\'t support the extend TA method. Not Time Attack?')
+
+		temp_mode_settings = mode_settings.copy()
+		original_ta = self._original_ta or temp_mode_settings['S_TimeLimit']
+
+		if not extend_with:
+			extend_with = original_ta
+		temp_mode_settings['S_TimeLimit'] = original_ta + extend_with
+
+		if not self._is_extended or not self._original_ta:
+			self._original_ta = mode_settings['S_TimeLimit']
+		self._is_extended = True
+
+		await self._instance.mode_manager.update_settings(temp_mode_settings)
+		return extend_with

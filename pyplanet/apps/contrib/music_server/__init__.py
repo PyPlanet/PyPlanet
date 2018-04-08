@@ -83,6 +83,10 @@ class MusicServer(AppConfig):
 					await self.instance.chat(message)
 
 	async def map_end(self, *args, **kwargs):
+		# Ignore when no songs are added.
+		if not self.songs:
+			return
+
 		if self.playlist:
 			new_song = self.playlist[0]['song']
 			self.playlist.pop(0)

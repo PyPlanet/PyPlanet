@@ -10,3 +10,7 @@ class MapNotFound(MapException):
 
 class MapIncompatible(MapException):
 	"""The map you want to add/insert/upload is invalid and not suited for the current server config."""
+
+
+class ModeIncompatible(MapException):
+	"""The current mode doesn't support the given action."""

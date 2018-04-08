@@ -140,6 +140,18 @@ Functionality:
 Required permission:
   ``admin:remove_map``, requires admin level 2.
 
+Extend TA limit
+~~~~~~~~~~~~~~~
+Command:
+  ``//extend``
+Parameters:
+  * Time in seconds to extend the timer with, ignore this parameter to double the time.
+Functionality:
+  Extend the TA limit temporary with given seconds or double the current TA limit.
+Required permission:
+  ``admin:extend``, requires admin level 1.
+
+
 Players
 ^^^^^^^
 

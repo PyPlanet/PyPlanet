@@ -36,6 +36,7 @@ class MapAdmin:
 		await self.instance.permission_manager.register('next', 'Skip to the next map', app=self.app, min_level=1)
 		await self.instance.permission_manager.register('restart', 'Restart the maps', app=self.app, min_level=1)
 		await self.instance.permission_manager.register('replay', 'Replay the maps', app=self.app, min_level=1)
+		await self.instance.permission_manager.register('extend', 'Extend the TA limit', app=self.app, min_level=1)
 		await self.instance.permission_manager.register('add_local_map', 'Add map from server disk', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('remove_map', 'Remove map from server', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('write_map_list', 'Write Matchsettings to file', app=self.app, min_level=2)
@@ -61,6 +62,8 @@ class MapAdmin:
 			Command(command='readmaplist', aliases=['rml'], target=self.read_map_list, perms='admin:read_map_list', admin=True)
 				.add_param('file', required=True, type=str, help='Give custom match settings file to load from.'),
 			Command(command='shuffle', target=self.shuffle, perms='admin:shuffle', admin=True),
+			Command(command='extend', target=self.extend, perms='admin:extend', admin=True)
+				.add_param('seconds', required=False, type=int, help='Extend the TA limit with given seconds.'),
 		)
 
 		# If jukebox app is loaded, register the map actions.
@@ -298,3 +301,12 @@ class MapAdmin:
 			logger.error(str(e))
 			message = '$ff0Error: Can\'t remove map, Error: {}'.format(str(e))
 			await self.instance.chat(message, player)
+
+	async def extend(self, player, data, **kwargs):
+		extend_with = data.seconds
+		extended_with = await self.instance.map_manager.extend_ta(extend_with=extend_with)
+
+		message = '$ff0Admin $fff{}$z$s$ff0 has extended the time limit with $fff{} seconds.'.format(
+			player.nickname, extended_with
+		)
+		await self.instance.chat(message)
