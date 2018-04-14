@@ -136,4 +136,4 @@ class InstanceProcess:
 		"""
 		Graceful shutdown the process.
 		"""
-		self.process.join(timeout=20)
+		self.process.join(timeout=10)
