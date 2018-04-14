@@ -1,3 +1,9 @@
+"""
+PyPlanet Instance Module
+
+This module holds the main instance class of the PyPlanet system.
+"""
+import os
 import asyncio
 import logging
 import traceback
@@ -140,6 +146,7 @@ class Instance:
 		except Exception as e:
 			logger.exception(e)
 			raise
+		os._exit(0)
 
 	@property
 	def performance_mode(self):
