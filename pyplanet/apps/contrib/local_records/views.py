@@ -191,7 +191,7 @@ class LocalRecordsListView(ManualListView):
 		return 'Local Records on {}'.format(self.app.instance.map_manager.current_map.name)
 
 	async def get_data(self):
-		first_time = self.app.current_records[0].score
+		first_time = self.app.current_records[0].score if len(self.app.current_records) > 0 else None
 		record_limit = await self.app.setting_record_limit.get_value()
 		if record_limit > 0:
 			records = self.app.current_records[:record_limit]

@@ -76,7 +76,10 @@ class LocalRecords(AppConfig):
 				coros.append(self.load_map_locals(map=map))
 			await asyncio.gather(*coros)
 
-	async def get_map_record(self, map):
+	async def get_map_record(self, map=None):
+		if not map:
+			map = self.instance.map_manager.current_map
+
 		record_list = await LocalRecord.objects.execute(
 			LocalRecord.select(LocalRecord, Player)
 				.join(Player)
