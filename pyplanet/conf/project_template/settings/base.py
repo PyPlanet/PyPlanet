@@ -33,6 +33,9 @@ OWNERS = {
 	]
 }
 
+# Allow self-upgrading the installation. Disable on shared servers with one installation (hosting environment)!
+SELF_UPGRADE = True
+
 # Databases configuration holds an dictionary with information of the database backend.
 # Please refer to the documentation for all examples. http://pypla.net/
 DATABASES = {

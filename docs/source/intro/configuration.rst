@@ -404,6 +404,39 @@ Cache (base)
   This functionality is not (yet) implemented. Please don't define ``CACHE`` setting.
 
 
+Self Upgrade (base)
+~~~~~~~~~~~~~~~~~~~
+
+New since 0.6.0 is the self-upgrader where the master admins can self upgrade the PyPlanet installation from within the game.
+You don't want this to be enabled on shared servers (hosting environments) as it may break your installation.
+
+
+.. code-block:: python
+  :caption: base.py
+
+    SELF_UPGRADE = True
+
+.. code-block:: yaml
+  :caption: base.yaml
+
+    SELF_UPGRADE: true
+
+.. code-block:: json
+  :caption: base.json
+
+    {
+      "SELF_UPGRADE": true
+    }
+
+
+.. warning::
+
+  Using the self-upgrade (//upgrade and ```pyplanet upgrade```) is very experimental.
+  The method can break your installation. We don't guarantee the working of the method.
+
+  **We advice to use the manual PIP method of upgrading over the in-game upgrading process!**
+
+
 Songs (base)
 ~~~~~~~~~~~~
 

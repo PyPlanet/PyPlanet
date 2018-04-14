@@ -28,6 +28,9 @@ POOLS = [
 	'default'
 ]
 
+# Allow self-upgrading the installation. Disable on shared servers with one installation!
+SELF_UPGRADE = True
+
 ##########################################
 ################## DB ####################
 ##########################################

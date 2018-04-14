@@ -114,7 +114,10 @@ class Pip:
 		if not self.is_supported:
 			raise Exception('Pip environment is not supported!')
 
-		command = self.command + ['install', '-U', '{}{}'.format(
+		command = self.command + ['install']
+		if self.user_flag:
+			command += ['--user']
+		command += ['-U', '{}{}'.format(
 			package, '=={}'.format(target_version) if target_version else ''
 		)]
 
