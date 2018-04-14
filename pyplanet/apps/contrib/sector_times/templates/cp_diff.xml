@@ -1,0 +1,25 @@
+{% extends 'core.views/generics/widget.xml' %}
+
+{% block content %}
+  <frame pos="0.2 25.5" z-index="0" id="cp_time_frame">
+    <label pos="0 0" z-index="0" hide="1" id="cp_time_data"
+           data-record-sectors="{{ record_sector_times }}"
+           data-record="{{ record_time }}"
+           data-record-source="{{ record_source }}"
+           />
+    <quad pos="-0.4 -1.3" z-index="0" size="0.4 5" bgcolor="ffffff60" id="cp_time_line" />
+
+    <quad pos="-12.4 0" z-index="0" size="12 4" bgcolor="00000065" id="cp_time_compare_quadbg" />
+    <label pos="-6.4 -2" z-index="1" size="12 4" text="Local 1" textsize="1.0" textfont="RajdhaniMono" textemboss="1"
+           halign="center" valign="center2" id="cp_time_compare_record" />
+
+    <quad pos="0 0" z-index="0" size="25 4" bgcolor="00000065" id="cp_time_diff_quadbg" />
+    <label pos="3.25 -2" z-index="1" size="6.5 4" text="$o&#xf107;" halign="center" valign="center2" textsize="2.2" id="cp_time_diff_icon" />
+    <label pos="15.75 -2" z-index="1" size="18.5 4" text="00:00.123" textsize="1.2" textfont="RajdhaniMono" textemboss="1"
+           halign="center" valign="center2" id="cp_time_diff_time" />
+  </frame>
+{% endblock %}
+
+{% block maniascript %}
+  <script><!--{% include 'sector_times/cp_diff.Script.Txt' %}--></script>
+{% endblock %}
