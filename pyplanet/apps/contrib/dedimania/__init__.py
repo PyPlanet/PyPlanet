@@ -43,6 +43,7 @@ class Dedimania(AppConfig):
 		self.v_replay = None
 		self.v_replay_checks = None
 		self.ghost_replay = None
+		self.ghost_files = []
 
 		self.server_max_rank = None
 		self.map_status = None
@@ -238,6 +239,9 @@ class Dedimania(AppConfig):
 				self.widget.display()
 			)
 
+		# Cleanup ghosts from previous maps.
+		await self.cleanup()
+
 	async def podium_start(self, force=False, **kwargs):
 		# Get replays of the players.
 		self.v_replay = None
@@ -285,6 +289,24 @@ class Dedimania(AppConfig):
 				if 'session' not in str(e):
 					message = '$f00Error: Dedimania got an error, didn\'t send records :( (Error: {})'.format(str(e))
 					await self.instance.chat(message)
+
+	async def cleanup(self):
+		"""
+		Cleanup old Ghost Replays.
+		"""
+		if not len(self.ghost_files):
+			return
+
+		coros = []
+		for file in self.ghost_files:
+			logger.debug('Removing old ghost file: {}'.format(file))
+			coros.append(self.instance.storage.driver.remove(file))
+
+		try:
+			await asyncio.gather(*coros)
+		except Exception as e:
+			logger.warning('Errors with cleaning up dedimania ghost files (ignored):')
+			logger.exception(e)
 
 	async def refresh_records(self):
 		try:
@@ -493,6 +515,7 @@ class Dedimania(AppConfig):
 			return None
 		try:
 			async with self.instance.storage.open('UserData/Replays/{}'.format(replay_name)) as ghost_file:
+				self.ghost_files.append('UserData/Replays/{}'.format(replay_name))
 				return await ghost_file.read()
 		except FileNotFoundError as e:
 			message = '$f00Error: Dedimania requires you to have file access on the server. We can\'t fetch' \
