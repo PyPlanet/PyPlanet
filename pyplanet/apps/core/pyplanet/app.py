@@ -79,9 +79,11 @@ class PyPlanetConfig(AppConfig):
 		await self.instance.gbx.multicall(
 			self.instance.chat('$09fPIP:$fff pip-command: {}'.format(pip.command), player),
 			self.instance.chat('$09fPIP:$fff pip-status: {}'.format(
-				'PIP is ready and supported' if pip.is_supported else 'Unsupported!'
+				'PIP is ready and supported' if pip.is_supported else '$f00Unsupported!'
 			), player)
 		)
+		if not pip.is_supported:
+			return
 
 		# Validate new version
 		if to_version:
