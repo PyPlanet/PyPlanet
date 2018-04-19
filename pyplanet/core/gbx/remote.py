@@ -113,7 +113,7 @@ class GbxRemote:
 					raise
 				retries += 1
 
-				logger.info('Coudn\'t connect to Dedicated Server. Retry {} of {} (Error: {}'.format(
+				logger.info('Couldn\'t connect to Dedicated Server. Retry {} of {} (Error: {}'.format(
 					retries,
 					max_retries,
 					str(exc)
