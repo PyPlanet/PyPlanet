@@ -1,4 +1,5 @@
 import asyncio
+import math
 
 from playhouse.shortcuts import model_to_dict
 
@@ -75,16 +76,53 @@ class MapListView(ManualListView):
 
 	custom_actions = list()
 
-	def __init__(self, app):
+	def __init__(self, app, player):
 		super().__init__(self)
 		self.app = app
 		self.manager = app.context.ui
+		self.player = player
 
 	async def get_data(self):
-		return [model_to_dict(m) for m in self.app.instance.map_manager.maps]
+		data = list()
+
+		local_app_installed = 'local_records' in self.app.instance.apps.apps
+		karma_app_installed = 'karma' in self.app.instance.apps.apps
+
+		for m in self.app.instance.map_manager.maps:
+			map_dict = model_to_dict(m)
+			map_dict['local_record_rank'] = None
+			map_dict['local_record_score'] = None
+			map_dict['local_record_diff'] = None
+			map_dict['local_record_diff_direction'] = None
+			map_dict['karma'] = None
+
+			# Skip if in performance mode!
+			if self.app.instance.performance_mode:
+				data.append(map_dict)
+				continue
+
+			if local_app_installed:
+				# Get personal local record of the user.
+				map_locals = await self.app.instance.apps.apps['local_records'].get_map_record(m)
+				rank, record = await self.app.instance.apps.apps['local_records'].get_player_record_and_rank_for_map(m, self.player)
+
+				if isinstance(rank, int) and rank >= 1:
+					map_dict['local_record_rank'] = int(rank)
+				if record:
+					map_dict['local_record_score'] = record.score
+				if map_locals['first_record'] and record:
+					map_dict['local_record_diff'] = record.score - map_locals['first_record'].score
+
+			# TODO: Convert to new relation styles.
+			if karma_app_installed and hasattr(m, 'karma'):
+				map_dict['karma'] = m.karma['map_karma']
+
+			data.append(map_dict)
+
+		return data
 
 	async def get_fields(self):
-		return [
+		fields = [
 			{
 				'name': 'Name',
 				'index': 'name',
@@ -107,9 +145,73 @@ class MapListView(ManualListView):
 				# row['author_nickname']
 				# if 'author_nickname' in row and row['author_nickname'] and len(row['author_nickname'])
 				# else row['author_login'],
-				'width': 50,
+				'width': 45,
 			},
 		]
+
+		def render_optional_time(row, field):
+			value = row[field['index']]
+			if isinstance(value, float) and not math.isnan(value):
+				return times.format_time(int(value))
+			return 'None'
+
+		def render_rank(row, field):
+			value = row[field['index']]
+			if isinstance(value, float) and not math.isnan(value):
+				return int(value)
+			return 'None'
+
+		def render_karma(row, field):
+			value = row[field['index']]
+			prefix = ''
+			if value > 0.0:
+				prefix = '$6CF'
+			elif value < 0.0:
+				prefix = '$F66'
+
+			return '{}{}'.format(prefix, value)
+
+		if not self.app.instance.performance_mode:
+			if 'karma' in self.app.instance.apps.apps:
+				fields.append({
+					'name': 'Karma',
+					'index': 'karma',
+					'sorting': True,
+					'searching': False,
+					'width': 15,
+					'renderer': render_karma
+				})
+
+			if 'local_records' in self.app.instance.apps.apps:
+				fields.append({
+					'name': 'Rank',
+					'index': 'local_record_rank',
+					'sorting': True,
+					'searching': False,
+					'width': 15,
+					'renderer': render_rank
+				})
+				fields.append({
+					'name': 'Local',
+					'index': 'local_record_score',
+					'sorting': True,
+					'searching': False,
+					'width': 15,
+					'renderer': render_optional_time
+				})
+				fields.append({
+					'name': 'Diff #1',
+					'index': 'local_record_diff',
+					'sorting': True,
+					'searching': False,
+					'width': 15,
+					'renderer': render_optional_time
+				})
+
+		return fields
+
+	async def display(self, player=None):
+		return await super().display(player or self.player)
 
 	async def get_actions(self):
 		return self.custom_actions

@@ -52,10 +52,10 @@ class Jukebox(AppConfig):
 		self.jukebox.clear()
 
 	async def show_map_list(self, player, data, **kwargs):
-		view = MapListView(self)
+		view = MapListView(self, player)
 		if data.search is not None:
 			view.search_text = data.search
-		await view.display(player=player)
+		await view.display()
 
 	async def show_map_folders(self, player, data, **kwargs):
 		await self.folder_manager.display_folder_list(player)
