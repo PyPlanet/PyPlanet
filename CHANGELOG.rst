@@ -4,7 +4,26 @@ Changelog
 0.6.0 (unreleased)
 ------------------
 
+Core
+~~~~
+
 * **Breaking**: Removed the deprecated ``app.ui``.
+
+* Feature: Add in-game and command line upgrade commands (//upgrade and ./manage.py upgrade) (CAUTION: Can be unstable!).
+
+* Improvement: Slightly improved the performance when booting PyPlanet on large servers (indexing of local and karma)
+* Improvement: Increased the retry count for connecting to a dedicated server from 5 to 10 retries.
+* Improvement: Added bumpversion to project (technical and only for development).
+* Improvement: Unpack the flags of the ``PlayerInfoChange`` callback and expand the flow variables (technical).
+* Improvement: Updated external libraries.
+* Improvement: Extract the zone information for players (technical).
+* Improvement: Add nation to join and leave messages.
+* Improvement: Activated the shutdown handlers to safely exit PyPlanet. The stop callbacks are now called at shutdown of PyPlanet.
+
+* Bugfix: Fix issue when trying to //reboot on Windows.
+
+Apps
+~~~~
 
 * NEW: Add Music Server App: Queue music on your server. Add ``pyplanet.apps.contrib.music_server`` to your apps.py.
        More information: http://www.pypla.net/en/latest/apps/contrib/music_server.html
@@ -28,22 +47,12 @@ Changelog
 * Feature: Add buttons to delete local records by an admin.
 * Feature: Add checkpoint difference in the middle of the screen when passing checkpoints (in the sector_times app).
 * Feature: Cleanup the dedimania ghost files after reading and sending to dedimania API.
-* Feature: Add in-game and command line upgrade commands (//upgrade and ./manage.py upgrade) (CAUTION: Can be unstable!).
 * Feature: Add advanced /list for searching and sorting with your personal local record, the time difference and karma. (can take long on big servers).
 
-* Improvement: Slightly improved the performance when booting PyPlanet on large servers (indexing of local and karma)
-* Improvement: Increased the retry count for connecting to a dedicated server from 5 to 10 retries.
-* Improvement: Added bumpversion to project (technical and only for development).
-* Improvement: Unpack the flags of the ``PlayerInfoChange`` callback and expand the flow variables (technical).
-* Improvement: Updated external libraries.
-* Improvement: Extract the zone information for players (technical).
-* Improvement: Add nation to join and leave messages.
-* Improvement: Activated the shutdown handlers to safely exit PyPlanet. The stop callbacks are now called at shutdown of PyPlanet.
 * Improvement: Add caching to the /list view per player and per view.
 
 * Bugfix: Fix issue with incorrect link in the dedimania settings entry.
 * Bugfix: Fix the type inconsistency of the dedimania API and driven records
-* Bugfix: Fix issue when trying to //reboot on Windows.
 * Bugfix: Fix when trying to vote after restarting the map in the podium sequence.
 
 
