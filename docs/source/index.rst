@@ -19,7 +19,8 @@ a event loop and have simultaneously processing of received events from the dedi
 * App: Local Records, including widget + list.
 * App: Dedimania Records, including widget + list.
 * App: Admin Commands, Providing with basic commands and control for maintaining your server.
-* App: Karma, Let your players vote on your maps!
+* App: Admin Toolbar, Providing mostly used admin functions within a few clicks.
+* App: Karma, Let your players vote on your maps! Includes MX Karma integration.
 * App: Jukebox, Let your players 'juke' the next map.
 * App: ManiaExchange, Simply add your maps directly from Mania-Exchange.
 * App: Players, This app shows messages when players join and leave.
@@ -29,8 +30,9 @@ a event loop and have simultaneously processing of received events from the dedi
 * App: Dynamic Pointlimit, Royal point limit adjustment based on the number of players. (Shootmania Royal).
 * App: CP Times, Show the best checkpoint times on top of your screen.
 * App: Chat based voting, No more uncontrollable and unfair Call Votes. Use chat based voting.
-* App: Vote to extend the TimeAttack limit instead of restarting the map!
-* App: Waiting Queue, no more unfair and spamming of the join button.
+* App: Vote to extend the TimeAttack limit instead of restarting the map! Extend-TA© command and voting is awesome!
+* App: Waiting Queue, no more unfair and spamming of the join button, fairly queue spectators to join your full server.
+* App: Add links to your PayPal donate page or Discord server.
 
 Do you want to install PyPlanet, head towards our :doc:`Getting Started Manual </intro/index>`.
 Want to see PyPlanet in action, head to :ref:`screenshots-ref`.

@@ -1,6 +1,52 @@
 Changelog
 =========
 
+0.6.0 (unreleased)
+------------------
+
+* **Breaking**: Removed the deprecated ``app.ui``.
+
+* NEW: Add Music Server App: Queue music on your server. Add ``pyplanet.apps.contrib.music_server`` to your apps.py.
+       More information: http://www.pypla.net/en/latest/apps/contrib/music_server.html
+
+* NEW: Add Advertisement App: Show Discord and PayPal logos in-game. Add ``pyplanet.apps.contrib.ads`` to your apps.py.
+       More information: http://www.pypla.net/en/latest/apps/contrib/ads.html
+
+* NEW: Add Queue App: Add a queue for your spectators to fairly join on busy servers. Add ``pyplanet.apps.contrib.queue`` to your apps.py.
+       More information: http://www.pypla.net/en/latest/apps/contrib/queue.html
+
+* Feature: Add settings to change vote ratio for the chat voting app.
+* Feature: Add advanced voting (++, +, +-, -, --).
+* Feature: Add MX Karma integration. You can configure this in-game with //settings and retrieve a key from: https://karma.mania-exchange.com/
+* Feature: Add Admin Toolbar to manage your server a bit faster. (you can disable this in //settings)
+* Feature: Add new vote to extend the time limit on TA modes (better than /replay or /restart, try it!).
+* Feature: Add admin command to extend the time limit on TA modes temporary (//extend [time to extend with] or empty for double the current limit).
+* Feature: Add dedimania checkpoint comparison (/dedicps and /dedicps [record number]) to compare your checkpoint times with the record given (or first when none given).
+* Feature: Add local record checkpoint comparison (/localcps and /localcps [record number]) to compare your checkpoint times with the record given (or first when none given).
+* Feature: Add F7 to hide most of the widgets (concentration mode).
+* Feature: Add /topsums statistics to see the top local record players.
+* Feature: Add buttons to delete local records by an admin.
+* Feature: Add checkpoint difference in the middle of the screen when passing checkpoints (in the sector_times app).
+* Feature: Cleanup the dedimania ghost files after reading and sending to dedimania API.
+* Feature: Add in-game and command line upgrade commands (//upgrade and ./manage.py upgrade) (CAUTION: Can be unstable!).
+* Feature: Add advanced /list for searching and sorting with your personal local record, the time difference and karma. (can take long on big servers).
+
+* Improvement: Slightly improved the performance when booting PyPlanet on large servers (indexing of local and karma)
+* Improvement: Increased the retry count for connecting to a dedicated server from 5 to 10 retries.
+* Improvement: Added bumpversion to project (technical and only for development).
+* Improvement: Unpack the flags of the ``PlayerInfoChange`` callback and expand the flow variables (technical).
+* Improvement: Updated external libraries.
+* Improvement: Extract the zone information for players (technical).
+* Improvement: Add nation to join and leave messages.
+* Improvement: Activated the shutdown handlers to safely exit PyPlanet. The stop callbacks are now called at shutdown of PyPlanet.
+* Improvement: Add caching to the /list view per player and per view.
+
+* Bugfix: Fix issue with incorrect link in the dedimania settings entry.
+* Bugfix: Fix the type inconsistency of the dedimania API and driven records
+* Bugfix: Fix issue when trying to //reboot on Windows.
+* Bugfix: Fix when trying to vote after restarting the map in the podium sequence.
+
+
 0.5.4
 -----
 
