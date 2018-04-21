@@ -72,18 +72,23 @@ Information about development of apps and the core is also available under:
     :caption: Apps Documentation
 
     apps/contrib/admin
+    apps/contrib/ads
+    apps/contrib/best_cps
+    apps/contrib/clock
+    apps/contrib/dedimania
+    apps/contrib/dynamic_points
     apps/contrib/jukebox
     apps/contrib/karma
-    apps/contrib/local_records
-    apps/contrib/dedimania
-    apps/contrib/mapinfo
-    apps/contrib/players
-    apps/contrib/mx
-    apps/contrib/transactions
     apps/contrib/live_rankings
-    apps/contrib/sector_times
-    apps/contrib/dynamic_points
+    apps/contrib/local_records
+    apps/contrib/mapinfo
+    apps/contrib/music_server
+    apps/contrib/mx
+    apps/contrib/players
     apps/contrib/queue
+    apps/contrib/sector_times
+    apps/contrib/transactions
+    apps/contrib/voting
 
 
 .. _dev-docs:
