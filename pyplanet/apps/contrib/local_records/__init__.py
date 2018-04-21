@@ -92,6 +92,30 @@ class LocalRecords(AppConfig):
 			'first_record': record_list[0] if len(record_list) > 0 else None
 		}
 
+	async def get_player_record_for_map(self, map, player):
+		record_list = await LocalRecord.objects.execute(
+			LocalRecord.select(LocalRecord)
+				.where(LocalRecord.player_id == player.get_id())
+				.where(LocalRecord.map_id == map.get_id())
+		)
+
+		return record_list
+
+	async def get_player_record_and_rank_for_map(self, map, player):
+		record_list = await LocalRecord.objects.execute(
+			LocalRecord.select(LocalRecord, Player)
+				.join(Player)
+				.where(LocalRecord.map_id == map.get_id())
+				.order_by(LocalRecord.score.asc())
+		)
+
+		rank = 1
+		for rec in record_list:
+			if rec.player == player:
+				return rank, rec
+			rank += 1
+		return None, None
+
 	async def get_local(self, id):
 		return await LocalRecord.get(id=id)
 
