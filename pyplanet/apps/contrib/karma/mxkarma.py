@@ -19,7 +19,7 @@ class MXKarma:
 
 		self.current_count = 0
 		self.current_average = 0.0
-		self.current_start = None
+		self.current_start = datetime.datetime.now()
 		self.current_votes = None
 
 		self.setting_mx_karma = Setting(
