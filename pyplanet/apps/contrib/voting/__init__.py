@@ -106,7 +106,7 @@ class Voting(AppConfig):
 		# Register callback.
 		self.context.signals.listen(mp_signals.flow.podium_start, self.podium_start)
 		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
-		self.context.signals.listen(mp_signals.map.map_begin, self.map_start)
+		self.context.signals.listen(mp_signals.map.map_start, self.map_start)
 
 		if await self.setting_callvoting_disable.get_value() is True:
 			# Disable callvoting
