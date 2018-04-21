@@ -144,17 +144,18 @@ main() {
 
     // Check for pending race events.
     foreach (Event in RaceEvents) {
-      if (Event.IsEndLap && (BestScore <= 0 || Event.LapTime < BestScore)) {
-        BestScore = Event.LapTime;
-        BestSource = "Local 1";
-        BestCheckpoints = CurrentCheckpointScores;
-      }
-
       // Stop here if player of the event is not the playing or spectating player.
       if (GUIPlayer == Null || Event.Player != GUIPlayer) {
         continue;
       }
       declare Boolean IsSpectating = GUIPlayer != InputPlayer;
+
+      // If the player itself finished faster. Set the new time as PB.
+      if (! IsSpectating && Event.IsEndLap && (BestScore <= 0 || Event.LapTime < BestScore)) {
+        BestScore = Event.LapTime;
+        BestSource = "PB";
+        BestCheckpoints = CurrentCheckpointScores;
+      }
 
       if (Event.Type == CTmRaceClientEvent::EType::Respawn) {
         if (GUIPlayer != Null && GUIPlayer.RaceState != CTmMlPlayer::ERaceState::Running) {
