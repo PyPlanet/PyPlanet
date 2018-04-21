@@ -87,19 +87,18 @@ class CheckpointDiffWidget(WidgetView):
 		dedi_record = None
 		local_score = 0
 		local_record = None
-
 		if 'dedimania' in self.app.instance.apps.apps:
 			try:
-				dedi_record = [x for x in self.app.instance.apps.apps['dedimania'].current_records if x.rank == 1]
+				dedi_record = [x for x in self.app.instance.apps.apps['dedimania'].current_records if x.login == login]
 				if len(dedi_record) > 0:
 					dedi_record = dedi_record[0]
 			except:
 				pass
 		if 'local_records' in self.app.instance.apps.apps:
 			try:
-				local_record_data = await self.app.instance.apps.apps['local_records'].get_map_record()
-				if local_record_data['first_record']:
-					local_record = local_record_data['first_record']
+				local_record = [x for x in self.app.instance.apps.apps['local_records'].current_records if x.player.login == login]
+				if len(local_record) > 0:
+					local_record = local_record[0]
 			except:
 				pass
 
@@ -110,16 +109,14 @@ class CheckpointDiffWidget(WidgetView):
 
 		# Get fastest score, source and checkpoint scores.
 		fastest_score = 0
-		fastest_source = ''
+		fastest_source = 'PB'
 		fastest_cps = list()
 		if dedi_score > 0 and (local_score <= 0 or dedi_score < local_score):
 			fastest_score = dedi_score
 			fastest_cps = dedi_record.cps
-			fastest_source = 'Dedi 1'
 		elif local_score > 0 and (dedi_score <= 0 or local_score <= dedi_score):
 			fastest_score = local_score
 			fastest_cps = local_record.checkpoints
-			fastest_source = 'Local 1'
 
 		if isinstance(fastest_cps, list):
 			fastest_cps = ','.join([str(c) for c in fastest_cps])
