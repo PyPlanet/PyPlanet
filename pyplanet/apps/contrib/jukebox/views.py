@@ -81,8 +81,14 @@ class MapListView(ManualListView):
 		self.app = app
 		self.manager = app.context.ui
 		self.player = player
+		self.advanced = False
+		self.cache = list()
+		self.cache_advanced = False
 
 	async def get_data(self):
+		if self.cache and self.advanced == self.cache_advanced:
+			return self.cache
+
 		data = list()
 
 		local_app_installed = 'local_records' in self.app.instance.apps.apps
@@ -96,8 +102,8 @@ class MapListView(ManualListView):
 			map_dict['local_record_diff_direction'] = None
 			map_dict['karma'] = None
 
-			# Skip if in performance mode!
-			if self.app.instance.performance_mode:
+			# Skip if in performance mode or advanced is not enabled.
+			if self.app.instance.performance_mode or not self.advanced:
 				data.append(map_dict)
 				continue
 
@@ -119,7 +125,9 @@ class MapListView(ManualListView):
 
 			data.append(map_dict)
 
-		return data
+		self.cache = data
+		self.cache_advanced = self.advanced
+		return self.cache
 
 	async def get_fields(self):
 		fields = [
@@ -171,7 +179,7 @@ class MapListView(ManualListView):
 
 			return '{}{}'.format(prefix, value)
 
-		if not self.app.instance.performance_mode:
+		if self.advanced and not self.app.instance.performance_mode:
 			if 'karma' in self.app.instance.apps.apps:
 				fields.append({
 					'name': 'Karma',
@@ -217,7 +225,7 @@ class MapListView(ManualListView):
 		return self.custom_actions
 
 	async def get_buttons(self):
-		return [
+		buttons = [
 			{
 				'title': 'Folders',
 				'width': 20,
@@ -225,11 +233,36 @@ class MapListView(ManualListView):
 			}
 		]
 
+		if self.advanced:
+			buttons.append({
+				'title': 'Simple list',
+				'width': 30,
+				'action': self.action_advanced
+			})
+		else:
+			buttons.append({
+				'title': 'Advanced list',
+				'width': 30,
+				'action': self.action_advanced
+			})
+
+		return buttons
+
 	async def action_jukebox(self, player, values, map_info, **kwargs):
 		await self.app.add_to_jukebox(player, await self.app.instance.map_manager.get_map(map_info['uid']))
 
 	async def action_folders(self, player, values, **kwargs):
 		await self.app.folder_manager.display_folder_list(player)
+
+	async def action_advanced(self, player, values, **kwargs):
+		if self.advanced:
+			self.advanced = False
+		else:
+			self.advanced = True
+			await self.app.instance.chat(
+				'Please wait... Loading advanced map list, this can take some time on large servers', self.player
+			)
+		await self.refresh(player=self.player)
 
 	@classmethod
 	def add_action(cls, target, name, text, text_size='1.2', require_confirm=False, order=0):
@@ -251,6 +284,14 @@ class MapListView(ManualListView):
 		for idx, custom in enumerate(cls.custom_actions):
 			if custom['action'] == target:
 				del cls.custom_actions[idx]
+
+	async def destroy(self):
+		await super().destroy()
+		self.cache = list()
+
+	def destroy_sync(self):
+		super().destroy_sync()
+		self.cache = list()
 
 
 class FolderMapListView(MapListView):
