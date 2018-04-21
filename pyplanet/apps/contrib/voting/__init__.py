@@ -219,7 +219,7 @@ class Voting(AppConfig):
 			return
 
 		if await self.setting_enabled_replay.get_value() is False:
-			message = '$i$f00Replay voting has been disabled via the server settings!'
+			message = '$i$f00Replay voting has been disabled via the server settings! Try /extend for time-extension of TA-mode'
 			await self.instance.chat(message, player)
 			return
 
@@ -246,6 +246,11 @@ class Voting(AppConfig):
 				return
 
 		self.current_vote = await self.create_vote('replay this map', player, self.vote_replay_finished)
+
+		if 'timeattack' in (await self.instance.mode_manager.get_current_script()).lower() \
+			and await self.setting_enabled_time_extend.get_value():
+			message = '$i$FD4Did you know that you could also vote for extending the time limit with /extend?'
+			await self.instance.chat(message, player)
 
 		message = '$fff{}$z$s$0cf wants to $fff{}$0cf, $fff{}$0cf more {} needed (use $fffF5$0cf to vote).'.format(
 			player.nickname, self.current_vote.action, self.current_vote.votes_required, ('votes' if self.current_vote.votes_required > 1 else 'vote')
@@ -284,7 +289,7 @@ class Voting(AppConfig):
 			return
 
 		if await self.setting_enabled_restart.get_value() is False:
-			message = '$i$f00Restart voting has been disabled via the server settings!'
+			message = '$i$f00Restart voting has been disabled via the server settings! Try /extend for time-extension of TA-mode'
 			await self.instance.chat(message, player)
 			return
 
