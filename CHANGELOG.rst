@@ -19,6 +19,7 @@ Core
 * Improvement: Extract the zone information for players (technical).
 * Improvement: Add nation to join and leave messages.
 * Improvement: Activated the shutdown handlers to safely exit PyPlanet. The stop callbacks are now called at shutdown of PyPlanet.
+* Improvement: Show pre-release as update when running on a pre-release version. (We now release pre-releases for public testing).
 
 * Bugfix: Fix issue when trying to //reboot on Windows.
 
