@@ -303,7 +303,7 @@ class FolderMapListView(MapListView):
 		:param folder_code: Folder code that can be parsed.
 		:type folder_manager: pyplanet.apps.contrib.jukebox.folders.FolderManager
 		"""
-		super().__init__(folder_manager.app)
+		super().__init__(folder_manager.app, player)
 
 		self.folder_manager = folder_manager
 		self.folder_code = folder_code
