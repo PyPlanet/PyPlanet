@@ -132,7 +132,7 @@ class StatisticsProcessor:
 			res = await LocalRecord.objects.execute(
 				LocalRecord.select(LocalRecord, Player)
 					.join(Player)
-					.where(LocalRecord.map_id == map_instance)
+					.where(LocalRecord.map_id == map_instance.id)
 					.order_by(LocalRecord.score)
 					.limit(3)
 			)
