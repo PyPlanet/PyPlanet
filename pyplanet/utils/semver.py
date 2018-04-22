@@ -3,6 +3,8 @@ Python helper for Semantic Versioning (http://semver.org/)
 
 Original source: https://github.com/k-bx/python-semver
 We copy to make sure this simple library is and maintain in our core.
+
+Changed by Tom Valk: Added function to detect if the release is a pre-release.
 """
 
 import collections
@@ -355,3 +357,15 @@ def bump_build(version):
 	verinfo['build'] = _increment_string(verinfo['build'] or 'build.0')
 	return format_version(verinfo['major'], verinfo['minor'], verinfo['patch'],
 						  verinfo['prerelease'], verinfo['build'])
+
+
+def is_prerelease(version):
+	"""
+	Detect if the version given is a pre-release.
+
+	:param version: version string
+	:return: if the version is a pre-release
+	:rtype: bool
+	"""
+	verinfo = parse(version)
+	return 'prerelease' in verinfo and verinfo['prerelease'] is not None

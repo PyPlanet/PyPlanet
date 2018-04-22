@@ -38,6 +38,7 @@ class _UpdateChecker:  # pragma: no cover
 
 	async def check(self, first_check=False):
 		from pyplanet import __version__ as current_version
+		running_prerelease = semver.is_prerelease(current_version)
 
 		logging.debug('Checking for new versions...')
 
@@ -48,9 +49,11 @@ class _UpdateChecker:  # pragma: no cover
 					self.releases.append(release['tag_name'])
 
 				for release in await resp.json():
-					if not release['draft'] and not release['prerelease']:
-						self.latest = release['tag_name']
-						break
+					if release['draft'] or (not running_prerelease and release['prerelease']):
+						continue
+
+					self.latest = release['tag_name']
+					break
 
 				self.current = current_version
 				logging.debug('Version check, your version: {}, online version: {}'.format(self.current, self.latest))
@@ -79,5 +82,6 @@ class _UpdateChecker:  # pragma: no cover
 					player
 				)
 			)
+
 
 UpdateChecker = _UpdateChecker()
