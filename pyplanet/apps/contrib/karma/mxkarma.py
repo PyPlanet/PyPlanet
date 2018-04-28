@@ -77,7 +77,7 @@ class MXKarma:
 		:param importvotes: Import boolean
 		:return:
 		"""
-		if rating is not None and rating['votecount'] != 0:
+		if rating is not None:
 			self.current_count = rating['votecount']
 			self.current_average = rating['voteaverage']
 			self.current_votes = rating['votes']
