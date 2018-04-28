@@ -333,6 +333,9 @@ class FolderMapListView(MapListView):
 		return fields
 
 	async def get_data(self):
+		if self.cache and self.advanced == self.cache_advanced:
+			return self.cache
+
 		self.fields, self.map_list, self.folder_info, self.folder_instance = \
 			await self.folder_manager.get_folder_code_contents(self.folder_code)
 
@@ -350,7 +353,8 @@ class FolderMapListView(MapListView):
 				dict_item['karma'] = (await self.app.instance.apps.apps['karma'].get_map_karma(item))['map_karma']
 			items.append(dict_item)
 
-		return items
+		self.cache = items
+		return self.cache
 
 	async def remove_from_folder(self, player, values, map_dictionary, view, **kwargs):
 		# Check permission on folder.
