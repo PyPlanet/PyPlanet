@@ -12,11 +12,17 @@
   <label pos="3.25 -3.2" z-index="1" size="6.5 6" text="&#xe955;" halign="center" valign="center2"
          id="admin_toolbar_bar_button_prev" textsize="2.0"
          scriptevents="1" action="{{ id }}__bar_button_prev" />
-  <label pos="9.75 -3.2" z-index="1" size="6.5 6" text="&#xe95a;" halign="center" valign="center2"
-         id="admin_toolbar_bar_button_endround" textsize="2.0"
-         scriptevents="1" action="{{ id }}__bar_button_endround" />
-  <label pos="9.75 -3.0" z-index="2" size="4.5 4" text="$000&#xf0e2;" halign="center" valign="center2"
-         id="admin_toolbar_bar_endround_fg" textsize="0.7"/>
+  {% if game == 'tm' %}
+    <label pos="9.75 -3.2" z-index="1" size="6.5 6" text="&#xe95a;" halign="center" valign="center2"
+           id="admin_toolbar_bar_button_endround" textsize="2.0"
+           scriptevents="1" action="{{ id }}__bar_button_endround" />
+    <label pos="9.75 -3.0" z-index="2" size="4.5 4" text="$000&#xf0e2;" halign="center" valign="center2"
+           id="admin_toolbar_bar_endround_fg" textsize="0.7"/>
+  {% else %}
+    <label pos="9.75 -3.2" z-index="1" size="6.5 6" text="&#xf0e2;" halign="center" valign="center2"
+           id="admin_toolbar_bar_button_restart" textsize="2.0"
+           scriptevents="1" action="{{ id }}__bar_button_restart" />
+  {% endif %}
   <label pos="16.25 -3.2" z-index="1" size="6.5 6" text="&#xf079;" halign="center" valign="center2"
          id="admin_toolbar_bar_button_replay"
          scriptevents="1" action="{{ id }}__bar_button_replay" />
