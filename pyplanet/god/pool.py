@@ -72,7 +72,10 @@ class EnvironmentPool:
 		"""
 		for name, proc in self.pool.items():
 			logger.info('Shutting down {}...'.format(name))
-			proc.shutdown()
+			if 'detach' in self.options and self.options['detach']:
+				proc.shutdown()
+			else:
+				proc.graceful()
 		# self.dog_observer.stop()
 
 	def restart(self, name=None):
