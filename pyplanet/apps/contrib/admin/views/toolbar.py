@@ -36,6 +36,8 @@ class ToolbarView(TemplateView):
 		return await self.app.instance.command_manager.execute(player, '//prev')
 
 	async def action_endround(self, player, *args, **kwargs):
+		if self.app.instance.game.game == 'sm':
+			return await self.app.instance.chat('$ff0Error: Can\'t end round in Shootmania!', player)
 		return await self.app.instance.command_manager.execute(player, '//endround')
 
 	async def action_replay(self, player, *args, **kwargs):
