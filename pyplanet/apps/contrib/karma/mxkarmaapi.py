@@ -125,31 +125,41 @@ class MXKarmaApi:
 		)
 
 		logins = [vote.player.login for vote in self.app.app.current_votes]
+		loop_logins = [logins[x:x+100] for x in range(0, len(logins), 100)]
 
-		content = {
-			'gamemode': await self.app.app.instance.mode_manager.get_current_full_script(),
-			'titleid': self.app.app.instance.game.dedicated_title,
-			'mapuid': map.uid,
-			'getvotesonly': False,
-			'playerlogins': logins
-		}
+		data = None
 
-		response = await self.session.post(url, json=content)
+		for temp_logins in loop_logins:
+			content = {
+				'gamemode': await self.app.app.instance.mode_manager.get_current_full_script(),
+				'titleid': self.app.app.instance.game.dedicated_title,
+				'mapuid': map.uid,
+				'getvotesonly': False,
+				'playerlogins': temp_logins
+			}
 
-		if response.status < 200 or response.status > 399:
-			raise MXInvalidResponse('Got invalid response status from ManiaExchange: {}'.format(response.status))
+			response = await self.session.post(url, json=content)
 
-		result = await response.json()
+			if response.status < 200 or response.status > 399:
+				raise MXInvalidResponse('Got invalid response status from ManiaExchange: {}'.format(response.status))
 
-		if result['success'] is False:
-			logger.error('Error while getting information from ManiaExchange, error {code}: {message}'.format(
-				code=result['data']['code'], message=result['data']['message']
-			))
+			result = await response.json()
 
-			return None
-		else:
-			data = result['data']
-			return data
+			if result['success'] is False:
+				logger.error('Error while getting information from ManiaExchange, error {code}: {message}'.format(
+					code=result['data']['code'], message=result['data']['message']
+				))
+
+				return None
+			else:
+				if data is None:
+					data = result['data']
+				else:
+					data['votes'] += result['data']['votes']
+
+		logger.debug('Amount of MX Karma votes retrieved for this map: {}'.format(len(data['votes'])))
+
+		return data
 
 	async def save_votes(self, map, is_import=False, map_length=0, votes=None):
 		"""
@@ -195,4 +205,5 @@ class MXKarmaApi:
 			))
 			return False
 		else:
+			logger.debug('Amount of MX Karma votes saved for this map: {}'.format(len(votes)))
 			return result['data']['updated']
