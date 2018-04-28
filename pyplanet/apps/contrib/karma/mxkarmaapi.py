@@ -206,5 +206,6 @@ class MXKarmaApi:
 			))
 			return False
 		else:
-			logger.debug('Amount of MX Karma votes saved for this map: {}'.format(len(votes)))
+			if votes is not None:
+				logger.debug('Amount of MX Karma votes saved for this map: {}'.format(len(votes)))
 			return result['data']['updated']
