@@ -76,6 +76,8 @@ class MapListView(ManualListView):
 
 	custom_actions = list()
 
+	supports_advanced = True
+
 	def __init__(self, app, player):
 		super().__init__(self)
 		self.app = app
@@ -159,18 +161,24 @@ class MapListView(ManualListView):
 
 		def render_optional_time(row, field):
 			value = row[field['index']]
+			if value is None:
+				return ''
 			if isinstance(value, float) and not math.isnan(value):
 				return times.format_time(int(value))
 			return 'None'
 
 		def render_rank(row, field):
 			value = row[field['index']]
+			if value is None:
+				return ''
 			if isinstance(value, float) and not math.isnan(value):
 				return int(value)
 			return 'None'
 
 		def render_karma(row, field):
 			value = row[field['index']]
+			if value is None:
+				return ''
 			prefix = ''
 			if value > 0.0:
 				prefix = '$6CF'
@@ -233,18 +241,19 @@ class MapListView(ManualListView):
 			}
 		]
 
-		if self.advanced:
-			buttons.append({
-				'title': 'Simple list',
-				'width': 30,
-				'action': self.action_advanced
-			})
-		else:
-			buttons.append({
-				'title': 'Advanced list',
-				'width': 30,
-				'action': self.action_advanced
-			})
+		if self.supports_advanced:
+			if self.advanced:
+				buttons.append({
+					'title': 'Simple list',
+					'width': 30,
+					'action': self.action_advanced
+				})
+			else:
+				buttons.append({
+					'title': 'Advanced list',
+					'width': 30,
+					'action': self.action_advanced
+				})
 
 		return buttons
 
@@ -295,6 +304,8 @@ class MapListView(ManualListView):
 
 
 class FolderMapListView(MapListView):
+	supports_advanced = False
+
 	def __init__(self, folder_manager, folder_code, player):
 		"""
 		Folder Map list
