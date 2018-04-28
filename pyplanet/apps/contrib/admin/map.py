@@ -9,6 +9,7 @@ from random import shuffle
 from pyplanet.apps.core.maniaplanet.models import Map
 from pyplanet.conf import settings
 from pyplanet.contrib.command import Command
+from pyplanet.contrib.map.exceptions import ModeIncompatible
 from pyplanet.contrib.setting import Setting
 from pyplanet.utils import gbxparser
 from pyplanet.views.generics import ask_confirmation
@@ -304,7 +305,10 @@ class MapAdmin:
 
 	async def extend(self, player, data, **kwargs):
 		extend_with = data.seconds
-		extended_with = await self.instance.map_manager.extend_ta(extend_with=extend_with)
+		try:
+			extended_with = await self.instance.map_manager.extend_ta(extend_with=extend_with)
+		except ModeIncompatible:
+			return await self.instance.chat('$ff0Error: Game mode must be Time Attach to use the extend functionality!', player)
 
 		message = '$ff0Admin $fff{}$z$s$ff0 has extended the time limit with $fff{} seconds.'.format(
 			player.nickname, extended_with
