@@ -9,6 +9,7 @@ main() {
   declare Text[Text] Tooltips = [
     "admin_toolbar_bar_button_prev" => "Skip to previous map",
     "admin_toolbar_bar_button_endround" => "Force end of round",
+    "admin_toolbar_bar_button_restart" => "Restart the map",
     "admin_toolbar_bar_button_replay" => "Queue the map for replay",
     "admin_toolbar_bar_button_skip" => "Skip the current map",
     "admin_toolbar_bar_button_skip2" => "None",

@@ -143,8 +143,6 @@ class FolderManager:
 			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'karma') and m.karma['vote_count'] == 0]
 		elif folder['id'] == 'karma_negative':
 			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'karma') and m.karma['map_karma'] < 0]
-			for m in self.app.instance.map_manager.maps:
-				print('{}: {}'.format(m.name, m.karma['map_karma']))
 		elif folder['id'] == 'karma_undecided':
 			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'karma') and m.karma['map_karma'] == 0]
 		elif folder['id'] == 'karma_positive':

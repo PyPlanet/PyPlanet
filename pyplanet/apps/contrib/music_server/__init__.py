@@ -91,7 +91,7 @@ class MusicServer(AppConfig):
 			new_song = self.playlist[0]['song']
 			self.playlist.pop(0)
 		else:
-			if self.current_song_index + 1 > len(self.songs):
+			if self.current_song_index + 2 > len(self.songs):
 				new_song = self.songs[0]
 				self.current_song_index = 0
 			else:

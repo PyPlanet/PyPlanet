@@ -130,7 +130,11 @@ class InstanceProcess:
 		"""
 		Shutdown (terminate) process.
 		"""
-		return self.process.terminate()
+		try:
+			return self.process.terminate()
+		except:
+			pass
+		return None
 
 	def graceful(self):
 		"""

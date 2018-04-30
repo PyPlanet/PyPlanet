@@ -76,6 +76,8 @@ class MapListView(ManualListView):
 
 	custom_actions = list()
 
+	supports_advanced = True
+
 	def __init__(self, app, player):
 		super().__init__(self)
 		self.app = app
@@ -159,18 +161,24 @@ class MapListView(ManualListView):
 
 		def render_optional_time(row, field):
 			value = row[field['index']]
+			if value is None:
+				return ''
 			if isinstance(value, float) and not math.isnan(value):
 				return times.format_time(int(value))
 			return 'None'
 
 		def render_rank(row, field):
 			value = row[field['index']]
+			if value is None:
+				return ''
 			if isinstance(value, float) and not math.isnan(value):
 				return int(value)
 			return 'None'
 
 		def render_karma(row, field):
 			value = row[field['index']]
+			if value is None:
+				return ''
 			prefix = ''
 			if value > 0.0:
 				prefix = '$6CF'
@@ -233,18 +241,19 @@ class MapListView(ManualListView):
 			}
 		]
 
-		if self.advanced:
-			buttons.append({
-				'title': 'Simple list',
-				'width': 30,
-				'action': self.action_advanced
-			})
-		else:
-			buttons.append({
-				'title': 'Advanced list',
-				'width': 30,
-				'action': self.action_advanced
-			})
+		if self.supports_advanced:
+			if self.advanced:
+				buttons.append({
+					'title': 'Simple list',
+					'width': 30,
+					'action': self.action_advanced
+				})
+			else:
+				buttons.append({
+					'title': 'Advanced list',
+					'width': 30,
+					'action': self.action_advanced
+				})
 
 		return buttons
 
@@ -295,6 +304,8 @@ class MapListView(ManualListView):
 
 
 class FolderMapListView(MapListView):
+	supports_advanced = False
+
 	def __init__(self, folder_manager, folder_code, player):
 		"""
 		Folder Map list
@@ -322,6 +333,9 @@ class FolderMapListView(MapListView):
 		return fields
 
 	async def get_data(self):
+		if self.cache and self.advanced == self.cache_advanced:
+			return self.cache
+
 		self.fields, self.map_list, self.folder_info, self.folder_instance = \
 			await self.folder_manager.get_folder_code_contents(self.folder_code)
 
@@ -339,7 +353,8 @@ class FolderMapListView(MapListView):
 				dict_item['karma'] = (await self.app.instance.apps.apps['karma'].get_map_karma(item))['map_karma']
 			items.append(dict_item)
 
-		return items
+		self.cache = items
+		return self.cache
 
 	async def remove_from_folder(self, player, values, map_dictionary, view, **kwargs):
 		# Check permission on folder.

@@ -105,12 +105,8 @@ class Command(BaseCommand):  # pragma: no cover
 			os._exit(0)
 
 		# Stop listening for signals.
-		pid = os.setsid()
-		if pid == -1:
-			# Problem! Exit
-			sys.exit(1)
-
-		self.pid = pid
+		os.setsid()
+		self.pid = os.getpid()
 
 		# Determinate /dev/null on machine.
 		dev_null = '/dev/null'
@@ -132,6 +128,7 @@ class Command(BaseCommand):  # pragma: no cover
 
 		# Register shutdown methods.
 		signal.signal(signal.SIGTERM, self.sigterm)
+		signal.signal(signal.SIGHUP, self.sigterm)
 		atexit.register(self.exit)
 
 	def sigterm(self, signum, frame):

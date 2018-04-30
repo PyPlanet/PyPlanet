@@ -156,7 +156,6 @@ class Dedimania(AppConfig):
 		except Exception as e:
 			logger.exception(e)
 			logger.error('Dedimania app unloaded!')
-			print(type(e))
 			return
 
 		if self.ready:
