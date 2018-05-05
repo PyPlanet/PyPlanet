@@ -46,8 +46,8 @@ class MusicListView(ManualListView):
 			tags = song[1]
 			items.append({
 				'index': song_list.index(song) + 1,
-				'song_name': tags.get('title'),
-				'song_artist': tags.get('artist'),
+				'song_name': tags.get('title', '-unknown title-'),
+				'song_artist': tags.get('artist', '-unknown artist-'),
 			})
 		return items
 
