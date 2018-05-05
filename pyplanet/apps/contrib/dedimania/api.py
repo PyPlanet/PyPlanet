@@ -108,7 +108,21 @@ class DedimaniaAPI:
 					self.retries += 1
 					if self.retries > 5:
 						raise DedimaniaTransportException('Max retries reached for reauthenticating with dedimania!')
+
+					# Save original session ID.
+					original_session_id = '{}'.format(self.session_id)
+
+					# Reauthenticate
 					await self.authenticate()
+
+					# Replace session_id in args.
+					if len(args) > 0 and len(args[0]) > 0 and isinstance(args[0][0], dict) and 'params' in args[0][0]:
+						new_params = list(args[0][0]['params'])
+						if len(new_params) > 0 and isinstance(new_params[0], str) and new_params[0] == original_session_id:
+							new_params[0] = self.session_id
+							args[0][0]['params'] = tuple(new_params)
+
+					# Try again.
 					return await self.execute(method, *args)
 				except:
 					return
@@ -139,6 +153,7 @@ class DedimaniaAPI:
 			logger.error('Dedimania Error during authentication: {}'.format(str(e)))
 			return
 		if not result:
+			logger.error('Dedimania response doesn\'t contain authentication results!')
 			return
 
 		try:
