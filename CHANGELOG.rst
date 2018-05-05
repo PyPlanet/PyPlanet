@@ -55,6 +55,7 @@ Apps
 * Bugfix: Fix issue with incorrect link in the dedimania settings entry.
 * Bugfix: Fix the type inconsistency of the dedimania API and driven records
 * Bugfix: Fix when trying to vote after restarting the map in the podium sequence.
+* Bugfix: Fix the retry logic of Dedimania when losing connection.
 
 
 0.5.4

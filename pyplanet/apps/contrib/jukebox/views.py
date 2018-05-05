@@ -264,6 +264,13 @@ class MapListView(ManualListView):
 		await self.app.folder_manager.display_folder_list(player)
 
 	async def action_advanced(self, player, values, **kwargs):
+		if len(self.app.instance.map_manager.maps) > 500:
+			if self.player.level == 0:
+				await self.app.instance.chat(
+					'This server contains 500+ maps. Advanced map list only activated for admins!', self.player
+				)
+				return
+
 		if self.advanced:
 			self.advanced = False
 		else:
