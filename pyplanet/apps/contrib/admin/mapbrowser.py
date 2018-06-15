@@ -18,7 +18,7 @@ class MapBrowser:
         await self.instance.permission_manager.register('localmaps', 'Shows a file browser to browse the local files', app=self.app, min_level=3)
 
         await self.app.instance.command_manager.register(
-            Command(command='localmaps', target=self.show_browser, perms='mapbrowser:localmaps', admin=True)
+            Command(command='localmaps', target=self.show_browser, perms='admin:localmaps', admin=True)
         )
 
     async def show_browser(self, player, data, **kwargs):
