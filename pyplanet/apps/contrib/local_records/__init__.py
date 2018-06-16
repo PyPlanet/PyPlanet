@@ -169,7 +169,8 @@ class LocalRecords(AppConfig):
 		)
 
 	async def player_connect(self, player, is_spectator, source, signal):
-		await self.widget.display(player=player)
+		if self.widget:
+			await self.widget.display(player=player)
 
 	async def player_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
 		record_limit = await self.setting_record_limit.get_value()
