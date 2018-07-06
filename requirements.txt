@@ -9,7 +9,7 @@ peewee==2.10.2
 peewee-async==0.5.12
 aiopg==0.14.0
 aiomysql==0.0.16
-pymysql==0.9.2
+pymysql==0.8.1
 apyio==0.2.0
 aiofiles==0.3.2
 asyncssh==1.13.2
