@@ -181,6 +181,7 @@ main() {
             BestSource = "Round";
             BestCheckpoints = CurrentCheckpointScores;
           }
+          CurrentCheckpointScores = Integer[];
         }
       }
     }
