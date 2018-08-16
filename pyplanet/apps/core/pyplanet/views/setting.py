@@ -214,7 +214,7 @@ class SettingEditView(TemplateView):
 		finally:
 			await asyncio.gather(
 				self.parent.app.instance.chat(
-					'$fa0Setting has been saved \'{}\''.format(self.setting.key),
+					'$fa0Setting has been saved \'$fff{}$fa0\''.format(self.setting.key),
 					player
 				),
 				self.hide([player.login])

@@ -1,4 +1,8 @@
 <quad pos="135 -50" z-index="100" size="15 15" image="http://maniacdn.net/toffe/pyplanet/apps/ads/discord_logo.png"
       autoscale="0" opacity ="0.6" halign="center" valign="center" url="{{ discord_url}}" class="distraction-hide" />
 
+<script><!--
+  #Include "TextLib" as TextLib
+  #Include "MathLib" as MathLib
+  --></script>
 <script><!-- {% include 'core.views/generics/widget.Script.Txt' %} --></script>

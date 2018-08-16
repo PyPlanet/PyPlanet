@@ -1,4 +1,7 @@
+/* ----------------- ToggleUI ------------------ */
 
+***OnInit***
+***
 declare Boolean Prev_DistractionFreeMode = False;
 declare netwrite Boolean Net_DistractionFreeMode for UI;
 
@@ -8,22 +11,285 @@ if (Net_DistractionFreeMode == True) {
     Control.Hide();
   }
 }
+***
 
-while(True) {
-  if (Prev_DistractionFreeMode != Net_DistractionFreeMode) {
-    Prev_DistractionFreeMode = Net_DistractionFreeMode;
 
-    if (Net_DistractionFreeMode == True) {
-      Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
-      foreach (Control in Page.GetClassChildren_Result) {
-        Control.Hide();
+***Loop***
+***
+      if (Prev_DistractionFreeMode != Net_DistractionFreeMode) {
+          Prev_DistractionFreeMode = Net_DistractionFreeMode;
+
+          if (Net_DistractionFreeMode == True) {
+            Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+            foreach (Control in Page.GetClassChildren_Result) {
+              Control.Hide();
+            }
+          } else {
+            Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+            foreach (Control in Page.GetClassChildren_Result) {
+              Control.Show();
+            }
+          }
       }
+***
+
+/* ----------------- End ToggleUI ------------------ */
+
+/* ----------------- Checkbox ------------------ */
+
+Void uiRenderCheckbox(CMlFrame frame) {
+    declare uiControl = frame.Controls[2];
+	if (frame.DataAttributeGet("checked") == "1") {
+       AnimMgr.Add(uiControl, "<frame scale=\"1.\" />", 250, CAnimManager::EAnimManagerEasing::BackOut);
     } else {
-      Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
-      foreach (Control in Page.GetClassChildren_Result) {
-        Control.Show();
-      }
+       AnimMgr.Add(uiControl, "<frame scale=\"0.\" />", 100, CAnimManager::EAnimManagerEasing::BackIn);
+	  }
+      declare CMlEntry entry = (frame.Controls[0] as CMlEntry);
+	    entry.Value = frame.DataAttributeGet("checked") ;
+}
+
+Void uiToggleCheckbox(CMlFrame frame) {
+	if  (frame.DataAttributeGet("checked") == "1") {
+		frame.DataAttributeSet("checked", "0");
+	} else {
+		frame.DataAttributeSet("checked", "1");
+	}
+	uiRenderCheckbox(frame);
+}
+
+
+***OnInit***
+***
+Page.GetClassChildren ("uiContainer", Page.MainFrame, True);
+foreach (frame in Page.GetClassChildren_Result) {
+    if (frame.HasClass("uiCheckbox")) {
+        uiRenderCheckbox((frame as CMlFrame));
     }
+}
+***
+
+
+***OnMouseClick***
+***
+if (Event.Control.HasClass("uiCheckboxElement") ) {
+    if (Event.Control.Parent.HasClass("uiCheckbox")) {
+        uiToggleCheckbox(Event.Control.Parent);
+    }
+}
+***
+
+/* ------------------ end Checkbox ------------------- */
+
+/* ------------------- Button ------------------------- */
+Void TriggerButtonClick(CMlControl Control) {
+    declare Parent = Control.Parent;
+     if (Parent.HasClass("uiButton")) {
+        Parent.RelativeScale = 0.75;
+        AnimMgr.Add(Parent, "<elem scale=\"1.\" />", 200, CAnimManager::EAnimManagerEasing::QuadIn);
+        TriggerPageAction(Parent.DataAttributeGet("action"));
+     }
+}
+
+Void TriggerButtonClick(Text ControlId) {
+    declare Control <=> Page.GetFirstChild(ControlId);
+    TriggerButtonClick(Control);
+}
+
+***OnMouseClick***
+***
+  if (Event.Control.HasClass("uiButtonElement") ) {
+       TriggerButtonClick(Event.Control);
   }
-  yield;
+***
+
+***OnMouseOver***
+***
+if (Event.Control.Parent.HasClass("uiButton")) {
+    (Event.Control.Parent as CMlFrame).RelativeScale=1.1;
+}
+***
+
+***OnMouseOut***
+***
+if (Event.Control.Parent.HasClass("uiButton")) {
+    (Event.Control.Parent as CMlFrame).RelativeScale=1.;
+}
+***
+
+/* ------------------- end Button ------------------------- */
+
+
+
+/*  ------------------- ConfirmButton ------------------------- */
+
+***OnInit***
+***
+    declare Integer[Ident] pendingConfirms for Page = Integer[Ident];
+    declare Text[Ident] pendingConfirmIds for Page = Text[Ident];
+    declare CMlLabel[Ident] pendingConfirmControls for Page = CMlLabel[Ident];
+
+    pendingConfirms.clear();
+    pendingConfirmIds.clear();
+    pendingConfirmControls.clear();
+***
+
+***Loop***
+***
+foreach (Id => Time in pendingConfirms) {
+    if (Now > Time + (3 * 1000) ) {
+       if (pendingConfirmIds.existskey(Id))  {
+            pendingConfirmControls[Id].Value = pendingConfirmIds[Id];
+            pendingConfirmIds.removekey(Id);
+            pendingConfirms.removekey(Id);
+            pendingConfirmControls.removekey(Id);
+        }
+    }
+}
+***
+
+***OnMouseClick***
+***
+if (Event.Control.HasClass("uiConfirmButtonElement") ) {
+    TriggerConfirmButtonClick((Event.Control as CMlLabel));
+}
+***
+
+
+Void TriggerConfirmButtonClick(CMlLabel Control) {
+       declare Integer[Ident] pendingConfirms for Page = Integer[Ident];
+       declare Text[Ident] pendingConfirmIds for Page = Text[Ident];
+       declare CMlLabel[Ident] pendingConfirmControls for Page = CMlLabel[Ident];
+
+       if (Control.Parent.HasClass("uiButton")) {
+              if (pendingConfirmIds.existskey(Control.Id) == False) {
+                    pendingConfirmIds[Control.Id] = Control.Value;
+                    pendingConfirmControls[Control.Id] = Control;
+                    pendingConfirms[Control.Id] = Now;
+                    Control.Value = "Confirm ?";
+                    Control.Parent.RelativeScale = 0.75;
+                    AnimMgr.Add(Control.Parent, "<elem scale=\"1.\" />", 200, CAnimManager::EAnimManagerEasing::QuadIn);
+              } else {
+                 Control.Value = pendingConfirmIds[Control.Id];
+                 pendingConfirmIds.removekey(Control.Id);
+                 pendingConfirms.removekey(Control.Id);
+                 pendingConfirmControls.removekey(Control.Id);
+                 Control.Parent.RelativeScale = 0.75;
+                 AnimMgr.Add(Control.Parent, "<elem scale=\"1.\" />", 200, CAnimManager::EAnimManagerEasing::QuadIn);
+                 TriggerPageAction(Control.Parent.DataAttributeGet("action"));
+             }
+       }
+}
+
+
+Void TriggerConfirmButtonClick(Text ControlId) {
+    declare CMlLabel Control = (Page.GetFirstChild(ControlId) as CMlLabel);
+    TriggerConfirmButtonClick(Control);
+}
+
+/*  ------------------- end ConfirmButton ------------------------- */
+
+/*  ------------------- Dropdown ------------------------- */
+
+Void uiRenderDropdown(CMlFrame frame) {
+    declare selected = TextLib::ToInteger(frame.DataAttributeGet("selected"));
+    declare index = 0;
+
+    declare options = (frame.Controls[3] as CMlFrame);
+
+        if (frame.DataAttributeGet("open") == "1") {
+            frame.Controls[3].Show();
+        } else {
+             frame.Controls[3].Hide();
+        }
+
+        foreach (option in options.Controls) {
+            if (selected == index) {
+                (frame.Controls[1] as CMlLabel).Value = (option as CMlLabel).Value;
+                (frame.Controls[2] as CMlEntry).Value = option.DataAttributeGet("value");
+            }
+        index+= 1;
+    }
+}
+
+Void uiToggleDropdown (CMlFrame frame) {
+    if (frame.DataAttributeGet("open") == "1") {
+        frame.DataAttributeSet("open","0");
+    } else {
+        frame.DataAttributeSet("open","1");
+    }
+     uiRenderDropdown(frame);
+}
+
+Void uiSelectDropdown (CMlLabel label) {
+    declare uiDropdown = label.Parent.Parent;
+    uiDropdown.DataAttributeSet("selected", label.DataAttributeGet("index"));
+    uiDropdown.DataAttributeSet("value", label.DataAttributeGet("value"));
+    uiRenderDropdown(uiDropdown);
+    uiToggleDropdown(uiDropdown);
+    +++onSelectDropdown+++
+}
+
+***OnInit***
+***
+Page.GetClassChildren ("uiContainer", Page.MainFrame, True);
+foreach (frame in Page.GetClassChildren_Result) {
+    if (frame.HasClass("uiDropdown")) {
+        uiRenderDropdown((frame as CMlFrame));
+    }
+}
+***
+
+***OnMouseClick***
+***
+if (Event.Control.HasClass("uiSelectElement")) {
+
+        if (Event.Control.Parent.HasClass("uiDropdown")) {
+            uiToggleDropdown(Event.Control.Parent);
+        }
+
+        if (Event.Control.Parent.HasClass("uiDropdownSelect")) {
+            uiSelectDropdown((Event.Control as CMlLabel));
+        }
+}
+***
+
+
+/*  ------------------- end Dropdown ------------------------- */
+
+
+Void dummy() {
+}
+
+/* --------------------- Main Script ------------------------ */
+
+main() {
+
+  +++OnInit+++
+
+  while(True) {
+    yield;
+
+    foreach (Event in PendingEvents) {
+			switch (Event.Type) {
+				case CMlEvent::Type::EntrySubmit: {
+					+++EntrySubmit+++
+				}
+				case CMlEvent::Type::KeyPress: {
+					+++OnKeyPress+++
+				}
+				case CMlEvent::Type::MouseClick: {
+					+++OnMouseClick+++
+				}
+				case CMlEvent::Type::MouseOut: {
+					+++OnMouseOut+++
+				}
+				case CMlEvent::Type::MouseOver: {
+					+++OnMouseOver+++
+				}
+			}
+		}
+
+		+++Loop+++
+
+  }
 }

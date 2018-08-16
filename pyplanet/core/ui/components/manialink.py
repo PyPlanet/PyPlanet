@@ -156,7 +156,7 @@ class _ManiaLink:
 					'Potential Memory Leak!! Should be fixed asap!'.format(self.id)
 				)
 
-		action_name = action[len(self.id)+2:]
+		action_name = action[len(self.id) + 2:]
 		if action_name not in self.receivers:
 			return await self.handle_catch_all(player, action_name, values)
 
@@ -240,6 +240,7 @@ class DynamicManiaLink(_ManiaLink):
 		This feature is not yet implemented.
 
 	"""
+
 	def __init__(self, id):
 		super().__init__(id)
 		raise NotImplementedError

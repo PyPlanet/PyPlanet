@@ -106,7 +106,7 @@ class TemplateView(View):
 		"""
 		kwargs['data'] = await self.get_context_data()
 		kwargs['player_login'] = player_login
-		kwargs['player_data'] = self.player_data # Should already been read by display().
+		kwargs['player_data'] = self.player_data  # Should already been read by display().
 		kwargs['template'] = await self.get_template()
 		return await super().render(*args, **kwargs)
 

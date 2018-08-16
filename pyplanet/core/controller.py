@@ -28,6 +28,7 @@ class _Controller:
 		"""
 		return self.__instance
 
+
 Controller = _Controller()
 """
 Controller access point to prevent circular imports. This is a lazy provided way to get the instance from anywhere!
