@@ -7,11 +7,13 @@
 
 <frame pos="0 17 0" z-index="60">
 
-{% call ui.scrollable(-54,45, 120, 90, 120,240) %}
+
+<quad pos="49.5 59.5 0" size="7 7" z-index="63" style="Icons128x32_1" substyle="Close" action="{{ id }}__button_close"/>
+{% call ui.scrollable(-54,45, 110, 90, 100, 240) %}
 
   {% for name, setting_value in settings.items() %}
   <frame pos="2 -{{ (loop.index0 * 6) + 2}}">
-    <label pos="0 0" size="60 5" text="{{name}}" textsize="1" valign="top"/>
+    <label pos="0 0" size="60 5" text="{{name}}" textsize="1.2" valign="top"/>
    {% if setting_value == True %}
       {{ ui.checkbox("", name, 60, 2, 1) }}
 
@@ -20,8 +22,8 @@
 
     {% elif setting_value is string or setting_value is number %}
 
-    <entry pos="60 2" size="30 6" name="{{name}}"
-           default="{{ setting_value|default('', True) }}" focusareacolor1="0003" focusareacolor2="FFF2"/>
+    <entry pos="60 2" size="50 5" name="{{name}}"
+           default="{{ setting_value|default('', True) }}" textsize="1.2" focusareacolor1="0003" focusareacolor2="FFF2"/>
 
     {% elif setting_value is mapping %}
        {{ ui.dropdown(setting_value, name, 60,0) }}
@@ -31,18 +33,23 @@
 
 {% endcall %}
 
-{{ ui.confirmbutton("Save", id+"__button_save", 30,-90, 24,6, "090") }}
-{{ ui.decoratedbutton("Cancel", id+"__button_cancel", 60, -90, 24,6, "900") }}
-
-<quad pos="0 62.5" size="120 127"  halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
-<quad pos="0 62.5" size="120 127" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
-<quad pos="0 61.5" size="118 11"  halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
+{{ ui.confirmbutton("Save", id+"__button_save", 0,-55, 24,6, "090") }}
+{{ ui.decoratedbutton("Cancel", id+"__button_cancel", 28, -55, 24,6, "900") }}
 
 <quad pos="-54 60.5 0" size="9 9"  style="{{ icon_style }}" substyle="{{ icon_substyle }}"/>
 <label pos="-20.5 57.8 0" size="60 7" text="$o{{ title }}" textsize="2.5" textcolor="FFFFFFF"
        halign="left"/>
 
-<quad pos="49.5 59.5 0" size="7 7" z-index="63" style="Icons128x32_1" substyle="Close" action="{{ id }}__button_close"/>
+<quad pos="0 61.5" size="118 11"  halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
+
+<quad pos="0 62.5" size="120 127" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
+
+<quad pos="0 62.5" size="120 127"  halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
+
+
+
+
+
 
 </frame>
 
