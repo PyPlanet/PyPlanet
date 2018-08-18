@@ -41,3 +41,29 @@
       </frame>
 </frame>
 {% endmacro %}
+
+
+{% macro scrollable(posX= 0, posY=0, width=50, height=50, contentWidth=100, contentHeight=100) %}
+<frame pos="{{posX}} {{posY}}">
+    <quad size="{{width}} {{height}}" style="Bgs1InRace" substyle="BgColorContour"/>
+    <frame size="{{width - 5}} {{height - 5}}">
+        <frame size="{{contentWidth}} {{contentHeight}}">
+          {{ caller() }}
+        </frame>
+    </frame>
+
+    <frame pos="{{width}} 0" class="uiScrollbarControl">
+        <quad pos="0 -5" size="5 10" halign="right" valign="top" class="uiScrollbar" data-axis="Y" bgcolor="fffa" bgcolorfocus="ffff" scriptevents="1"/>
+        <label size="5 5" sizen="5 5" width="5" height="5" halign="right" valign="top" text="⏶" scriptevents="1" focusareacolor1="aaa" focusareacolor2="777"/>
+        <label pos="0 -{{height}}" size="5 5" sizen="5 5"  halign="right" valign="bottom" text="⏷" scriptevents="1" focusareacolor1="aaa" focusareacolor2="777"/>
+        <quad size="5 {{height}}"  halign="right" valign="top" bgcolor="000a"/>
+    </frame>
+    <frame pos="0 -{{height}}"  class="uiScrollbarControl">
+        <quad pos="5 0" size="10 5" halign="left" valign="bottom" class="uiScrollbar" data-axis="X" bgcolor="fffa" bgcolorfocus="ffff" scriptevents="1"/>
+        <label size="5 5"   halign="left" valign="bottom" text="⏴" scriptevents="1" focusareacolor1="aaa" focusareacolor2="777"/>
+        <label pos="{{width}} 0"  size="5 5"  halign="right" valign="bottom" text="⏵" scriptevents="1" focusareacolor1="aaa" focusareacolor2="777"/>
+        <quad size="{{width}} 5"  halign="left" valign="bottom" bgcolor="000a"/>
+    </frame>
+</frame>
+
+{% endmacro %}
