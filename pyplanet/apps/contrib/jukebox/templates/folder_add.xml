@@ -27,13 +27,13 @@
     {% else %}
     <quad pos="0 0" size="105.0 5" z-index="-20" bgcolor="aaa2"/>
     {% endif %}
-    {{ ui.decoratedbutton(folder.icon + " " + folder.name, id+"__folder_select__"+folder.id, 55, -100, 105,5) }}
+    {{ ui.button(folder.icon + " " + folder.name, id+"__folder_select__"+folder.id, 55, -100, 105,5) }}
   </frame>
 
 
   {% endfor %}
 
-  {{ ui.decoratedbutton("Cancel", id+"__button_cancel", 55, -100) }}
+  {{ ui.button("Cancel", id+"__button_cancel", 55, -100) }}
 
 </frame>
 </frame>

@@ -11,12 +11,12 @@
       <label pos="{{ sizes.text__pos }}" size="{{ sizes.text__size }}" halign="left" valign="center2" textsize="2" textcolor="FFF" autonewline="1" text="{{ message }}" />
 
       {% if buttons|length >= 2 %}
-        {{ ui.decoratedbutton(buttons[0].name, id+"__button_0", sizes.button_0__pos__left ,sizes.button_0__pos__top) }}
-        {{ ui.decoratedbutton(buttons[1].name, id+"__button_1", sizes.button_1__pos__left ,sizes.button_1__pos__top) }}
+        {{ ui.button(buttons[0].name, id+"__button_0", sizes.button_0__pos__left ,sizes.button_0__pos__top) }}
+        {{ ui.button(buttons[1].name, id+"__button_1", sizes.button_1__pos__left ,sizes.button_1__pos__top) }}
       {% elif buttons|length == 1 %}
-        {{ ui.decoratedbutton(buttons[0].name, id+"__button_0", sizes.button_0__pos__left ,sizes.button_0__pos__top) }}
+        {{ ui.button(buttons[0].name, id+"__button_0", sizes.button_0__pos__left ,sizes.button_0__pos__top) }}
       {% else %}
-        {{ ui.decoratedbutton("Ok", id+"__button_0", sizes.button_0__pos__left ,sizes.button_0__pos__top) }}
+        {{ ui.button("Ok", id+"__button_0", sizes.button_0__pos__left ,sizes.button_0__pos__top) }}
       {% endif %}
     {% endblock %}
   </frame>

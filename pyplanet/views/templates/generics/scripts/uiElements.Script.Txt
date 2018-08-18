@@ -265,7 +265,7 @@ if (py_scroll_activeY) {
 		declare Real diff = MathLib::Abs(lowerLimit - upperLimit);
 						
 		py_scroll_frame.Controls[0].RelativePosition_V3.Y = pos; // update scrollbar position												
-		py_scroll_content.Controls[0].RelativePosition_V3.Y = (start / diff) * (py_scroll_content_size.Y - py_scroll_frame.Parent.Controls[0].Size.Y + 10.);  //  gets the content frame
+		py_scroll_content.Controls[0].RelativePosition_V3.Y = (start / diff) * (py_scroll_content_size.Y - py_scroll_frame.Parent.Controls[0].Size.Y + 40.);  //  gets the content frame
 }
 
 if (py_scroll_activeX) {		
@@ -285,7 +285,7 @@ if (py_scroll_activeX) {
 		declare Real diff = MathLib::Abs(leftLimit + rightLimit);
 						
 		py_scroll_frame.Controls[0].RelativePosition_V3.X = pos; // update scrollbar position												
-		py_scroll_content.Controls[0].RelativePosition_V3.X = (start / diff) * (py_scroll_content_size.X + 10);  //  gets the content frame
+		py_scroll_content.Controls[0].RelativePosition_V3.X = (start / diff) * (py_scroll_content_size.X);  //  gets the content frame
 }
 
 

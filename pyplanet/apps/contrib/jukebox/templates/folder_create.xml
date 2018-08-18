@@ -30,7 +30,7 @@
     </frame>
 
     {{ ui.confirmbutton("Save", id+"__button_save", 15,-100, 24,6, "090") }}
-    {{ ui.decoratedbutton("Cancel", id+"__button_cancel",80, -100, 24,6, "900") }}
+    {{ ui.button("Cancel", id+"__button_cancel",80, -100, 24,6, "900") }}
 
   </frame>
 </frame>

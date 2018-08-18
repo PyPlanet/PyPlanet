@@ -3,10 +3,7 @@ ScriptSettings Admin methods and functions.
 """
 import asyncio
 
-from pyplanet.apps.core.maniaplanet.callbacks.player import player_chat
 from pyplanet.contrib.command import Command
-from xmlrpc.client import Fault
-
 from pyplanet.apps.contrib.admin.views.scriptsettings import ScriptSettingsView
 
 

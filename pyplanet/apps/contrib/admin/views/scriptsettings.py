@@ -36,8 +36,7 @@ class ScriptSettingsView(TemplateView):
 	async def get_context_data(self):
 		context = await super().get_context_data()
 		context['title'] = 'Script Settings'
-		context['icon_style'] = 'Icons128x128_1'
-		context['icon_substyle'] = 'ProfileAdvanced'
+		context['icon'] = ''
 		context['settings'] = self.settings
 		return context
 
