@@ -5,20 +5,22 @@
 
     {% for name, setting_value in settings.items() %}
     <frame pos="2 -{{ (loop.index0 * 6) + 2}}">
-      <label pos="0 0" size="90 5" text="{{name}}" textsize="1.2" valign="top"/>
+      <label pos="0 0" size="70 5" text="{{name}}" textsize="1.2" valign="top"/>
+      <label pos="70 0" size="40 5" text="{{descriptions[name]}}" textsize="1.2" valign="top"/>
+
      {% if setting_value == True %}
-        {{ ui.checkbox("", name, 90, 2, 1) }}
+        {{ ui.checkbox("", name, 120, 2, 1) }}
 
       {% elif setting_value == False %}
-          {{ ui.checkbox("", name, 90, 2, 0) }}
+          {{ ui.checkbox("", name, 120, 2, 0) }}
 
       {% elif setting_value is string or setting_value is number %}
 
-      <entry pos="90 -2.5" size="70 5" name="{{name}}"
+      <entry pos="120 -2.5" size="60 5" name="{{name}}"
              default="{{ setting_value|default('', True) }}" textsize="1.2" valign="center" focusareacolor1="0003" focusareacolor2="FFF2"/>
 
       {% elif setting_value is mapping %}
-         {{ ui.dropdown(setting_value, name, 90,0) }}
+         {{ ui.dropdown(setting_value, name, 120,0) }}
       {% endif %}
     </frame>
     {% endfor %}

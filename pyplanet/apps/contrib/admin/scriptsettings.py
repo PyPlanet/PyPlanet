@@ -26,6 +26,11 @@ class ScriptSettingsAdmin:
 
 	async def script_settings(self, player, **kwargs):
 		settings = await self.instance.mode_manager.get_settings()
-		view = ScriptSettingsView(self.app, player, settings)
+		mode_info = await self.app.instance.mode_manager.get_current_script_info()
+		descriptions = {}
+		for info in mode_info['ParamDescs']:
+			descriptions[info['Name']] = info['Desc']
+
+		view = ScriptSettingsView(self.app, player, settings, descriptions)
 
 		await view.display(player=player.login)
