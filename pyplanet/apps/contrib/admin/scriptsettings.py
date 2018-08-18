@@ -24,7 +24,7 @@ class ScriptSettingsAdmin:
 														min_level=2)
 
 		await self.instance.command_manager.register(
-			Command(command='settings2', target=self.script_settings, perms='admin:scriptsettings', admin=True)
+			Command(command='script', target=self.script_settings, perms='admin:scriptsettings', admin=True)
 		)
 
 	async def script_settings(self, player, **kwargs):

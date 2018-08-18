@@ -22,8 +22,8 @@
 
     {% elif setting_value is string or setting_value is number %}
 
-    <entry pos="60 2" size="50 5" name="{{name}}"
-           default="{{ setting_value|default('', True) }}" textsize="1.2" focusareacolor1="0003" focusareacolor2="FFF2"/>
+    <entry pos="60 -2.5" size="50 5" name="{{name}}"
+           default="{{ setting_value|default('', True) }}" textsize="1.2" valign="center" focusareacolor1="0003" focusareacolor2="FFF2"/>
 
     {% elif setting_value is mapping %}
        {{ ui.dropdown(setting_value, name, 60,0) }}
