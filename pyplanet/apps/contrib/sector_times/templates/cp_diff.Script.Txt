@@ -2,8 +2,6 @@
 // == CP DIFF ==
 // =============
 
-#Include "TextLib" as TL
-
 // Includes
 {% include 'core.views/libs/TimeUtils.Script.Txt' %}
 
@@ -112,7 +110,8 @@ Void ShowDiff() {
   Sector_CPTime_Frame.Show();
 }
 
-main() {
+***OnInit***
+***
   // Set variables
   Sector_CPTime_Frame = (Page.GetFirstChild("cp_time_frame") as CMlFrame);
   Sector_CPTime_Data = (Page.GetFirstChild("cp_time_data") as CMlLabel);
@@ -134,9 +133,12 @@ main() {
   // Initial update to clear the UI.
   UpdateInterface();
   HideDiff();
+***
 
   // Main Loop.
-  while(True) {
+
+***Loop***
+***
     // Check if the CP Diff should be hidden.
     if (HideFrameAt != 0 && HideFrameAt <= Now) {
       HideDiff();
@@ -188,6 +190,4 @@ main() {
         }
       }
     }
-    yield;
-  }
-}
+***

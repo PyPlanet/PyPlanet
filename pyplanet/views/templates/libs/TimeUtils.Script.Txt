@@ -2,7 +2,6 @@
  * PyPlanet - ManiaScript Libraries.
  * TimeUtils.Script.Txt
  */
-#Include "MathLib" as ML
 
 Text LeftPad(Integer number, Integer pad) {
   declare Text out = "";
@@ -20,7 +19,7 @@ Text LeftPad(Integer number, Integer pad) {
 }
 
 Text TimeToText(Integer inTime) {
-  declare time = ML::Abs(inTime);
+  declare time = MathLib::Abs(inTime);
   declare Integer cent = time % 1000;
   time = time / 1000;
   declare Integer sec = time % 60;

@@ -27,5 +27,17 @@
 </frame>
 {% endmacro %}
 
-
-
+{% macro dropdown(values, name='', selectedIndex=0, posX=0, posY=0, width=26, height=5) %}
+<frame pos="{{posX}} {{posY}}" class="uiContainer uiDropdown" data-selected="{{selectedIndex}}" data-open="0">
+      <label pos="{{width - 5}} 0" size="{{width}} {{height}}" z-index="2" class="uiSelectElement" text="⏷"  textcolor="fff" />
+      <label pos="0 0"  size="{{width}} {{height}}" textprefix=" " text="Select..." focusareacolor1="000" focusareacolor2="111" scriptevents="1" class="uiSelectElement"/>
+      <entry pos="900 900" size="26 5" textemboss="1" text="1" textsize="3" valign="center2" halign="center" textformat="Basic" name="{{name}}" />
+      {% for entry in values %}
+          {% if (loop.first) %}
+             <frame pos="0 -{{height}}" class="uiDropdownSelect" size="{{width}} {{loop.length*5}}">
+          {% endif %}
+           <label pos="0 -{{loop.index0 * height}}"  size="{{width}} {{height}}" text="{{entry.text}}" data-value="{{entry.value}}" data-index="{{loop.index0}}" focusareacolor1="000" focusareacolor2="222" scriptevents="1" class="uiSelectElement"/>
+      {% endfor %}
+      </frame>
+</frame>
+{% endmacro %}

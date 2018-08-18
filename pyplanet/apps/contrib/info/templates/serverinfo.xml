@@ -22,3 +22,7 @@
   <label pos="21.5 -16.5" z-index="1" size="28 6" text="PyPlanet {{ version }}" textsize="1.6" valign="center2"
          textfont="RajdhaniMono" textemboss="1" halign="center"/>
 {% endblock %}
+
+{% block maniascript %}
+<script><!-- {% include 'core.views/generics/scripts/autohide.Script.Txt' %} --></script>
+{% endblock %}

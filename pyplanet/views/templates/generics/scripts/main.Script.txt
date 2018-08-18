@@ -1,0 +1,41 @@
+
+
+Void dummy() {
+}
+
+/* --------------------- Main Script ------------------------ */
+
+main() {
+
+  +++OnInit+++
+
+  while(True) {
+    yield;
+    if (!PageIsVisible || InputPlayer == Null) {
+  			continue;
+  	}
+
+    foreach (Event in PendingEvents) {
+			switch (Event.Type) {
+				case CMlEvent::Type::EntrySubmit: {
+					+++EntrySubmit+++
+				}
+				case CMlEvent::Type::KeyPress: {
+					+++OnKeyPress+++
+				}
+				case CMlEvent::Type::MouseClick: {
+					+++OnMouseClick+++
+				}
+				case CMlEvent::Type::MouseOut: {
+					+++OnMouseOut+++
+				}
+				case CMlEvent::Type::MouseOver: {
+					+++OnMouseOver+++
+				}
+			}
+		}
+
+		+++Loop+++
+
+  }
+}

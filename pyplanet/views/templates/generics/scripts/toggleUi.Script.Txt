@@ -1,0 +1,36 @@
+/* ----------------- ToggleUI ------------------ */
+
+***OnInit***
+***
+declare netwrite Boolean Net_DistractionFreeMode for UI;
+declare Boolean Prev_DistractionFreeMode = False;
+
+if (Net_DistractionFreeMode == True) {
+  Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+  foreach (Control in Page.GetClassChildren_Result) {
+    Control.Hide();
+  }
+}
+***
+
+
+***Loop***
+***
+      if (Prev_DistractionFreeMode != Net_DistractionFreeMode) {
+          Prev_DistractionFreeMode = Net_DistractionFreeMode;
+
+          if (Net_DistractionFreeMode == True) {
+            Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+            foreach (Control in Page.GetClassChildren_Result) {
+              Control.Hide();
+            }
+          } else {
+            Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+            foreach (Control in Page.GetClassChildren_Result) {
+              Control.Show();
+            }
+          }
+      }
+***
+
+/* ----------------- End ToggleUI ------------------ */

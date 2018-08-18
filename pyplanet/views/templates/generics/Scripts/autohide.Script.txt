@@ -1,0 +1,29 @@
+
+***Loop***
+***
+
+if ( ClientUI.UISequence == CUIConfig::EUISequence::Podium ) {
+
+      Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+        foreach (Control in Page.GetClassChildren_Result) {
+          Control.Show();
+      }
+}
+
+if (GUIPlayer != Null) {
+      if ( GUIPlayer.RaceState == CTmMlPlayer::ERaceState::BeforeStart || GUIPlayer.RaceState == CTmMlPlayer::ERaceState::Finished) {
+            Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+            foreach (Control in Page.GetClassChildren_Result) {
+              Control.Show();
+            }
+      }
+
+      if (GUIPlayer.RaceState == CTmMlPlayer::ERaceState::Running && GUIPlayer.DisplaySpeed != 0) {
+      Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+            foreach (Control in Page.GetClassChildren_Result) {
+              Control.Hide();
+            }
+      }
+}
+***
+

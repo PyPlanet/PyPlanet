@@ -2,8 +2,6 @@
 // == SECTOR TIMES ==
 // ==================
 
-#Include "TextLib" as TL
-
 // Includes
 {% include 'core.views/libs/TimeUtils.Script.Txt' %}
 
@@ -110,14 +108,11 @@ Integer[] ParseCheckpoints(Text RawInput) {
   return Output;
 }
 
-main() {
+***OnInit***
+***
   // Access the local + dedimania variables. TODO: Implement this in the local + dedi widgets.
   declare Integer PyApp_local_records__player_score for LocalUser;
   declare Integer PyApp_dedimania__player_score for LocalUser;
-  //
-
-  declare Boolean Prev_DistractionFreeMode = False;
-  declare netwrite Boolean Net_DistractionFreeMode for UI;
 
   // Set variables
   Sector_Checkpoints_Icon = (Page.GetFirstChild("sector_time_cps_icon") as CMlLabel);
@@ -139,15 +134,11 @@ main() {
 
   // Initial update to clear the UI.
   UpdateInterface();
+***
 
-  if (Net_DistractionFreeMode == True) {
-    Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
-    foreach (Control in Page.GetClassChildren_Result) {
-      Control.Hide();
-    }
-  }
 
-  while(True) {
+***Loop***
+***
     foreach (Event in RaceEvents) {
       if (GUIPlayer == Null || Event.Player != GUIPlayer) {
         continue;
@@ -185,24 +176,4 @@ main() {
         }
       }
     }
-
-    // Distraction Free Mode.
-    if (Prev_DistractionFreeMode != Net_DistractionFreeMode) {
-      Prev_DistractionFreeMode = Net_DistractionFreeMode;
-
-      if (Net_DistractionFreeMode == True) {
-        Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
-        foreach (Control in Page.GetClassChildren_Result) {
-          Control.Hide();
-        }
-      } else {
-        Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
-        foreach (Control in Page.GetClassChildren_Result) {
-          Control.Show();
-        }
-      }
-    }
-
-    yield;
-  }
-}
+***

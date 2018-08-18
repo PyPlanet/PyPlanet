@@ -38,10 +38,7 @@
     {{ ui.checkbox("Enable/Activated", "setting_value_field", 0, 0, setting_value|int) }}
 
     {% elif setting.type == types.set or setting.type == types.list %}
-    <frame id="setting_value_list">
-      <entry hidden="1" id="setting_value_field" name="setting_value_field" default="{{ setting_value }}"/>
-      {{ ui.confirmbutton("button here", id+"__button_save", 0,0, 24,6, "090") }}
-    </frame>
+    {{ ui.dropdown(setting_value, "setting_value_field") }}
     {% endif %}
   </frame>
 
@@ -51,8 +48,8 @@
 </frame>
 </frame>
 
-<script><!--
-  #Include "TextLib" as TextLib
-  #Include "MathLib" as MathLib
-  --></script>
-<script><!-- {% include 'core.views/generics/widget.Script.Txt' %} --></script>
+<script><!-- {% include 'core.views/generics/scripts/includes.Script.Txt' %} --></script>
+<script><!-- {% include 'core.views/generics/scripts/uiElements.Script.Txt' %} --></script>
+{% block maniascript %} {% endblock %}
+<script><!-- {% include 'core.views/generics/scripts/main.Script.Txt' %} --></script>
+

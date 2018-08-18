@@ -4,6 +4,8 @@
   <label id="clock_label" pos="0 0" size="28.5 6" textfont="RajdhaniMono"  textemboss="1" halign="center" valign="center2" textsize="1.2" />
 {% endblock %}
 
+
+
 {% block maniascript %}
-  <script><!--{% include 'clock/clock.Script.Txt' %}--></script>
+<script><!--{% include 'clock/clock.Script.Txt' %}--></script>
 {% endblock %}

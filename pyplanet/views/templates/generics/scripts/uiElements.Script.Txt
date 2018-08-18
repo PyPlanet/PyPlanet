@@ -1,40 +1,3 @@
-/* ----------------- ToggleUI ------------------ */
-
-***OnInit***
-***
-declare Boolean Prev_DistractionFreeMode = False;
-declare netwrite Boolean Net_DistractionFreeMode for UI;
-
-if (Net_DistractionFreeMode == True) {
-  Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
-  foreach (Control in Page.GetClassChildren_Result) {
-    Control.Hide();
-  }
-}
-***
-
-
-***Loop***
-***
-      if (Prev_DistractionFreeMode != Net_DistractionFreeMode) {
-          Prev_DistractionFreeMode = Net_DistractionFreeMode;
-
-          if (Net_DistractionFreeMode == True) {
-            Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
-            foreach (Control in Page.GetClassChildren_Result) {
-              Control.Hide();
-            }
-          } else {
-            Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
-            foreach (Control in Page.GetClassChildren_Result) {
-              Control.Show();
-            }
-          }
-      }
-***
-
-/* ----------------- End ToggleUI ------------------ */
-
 /* ----------------- Checkbox ------------------ */
 
 Void uiRenderCheckbox(CMlFrame frame) {
@@ -191,47 +154,47 @@ Void TriggerConfirmButtonClick(Text ControlId) {
 /*  ------------------- Dropdown ------------------------- */
 
 Void uiRenderDropdown(CMlFrame frame) {
-    declare selected = TextLib::ToInteger(frame.DataAttributeGet("selected"));
-    declare index = 0;
+        declare selected = TextLib::ToInteger(frame.DataAttributeGet("selected"));
+        declare index = 0;
 
-    declare options = (frame.Controls[3] as CMlFrame);
+        declare options = (frame.Controls[3] as CMlFrame);
 
-        if (frame.DataAttributeGet("open") == "1") {
-            frame.Controls[3].Show();
-        } else {
-             frame.Controls[3].Hide();
-        }
-
-        foreach (option in options.Controls) {
-            if (selected == index) {
-                (frame.Controls[1] as CMlLabel).Value = (option as CMlLabel).Value;
-                (frame.Controls[2] as CMlEntry).Value = option.DataAttributeGet("value");
+            if (frame.DataAttributeGet("open") == "1") {
+                frame.Controls[3].Show();
+            } else {
+                 frame.Controls[3].Hide();
             }
-        index+= 1;
-    }
-}
 
-Void uiToggleDropdown (CMlFrame frame) {
-    if (frame.DataAttributeGet("open") == "1") {
-        frame.DataAttributeSet("open","0");
-    } else {
-        frame.DataAttributeSet("open","1");
+            foreach (option in options.Controls) {
+                if (selected == index) {
+                    (frame.Controls[1] as CMlLabel).Value = (option as CMlLabel).Value;
+                    (frame.Controls[2] as CMlEntry).Value = option.DataAttributeGet("value");
+                }
+            index+= 1;
+        }
     }
-     uiRenderDropdown(frame);
-}
 
-Void uiSelectDropdown (CMlLabel label) {
-    declare uiDropdown = label.Parent.Parent;
-    uiDropdown.DataAttributeSet("selected", label.DataAttributeGet("index"));
-    uiDropdown.DataAttributeSet("value", label.DataAttributeGet("value"));
-    uiRenderDropdown(uiDropdown);
-    uiToggleDropdown(uiDropdown);
-    +++onSelectDropdown+++
-}
+    Void uiToggleDropdown (CMlFrame frame) {
+        if (frame.DataAttributeGet("open") == "1") {
+            frame.DataAttributeSet("open","0");
+        } else {
+            frame.DataAttributeSet("open","1");
+        }
+         uiRenderDropdown(frame);
+    }
+
+    Void uiSelectDropdown (CMlLabel label) {
+        declare uiDropdown = label.Parent.Parent;
+        uiDropdown.DataAttributeSet("selected", label.DataAttributeGet("index"));
+        uiDropdown.DataAttributeSet("value", label.DataAttributeGet("value"));
+        uiRenderDropdown(uiDropdown);
+        uiToggleDropdown(uiDropdown);
+        +++onSelectDropdown+++
+    }
 
 ***OnInit***
 ***
-Page.GetClassChildren ("uiContainer", Page.MainFrame, True);
+Page.GetClassChildren("uiContainer", Page.MainFrame, True);
 foreach (frame in Page.GetClassChildren_Result) {
     if (frame.HasClass("uiDropdown")) {
         uiRenderDropdown((frame as CMlFrame));
@@ -255,41 +218,3 @@ if (Event.Control.HasClass("uiSelectElement")) {
 
 
 /*  ------------------- end Dropdown ------------------------- */
-
-
-Void dummy() {
-}
-
-/* --------------------- Main Script ------------------------ */
-
-main() {
-
-  +++OnInit+++
-
-  while(True) {
-    yield;
-
-    foreach (Event in PendingEvents) {
-			switch (Event.Type) {
-				case CMlEvent::Type::EntrySubmit: {
-					+++EntrySubmit+++
-				}
-				case CMlEvent::Type::KeyPress: {
-					+++OnKeyPress+++
-				}
-				case CMlEvent::Type::MouseClick: {
-					+++OnMouseClick+++
-				}
-				case CMlEvent::Type::MouseOut: {
-					+++OnMouseOut+++
-				}
-				case CMlEvent::Type::MouseOver: {
-					+++OnMouseOver+++
-				}
-			}
-		}
-
-		+++Loop+++
-
-  }
-}

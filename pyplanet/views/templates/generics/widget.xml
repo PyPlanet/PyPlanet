@@ -25,11 +25,11 @@
   </frame>
 </frame>
 {% block after %}{% endblock %}
+ 
 
-{% block maniascript %}
-  <script><!--
-  #Include "TextLib" as TextLib
-  #Include "MathLib" as MathLib
-  --></script>
-  <script><!-- {% include 'core.views/generics/widget.Script.Txt' %} --></script>
-{% endblock %}
+
+<script><!-- {% include 'core.views/generics/scripts/includes.Script.Txt' %} --></script>
+<script><!-- {% include 'core.views/generics/scripts/uiElements.Script.Txt' %} --></script>
+<script><!-- {% include 'core.views/generics/scripts/toggleUi.Script.Txt' %} --></script>
+{% block maniascript %} {% endblock %}
+<script><!-- {% include 'core.views/generics/scripts/main.Script.Txt' %} --></script>
