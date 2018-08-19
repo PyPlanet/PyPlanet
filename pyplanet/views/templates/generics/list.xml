@@ -65,9 +65,9 @@
                 {% else %}
                     {% if field.action %}
                           {% if field.safe %}
-                              {{ ui.decoratedbutton("$fff"+field_renderer(row, field)|safe, id+"__list_body_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__(), field.left, 0, field.width, 5) }}
+                              {{ ui.decoratedbutton("$fff"+field_renderer(row, field)|safe, id+"__list_body_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__(), field.left, 0, field.width, 5, "777", "0000", "left") }}
                           {% else %}
-                              {{ ui.decoratedbutton("$fff"+field_renderer(row, field), id+"__list_body_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__(), field.left, 0, field.width, 5) }}
+                              {{ ui.decoratedbutton("$fff"+field_renderer(row, field), id+"__list_body_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__(), field.left, 0, field.width, 5, "777", "0000", "left") }}
                           {% endif %}
                     {% else %}
                          <label pos="{{ field.left }} -2.5" size="{{ field.width }} 5"
