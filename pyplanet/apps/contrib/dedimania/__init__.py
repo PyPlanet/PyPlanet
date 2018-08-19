@@ -415,8 +415,9 @@ class Dedimania(AppConfig):
 			if score < current_record.score:
 				previous_time = current_record.score
 				current_record.updated = True
-				if self.current_script.startswith('Laps'):
+				if self.current_script.lower().startswith('laps'):
 					current_record.race_cps = race_cps
+					current_record.cps = lap_cps
 
 				# Determinate new rank.
 				async with self.lock:
