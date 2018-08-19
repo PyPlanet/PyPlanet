@@ -149,10 +149,13 @@ class Karma(AppConfig):
 						await self.instance.chat(message, player)
 						return
 
+				normal_score = -1
 				score = -1
 				if text == '++':
+					normal_score = 1
 					score = 1
 				elif text == '+':
+					normal_score = 1
 					score = 0.5
 				elif text == '+-' or text == '-+':
 					score = 0
@@ -164,6 +167,7 @@ class Karma(AppConfig):
 					player_vote = player_votes[0]
 					if (player_vote.expanded_score is not None and player_vote.expanded_score != score) or \
 						(player_vote.expanded_score is None and player_vote.score != score):
+						player_vote.score = normal_score
 						player_vote.expanded_score = score
 						await player_vote.save()
 
@@ -178,7 +182,7 @@ class Karma(AppConfig):
 							self.widget.display()
 						)
 				else:
-					new_vote = KarmaModel(map=self.instance.map_manager.current_map, player=player, score=score)
+					new_vote = KarmaModel(map=self.instance.map_manager.current_map, player=player, score=normal_score, expanded_score=score)
 					await new_vote.save()
 
 					self.current_votes.append(new_vote)
