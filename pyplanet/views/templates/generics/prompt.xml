@@ -1,23 +1,23 @@
 {% import 'core.views/generics/uiElements.xml' as ui %}
 
 <frame pos="0 0" z-index="900">
-  <quad pos="0 0" size="320 180" halign="center" valign="center" style="Bgs1" substyle="BgDialogBlur" z-index="500" />
-  <quad pos="{{ sizes.top__pos }}" size="{{ sizes.top__size }}" halign="center" style="Bgs1InRace" substyle="BgGlow2" z-index="520" />
-  <quad size="{{ sizes.box__size }}" halign="center" valign="center" style="Bgs1InRace" substyle="BgWindow2" z-index="510" />
-  <quad pos="{{ sizes.bottom__pos }}" size="{{ sizes.bottom__size }}" halign="center" style="Bgs1InRace" substyle="BgMetalBar" z-index="520" />
+  <quad pos="0 0" size="320 180" halign="center" valign="center" style="Bgs1" substyle="BgDialogBlur" scriptevents="1" z-index="500" />
+  <quad pos="{{ sizes.top__pos }}" size="{{ sizes.top__size }}" halign="center" bgcolor="fffa" z-index="520" />
+  <quad size="{{ sizes.box__size }}" halign="center" valign="center" bgcolor="000a" z-index="510" />
+  <quad pos="{{ sizes.bottom__pos }}" size="{{ sizes.bottom__size }}" halign="center" bgcolor="fffa" z-index="520" />
 
   <frame z-index="550">
     {% block body %}
       <label pos="{{ sizes.text__pos }}" size="{{ sizes.text__size }}" halign="left" valign="center2" textsize="2" textcolor="FFF" autonewline="1" text="{{ message }} $f90{{ errors }}" z-index="560" />
       <entry pos="{{ sizes.input__pos }}" size="{{ sizes.input__size }}" halign="center" valign="center2" textsize="2" textcolor="FFF" default="{{ default }}" name="prompt_value" z-index="560" />
 
-      {% if buttons|length >= 2 %}
-         {{ ui.button(buttons[0].name, id+"__button_0", sizes.button_0__pos__left ,sizes.button_0__pos__top) }}
-         {{ ui.button(buttons[1].name, id+"__button_1", sizes.button_1__pos__left ,sizes.button_1__pos__top) }}
+    {% if buttons|length >= 2 %}
+        {{ ui.button(buttons[0].name, id+"__button_0", sizes.button_0__pos__left, sizes.button_0__pos__top, 26, 5, "0d0") }}
+        {{ ui.button(buttons[1].name, id+"__button_1", sizes.button_1__pos__left, sizes.button_1__pos__top, 26, 5, "d00") }}
       {% elif buttons|length == 1 %}
-        {{ ui.button(buttons[0].name, id+"__button_0", sizes.button_0__pos__left ,sizes.button_0__pos__top) }}
+        {{ ui.button(buttons[0].name, id+"__button_0", sizes.button_0__pos__left, sizes.button_0__pos__top, 26, 5, "0d0") }}
       {% else %}
-        {{ ui.button("Ok", id+"__button_0", 0 ,sizes.button_0__pos__top) }}
+        {{ ui.button("Ok", id+"__button_0", sizes.button_0__pos__left, sizes.button_0__pos__top, 26, 5, "0d0") }}
       {% endif %}
     {% endblock %}
   </frame>

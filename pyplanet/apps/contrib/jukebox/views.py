@@ -236,7 +236,7 @@ class MapListView(ManualListView):
 		buttons = [
 			{
 				'title': 'Folders',
-				'width': 20,
+				'width': 26,
 				'action': self.action_folders
 			}
 		]
@@ -281,12 +281,12 @@ class MapListView(ManualListView):
 		await self.refresh(player=self.player)
 
 	@classmethod
-	def add_action(cls, target, name, text, text_size='1.2', require_confirm=False, order=0):
+	def add_action(cls, target, name, text, color='777', require_confirm=False, order=0):
 		cls.custom_actions.append(dict(
 			name=name,
 			action=target,
 			text=text,
-			textsize=text_size,
+			color=color,
 			safe=True,
 			type='label',
 			order=order,
@@ -394,7 +394,7 @@ class FolderMapListView(MapListView):
 			or (self.folder_code['type'] == 'private' and self.folder_code['owner_login'] == self.player.login):
 			buttons.append({
 				'title': 'Add current map',
-				'width': 38,
+				'width': 32,
 				'action': self.action_add_current
 			})
 

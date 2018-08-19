@@ -1,0 +1,30 @@
+{% import 'core.views/generics/uiElements.xml' as ui %}
+
+<frame pos="-160 90" z-index="80"> <!-- set z-index high enough -->
+	<frame pos="160 -90"> <!-- reset to 0,0 -->
+
+  <frame pos="-60 70"> <!-- window position -->
+
+      {% block header %}
+          {{ ui.decoratedbutton("x", id+"__button_close", 114, 0, 6, 6, "d00", "000") }}
+      {% endblock %}
+
+
+      <frame pos="0 -8">
+        {% block contents %} {% endblock %}
+      </frame>
+
+      <quad pos="0 1" size="120 1" bgcolor="fffa" />
+      <quad pos="0 -140" size="120 1" bgcolor="fffa" />
+      <quad pos="0 0" size="120 140" bgcolor="0009" />
+
+    </frame>
+	</frame>
+
+  <quad size="320 180" bgcolor="000a" scriptevents="1"/>
+</frame>
+
+<script><!-- {% include 'core.views/generics/scripts/includes.Script.Txt' %} --></script>
+<script><!-- {% include 'core.views/generics/scripts/uiElements.Script.Txt' %} --></script>
+{% block maniascript %} {% endblock %}
+<script><!-- {% include 'core.views/generics/scripts/main.Script.Txt' %} --></script>

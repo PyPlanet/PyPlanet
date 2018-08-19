@@ -1,46 +1,23 @@
-{% import 'core.views/generics/uiElements.xml' as ui %}
+{% extends 'core.views/generics/dialog.xml' %}
 
-<frame pos="0 0 70" z-index="50">
-  <quad pos="0 0 -1" size="320 180" halign="center" valign="center" style="Bgs1" substyle="BgDialogBlur" z-index="50"
-        scriptevents="1"/>
-</frame>
-<frame pos="0 17 0" z-index="60">
+{% block contents %}
+<label pos="60 0" size="90 5" text="Select the folder you want the map to be inserted to."
+       textsize="1.3" textcolor="FFF" halign="center"/>
 
-<quad pos="-54 60.5 0" size="9 9" style="Icons128x128_1" substyle="Browse"/>
-<label pos="-20.5 57.8 0" size="60 7" text="$oAdd map to folder" textsize="2.5" textcolor="FFFFFFF" halign="left"/>
-
-{{ ui.button("✖", id+"__button_close", 49, 59, 6,6, "d00") }} >
-
-<label pos="-54.5 45.8 0" size="90 5" text="Select the folder you want the map to be inserted to."
-       textsize="1.3" textcolor="FFFFFFF" halign="left"/>
-
-<quad pos="0 62.5" size="120 127" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
-<quad pos="0 62.5" size="120 127" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
-<quad pos="0 61.5" size="118 11" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
-
-
-<frame pos="-54.5 45 0" id="folder_body" z-index="70">
+<frame pos="10 -10">
   {% for folder in folders %}
-  <frame pos="0 -{{ loop.index * 5 }}">
-    {% if loop.index0 % 2 != 0 %}
-    <quad pos="0 0" size="105.0 5" z-index="-20" bgcolor="aaa1"/>
-    {% else %}
-    <quad pos="0 0" size="105.0 5" z-index="-20" bgcolor="aaa2"/>
-    {% endif %}
-    {{ ui.button(folder.icon + " " + folder.name, id+"__folder_select__"+folder.id, 55, -100, 105,5) }}
-  </frame>
-
-
-  {% endfor %}
-
-  {{ ui.button("Cancel", id+"__button_cancel", 55, -100) }}
-
+<frame pos="0 -{{ loop.index0 * 5 }}">
+  {{ ui.button(folder.icon + " " + folder.name, id+"__folder_select__"+folder.id.__str__(), 0, 0, 105, 5) }}
+  {% if loop.index0 % 2 != 0 %}
+  <quad pos="0 0" size="105.0 5" bgcolor="aaa1"/>
+  {% else %}
+  <quad pos="0 0" size="105.0 5" bgcolor="aaa2"/>
+  {% endif %}
 </frame>
+{% endfor %}
 </frame>
 
+  {{ ui.button("Close", id+"__button_cancel", 48, -124) }}
 
-<script><!-- {% include 'core.views/generics/scripts/includes.Script.Txt' %} --></script>
-<script><!-- {% include 'core.views/generics/scripts/uiElements.Script.Txt' %} --></script>
-{% block maniascript %} {% endblock %}
-<script><!-- {% include 'core.views/generics/scripts/main.Script.Txt' %} --></script>
+{% endblock %}
 

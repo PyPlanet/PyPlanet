@@ -1,63 +1,47 @@
-{% import 'core.views/generics/uiElements.xml' as ui %}
+{% extends 'core.views/generics/dialog.xml' %}
 
-<frame pos="0 0 70" z-index="50">
-  <quad pos="0 0 -1" size="320 180" halign="center" valign="center" style="Bgs1" substyle="BgDialogBlur" z-index="50" scriptevents="1" />
-</frame>
-<frame pos="0 17 0" z-index="60">
-{{ ui.button("✖", id+"__button_close", 49, 59, 6,6,"d00") }} >
+  {% block contents %}
+<frame pos="10 -30">
+<label pos="0 0" size="30 5" text="$fff$oName" textsize="1.2" valign="top"/>
+  <label pos="30 0" size="70 5" text="$fff$i{{ setting.name }}" textsize="1.2" valign="top"/>
 
-  <quad pos="-54 60.5 0" size="9 9" style="{{ icon_style }}" substyle="{{ icon_substyle }}"/>
-  <label pos="-20.5 57.8 0" size="60 7" text="$o{{ title }}" textsize="2.5" textcolor="FFFFFFF" halign="left"/>
+  <label pos="0 -5" size="30 5" text="$fff$oDescription" textsize="1.2" valign="top"/>
+  <label pos="30 -5" size="70 20" autonewline="1" maxline="6" text="$fff$i{{ setting.description|default('-', True) }}"
+         textsize="1.2" valign="top"/>
 
-  <quad pos="0 62.5" size="120 127" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
-  <quad pos="0 62.5" size="120 127" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
-  <quad pos="0 61.5" size="118 11"  halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
+  <label pos="0 -25" size="30 5" text="$fff$oCategory" textsize="1.2" valign="top"/>
+  <label pos="30 -25" size="70 5" text="$fff$i{{ setting.category }}" textsize="1.2" valign="top"/>
 
+  <label pos="0 -30" size="30 5" text="$fff$oApp" textsize="1.2" valign="top"/>
+  {% if app %}
+  <label pos="30 -30" size="70 5" text="$fff$i{{ app.name }} ({{ app.label }})" textsize="1.2" valign="top"/>
+  {% else %}
+  <label pos="30 -30" size="70 5" text="$fff$i-" textsize="1.2" valign="top"/>
+  {% endif %}
 
-  <frame pos="-54.5 45 0" id="setting_body" z-index="70">
-    <label pos="0 0" size="30 5" text="$fff$oName" textsize="1.2" valign="top" />
-    <label pos="30 0" size="70 5" text="$fff$i{{ setting.name }}" textsize="1.2" valign="top" />
+  <label pos="0 -35" size="30 5" text="$fff$oDefault" textsize="1.2" valign="top"/>
+  <label pos="30 -35" size="70 5" text="$fff$i{{ setting.default|default('-', True) }}" textsize="1.2" valign="top"/>
 
-    <label pos="0 -5" size="30 5" text="$fff$oDescription" textsize="1.2" valign="top" />
-    <label pos="30 -5" size="70 20" autonewline="1" maxline="6" text="$fff$i{{ setting.description|default('-', True) }}" textsize="1.2" valign="top" />
-
-    <label pos="0 -25" size="30 5" text="$fff$oCategory" textsize="1.2" valign="top" />
-    <label pos="30 -25" size="70 5" text="$fff$i{{ setting.category }}" textsize="1.2" valign="top" />
-
-    <label pos="0 -30" size="30 5" text="$fff$oApp" textsize="1.2" valign="top" />
-    {% if app %}
-      <label pos="30 -30" size="70 5" text="$fff$i{{ app.name }} ({{ app.label }})" textsize="1.2" valign="top" />
-    {% else %}
-      <label pos="30 -30" size="70 5" text="$fff$i-" textsize="1.2" valign="top" />
-    {% endif %}
-
-    <label pos="0 -35" size="30 5" text="$fff$oDefault" textsize="1.2" valign="top" />
-    <label pos="30 -35" size="70 5" text="$fff$i{{ setting.default|default('-', True) }}" textsize="1.2" valign="top" />
-
-    <frame pos="0 -40" id="setting_edit_frame">
-      {% if setting.type == types.str or setting.type == types.int or setting.type == types.float or setting.type == types.dict %}
-        <label pos="0 0" size="30 5" text="$fff$oValue" textsize="1.2" valign="top" />
-        <entry pos="30 0" size="70 40" name="setting_value_field" id="setting_value_field"
-               textsize="1.2" default="{{ setting_value|default('', True) }}" scriptevents="1"
-               focusareacolor1="0003" focusareacolor2="FFF2" />
-      {% elif setting.type == types.bool %}
-          {{ ui.checkbox("Enabled/Activated", "setting_value_field", 0, 0, setting_value|int) }}
-      {% elif setting.type == types.set or setting.type == types.list %}
-        <frame id="setting_value_list">
-          <entry hidden="1" id="setting_value_field" name="setting_value_field" default="{{ setting_value }}" />
-          <label pos="0 0" size="100 5" text="$fff$oTodo: List/set entries. ManiaScript!" textsize="1.2" valign="top" />
-        </frame>
-      {% endif %}
+  <frame pos="0 -40" id="setting_edit_frame">
+    {% if setting.type == types.str or setting.type == types.int or setting.type == types.float or setting.type ==
+    types.dict %}
+    <label pos="0 0" size="30 5" text="$fff$oValue" textsize="1.2" valign="top"/>
+    <entry pos="30 0" size="70 40" name="setting_value_field" id="setting_value_field"
+           textsize="1.2" default="{{ setting_value|default('', True) }}" scriptevents="1"
+           focusareacolor1="0003" focusareacolor2="FFF2"/>
+    {% elif setting.type == types.bool %}
+    {{ ui.checkbox("Enabled/Activated", "setting_value_field", 30, 0, setting_value|int) }}
+    {% elif setting.type == types.set or setting.type == types.list %}
+    <frame id="setting_value_list">
+      <entry hidden="1" id="setting_value_field" name="setting_value_field" default="{{ setting_value }}"/>
+      <label pos="0 0" size="100 5" text="$fff$oTodo: List/set entries. ManiaScript!" textsize="1.2" valign="top"/>
     </frame>
-
-     {{ ui.confirmbutton("Save", id+"__button_save", 30,-100, 24,6, "090") }}
-     {{ ui.button("Cancel", id+"__button_cancel", 60, -100, 24,6, "900") }}
+    {% endif %}
   </frame>
+
 </frame>
 
+  {{ ui.confirmbutton("Save", id+"__button_save", 30,-120, 24,6, "090") }}
+  {{ ui.button("Cancel", id+"__button_cancel", 60, -120, 24,6, "900") }}
 
-<script><!-- {% include 'core.views/generics/scripts/includes.Script.Txt' %} --></script>
-<script><!-- {% include 'core.views/generics/scripts/uiElements.Script.Txt' %} --></script>
-{% block maniascript %} {% endblock %}
-<script><!-- {% include 'core.views/generics/scripts/main.Script.Txt' %} --></script>
-
+{% endblock %}
