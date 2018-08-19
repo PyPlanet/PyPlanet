@@ -1,10 +1,12 @@
 
 ***OnInit***
 ***
-if (GUIPlayer.RaceState == CTmMlPlayer::ERaceState::Running && GUIPlayer.DisplaySpeed != 0) {
-    Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
-    foreach (Control in Page.GetClassChildren_Result) {
-       Control.Hide();
+if (GUIPlayer != Null) {
+    if (GUIPlayer.RaceState == CTmMlPlayer::ERaceState::Running && GUIPlayer.DisplaySpeed != 0) {
+        Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+        foreach (Control in Page.GetClassChildren_Result) {
+           Control.Hide();
+        }
     }
 }
 ***
