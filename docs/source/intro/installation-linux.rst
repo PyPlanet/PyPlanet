@@ -51,8 +51,8 @@ The following steps are the same for all distributions.
 
 .. code-block:: bash
 
-  pyenv install 3.6.1
-  pyenv global 3.6.1
+  pyenv install 3.7.0
+  pyenv global 3.7.0
 
 
 .. attention::
@@ -82,8 +82,8 @@ use virtual environments, but we recommend to use it.
 
 .. code-block:: bash
 
-    pyenv virtualenv 3.6.1 pyplanet
-    # Where 'pyplanet' is your environment name, you need adjust this if you have multiple installations.
+    pyenv virtualenv 3.7.0 my-env
+    # Where 'my-env' is your environment name, you need adjust this if you have multiple installations.
 
 **Activate virtualenv**:
 
@@ -94,8 +94,8 @@ use virtual environments, but we recommend to use it.
 
 .. code-block:: bash
 
-    pyenv activate pyplanet
-    # Where 'pyplanet' is your environment name, you need adjust this if you have multiple installations.
+    pyenv activate my-env
+    # Where 'my-env' is your environment name, you need adjust this if you have multiple installations.
 
 
 4. PyPlanet Installation

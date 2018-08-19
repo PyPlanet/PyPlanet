@@ -10,7 +10,7 @@ Installation on Windows
 
 If you have not yet installed Python 3.5 or later on your Windows machine, do it now by going to the following link:
 
-https://www.python.org/downloads/release/python-361/
+https://www.python.org/downloads/release/python-370/
 
 Head towards the end of the page and click on the `Windows x86-64 executable installer` link. After starting the executable
 you will get an wizard.
