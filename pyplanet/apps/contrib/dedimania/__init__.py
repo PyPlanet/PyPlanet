@@ -496,8 +496,14 @@ class Dedimania(AppConfig):
 			message = '$fff{}$z$s$0b3 drove the $fff{}.$0b3 Dedimania Record: $fff\uf017 {}$0b3.'.format(
 				player.nickname, new_index, times.format_time(score)
 			)
+
+			if chat_announce >= new_index:
+				chat_await = self.instance.chat(message)
+			else:
+				chat_await = self.instance.chat(message, player)
+
 			await asyncio.gather(
-				self.instance.chat(message),
+				chat_await,
 				self.widget.display(),
 			)
 
