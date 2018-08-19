@@ -16,7 +16,7 @@ class ScriptSettingsView(TemplateView):
 	settings: dict
 	template_name = 'admin/settings/settings.xml'
 
-	def __init__(self, app, player, settings, descriptions):
+	def __init__(self, app, player, settings, descriptions, types):
 		"""
 
 		"""
@@ -25,6 +25,7 @@ class ScriptSettingsView(TemplateView):
 		self.player = player
 		self.settings = settings
 		self.descriptions = descriptions
+		self.types = types
 
 		self.response_future = asyncio.Future()
 
@@ -41,6 +42,7 @@ class ScriptSettingsView(TemplateView):
 		context['icon'] = ''
 		context['settings'] = self.settings
 		context['descriptions'] = self.descriptions
+		context['types'] = self.types
 		return context
 
 	async def close(self, player, *args, **kwargs):

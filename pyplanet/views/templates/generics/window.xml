@@ -2,18 +2,28 @@
 
 <frame pos="-160 90" z-index="50"> <!-- set z-index high enough -->
 	<frame pos="160 -90"> <!-- reset to 0,0 -->
-    > <!-- window position -->
 
+  <frame pos="-120 70"> <!-- window position -->
+      {% block header %}
+          <label pos="0 0" textsize="5" size="220 7" text="{{title}}" halign="left" valign="top" textprefix="{{icon}}  " textfont="BiryaniDemiBold"/>
+            {% if fields %}
+                {{ ui.button("", id+"__list_button_refresh", 226,0,6,6,"ddd") }} >
+                {{ ui.decoratedbutton("✖", id+"__list_button_close", 232, 0, 6,6,"d00","000") }} >
 
-		<label pos="-115 62" textsize="5" size="222 7" text="{{title}}" halign="left" valign="bottom" textprefix="{{icon}}  " focusareacolor1="000" textfont="BiryaniDemiBold"/>
-    {{ ui.decoratedbutton("x", id+"__button_close", 112, 69, 7, 7, "d00") }}
-    <quad pos="0 62" z-index="0" size="240 7" bgcolor="0005" halign="center" valign="bottom"/>
-		<quad pos="0 70" z-index="0" size="240 140" bgcolor="0003" halign="center"/>
-    {% block contents %} {% endblock %}
+            {% else %}
+               {{ ui.decoratedbutton("x", id+"__button_close", 232, 0, 7, 7, "d00", "000") }}
+            {% endif %}
 
+          <quad pos="120 0" size="240 7" bgcolor="0005" halign="center" valign="top"/>
+          <quad pos="120 0" size="240 140" bgcolor="0003" halign="center"/>
+     {% endblock %}
 
+      <frame pos="0 -18">
+        {% block contents %} {% endblock %}
+      </frame>
+    </frame>
 	</frame>
-	<quad size="320 180" bgcolor="FFFA" style="Bgs1" substyle="BgDialogBlur" bluramount="3" />
+  <quad size="320 180" bgcolor="FFFA" style="Bgs1" substyle="BgDialogBlur" bluramount="3" />
 </frame>
 
 <script><!-- {% include 'core.views/generics/scripts/includes.Script.Txt' %} --></script>

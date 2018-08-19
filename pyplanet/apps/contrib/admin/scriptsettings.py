@@ -26,11 +26,24 @@ class ScriptSettingsAdmin:
 
 	async def script_settings(self, player, **kwargs):
 		settings = await self.instance.mode_manager.get_settings()
+
 		mode_info = await self.app.instance.mode_manager.get_current_script_info()
 		descriptions = {}
 		for info in mode_info['ParamDescs']:
 			descriptions[info['Name']] = info['Desc']
 
-		view = ScriptSettingsView(self.app, player, settings, descriptions)
+		types = {}
+		for key, value in settings.items():
+
+			if isinstance(value, bool):
+				types[key] = "bool"
+			elif isinstance(value, float):
+				types[key] = "float"
+			elif isinstance(value, int):
+				types[key] = "int"
+			else:
+				types[key] = "string"
+
+		view = ScriptSettingsView(self.app, player, settings, descriptions, types)
 
 		await view.display(player=player.login)
