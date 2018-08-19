@@ -26,11 +26,10 @@
   {% if provide_search or (buttons is defined and (buttons | length > 0)) %}
       <frame pos="10 -20">
   {% else %}
-      <frame pos="10 -30">
+      <frame pos="10 -15">
   {% endif %}
 
       <frame pos="0 0" id="list_header">
-          <quad pos="0 0.1" size="218 105.2" z-index="-21" style="Bgs1InRace" substyle="BgCardList"/>
           <quad pos="0 0.2" size="218 5.2" z-index="-20" style="Bgs1InRace" substyle="BgCardList"/>
           <frame pos="0.1 -0 0">
               {% for field in fields %}
@@ -58,9 +57,7 @@
           {% set outer_loop = loop %}
           <frame pos="0 {{ loop.index0 * -5 }}">
 
-            {% if loop.index0 % 2 != 0 %}
-                <quad pos="0 0" size="217.8 5" z-index="-20" bgcolor="0003"/>
-            {% endif %}
+
 
             {% for field in fields %}
                 {% if field.manialink %}
@@ -101,8 +98,14 @@
             {% endif %}
 
             {% endfor %}
+
+            {% if loop.index0 % 2 != 0 %}
+                <quad pos="0 0" size="217.8 5" z-index="-20" bgcolor="0003"/>
+            {% endif %}
           </frame>
+
           {% endfor %}
+         <quad pos="0 0.1" size="218 100.2" z-index="-21" style="Bgs1InRace" substyle="BgCardList"/>
         </frame>
 
       <frame pos="0 -110">

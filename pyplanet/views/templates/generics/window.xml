@@ -15,15 +15,17 @@
             {% endif %}
 
           <quad pos="120 0" size="240 7" bgcolor="0005" halign="center" valign="top"/>
-          <quad pos="120 0" size="240 140" bgcolor="0003" halign="center"/>
+
      {% endblock %}
 
       <frame pos="0 -18">
         {% block contents %} {% endblock %}
       </frame>
+      <quad pos="120 0" size="240 140" bgcolor="0003" halign="center"/>
     </frame>
 	</frame>
-  <quad size="320 180" bgcolor="FFFA" style="Bgs1" substyle="BgDialogBlur" bluramount="3" />
+  <quad size="320 180" bgcolor="FFFA" style="Bgs1" substyle="BgDialogBlur" bluramount="0.1" />
+  <!-- <quad size="320 180" bgcolor="0008" /> -->
 </frame>
 
 <script><!-- {% include 'core.views/generics/scripts/includes.Script.Txt' %} --></script>
