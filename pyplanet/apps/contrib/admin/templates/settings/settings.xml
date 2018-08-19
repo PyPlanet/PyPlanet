@@ -14,10 +14,14 @@
         {% elif setting_value == False %}
           {{ ui.checkbox("", name, 120, 2, 0) }}
         {% endif %}
-        {% elif types[name] == "string" or types[name] == "int" or types[name] == "float"%}
+        {% elif types[name] == "string" %}
 
-      <entry pos="120 -2.5" size="60 5" name="{{name}}"
+         <entry pos="120 -2.5" size="60 5" name="{{name}}"
              default="{{ setting_value|default('', True) }}" textsize="1.2" valign="center" focusareacolor1="0003" focusareacolor2="FFF2"/>
+
+      {% elif  types[name] == "int" or types[name] == "float"%}
+         <entry pos="120 -2.5" size="60 5" name="{{name}}"
+             default="{{ setting_value|default('0', True) }}" textsize="1.2" valign="center" focusareacolor1="0003" focusareacolor2="FFF2"/>
 
       {% elif setting_value is mapping %}
          {{ ui.dropdown(setting_value, name, 120,0) }}
