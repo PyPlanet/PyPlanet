@@ -181,6 +181,9 @@ class Karma(AppConfig):
 							self.instance.chat(message, player),
 							self.widget.display()
 						)
+					else:
+						message = '$ff0You have already voted $fff{}$ff0 on this map!'.format(text)
+						await self.instance.chat(message, player)
 				else:
 					new_vote = KarmaModel(map=self.instance.map_manager.current_map, player=player, score=normal_score, expanded_score=score)
 					await new_vote.save()
