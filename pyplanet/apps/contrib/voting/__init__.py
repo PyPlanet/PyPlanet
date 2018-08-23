@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import logging
 import math
 
@@ -35,6 +36,12 @@ class Voting(AppConfig):
 			'voting_ratio', 'Voting ratio', Setting.CAT_BEHAVIOUR, type=float,
 			description='Ratio of players that have to vote in favour for the vote to go through (between 0 and 1).',
 			default=0.6
+		)
+
+		self.setting_voting_timeout = Setting(
+			'voting_timeout', 'Voting timeout', Setting.CAT_BEHAVIOUR, type=int,
+			description='Timeout in seconds before a vote is cancelled if the required votes aren\'t achieved (0 = no timeout).',
+			default=120
 		)
 
 		self.setting_callvoting_disable = Setting(
@@ -81,9 +88,10 @@ class Voting(AppConfig):
 
 	async def on_start(self):
 		await self.context.setting.register(
-			self.setting_voting_enabled, self.setting_voting_ratio, self.setting_remind_interval, self.setting_enabled_replay,
-			self.setting_enabled_restart, self.setting_enabled_skip, self.setting_callvoting_disable,
-			self.setting_callvoting_timeout, self.setting_enabled_time_extend
+			self.setting_voting_enabled, self.setting_voting_ratio, self.setting_voting_timeout,
+			self.setting_remind_interval, self.setting_enabled_replay, self.setting_enabled_restart,
+			self.setting_enabled_skip, self.setting_callvoting_disable, self.setting_callvoting_timeout,
+			self.setting_enabled_time_extend
 		)
 
 		await self.instance.permission_manager.register('cancel', 'Cancel the current vote', app=self, min_level=1)
@@ -165,15 +173,17 @@ class Voting(AppConfig):
 			await self.instance.chat(message)
 		else:
 			required_votes = (vote.votes_required - len(vote.votes_current))
-			message = '$fff{}$z$s$0cf voted to $fff{}$0cf, $fff{}$0cf more {} are needed (use $fffF5$0cf to vote).'.format(
-				player.nickname, vote.action, required_votes, ('votes' if required_votes > 1 else 'vote')
+			message = '$fff{}$z$s$0cf voted to $fff{}$0cf, $fff{}$0cf more {} needed (use $fffF5$0cf to vote){}.'.format(
+				player.nickname, vote.action, required_votes, ('votes' if required_votes > 1 else 'vote'),
+				(' ($fff{}$0cf seconds left)'.format(int(round((self.current_vote.time_limit - datetime.datetime.now()).total_seconds()))) if self.current_vote.time_limit is not None else '')
 			)
 			await self.instance.chat(message)
 
 	async def vote_removed(self, vote, player):
 		required_votes = (vote.votes_required - len(vote.votes_current))
-		message = '$0cfThere are $fff{}$0cf more {} needed to $fff{}$0cf (use $fffF5$0cf to vote).'.format(
-			required_votes, ('votes' if required_votes > 1 else 'vote'), vote.action
+		message = '$0cfThere {} $fff{}$0cf more {} needed to $fff{}$0cf (use $fffF5$0cf to vote){}.'.format(
+			('are' if required_votes > 1 else 'is'), required_votes, ('votes' if required_votes > 1 else 'vote'), vote.action,
+			(' ($fff{}$0cf seconds left)'.format(int(round((self.current_vote.time_limit - datetime.datetime.now()).total_seconds()))) if self.current_vote.time_limit is not None else '')
 		)
 		await self.instance.chat(message)
 
@@ -252,8 +262,9 @@ class Voting(AppConfig):
 			message = '$i$FD4Did you know that you could also vote for extending the time limit with /extend?'
 			await self.instance.chat(message, player)
 
-		message = '$fff{}$z$s$0cf wants to $fff{}$0cf, $fff{}$0cf more {} needed (use $fffF5$0cf to vote).'.format(
-			player.nickname, self.current_vote.action, self.current_vote.votes_required, ('votes' if self.current_vote.votes_required > 1 else 'vote')
+		message = '$fff{}$z$s$0cf wants to $fff{}$0cf, $fff{}$0cf more {} needed (use $fffF5$0cf to vote){}.'.format(
+			player.nickname, self.current_vote.action, self.current_vote.votes_required, ('votes' if self.current_vote.votes_required > 1 else 'vote'),
+			(' ($fff{}$0cf seconds left)'.format(int(round((self.current_vote.time_limit - datetime.datetime.now()).total_seconds()))) if self.current_vote.time_limit is not None else '')
 		)
 		await self.instance.chat(message)
 
@@ -305,8 +316,9 @@ class Voting(AppConfig):
 
 		self.current_vote = await self.create_vote('restart this map', player, self.vote_restart_finished)
 
-		message = '$fff{}$z$s$0cf wants to $fff{}$0cf, $fff{}$0cf more {} needed (use $fffF5$0cf to vote).'.format(
-			player.nickname, self.current_vote.action, self.current_vote.votes_required, ('votes' if self.current_vote.votes_required > 1 else 'vote')
+		message = '$fff{}$z$s$0cf wants to $fff{}$0cf, $fff{}$0cf more {} needed (use $fffF5$0cf to vote){}.'.format(
+			player.nickname, self.current_vote.action, self.current_vote.votes_required, ('votes' if self.current_vote.votes_required > 1 else 'vote'),
+			(' ($fff{}$0cf seconds left)'.format(int(round((self.current_vote.time_limit - datetime.datetime.now()).total_seconds()))) if self.current_vote.time_limit is not None else '')
 		)
 		await self.instance.chat(message)
 
@@ -359,8 +371,9 @@ class Voting(AppConfig):
 
 		self.current_vote = await self.create_vote('skip this map', player, self.vote_skip_finished)
 
-		message = '$fff{}$z$s$0cf wants to $fff{}$0cf, $fff{}$0cf more {} needed (use $fffF5$0cf to vote).'.format(
-			player.nickname, self.current_vote.action, self.current_vote.votes_required, ('votes' if self.current_vote.votes_required > 1 else 'vote')
+		message = '$fff{}$z$s$0cf wants to $fff{}$0cf, $fff{}$0cf more {} needed (use $fffF5$0cf to vote){}.'.format(
+			player.nickname, self.current_vote.action, self.current_vote.votes_required, ('votes' if self.current_vote.votes_required > 1 else 'vote'),
+			(' ($fff{}$0cf seconds left)'.format(int(round((self.current_vote.time_limit - datetime.datetime.now()).total_seconds()))) if self.current_vote.time_limit is not None else '')
 		)
 		await self.instance.chat(message)
 
@@ -409,8 +422,10 @@ class Voting(AppConfig):
 
 		self.current_vote = await self.create_vote('extend time limit on this map', player, self.vote_extend_finished)
 
-		message = '$fff{}$z$s$0cf wants to $fff{}$0cf, $fff{}$0cf more {} needed (use $fffF5$0cf to vote).'.format(
-			player.nickname, self.current_vote.action, self.current_vote.votes_required, ('votes' if self.current_vote.votes_required > 1 else 'vote')
+		message = '$fff{}$z$s$0cf wants to $fff{}$0cf, $fff{}$0cf more {} needed (use $fffF5$0cf to vote){}.'.format(
+			player.nickname, self.current_vote.action, self.current_vote.votes_required,
+			('votes' if self.current_vote.votes_required > 1 else 'vote'),
+			(' ($fff{}$0cf seconds left)'.format(int(round((self.current_vote.time_limit - datetime.datetime.now()).total_seconds()))) if self.current_vote.time_limit is not None else '')
 		)
 		await self.instance.chat(message)
 		await self.current_vote.add_vote(player)
@@ -433,12 +448,27 @@ class Voting(AppConfig):
 			required_votes = (self.current_vote.votes_required - len(self.current_vote.votes_current))
 			current_required_votes = (vote.votes_required - len(vote.votes_current))
 			if self.current_vote.action == vote.action and current_required_votes == required_votes:
-				message = '$0cfThere are $fff{}$0cf more {} needed to $fff{}$0cf (use $fffF5$0cf to vote).'.format(
-					current_required_votes, ('votes' if current_required_votes > 1 else 'vote'), self.current_vote.action
+				message = '$0cfThere are $fff{}$0cf more {} needed to $fff{}$0cf (use $fffF5$0cf to vote){}.'.format(
+					current_required_votes, ('votes' if current_required_votes > 1 else 'vote'), self.current_vote.action,
+					(' ($fff{}$0cf seconds left)'.format(int(round((self.current_vote.time_limit - datetime.datetime.now()).total_seconds()))) if self.current_vote.time_limit is not None else '')
 				)
 				await self.instance.chat(message)
 
 				asyncio.ensure_future(self.vote_reminder(vote))
+
+	async def vote_canceller(self, vote):
+		await asyncio.sleep(1)
+
+		if self.current_vote is not None and self.current_vote.time_limit is not None:
+			if datetime.datetime.now() > self.current_vote.time_limit:
+				message = '$0cfVote to $fff{}$0cf has timed out after $fff{}$0cf seconds.'.format(
+					self.current_vote.action, await self.setting_voting_timeout.get_value()
+				)
+				await self.instance.chat(message)
+
+				self.current_vote = None
+			else:
+				asyncio.ensure_future(self.vote_canceller(vote))
 
 	async def create_vote(self, action, player, finished_event):
 		ratio = await self.setting_voting_ratio.get_value()
@@ -455,6 +485,11 @@ class Voting(AppConfig):
 		new_vote.vote_added = self.vote_added
 		new_vote.vote_removed = self.vote_removed
 		new_vote.vote_finished = finished_event
+
+		time_limit = await self.setting_voting_timeout.get_value()
+		if time_limit > 0:
+			new_vote.time_limit = datetime.datetime.now() + datetime.timedelta(0, time_limit)
+			asyncio.ensure_future(self.vote_canceller(new_vote))
 
 		asyncio.ensure_future(self.vote_reminder(new_vote))
 
