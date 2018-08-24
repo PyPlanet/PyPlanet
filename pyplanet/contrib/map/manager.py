@@ -425,7 +425,7 @@ class MapManager(CoreContrib):
 			):
 				raise MapException('Can\'t find match settings file. Does it exist?')
 			else:
-				self._instance.gbx('LoadMatchSettings', filename)
+				await self._instance.gbx('LoadMatchSettings', filename)
 		except Exception as e:
 			logging.warning('Can\'t load match settings!')
 			raise MapException('Can\'t load matchsettings according the dedicated server, tried loading from \'{}\'!'.format(filename)) from e
