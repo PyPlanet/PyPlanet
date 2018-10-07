@@ -61,7 +61,7 @@ class UIProperties:  # pragma: no cover
 			method = 'Shootmania.UI.ResetProperties'
 		try:
 			logger.debug('Resetting UIProperties...')
-			await self._instance.gbx(method)
+			await self._instance.gbx.execute(method)
 		except Exception as e:
 			logger.warning('Unable to reset UIProperties: {}'.format(str(e)))
 
