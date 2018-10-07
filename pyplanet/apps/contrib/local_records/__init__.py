@@ -71,10 +71,31 @@ class LocalRecords(AppConfig):
 		if map:
 			map.local = await self.get_map_record(map)
 		else:
-			coros = list()
-			for map in self.instance.map_manager.maps:
-				coros.append(self.load_map_locals(map=map))
-			await asyncio.gather(*coros)
+			maps = {m.id: m for m in self.instance.map_manager.maps}
+			map_locals = dict()
+
+			# Fetch all.
+			rows = await LocalRecord.execute(
+				LocalRecord.select().where(
+					LocalRecord.map_id << list(maps.keys())
+				)
+			)
+
+			# Group by map.
+			for row in rows:
+				if row.map_id not in map_locals:
+					map_locals[row.map_id] = list()
+				map_locals[row.map_id].append(row)
+
+			# Map local stats.
+			for map_id, local_list in map_locals.items():
+				maps[map_id].local = dict(
+					record_count=len(local_list),
+					first_record=local_list[0] if len(local_list) > 0 else None
+				)
+
+			del map_locals
+			del maps
 
 	async def get_map_record(self, map=None):
 		if not map:
@@ -169,7 +190,8 @@ class LocalRecords(AppConfig):
 		)
 
 	async def player_connect(self, player, is_spectator, source, signal):
-		await self.widget.display(player=player)
+		if self.widget:
+			await self.widget.display(player=player)
 
 	async def player_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
 		record_limit = await self.setting_record_limit.get_value()

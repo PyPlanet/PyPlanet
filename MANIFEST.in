@@ -15,6 +15,7 @@ global-exclude __pycache__
 global-exclude *.py[co]
 global-exclude .tox
 prune env
+prune env370
 prune settings
 prune apps
 prune docs/build

@@ -255,7 +255,7 @@ class Dedimania(AppConfig):
 						replay = await self.get_v_replay(record.login)
 						if replay:
 							self.v_replay = replay
-					if not self.v_replay_checks and self.current_script.startswith('Laps'):
+					if not self.v_replay_checks and self.current_script.lower().startswith('laps'):
 						self.v_replay_checks = ','.join([str(c) for c in record.race_cps])
 
 					if pos == 0:
@@ -306,6 +306,8 @@ class Dedimania(AppConfig):
 		except Exception as e:
 			logger.warning('Errors with cleaning up dedimania ghost files (ignored):')
 			logger.exception(e)
+
+		self.ghost_files = list()
 
 	async def refresh_records(self):
 		try:
@@ -415,8 +417,9 @@ class Dedimania(AppConfig):
 			if score < current_record.score:
 				previous_time = current_record.score
 				current_record.updated = True
-				if self.current_script.startswith('Laps'):
+				if self.current_script.lower().startswith('laps'):
 					current_record.race_cps = race_cps
+					current_record.cps = lap_cps
 
 				# Determinate new rank.
 				async with self.lock:
@@ -495,8 +498,14 @@ class Dedimania(AppConfig):
 			message = '$fff{}$z$s$0b3 drove the $fff{}.$0b3 Dedimania Record: $fff\uf017 {}$0b3.'.format(
 				player.nickname, new_index, times.format_time(score)
 			)
+
+			if chat_announce >= new_index:
+				chat_await = self.instance.chat(message)
+			else:
+				chat_await = self.instance.chat(message, player)
+
 			await asyncio.gather(
-				self.instance.chat(message),
+				chat_await,
 				self.widget.display(),
 			)
 

@@ -113,14 +113,29 @@ class MapManager(CoreContrib):
 		updated = list()
 
 		if full_update:
-			# We will initiate the maps in the database (or update).
-			coroutines = [Map.get_or_create_from_info(
-				details['UId'], details['FileName'], details['Name'], details['Author'],
-				environment=details['Environnement'], time_gold=details['GoldTime'],
-				price=details['CopperPrice'], map_type=details['MapType'], map_style=details['MapStyle']
-			) for details in raw_list]
+			# Query all existing entries from database.
+			maps = list(await Map.execute(
+				Map.select().where(Map.uid << [m['UId'] for m in raw_list])
+			))
 
-			maps = await asyncio.gather(*coroutines)
+			db_uids = [m.uid for m in maps]
+			diff = [x for x in raw_list if x['UId'] not in db_uids]
+
+			# Insert all missing maps into the DB.
+			rows = list()
+			for details in diff:
+				rows.append(dict(
+					uid=details['UId'], file=details['FileName'], name=details['Name'], author_login=details['Author'],
+					environment=details['Environnement'], time_gold=details['GoldTime'], price=details['CopperPrice'],
+					map_type=details['MapType'], map_style=details['MapStyle']
+				))
+
+			if len(rows) > 0:
+				await Map.execute(Map.insert_many(rows))
+				maps += list(await Map.execute(
+					Map.select().where(Map.uid << [m['uid'] for m in rows])
+				))
+
 			async with self.lock:
 				self._maps = set(maps)
 
@@ -409,7 +424,7 @@ class MapManager(CoreContrib):
 			):
 				raise MapException('Can\'t find match settings file. Does it exist?')
 			else:
-				self._instance.gbx('LoadMatchSettings', filename)
+				await self._instance.gbx('LoadMatchSettings', filename)
 		except Exception as e:
 			logging.warning('Can\'t load match settings!')
 			raise MapException('Can\'t load matchsettings according the dedicated server, tried loading from \'{}\'!'.format(filename)) from e

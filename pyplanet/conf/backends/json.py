@@ -16,15 +16,18 @@ class JsonConfigBackend(FileConfigBackend):
 		# Load the files and parse JSON.
 		parsed_settings = dict()
 
-		try:
-			for file_name in self.files:
+		for file_name in self.files:
+			try:
 				file_path = os.path.join(self.directory, file_name)
 				with open(file_path, 'r') as file_handle:
 					parsed_settings.update(json.load(file_handle))
-		except json.JSONDecodeError as e:
-			raise ImproperlyConfigured(
-				'Your settings file(s) contain invalid JSON syntax! Please fix and restart!, {}'.format(str(e))
-			)
+			except json.JSONDecodeError as e:
+				raise ImproperlyConfigured(
+					'Your settings file(s) contain invalid JSON syntax! Please fix and restart! File {}, Error {}'.format(
+						file_name,
+						str(e)
+					)
+				)
 
 		# Loop and set in local settings (+ uppercase keys).
 		for key, value in parsed_settings.items():

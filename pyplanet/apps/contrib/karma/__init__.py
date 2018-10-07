@@ -74,10 +74,38 @@ class Karma(AppConfig):
 		if map:
 			map.karma = await self.get_map_karma(map)
 		else:
-			coros = list()
-			for map in self.instance.map_manager.maps:
-				coros.append(self.load_map_votes(map=map))
-			await asyncio.gather(*coros)
+			maps = {m.id: m for m in self.instance.map_manager.maps}
+			map_karmas = dict()
+
+			# Fetch all.
+			rows = await KarmaModel.execute(
+				KarmaModel.select().where(
+					KarmaModel.map_id << list(maps.keys())
+				)
+			)
+
+			# Group by map.
+			for row in rows:
+				if row.map_id not in map_karmas:
+					map_karmas[row.map_id] = list()
+				map_karmas[row.map_id].append(row)
+
+			# Map karma stats.
+			for map_id, karma_list in map_karmas.items():
+				total_score = 0.0
+				for vote in karma_list:
+					if vote.expanded_score is not None:
+						total_score += vote.expanded_score
+					else:
+						total_score += vote.score
+
+				maps[map_id].karma = dict(
+					vote_count=len(karma_list),
+					map_karma=total_score
+				)
+
+			del map_karmas
+			del maps
 
 	async def show_map_list(self, player, map=None, **kwargs):
 		"""
@@ -121,10 +149,13 @@ class Karma(AppConfig):
 						await self.instance.chat(message, player)
 						return
 
+				normal_score = -1
 				score = -1
 				if text == '++':
+					normal_score = 1
 					score = 1
 				elif text == '+':
+					normal_score = 1
 					score = 0.5
 				elif text == '+-' or text == '-+':
 					score = 0
@@ -136,6 +167,7 @@ class Karma(AppConfig):
 					player_vote = player_votes[0]
 					if (player_vote.expanded_score is not None and player_vote.expanded_score != score) or \
 						(player_vote.expanded_score is None and player_vote.score != score):
+						player_vote.score = normal_score
 						player_vote.expanded_score = score
 						await player_vote.save()
 
@@ -150,7 +182,7 @@ class Karma(AppConfig):
 							self.widget.display()
 						)
 				else:
-					new_vote = KarmaModel(map=self.instance.map_manager.current_map, player=player, score=score)
+					new_vote = KarmaModel(map=self.instance.map_manager.current_map, player=player, score=normal_score, expanded_score=score)
 					await new_vote.save()
 
 					self.current_votes.append(new_vote)

@@ -183,6 +183,7 @@ main() {
         UpdateInterface();
 
         if (Event.IsEndLap) {
+          CurrentCheckpointScores = Integer[];
           CurrentCheckpoint = 0;
         }
       }
