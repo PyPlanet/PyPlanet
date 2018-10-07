@@ -46,8 +46,24 @@ class UIProperties:  # pragma: no cover
 		return False
 
 	async def on_start(self):
+		await self.reset()
 		await self.refresh_properties()
 		self._instance.signals.listen(pyplanet_start_after, self.send_properties)
+
+	async def reset(self):
+		"""
+		Reset the UI Properties to the default ManiaPlanet ones.
+		:return:
+		"""
+		if self._instance.game.game == 'tm':
+			method = 'Trackmania.UI.ResetProperties'
+		else:
+			method = 'Shootmania.UI.ResetProperties'
+		try:
+			logger.debug('Resetting UIProperties...')
+			await self._instance.gbx(method)
+		except Exception as e:
+			logger.warning('Unable to reset UIProperties: {}'.format(str(e)))
 
 	async def refresh_properties(self):
 		if self._instance.game.game == 'tm':
