@@ -59,11 +59,11 @@ class UIProperties:  # pragma: no cover
 			method = 'Trackmania.UI.ResetProperties'
 		else:
 			method = 'Shootmania.UI.ResetProperties'
-		try:
-			logger.debug('Resetting UIProperties...')
-			await self._instance.gbx.execute(method)
-		except Exception as e:
-			logger.warning('Unable to reset UIProperties: {}'.format(str(e)))
+		# try:
+			# logger.debug('Resetting UIProperties...')
+			# await self._instance.gbx.script(method)
+		# except Exception as e:
+		# 	logger.warning('Unable to reset UIProperties: {}'.format(str(e)))
 
 	async def refresh_properties(self):
 		if self._instance.game.game == 'tm':
