@@ -1,6 +1,22 @@
 Changelog
 =========
 
+0.6.2 (17 November 2018)
+------------------------
+
+Core
+~~~~
+
+* Security: Upgraded library to solve security issues (requests library).
+
+* Bugfix: Fixing issues with the command line interface and showing settings error, preventing executing commands outside project
+
+Apps
+~~~~
+
+* Bugfix: Fix issue with clearing the jukebox and locking up the whole jukebox app.
+
+
 0.6.1 (7 October 2018)
 ----------------------
 
