@@ -50,6 +50,7 @@ class Jukebox(AppConfig):
 
 	def empty_jukebox(self):
 		self.jukebox.clear()
+		self.lock.release()
 
 	async def show_map_list(self, player, data, **kwargs):
 		view = MapListView(self, player)
@@ -88,7 +89,13 @@ class Jukebox(AppConfig):
 						message = '$i$f00You\'re not allowed to do this!'
 						await self.instance.chat(message, player)
 					else:
-						await self.clear_jukebox(player, data)
+						if len(self.jukebox) > 0:
+							self.jukebox.clear()
+							message = '$ff0Admin $fff{}$z$s$ff0 has cleared the jukebox.'.format(player.nickname)
+							await self.instance.chat(message)
+						else:
+							message = '$i$f00There are currently no maps in the jukebox.'
+							await self.instance.chat(message, player)
 
 				else:
 					await self.display_chat_commands(player)
