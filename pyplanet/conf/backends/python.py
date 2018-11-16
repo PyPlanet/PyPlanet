@@ -22,8 +22,7 @@ class PythonConfigBackend(ConfigBackend):
 
 		if not self.module:
 			raise ImproperlyConfigured(
-				'Settings module is not defined! Please define PYPLANET_SETTINGS_MODULE in your '
-				'environment or start script.'
+				'Settings module is not defined! Please define PYPLANET_SETTINGS_MODULE in your environment or start script.'
 			)
 
 		# Add the module itself to the configuration.

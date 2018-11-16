@@ -252,5 +252,6 @@ class ManagementUtility:
 
 def execute_from_command_line(argv=None):
 	"""Run a ManagementUtility."""
+	settings._optional = True
 	utility = ManagementUtility(argv)
 	utility.execute()

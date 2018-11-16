@@ -27,13 +27,15 @@ class LazySettings:
 
 	def __init__(self):
 		self._settings = None
+		self._optional = False
 
 	def _setup(self):
 		"""
 		Setup will create the wrapped settings and load the settings module.
 		"""
+		optional_loading = self._optional
 		settings_method = os.environ.get('PYPLANET_SETTINGS_METHOD', 'python')
-		if not settings_method:
+		if not settings_method and not optional_loading:
 			raise ImproperlyConfigured(
 				'Settings method is not defined! Please define PYPLANET_SETTINGS_METHOD in your '
 				'environment or start script. The possible values: \'python\', \'json\', \'yaml\''
@@ -55,8 +57,9 @@ class LazySettings:
 		try:
 			self._settings.load()
 		except Exception as e:
-			logging.exception(e)
-			exit(1)
+			if not optional_loading:
+				logging.exception(e)
+				exit(1)
 
 	def __getattr__(self, item):
 		"""
@@ -74,6 +77,8 @@ class LazySettings:
 		"""
 		if key == '_settings':
 			self.__dict__.clear()
+		elif key == '_optional':
+			super().__setattr__(key, value)
 		else:
 			self.__dict__.pop(key, None)
 		super().__setattr__(key, value)
