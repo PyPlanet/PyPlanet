@@ -75,6 +75,8 @@ class ManagementUtility:
 
 		self.commands = find_commands(__path__[0])
 
+		settings._setup(optional_loading=True)
+
 	def fetch_command(self, subcommand):
 		"""
 		Try to fetch the given subcommand, printing a message with the 
