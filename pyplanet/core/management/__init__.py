@@ -75,6 +75,8 @@ class ManagementUtility:
 
 		self.commands = find_commands(__path__[0])
 
+		settings._setup(optional_loading=True)
+
 	def fetch_command(self, subcommand):
 		"""
 		Try to fetch the given subcommand, printing a message with the 
@@ -252,5 +254,6 @@ class ManagementUtility:
 
 def execute_from_command_line(argv=None):
 	"""Run a ManagementUtility."""
+	settings._optional = True
 	utility = ManagementUtility(argv)
 	utility.execute()

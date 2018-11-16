@@ -16,7 +16,7 @@ asyncssh==1.14.0
 
 # Network
 aiohttp==2.3.9
-requests==2.19.1
+requests==2.20.1
 urllib3==1.23
 
 # Utils
