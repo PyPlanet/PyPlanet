@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.6.3 (17 November 2018)
+------------------------
+
+Core
+~~~~
+
+* Bugfix: Fixing loading of settings on some setups.
+
+
 0.6.2 (17 November 2018)
 ------------------------
 
