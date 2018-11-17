@@ -18,7 +18,7 @@ class PythonConfigBackend(ConfigBackend):
 		super().load()
 
 		# Prepare the loading.
-		self.module = os.environ.get('PYPLANET_SETTINGS_MODULE')
+		self.module = os.environ.get('PYPLANET_SETTINGS_MODULE', 'settings')
 
 		if not self.module:
 			raise ImproperlyConfigured(
