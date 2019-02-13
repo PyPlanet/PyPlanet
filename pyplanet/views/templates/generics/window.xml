@@ -1,27 +1,26 @@
 {% import 'core.views/generics/uiElements.xml' as ui %}
 
-<frame pos="-160 90" z-index="50"> <!-- set z-index high enough -->
+<frame pos="-160 90" z-index="150"> <!-- set z-index high enough -->
 	<frame pos="160 -90"> <!-- reset to 0,0 -->
 
   <frame pos="-120 70"> <!-- window position -->
       {% block header %}
-          <label pos="0 0" textsize="5" size="220 7" text="{{title}}" halign="left" valign="top" textprefix="{{icon}}  " textfont="BiryaniDemiBold"/>
+          <label pos="0 0" textsize="5" size="220 7" text="{{title}}" halign="left" valign="top" textprefix="{{icon}}  " textfont="Gotham/Gotham-Bold"/>
             {% if fields %}
-                {{ ui.button("", id+"__list_button_refresh", 226,0,6,6,"ddd") }} >
+                {{ ui.decoratedbutton("", id+"__list_button_refresh", 226,0,6,6,"ddd") }} >
                 {{ ui.decoratedbutton("✖", id+"__list_button_close", 232, 0, 6,6,"d00","000") }} >
-
             {% else %}
                {{ ui.decoratedbutton("x", id+"__button_close", 232, 0, 7, 7, "d00", "000") }}
             {% endif %}
 
-          <quad pos="120 0" size="240 7" bgcolor="0005" halign="center" valign="top"/>
+          <quad pos="120 -6.5" size="240 0.25" bgcolor="fff" halign="center" valign="top"/> -->
 
      {% endblock %}
 
       <frame pos="0 -18">
         {% block contents %} {% endblock %}
       </frame>
-      <quad pos="120 0" size="240 140" bgcolor="0009" halign="center"/>
+      <!-- <quad pos="120 0" size="240 140" bgcolor="0009" halign="center"/> -->
     </frame>
 	</frame>
   <quad size="320 180" bgcolor="FFFA" style="Bgs1" substyle="BgDialogBlur" bluramount="0.1" scriptevents="1" />

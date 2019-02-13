@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class _ManiaLink:
 	def __init__(
 		self, manager=None, id=None, version='3', body=None, template=None, timeout=0, hide_click=False, data=None,
-		player_data=None, disable_alt_menu=False, throw_exceptions=False, relaxed_updating=False,
+		player_data=None, disable_alt_menu=False, throw_exceptions=False, relaxed_updating=False, layer="normal",
 	):
 		"""
 		Create manialink (USE THE MANAGER CREATE, DONT INIT DIRECTLY!
@@ -49,6 +49,7 @@ class _ManiaLink:
 		self.throw_exceptions = False
 		self.disable_alt_menu = bool(disable_alt_menu)
 		self.relaxed_updating = relaxed_updating
+		self.layer = layer
 
 		self.receivers = dict()
 		self._is_global_shown = False
@@ -66,6 +67,7 @@ class _ManiaLink:
 		"""
 		Render template. Will render template and return body.
 
+		:param layer:
 		:param player_login: Render data only for player, set to None to globally render (and ignore player_data).
 		:param data: Data to append.
 		:param player_data: Data to append.
@@ -92,13 +94,15 @@ class _ManiaLink:
 		# Render and save in content.
 		return await template.render(**payload_data)
 
-	async def display(self, player_logins=None, **kwargs):
+	async def display(self, player_logins=None, layer="normal", **kwargs):
 		"""
 		Display the manialink. Will also render if no body is given. Will show per player or global. depending on
 		the data given and stored!
 
+		:param layer: layer to show manialink at.
 		:param player_logins: Only display to the list of player logins given.
 		"""
+		self.layer = layer
 		if player_logins:
 			for login in player_logins:
 				self._is_player_shown[login] = True

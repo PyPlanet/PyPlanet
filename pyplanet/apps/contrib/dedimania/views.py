@@ -2,18 +2,18 @@ import math
 
 from pyplanet.utils.style import style_strip
 from pyplanet.utils.times import format_time
-from pyplanet.views.generics.widget import TimesWidgetView
+from pyplanet.views.generics.tabwidget import TimesWidgetView
 from pyplanet.views.generics.list import ManualListView
 from pyplanet.utils import times
 
 
 class DedimaniaRecordsWidget(TimesWidgetView):
-	widget_x = -160
-	widget_y = 12.5
+	widget_x = -157
+	widget_y = 60
 	size_x = 38
 	size_y = 55.5
-	top_entries = 5
-	title = 'Dedimania'
+	top_entries = 10
+	title = 'Dedimania Champions'
 
 	def __init__(self, app):
 		super().__init__(self)
@@ -22,7 +22,7 @@ class DedimaniaRecordsWidget(TimesWidgetView):
 		self.id = 'pyplanet__widgets_dedimaniarecords'
 
 		self.action = self.action_recordlist
-		self.record_amount = 15
+		self.record_amount = 30
 
 	async def get_player_data(self):
 		data = await super().get_player_data()
@@ -74,16 +74,21 @@ class DedimaniaRecordsWidget(TimesWidgetView):
 					custom_start_index = (start_point + 1)
 
 			index = 1
+			first_time = None
 			for record in records:
 				list_record = dict()
+				if index == 1:
+					first_time = record.score
+
 				list_record['index'] = index
-				list_record['color'] = '$fff'
+				list_record['color'] = 'FFF'
 				if index <= self.top_entries:
-					list_record['color'] = '$ff0'
+					list_record['color'] = 'FFF'
 				if index == player_index:
-					list_record['color'] = '$0f3'
+					list_record['color'] = 'AEF'
 				list_record['nickname'] = record.nickname
 				list_record['score'] = times.format_time(int(record.score))
+				list_record['diff'] = times.format_time(int(record.score - first_time))
 				if index == self.top_entries:
 					index = custom_start_index
 				else:
@@ -109,14 +114,18 @@ class DedimaniaRecordsWidget(TimesWidgetView):
 			records = list(self.app.current_records[:self.record_amount])
 
 			index = 1
+			first_time = None
 			for record in records:
+				if index == 1:
+					first_time = record.score
 				list_record = dict()
 				list_record['index'] = index
-				list_record['color'] = '$fff'
+				list_record['color'] = 'fff'
 				if index <= self.top_entries:
-					list_record['color'] = '$ff0'
+					list_record['color'] = 'fff'
 				list_record['nickname'] = record.nickname
 				list_record['score'] = times.format_time(int(record.score))
+				list_record['diff'] = times.format_time(int(record.score - first_time))
 				index += 1
 				list_records.append(list_record)
 

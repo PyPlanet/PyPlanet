@@ -110,7 +110,7 @@ class TemplateView(View):
 		kwargs['template'] = await self.get_template()
 		return await super().render(*args, **kwargs)
 
-	async def display(self, player_logins=None, **kwargs):
+	async def display(self, player_logins=None, layer="normal", **kwargs):
 		"""
 		Display the manialink. Will also render if no body is given. Will show per player or global. depending on
 		the data given and stored!
@@ -149,4 +149,4 @@ class TemplateView(View):
 		if not isinstance(self.player_data, dict):
 			self.player_data = dict()
 
-		return await super().display(player_logins, **kwargs)
+		return await super().display(player_logins, layer, **kwargs)

@@ -3,16 +3,16 @@ import math
 from pyplanet.utils.style import style_strip
 from pyplanet.utils.times import format_time
 from pyplanet.views.generics import ask_confirmation
-from pyplanet.views.generics.widget import TimesWidgetView
+from pyplanet.views.generics.tabwidget import TimesWidgetView
 from pyplanet.views.generics.list import ManualListView
 from pyplanet.utils import times
 
 
 class LocalRecordsWidget(TimesWidgetView):
-	widget_x = 125
-	widget_y = 56.5
-	top_entries = 5
-	title = 'Local Records'
+	widget_x = 105
+	widget_y = 55
+	top_entries = 10
+	title = 'Server Champions'
 
 	def __init__(self, app):
 		super().__init__(self)
@@ -21,7 +21,7 @@ class LocalRecordsWidget(TimesWidgetView):
 		self.id = 'pyplanet__widgets_localrecords'
 
 		self.action = self.action_recordlist
-		self.record_amount = 15
+		self.record_amount = 30
 
 	async def get_player_data(self):
 		data = await super().get_player_data()
@@ -79,17 +79,22 @@ class LocalRecordsWidget(TimesWidgetView):
 					custom_start_index = (start_point + 1)
 
 			index = 1
+			first_time = None
 			for record in records:
 				record_player = await record.get_related('player')
 				list_record = dict()
+				if index == 1:
+					first_time = record.score
+
 				list_record['index'] = index
-				list_record['color'] = '$fff'
+				list_record['color'] = 'fff'
 				if index <= self.top_entries:
-					list_record['color'] = '$ff0'
+					list_record['color'] = 'fff'
 				if index == player_index:
-					list_record['color'] = '$0f3'
+					list_record['color'] = 'aef'
 				list_record['nickname'] = record_player.nickname
 				list_record['score'] = times.format_time(int(record.score))
+				list_record['diff'] = times.format_time(int(record.score - first_time))
 				if index == self.top_entries:
 					index = custom_start_index
 				else:
@@ -121,15 +126,19 @@ class LocalRecordsWidget(TimesWidgetView):
 			records = list(current_records[:self.record_amount])
 
 			index = 1
+			first_time = None
 			for record in records:
 				record_player = await record.get_related('player')
 				list_record = dict()
+				if index == 1:
+					first_time = record.score
 				list_record['index'] = index
-				list_record['color'] = '$fff'
+				list_record['color'] = 'fff'
 				if index <= self.top_entries:
-					list_record['color'] = '$ff0'
+					list_record['color'] = 'fff'
 				list_record['nickname'] = record_player.nickname
 				list_record['score'] = times.format_time(int(record.score))
+				list_record['diff'] = times.format_time(int(record.score - first_time))
 				index += 1
 				list_records.append(list_record)
 
