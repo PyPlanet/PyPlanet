@@ -18,12 +18,11 @@ class PythonConfigBackend(ConfigBackend):
 		super().load()
 
 		# Prepare the loading.
-		self.module = os.environ.get('PYPLANET_SETTINGS_MODULE')
+		self.module = os.environ.get('PYPLANET_SETTINGS_MODULE', 'settings')
 
 		if not self.module:
 			raise ImproperlyConfigured(
-				'Settings module is not defined! Please define PYPLANET_SETTINGS_MODULE in your '
-				'environment or start script.'
+				'Settings module is not defined! Please define PYPLANET_SETTINGS_MODULE in your environment or start script.'
 			)
 
 		# Add the module itself to the configuration.

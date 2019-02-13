@@ -1,6 +1,55 @@
 Changelog
 =========
 
+0.6.3 (17 November 2018)
+------------------------
+
+Core
+~~~~
+
+* Bugfix: Fixing loading of settings on some setups.
+
+
+0.6.2 (17 November 2018)
+------------------------
+
+Core
+~~~~
+
+* Security: Upgraded library to solve security issues (requests library).
+
+* Bugfix: Fixing issues with the command line interface and showing settings error, preventing executing commands outside project
+
+Apps
+~~~~
+
+* Bugfix: Fix issue with clearing the jukebox and locking up the whole jukebox app.
+
+
+0.6.1 (7 October 2018)
+----------------------
+
+Core
+~~~~
+
+* Improvement: Added compatibility with Python 3.7.x.
+* Improvement: Upgraded external libraries.
+* Improvement: Giant performance improvement when indexing maps, karma and local-records data after writing maplist and booting for large servers.
+
+* Bugfix: Fixing issue with invalid JSON files (settings). Will show a correct error message.
+* Bugfix: Fixing readmaplist.
+
+Apps
+~~~~
+
+* Bugfix: Fix issue in Local Records. Trying to initiate widget before the widget is created in the context.
+* Bugfix: Fixing incorrect differences on the live cp times (live rankings) in laps mode.
+* Bugfix: Fixing issues with Dedimania in Laps mode.
+* Bugfix: Fixing issues with cleaning the Dedimania replays.
+* Bugfix: Fixing issue with Dedimania and first driven record (global while it should be only to the person).
+* Bugfix: Fixing issue with recording of normal and expanded karma scores in karma app.
+
+
 0.6.0 (5 May 2018)
 ------------------
 

@@ -10,6 +10,9 @@ fi
 if [[ ${TOXENV} == *"py36-integration"* ]]; then
   MP_USER="${MP_USER}2"
 fi
+if [[ ${TOXENV} == *"py37-integration"* ]]; then
+  MP_USER="${MP_USER}3"
+fi
 
 
 BEFORE_PWD=`pwd`

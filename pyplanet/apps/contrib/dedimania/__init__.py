@@ -307,6 +307,8 @@ class Dedimania(AppConfig):
 			logger.warning('Errors with cleaning up dedimania ghost files (ignored):')
 			logger.exception(e)
 
+		self.ghost_files = list()
+
 	async def refresh_records(self):
 		try:
 			player_list, self.current_script = await asyncio.gather(

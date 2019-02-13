@@ -204,7 +204,7 @@ class MapAdmin:
 
 		# Send message + reload all maps in memory.
 		await asyncio.gather(
-			self.instance.chat('$ff0Maps has been shuffled!', player),
+			self.instance.chat('$ff0Maps have been shuffled!', player),
 			self.instance.map_manager.update_list(full_update=True)
 		)
 

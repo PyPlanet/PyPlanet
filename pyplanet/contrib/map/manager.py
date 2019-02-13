@@ -124,7 +124,6 @@ class MapManager(CoreContrib):
 			# Insert all missing maps into the DB.
 			rows = list()
 			for details in diff:
-				print(details)
 				rows.append(dict(
 					uid=details['UId'], file=details['FileName'], name=details['Name'], author_login=details['Author'],
 					environment=details['Environnement'], time_gold=details['GoldTime'], price=details['CopperPrice'],
