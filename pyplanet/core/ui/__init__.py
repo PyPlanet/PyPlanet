@@ -70,7 +70,7 @@ class _BaseUIManager:
 		"""
 		queries = list()
 		layer = getattr(manialink, 'layer', 'normal')
-		
+
 		if isinstance(players, list):
 			for_logins = [p.login if isinstance(p, Player) else p for p in players]
 		elif manialink.player_data:

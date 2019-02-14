@@ -17,19 +17,19 @@ main() {
 
     foreach (Event in PendingEvents) {
 			switch (Event.Type) {
-				case CMlEvent::Type::EntrySubmit: {
+				case CMlScriptEvent::Type::EntrySubmit: {
 					+++EntrySubmit+++
 				}
-				case CMlEvent::Type::KeyPress: {
+				case CMlScriptEvent::Type::KeyPress: {
 					+++OnKeyPress+++
 				}
-				case CMlEvent::Type::MouseClick: {
+				case CMlScriptEvent::Type::MouseClick: {
 					+++OnMouseClick+++
 				}
-				case CMlEvent::Type::MouseOut: {
+				case CMlScriptEvent::Type::MouseOut: {
 					+++OnMouseOut+++
 				}
-				case CMlEvent::Type::MouseOver: {
+				case CMlScriptEvent::Type::MouseOver: {
 					+++OnMouseOver+++
 				}
 			}
