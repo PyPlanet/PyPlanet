@@ -7,7 +7,7 @@
 </frame>
 {% endmacro %}
 
-{% macro decoratedbutton(text='Default', action='', posX=0, posY=0, width=18, height=5, color="777", bgcolor="0000", halign="center") %}
+{% macro basicbutton(text='Default', action='', posX=0, posY=0, width=18, height=5, color="aaaa", bgcolor="0000", halign="center") %}
  {% if halign == "center" %}
 <frame pos="{{posX + (width/2)}}  {{posY - (height/2)}}" class="uiContainer uiButton" data-action="{{action}}">
 {% else %}
@@ -17,14 +17,14 @@
 </frame>
 {% endmacro %}
 
-{% macro button(text='Default', action='', posX=0, posY=0, width=18, height=5, color="777") %}
+{% macro button(text='Default', action='', posX=0, posY=0, width=18, height=5, color="aaaa") %}
 <frame pos="{{posX + (width/2)}}  {{posY - (height/2)}}" class="uiContainer uiButton" data-action="{{action}}" >
   <quad size="{{width}} {{height}}" style="Bgs1InRace" colorize="{{color}}" substyle="BgColorContour" halign="center" valign="center2" />
   <label size="{{width-1}} {{height-1}}" text="{{text}}" class="uiButtonElement" halign="center" valign="center2" focusareacolor1="0000" focusareacolor2="{{color}}" scriptevents="1" translate="0" textsize="1.2"/>
 </frame>
 {% endmacro %}
 
-{% macro confirmbutton(text='Default', action='', posX=0, posY=0, width=18, height=5, color="777") %}
+{% macro confirmbutton(text='Default', action='', posX=0, posY=0, width=18, height=5, color="aaa") %}
 <frame pos="{{posX + (width/2)}}  {{posY - (height/2)}}" class="uiContainer uiButton" data-action="{{action}}" >
   <quad size="{{width}} {{height}}" style="Bgs1InRace" colorize="{{color}}" substyle="BgColorContour" halign="center" valign="center2" />
   <label size="{{width-1}} {{height-1}}" text="{{text}}" class="uiConfirmButtonElement" halign="center" valign="center2" focusareacolor1="0000" focusareacolor2="{{color}}" scriptevents="1" translate="0" textsize="1.2"/>

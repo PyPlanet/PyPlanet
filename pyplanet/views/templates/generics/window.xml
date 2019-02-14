@@ -7,14 +7,13 @@
       {% block header %}
           <label pos="0 0" textsize="5" size="220 7" text="{{title}}" halign="left" valign="top" textprefix="{{icon}}  " textfont="Gotham/Gotham-Bold"/>
             {% if fields %}
-                {{ ui.decoratedbutton("", id+"__list_button_refresh", 226,0,6,6,"ddd") }} >
-                {{ ui.decoratedbutton("✖", id+"__list_button_close", 232, 0, 6,6,"d00","000") }} >
+                {{ ui.basicbutton("", id+"__list_button_refresh", 226,0,6,6,"ddd") }} >
+                {{ ui.basicbutton("✖", id+"__list_button_close", 232, 0, 6,6,"d00","0000") }} >
             {% else %}
-               {{ ui.decoratedbutton("x", id+"__button_close", 232, 0, 7, 7, "d00", "000") }}
+               {{ ui.basicbutton("x", id+"__button_close", 232, 0, 7, 7, "d00", "0000") }}
             {% endif %}
 
           <quad pos="120 -6.5" size="240 0.25" bgcolor="fff" halign="center" valign="top"/> -->
-
      {% endblock %}
 
       <frame pos="0 -18">

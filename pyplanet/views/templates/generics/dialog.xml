@@ -6,7 +6,7 @@
   <frame pos="-60 70"> <!-- window position -->
 
       {% block header %}
-          {{ ui.decoratedbutton("x", id+"__button_close", 114, 0, 6, 6, "d00", "000") }}
+          {{ ui.basicbutton("x", id+"__button_close", 114, 0, 6, 6, "d00", "000") }}
       {% endblock %}
 
 
@@ -14,14 +14,15 @@
         {% block contents %} {% endblock %}
       </frame>
 
-      <quad pos="0 1" size="120 1" bgcolor="fffa" />
+      <quad pos="0 1" size="120 1" bgcolor="3afa" />
       <quad pos="0 -140" size="120 1" bgcolor="fffa" />
-      <quad pos="0 0" size="120 140" bgcolor="0009" />
+      <quad pos="0 0" size="120 140" bgcolor="023f" />
 
     </frame>
 	</frame>
 
-  <quad size="320 180" bgcolor="000a" scriptevents="1"/>
+  <!-- this is here to disable other controls from clicking -->
+  <quad size="320 180" bgcolor="0000" scriptevents="1"/>
 </frame>
 
 <script><!-- {% include 'core.views/generics/scripts/includes.Script.Txt' %} --></script>

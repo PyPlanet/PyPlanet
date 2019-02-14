@@ -91,9 +91,9 @@
 
                 if (_Score == 99999999) {
                     if ( Compare > 0 && Compare != 99999999  ) {
-                        Label.Value = "$fff$o" ^ (_Index) ^ " $o$bcc" ^ TimeToText(Compare);
+                        Label.Value = "$fff" ^ (_Index+1) ^ " $bcc" ^ TimeToText(Compare);
                     } else {
-                       Label.Value = "$fff$o" ^ (_Index) ^ " $o$bcc --:--.---";
+                       Label.Value = "$fff" ^ (_Index+1) ^ " $bcc --:--.---";
                     }
                 } else {
                     if (_Score < Compare) {
@@ -104,7 +104,7 @@
                        Color = "$fff";
                     }
                     // Label.Value = "$fff$o" ^ (_Index+1) ^ " $o$bcc" ^ TimeToText(Compare) ^ "$fff" ^ " diff: " ^ Color ^ TimeToText(_Score - Compare);
-                    Label.Value = "$fff$o" ^ (_Index) ^ " $o$bcc" ^ TimeToText(_Score - Compare);
+                    Label.Value = "$fff" ^ (_Index+1) ^ " $bcc" ^ TimeToText(_Score - Compare);
                 }
             }
 
@@ -162,7 +162,7 @@
             }
 
             if (Scores.existskey(0)) {
-                if (Scores[0].BestLap.Time > -1) {
+                if (Scores[0].BestLap.Time > 0) {
                     MapBestTime = Scores[0].BestLap.Time;
                     foreach (k => i in Scores[0].BestLap.Checkpoints) {
                         MapBestCheckpoints[k] = i;
@@ -207,8 +207,7 @@
 
 
                         } else {
-                            if (GUIPlayer == RaceEvent.Player && localVariable.count > 0 &&
-                            MapBestTime != 99999999) {
+                            if (GUIPlayer == RaceEvent.Player && MapBestTime != 99999999) {
                                 if (RaceEvent.IsEndLap && RaceEvent.IsEndRace == False) {
                                     MyCheckpoints = Integer[Integer];
                                     Refresh();
