@@ -274,7 +274,7 @@ class LocalRecordCpCompareListView(ManualListView):
 		self.compare_rank = compare_rank
 
 	async def get_fields(self):
-		own_player = await self.own_record.get_related('player')
+		own_player = await self.own_record.get_related('player') if self.own_record else None
 		compare_player = await self.compare_record.get_related('player')
 
 		return [
@@ -287,7 +287,7 @@ class LocalRecordCpCompareListView(ManualListView):
 				'type': 'label'
 			},
 			{
-				'name': '#{}: $n{}'.format(self.own_rank, style_strip(own_player.nickname)),
+				'name': '#{}: $n{}'.format(self.own_rank, style_strip(own_player.nickname)) if self.own_rank else '-',
 				'index': 'own_time',
 				'sorting': False,
 				'searching': False,
@@ -324,17 +324,18 @@ class LocalRecordCpCompareListView(ManualListView):
 		return '{}{}'.format(diff_prefix, format_time(abs(diff)))
 
 	async def get_data(self):
-		own_cps = [int(c) for c in self.own_record.checkpoints.split(',')]
 		compare_cps = [int(c) for c in self.compare_record.checkpoints.split(',')]
+		own_cps = [int(c) for c in self.own_record.checkpoints.split(',')] \
+			if self.own_record else [0 for _ in compare_cps]
 		total_cps = len(own_cps)
 
 		data = list()
 		for cp, (own, compare) in enumerate(zip(own_cps, compare_cps)):
 			data.append(dict(
 				cp='Finish' if (cp + 1) == total_cps else cp + 1,
-				own_time=format_time(own),
+				own_time=format_time(own) if own else '',
 				compare_time=format_time(compare),
-				difference=self.get_diff_text(own, compare)
+				difference=self.get_diff_text(own, compare) if self.own_record else '-'
 			))
 
 		return data
