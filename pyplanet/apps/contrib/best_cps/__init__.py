@@ -22,7 +22,6 @@ class BestCpTimes(AppConfig):
 		self.widget = None
 
 	async def on_start(self):
-		self.context.signals.listen(tm_signals.waypoint, self.player_cp)
 		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
 		self.context.signals.listen(mp_signals.map.map_begin, self.map_begin)
 		self.context.signals.listen(mp_signals.map.map_start__end, self.map_end)

@@ -1,0 +1,166 @@
+
+#Include "TextLib" as TextLib
+#Include "MathLib" as MathLib
+
+#Struct BestCp {
+    Text nickname;
+    Integer time;
+}
+
+Text FormatSec(Real sec) {
+    if (sec > 10.) {
+        return TextLib::FormatReal(sec,3,False,False);
+    }
+    return  0 ^ TextLib::FormatReal(sec,3,False,False);
+}
+
+Text TimeToText(Integer intime) {
+    declare time = MathLib::Abs(intime);
+    declare Integer cent = time % 1000;
+    declare Integer sec2 = (time / 1000) % 60;
+    declare Real sec = 1. * sec2 + cent * 0.001;
+    declare Integer min = (time / 60000) % 60;
+    declare Integer hour = time / 3600000;
+    declare Text sign = "";
+    if (intime < 0)  {
+        sign = "-";
+    }
+
+    if (hour > 0) {
+        return sign ^ hour ^ "'" ^ TextLib::FormatInteger(min,2) ^ ":" ^ FormatSec(sec);
+    }
+
+    if (min == 0) {
+        return sign ^ "00:" ^ FormatSec(sec);
+    }
+
+    if (min > 10)  {
+        return sign ^ min ^ ":" ^ FormatSec(sec);
+    }
+
+    return sign ^ 0 ^ min ^ ":" ^ FormatSec(sec);
+
+}
+
+Void HideCp(Integer _Index) {
+    (Page.GetFirstChild("CpFrame_"^ _Index) as CMlFrame).RelativeScale = 0.;
+}
+
+
+Void UpdateCp(Integer _Index, Integer _Score, Text _Nickname, Boolean _Animate) {
+    declare ElementCount for Page = 18;
+    if (_Index >= ElementCount) {
+        return;
+    }
+    declare Frame <=> (Page.GetFirstChild("CpFrame_"^ (_Index)) as CMlFrame);
+
+    declare Text Color = "fff";
+    if (_Score == 99999999) {
+        (Frame.Controls[1] as CMlLabel).Value = "" ^ (_Index+1);
+        (Frame.Controls[3] as CMlLabel).Value = "";
+        (Frame.Controls[5] as CMlLabel).Value = "";
+        Frame.RelativeScale = 0.; 
+    } else {
+        (Frame.Controls[1] as CMlLabel).Value = "" ^ (_Index+1);
+        (Frame.Controls[3] as CMlLabel).Value = _Nickname;
+        (Frame.Controls[5] as CMlLabel).Value = TimeToText(_Score);
+    }
+
+    if (_Animate && Frame.RelativeScale == 0.) {
+        AnimMgr.Add(Frame,"<elem scale=\"1.0\" />", 250, CAnimManager::EAnimManagerEasing::ElasticOut2);
+    } else {
+        Frame.RelativeScale = 1.;
+    }
+}
+
+Void Reset() {
+    declare ElementCount for Page = 18;
+    declare BestCp[] MapBestCheckpoints for Page;
+
+    // clear
+    MapBestCheckpoints.clear();
+  
+    for (i, 0, MapCheckpointPos.count+1) {
+        MapBestCheckpoints.add(BestCp{time = 99999999, nickname = ""});
+    }
+
+    // hide checkpoints not needed
+    for (i, (MapCheckpointPos.count), (ElementCount-1)) {
+      HideCp(i);
+    }
+
+    // sync bestCps from scores
+    foreach(_Score in Scores) {
+        for(i, 0, MapCheckpointPos.count-1) {
+            if (_Score.BestLap.Checkpoints.existskey(i)) {
+                if (_Score.BestLap.Checkpoints[i] < MapBestCheckpoints[i].time) {
+                    MapBestCheckpoints[i].time = _Score.BestLap.Checkpoints[i];
+                    MapBestCheckpoints[i].nickname = _Score.User.Name;
+                }               
+            }
+        }
+    }
+    
+    for(i, 0, MapCheckpointPos.count-1) {
+       UpdateCp(i, MapBestCheckpoints[i].time, MapBestCheckpoints[i].nickname, False);
+      
+    }
+
+}
+
+
+main() {
+    declare ElementCount for Page = 18;
+    declare BestCp[] MapBestCheckpoints for Page;
+
+    // -------------- enable distractionFreeMode -------------
+    declare Boolean Prev_DistractionFreeMode = False;
+    declare netwrite Boolean Net_DistractionFreeMode for UI;
+
+    if (Net_DistractionFreeMode == True) {
+      Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+      foreach (Control in Page.GetClassChildren_Result) {
+        Control.Hide();
+      }
+    }
+    // ------------------------
+    Reset();
+
+    while (True) {
+        yield;
+
+    // -------------- enable distractionFreeMode -------------
+    if (Prev_DistractionFreeMode != Net_DistractionFreeMode) {
+        Prev_DistractionFreeMode = Net_DistractionFreeMode;
+
+        if (Net_DistractionFreeMode == True) {
+          Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+          foreach (Control in Page.GetClassChildren_Result) {
+            Control.Hide();
+          }
+        } else {
+          Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+          foreach (Control in Page.GetClassChildren_Result) {
+            Control.Show();
+          }
+        }
+    }
+  // -----------------------
+
+        foreach (RaceEvent in RaceEvents) {
+            if (RaceEvent.Type == CTmRaceClientEvent::EType::WayPoint) {
+                declare cp = RaceEvent.CheckpointInLap;
+                if (RaceEvent.IsEndRace || RaceEvent.IsEndLap) continue;
+                if (cp <= MapBestCheckpoints.count) {
+                    if (RaceEvent.LapTime < MapBestCheckpoints[cp].time) {
+                                MapBestCheckpoints[cp].time = RaceEvent.LapTime;
+                                MapBestCheckpoints[cp].nickname = InputPlayer.User.Name;
+                                UpdateCp(RaceEvent.CheckpointInLap, RaceEvent.LapTime, InputPlayer.User.Name, True);
+                    }
+                }
+            }
+        }  
+    }
+}
+    
+
