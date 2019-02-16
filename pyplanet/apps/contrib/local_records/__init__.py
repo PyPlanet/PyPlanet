@@ -339,18 +339,16 @@ class LocalRecords(AppConfig):
 		async with self.lock:
 			record = [x for x in self.current_records if x.player_id == player.get_id()]
 
-			if not len(record):
-				message = '$0b3You don\'t have a Local Record on this map yet.'
-				return await self.instance.chat(message, player)
-
 			if data.record > len(self.current_records):
 				message = '$0b3There is no record for rank {}!'.format(data.record)
 				return await self.instance.chat(message, player)
 
 			compare_record = self.current_records[data.record - 1]
 
-			record_index = self.current_records.index(record[0])
+			record_index = self.current_records.index(record[0]) if len(record) else None
 			compare_index = self.current_records.index(compare_record)
 
-		view = views.LocalRecordCpCompareListView(self, record[0], record_index, compare_record, compare_index)
+		view = views.LocalRecordCpCompareListView(
+			self, record[0] if len(record) else None, record_index, compare_record, compare_index
+		)
 		await view.display(player)
