@@ -3,7 +3,7 @@ from pyplanet.core.events import Callback, handle_generic
 
 
 async def handle_royal_points(source, signal, **kwargs):
-	player = Controller.instance.player_manager.get_player(login=source['login'])
+	player = await Controller.instance.player_manager.get_player(login=source['login'])
 	return dict(player=player, type=source['type'], points=source['points'])
 
 
