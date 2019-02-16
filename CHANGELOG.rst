@@ -1,6 +1,26 @@
 Changelog
 =========
 
+0.6.4 (xx February 2019)
+------------------------
+
+Core
+~~~~
+
+* Improvement: Upgrade several external libraries.
+* Improvement: Fix English grammar mistake.
+
+* Security: Make sure that the Yaml files are loaded with the safe method.
+
+* Bugfix: Fixing the integer overflow when extending the time limit too much (for TA modes).
+* Bugfix: Make sure to await the coroutine in the royal points callback.
+
+Apps
+~~~~
+
+* Improvement: Make sure the user can use the localcps and dedicps when not having an record (just to view the checkpoint times).
+
+
 0.6.3 (17 November 2018)
 ------------------------
 
