@@ -84,6 +84,17 @@ Functionality:
   Add map from local server disk.
 Required permission:
   ``admin:add_local``, requires admin level 2.
+  
+Open Map browser
+~~~~~~~~~~~~~~~~
+Command: 
+  ``//localmaps``
+Parameters:
+  None.
+Functionality:
+  Opens a browser which can be used to add local maps to the server.
+Required permission:
+  ``admin:localmaps``, requires admin level 3.
 
 Write Map list
 ~~~~~~~~~~~~~~
