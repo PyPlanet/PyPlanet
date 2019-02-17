@@ -387,7 +387,7 @@ class Dedimania(AppConfig):
 				self.player_info[player.login] = p_info
 
 				if await self.setting_chat_welcome.get_value():
-					message = '$0b3This server is running $l[http://dedimania.net/tm2stats/]Dedimania$l, current rank limits: $fff{}$0b3 (server), $fff{}$0b3 (player).'.format(
+					message = '$0b3This server is using $l[http://dedimania.net/tm2stats/]Dedimania$l, current rank limits: $fff{}$0b3 (server), $fff{}$0b3 (player).'.format(
 						int(self.server_max_rank), p_info['max_rank']
 					)
 					await self.instance.chat(message, player)
