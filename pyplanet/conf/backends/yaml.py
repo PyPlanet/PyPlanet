@@ -20,7 +20,7 @@ class YamlConfigBackend(FileConfigBackend):
 			for file_name in self.files:
 				file_path = os.path.join(self.directory, file_name)
 				with open(file_path, 'r') as file_handle:
-					parsed_settings.update(yaml.load(file_handle))
+					parsed_settings.update(yaml.safe_load(file_handle))
 		except (yaml.YAMLError, yaml.MarkedYAMLError) as e:
 			raise ImproperlyConfigured(
 				'Your settings file(s) contain invalid YAML syntax! Please fix and restart!, {}'.format(str(e))

@@ -589,9 +589,5 @@ class Dedimania(AppConfig):
 
 			compare_record = self.current_records[data.record - 1]
 
-		if not len(record):
-			message = '$0b3You don\'t have a Dedimania Record on this map yet.'
-			return await self.instance.chat(message, player)
-
-		view = views.DedimaniaCpCompareListView(self, record[0], compare_record)
+		view = views.DedimaniaCpCompareListView(self, record[0] if len(record) else None, compare_record)
 		await view.display(player)
