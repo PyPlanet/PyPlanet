@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.6.4 (xx February 2019)
+0.6.4 (17 February 2019)
 ------------------------
 
 Core
