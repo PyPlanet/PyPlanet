@@ -1,6 +1,8 @@
 
 #Include "TextLib" as TextLib
 #Include "MathLib" as MathLib
+#Include "ColorLib" as ColorLib
+#Include "AnimLib" as AnimLib
 
 #Struct BestCp {
     Text nickname;
@@ -50,6 +52,8 @@ Void HideCp(Integer _Index) {
 
 Void UpdateCp(Integer _Index, BestCp cpinfo, Boolean _Animate) {
     declare ElementCount for Page = 18;
+    declare CMlQuad[] Animations for Page;
+
     if (_Index >= ElementCount) {
         return;
     }
@@ -65,18 +69,35 @@ Void UpdateCp(Integer _Index, BestCp cpinfo, Boolean _Animate) {
         (Frame.Controls[1] as CMlLabel).Value = "" ^ (_Index+1);
         (Frame.Controls[3] as CMlLabel).Value = cpinfo.nickname;
         declare color = "$ff0";
+        declare Vec3 animColor for Frame.Controls[2];
+        declare Real lightness for Frame.Controls[2];
+        declare Integer start for Frame.Controls[2];
+
+        animColor = ColorLib::RgbToHsv(ColorLib::HexToRgb("ffffff"));
         if (InputPlayer.User.Login == cpinfo.login) {
             color = "$0f3";
+            animColor = ColorLib::RgbToHsv(ColorLib::HexToRgb("00ff33"));
         }
+        lightness = animColor.Z;
+        start = Now;
         (Frame.Controls[5] as CMlLabel).Value = color ^ TimeToText(cpinfo.time);
+        if (_Animate) {
+            (Frame.Controls[2] as CMlQuad).BgColor = animColor;
+            Animations.add((Frame.Controls[2] as CMlQuad));
+        }
     }
-
+    
     if (_Animate && Frame.RelativeScale == 0.) {
-        AnimMgr.Add(Frame,"<elem scale=\"1.0\" />", 250, CAnimManager::EAnimManagerEasing::ElasticOut2);
+        AnimMgr.Add(Frame,"<elem scale=\"1.0\" />", 500, CAnimManager::EAnimManagerEasing::ElasticOut2);
     } else {
         Frame.RelativeScale = 1.;
     }
+
 }
+
+    Real getTween(Real beginning, Real end, Real step) {
+        return beginning + ((step/99) * (end-beginning));
+    }
 
 Void Reset() {
     declare ElementCount for Page = 18;
@@ -121,8 +142,10 @@ Void Reset() {
 
 main() {
     declare ElementCount for Page = 18;
+    declare CMlQuad[] Animations for Page;
     declare BestCp[] MapBestCheckpoints for Page;
     declare CUIConfig::EUISequence LastUiStatus = CUIConfig::EUISequence::None;
+
 
     // -------------- enable distractionFreeMode -------------
     declare Boolean Prev_DistractionFreeMode = False;
@@ -135,41 +158,42 @@ main() {
       }
     }
     // ------------------------
+
     Reset();
 
     while (True) {
         yield;
 
     // check for scene changes, reset on start of playing, hide on podium 
-    if (UI.UISequence != LastUiStatus) {
-        LastUiStatus = UI.UISequence;
-        if (UI.UISequence == CUIConfig::EUISequence::Playing) {
-            Reset();
-        }
-        if (UI.UISequence == CUIConfig::EUISequence::Podium) {
-            for (i, 0, (ElementCount-1)) {
-              HideCp(i);
+        if (UI.UISequence != LastUiStatus) {
+            LastUiStatus = UI.UISequence;
+            if (UI.UISequence == CUIConfig::EUISequence::Playing) {
+                Reset();
+            }
+            if (UI.UISequence == CUIConfig::EUISequence::Podium) {
+                for (i, 0, (ElementCount-1)) {
+                HideCp(i);
+                }
             }
         }
-    }
 
-    // -------------- enable distractionFreeMode -------------
-    if (Prev_DistractionFreeMode != Net_DistractionFreeMode) {
-        Prev_DistractionFreeMode = Net_DistractionFreeMode;
+        // -------------- enable distractionFreeMode -------------
+        if (Prev_DistractionFreeMode != Net_DistractionFreeMode) {
+            Prev_DistractionFreeMode = Net_DistractionFreeMode;
 
-        if (Net_DistractionFreeMode == True) {
-          Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
-          foreach (Control in Page.GetClassChildren_Result) {
-            Control.Hide();
-          }
-        } else {
-          Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
-          foreach (Control in Page.GetClassChildren_Result) {
-            Control.Show();
-          }
+            if (Net_DistractionFreeMode == True) {
+            Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+            foreach (Control in Page.GetClassChildren_Result) {
+                Control.Hide();
+            }
+            } else {
+            Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+            foreach (Control in Page.GetClassChildren_Result) {
+                Control.Show();
+            }
+            }
         }
-    }
-  // -----------------------
+    // -----------------------
 
         foreach (RaceEvent in RaceEvents) {
             if (RaceEvent.Type == CTmRaceClientEvent::EType::WayPoint) {
@@ -185,7 +209,24 @@ main() {
                 }
             }
         }  
+    
+    foreach(Element in Animations) {
+      declare Real lightness for Element = 0.;
+      declare Integer start for Element = Now;
+      declare Vec3 animColor for Element = <0., 0., 0.>;
+    
+      // check for black
+      if (lightness >= 0. ) {
+          lightness = AnimLib::EaseLinear(Now - start, 1., -1., 500);
+          Element.BgColor = ColorLib::HsvToRgb(<animColor.X, animColor.Y, lightness>);
+      } else {
+          Animations.remove(Element);
+      }
+
     }
-}
+
+    } // while
+
+} // main
     
 
