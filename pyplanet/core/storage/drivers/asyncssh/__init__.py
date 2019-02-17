@@ -138,6 +138,18 @@ class SFTPDriver(StorageDriver):
 		async with self.connect_sftp() as sftp:
 			return await sftp.exists(self.absolute(path))
 
+	async def is_file(self, path: str, **kwargs):
+		async with self.connect_sftp() as sftp:
+			return await sftp.isfile(self.absolute(path))
+
+	async def is_dir(self, path: str, **kwargs):
+		async with self.connect_sftp() as sftp:
+			return await sftp.isdir(self.absolute(path))
+
+	async def is_link(self, path: str, **kwargs):
+		async with self.connect_sftp() as sftp:
+			return await sftp.islink(self.absolute(path))
+
 	async def touch(self, path: str, **kwargs):
 		async with self.connect_sftp() as sftp:
 			async with sftp.open(self.absolute(path), 'w+') as fh:
