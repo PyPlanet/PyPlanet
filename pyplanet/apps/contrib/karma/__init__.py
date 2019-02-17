@@ -31,7 +31,7 @@ class Karma(AppConfig):
 
 		self.setting_expanded_voting = Setting(
 			'expanded_voting', 'Expanded voting', Setting.CAT_BEHAVIOUR, type=bool,
-			description='Expands the karma voting to use --, -, +-, + and ++.',
+			description='Expands the karma voting to also use ---, -, +-, + and +++.',
 			default=False
 		)
 
@@ -135,10 +135,10 @@ class Karma(AppConfig):
 
 	async def player_chat(self, player, text, cmd):
 		if not cmd:
-			if text == '++' or text == '+' or text == '+-' or text == '-+' or text == '-' or text == '--':
+			if text == '+++' or text == '++' or text == '+' or text == '+-' or text == '-+' or text == '-' or text == '--' or text == '---':
 				expanded_voting = await self.setting_expanded_voting.get_value()
 				if expanded_voting is False:
-					if text == '+' or text == '+-' or text == '-+' or text == '-':
+					if text == '+++' or text == '+' or text == '+-' or text == '-+' or text == '-' or text == '---':
 						return
 
 				if self.instance.game.game == 'tm':
@@ -151,7 +151,7 @@ class Karma(AppConfig):
 
 				normal_score = -1
 				score = -1
-				if text == '++':
+				if text == '++' or text == '+++':
 					normal_score = 1
 					score = 1
 				elif text == '+':
@@ -175,7 +175,9 @@ class Karma(AppConfig):
 						if map is not None:
 							map.karma = await self.get_map_karma(self.instance.map_manager.current_map)
 
-						message = '$ff0Successfully changed your karma vote to $fff{}$ff0!'.format(text)
+						message = '$ff0Successfully changed your karma vote to $fff{}$ff0{}!'.format(text,
+							(' (same as $fff{}$ff0)'.format(text[:2]) if text == '+++' or text == '---' else '')
+						)
 						await self.calculate_karma()
 						await asyncio.gather(
 							self.instance.chat(message, player),
@@ -192,7 +194,9 @@ class Karma(AppConfig):
 					if map is not None:
 						map.karma = await self.get_map_karma(self.instance.map_manager.current_map)
 
-					message = '$ff0Successfully voted $fff{}$ff0!'.format(text)
+					message = '$ff0Successfully voted $fff{}$ff0{}!'.format(text,
+						(' (same as $fff{}$ff0)'.format(text[:2]) if text == '+++' or text == '---' else '')
+					)
 					await asyncio.gather(
 						self.instance.chat(message, player),
 						self.widget.display()
