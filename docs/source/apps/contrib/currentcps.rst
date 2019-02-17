@@ -1,5 +1,5 @@
-Best CPs
-=============
+Current CPs
+===========
 
 Information
 -----------
