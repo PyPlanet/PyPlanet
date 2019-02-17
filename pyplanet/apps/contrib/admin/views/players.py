@@ -35,7 +35,7 @@ class PlayerListView(ManualListView):
 				'index': 'login',
 				'sorting': False,
 				'searching': True,
-				'width': 50,
+				'width': 40,
 				'type': 'label',
 			},
 			{
@@ -93,6 +93,14 @@ class PlayerListView(ManualListView):
 				'safe': True,
 			},
 			{
+				'name': 'Warn',
+				'type': 'label',
+				'text': 'Warn',
+				'width': 12,
+				'action': self.action_warn,
+				'safe': True,
+			},
+			{
 				'name': 'Kick',
 				'type': 'label',
 				'text': 'Kick',
@@ -138,6 +146,9 @@ class PlayerListView(ManualListView):
 		else:
 			await self.app.instance.command_manager.execute(user, '//unignore', player['login'])
 		await self.refresh(self.player)
+
+	async def action_warn(self, user, values, player, *args, **kwargs):
+		await self.app.instance.command_manager.execute(user, '//warn', player['login'])
 
 	async def action_kick(self, user, values, player, *args, **kwargs):
 		await self.app.instance.command_manager.execute(user, '//kick', player['login'])
