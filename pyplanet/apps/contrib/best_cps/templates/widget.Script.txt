@@ -78,10 +78,11 @@ Void UpdateCp(Integer _Index, BestCp cpinfo, Boolean _Animate) {
             color = "$0f3";
             animColor = ColorLib::RgbToHsv(ColorLib::HexToRgb("00ff33"));
         }
-        lightness = animColor.Z;
-        start = Now;
         (Frame.Controls[5] as CMlLabel).Value = color ^ TimeToText(cpinfo.time);
+       
         if (_Animate) {
+            lightness = animColor.Z;
+            start = Now;
             (Frame.Controls[2] as CMlQuad).BgColor = animColor;
             Animations.add((Frame.Controls[2] as CMlQuad));
         }
