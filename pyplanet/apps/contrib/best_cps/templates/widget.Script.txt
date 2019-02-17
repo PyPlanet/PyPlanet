@@ -5,6 +5,7 @@
 #Struct BestCp {
     Text nickname;
     Integer time;
+    Text login;
 }
 
 Text FormatSec(Real sec) {
@@ -47,7 +48,7 @@ Void HideCp(Integer _Index) {
 }
 
 
-Void UpdateCp(Integer _Index, Integer _Score, Text _Nickname, Boolean _Animate) {
+Void UpdateCp(Integer _Index, BestCp cpinfo, Boolean _Animate) {
     declare ElementCount for Page = 18;
     if (_Index >= ElementCount) {
         return;
@@ -55,15 +56,19 @@ Void UpdateCp(Integer _Index, Integer _Score, Text _Nickname, Boolean _Animate) 
     declare Frame <=> (Page.GetFirstChild("CpFrame_"^ (_Index)) as CMlFrame);
 
     declare Text Color = "fff";
-    if (_Score == 99999999) {
+    if (cpinfo.time == 99999999) {
         (Frame.Controls[1] as CMlLabel).Value = "" ^ (_Index+1);
         (Frame.Controls[3] as CMlLabel).Value = "";
         (Frame.Controls[5] as CMlLabel).Value = "";
         Frame.RelativeScale = 0.; 
     } else {
         (Frame.Controls[1] as CMlLabel).Value = "" ^ (_Index+1);
-        (Frame.Controls[3] as CMlLabel).Value = _Nickname;
-        (Frame.Controls[5] as CMlLabel).Value = TimeToText(_Score);
+        (Frame.Controls[3] as CMlLabel).Value = cpinfo.nickname;
+        declare color = "$ff0";
+        if (InputPlayer.User.Login == cpinfo.login) {
+            color = "$0f3";
+        }
+        (Frame.Controls[5] as CMlLabel).Value = color ^ TimeToText(cpinfo.time);
     }
 
     if (_Animate && Frame.RelativeScale == 0.) {
@@ -83,6 +88,11 @@ Void Reset() {
     for (i, 0, MapCheckpointPos.count+1) {
         MapBestCheckpoints.add(BestCp{time = 99999999, nickname = ""});
     }
+    
+    // enable all checkpoints
+    for (i, 0, (ElementCount-1)) {
+       (Page.GetFirstChild("CpFrame_"^i) as CMlFrame).RelativeScale = 1.;
+    }
 
     // hide checkpoints not needed
     for (i, (MapCheckpointPos.count), (ElementCount-1)) {
@@ -96,14 +106,14 @@ Void Reset() {
                 if (_Score.BestLap.Checkpoints[i] < MapBestCheckpoints[i].time) {
                     MapBestCheckpoints[i].time = _Score.BestLap.Checkpoints[i];
                     MapBestCheckpoints[i].nickname = _Score.User.Name;
+                    MapBestCheckpoints[i].login = _Score.User.Login; 
                 }               
             }
         }
     }
     
     for(i, 0, MapCheckpointPos.count-1) {
-       UpdateCp(i, MapBestCheckpoints[i].time, MapBestCheckpoints[i].nickname, False);
-      
+       UpdateCp(i, MapBestCheckpoints[i], False);
     }
 
 }
@@ -112,6 +122,7 @@ Void Reset() {
 main() {
     declare ElementCount for Page = 18;
     declare BestCp[] MapBestCheckpoints for Page;
+    declare CUIConfig::EUISequence LastUiStatus = CUIConfig::EUISequence::None;
 
     // -------------- enable distractionFreeMode -------------
     declare Boolean Prev_DistractionFreeMode = False;
@@ -128,6 +139,19 @@ main() {
 
     while (True) {
         yield;
+
+    // check for scene changes, reset on start of playing, hide on podium 
+    if (UI.UISequence != LastUiStatus) {
+        LastUiStatus = UI.UISequence;
+        if (UI.UISequence == CUIConfig::EUISequence::Playing) {
+            Reset();
+        }
+        if (UI.UISequence == CUIConfig::EUISequence::Podium) {
+            for (i, 0, (ElementCount-1)) {
+              HideCp(i);
+            }
+        }
+    }
 
     // -------------- enable distractionFreeMode -------------
     if (Prev_DistractionFreeMode != Net_DistractionFreeMode) {
@@ -154,8 +178,9 @@ main() {
                 if (cp <= MapBestCheckpoints.count) {
                     if (RaceEvent.LapTime < MapBestCheckpoints[cp].time) {
                                 MapBestCheckpoints[cp].time = RaceEvent.LapTime;
-                                MapBestCheckpoints[cp].nickname = InputPlayer.User.Name;
-                                UpdateCp(RaceEvent.CheckpointInLap, RaceEvent.LapTime, InputPlayer.User.Name, True);
+                                MapBestCheckpoints[cp].nickname = RaceEvent.Player.User.Name;
+                                MapBestCheckpoints[cp].login = RaceEvent.Player.User.Login;
+                                UpdateCp(RaceEvent.CheckpointInLap, MapBestCheckpoints[cp], True);
                     }
                 }
             }
