@@ -11,9 +11,7 @@
 }
 
 Text FormatSec(Real sec) {
-    if (sec > 10.) {
-        return TextLib::FormatReal(sec,3,False,False);
-    }
+    if (sec > 10.) return TextLib::FormatReal(sec,3,False,False);
     return  0 ^ TextLib::FormatReal(sec,3,False,False);
 }
 
@@ -25,22 +23,10 @@ Text TimeToText(Integer intime) {
     declare Integer min = (time / 60000) % 60;
     declare Integer hour = time / 3600000;
     declare Text sign = "";
-    if (intime < 0)  {
-        sign = "-";
-    }
-
-    if (hour > 0) {
-        return sign ^ hour ^ "'" ^ TextLib::FormatInteger(min,2) ^ ":" ^ FormatSec(sec);
-    }
-
-    if (min == 0) {
-        return sign ^ "00:" ^ FormatSec(sec);
-    }
-
-    if (min > 10)  {
-        return sign ^ min ^ ":" ^ FormatSec(sec);
-    }
-
+    if (intime < 0) sign = "-";
+    if (hour > 0) return sign ^ hour ^ "'" ^ TextLib::FormatInteger(min,2) ^ ":" ^ FormatSec(sec);
+    if (min == 0) return sign ^ "00:" ^ FormatSec(sec);
+    if (min > 10)  return sign ^ min ^ ":" ^ FormatSec(sec);
     return sign ^ 0 ^ min ^ ":" ^ FormatSec(sec);
 
 }
@@ -66,8 +52,6 @@ Void UpdateCp(Integer _Index, BestCp cpinfo, Boolean _Animate) {
         (Frame.Controls[5] as CMlLabel).Value = "";
         Frame.RelativeScale = 0.; 
     } else {
-        (Frame.Controls[1] as CMlLabel).Value = "" ^ (_Index+1);
-        (Frame.Controls[3] as CMlLabel).Value = cpinfo.nickname;
         declare color = "$ff0";
         declare Vec3 animColor for Frame.Controls[2];
         declare Real lightness for Frame.Controls[2];
@@ -78,35 +62,35 @@ Void UpdateCp(Integer _Index, BestCp cpinfo, Boolean _Animate) {
             color = "$0f3";
             animColor = ColorLib::RgbToHsv(ColorLib::HexToRgb("00ff33"));
         }
+
+        (Frame.Controls[1] as CMlLabel).Value = "" ^ (_Index+1);
+        (Frame.Controls[3] as CMlLabel).Value = cpinfo.nickname;     
         (Frame.Controls[5] as CMlLabel).Value = color ^ TimeToText(cpinfo.time);
        
         if (_Animate) {
             lightness = animColor.Z;
             start = Now;
-            (Frame.Controls[2] as CMlQuad).BgColor = animColor;
-            Animations.add((Frame.Controls[2] as CMlQuad));
+            declare elem <=> (Frame.Controls[2] as CMlQuad);
+            elem.BgColor = animColor;
+            if (!Animations.exists(elem)) {
+                Animations.add(elem);
+            }
         }
     }
     
-    if (_Animate && Frame.RelativeScale == 0.) {
-        AnimMgr.Add(Frame,"<elem scale=\"1.0\" />", 500, CAnimManager::EAnimManagerEasing::ElasticOut2);
-    } else {
+    if (Frame.RelativeScale == 0.) {
         Frame.RelativeScale = 1.;
     }
-
 }
-
-    Real getTween(Real beginning, Real end, Real step) {
-        return beginning + ((step/99) * (end-beginning));
-    }
 
 Void Reset() {
     declare ElementCount for Page = 18;
     declare BestCp[] MapBestCheckpoints for Page;
+    declare CMlQuad[] Animations for Page;
 
     // clear
+    Animations.clear();
     MapBestCheckpoints.clear();
-  
     for (i, 0, MapCheckpointPos.count+1) {
         MapBestCheckpoints.add(BestCp{time = 99999999, nickname = ""});
     }
