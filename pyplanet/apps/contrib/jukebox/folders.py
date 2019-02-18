@@ -2,6 +2,7 @@ import datetime
 
 from pyplanet.apps.core.maniaplanet.models import Player, Map
 from pyplanet.apps.contrib.jukebox.views import FolderListView, FolderMapListView
+from pyplanet.contrib.setting import Setting
 
 from .models import MapFolder as Folders, MapInFolder
 
@@ -20,9 +21,21 @@ class FolderManager:
 
 		:return:
 		"""
+		await self.update_folders()
+
+	async def update_folders(self, *args, **kwargs):
+		"""
+		Update the auto-folders.
+
+		:return:
+		"""
+		# Prepare variables.
 		self.auto_folders = list()
 
-		self.auto_folders.append({'id': 'newest', 'name': 'Newest maps (last 14 days)', 'owner': 'PyPlanet', 'type': 'auto'})
+		days_filter = await self.app.setting_newest_days_range.get_value()
+		self.auto_folders.append({
+			'id': 'newest', 'name': 'Newest maps (last {} days)'.format(days_filter), 'owner': 'PyPlanet', 'type': 'auto'
+		})
 
 		if 'local_records' in self.app.instance.apps.apps:
 			self.auto_folders.append({'id': 'local_none', 'name': 'Map record: none', 'owner': 'PyPlanet', 'type': 'auto'})
@@ -131,7 +144,8 @@ class FolderManager:
 		folder_instance = None
 
 		if folder['id'] == 'newest':
-			filter_from = datetime.datetime.now() - datetime.timedelta(days=14)
+			days_ago = await self.app.setting_newest_days_range.get_value()
+			filter_from = datetime.datetime.now() - datetime.timedelta(days=days_ago)
 			map_list = [m for m in self.app.instance.map_manager.maps if m.created_at > filter_from]
 		elif folder['id'] == 'local_none':
 			map_list = [m for m in self.app.instance.map_manager.maps if hasattr(m, 'local') and m.local['record_count'] == 0]
