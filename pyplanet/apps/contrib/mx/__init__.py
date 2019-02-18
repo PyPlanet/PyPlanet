@@ -54,13 +54,15 @@ class MX(AppConfig):  # pragma: no cover
 				"api": "on",
 				"mode": 0,
 				"gv": 1,
-				"limit": 100
+				"limit": 100,
+				"tpack": self.instance.game.dedicated_title.split("@",1)[0]
 			}
 			term = ""
 			if data.arg is not None:
 				term = " ".join(data.arg)
 				options['trackname'] = term
 
+			print(options)
 			infos = await self.api.search(options)
 			if len(infos) == 0:
 				raise MXMapNotFound("No results for search term: {}".format(term))
