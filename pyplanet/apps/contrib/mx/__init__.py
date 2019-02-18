@@ -44,6 +44,8 @@ class MX(AppConfig):  # pragma: no cover
 				.add_param('arg', nargs='*', type=str, required=False, help='MX map search'),
 			Command(command='add', namespace='mx', target=self.add_mx_map, perms='mx:add_remote', admin=True)
 				.add_param('maps', nargs='*', type=str, required=True, help='MX ID(s) of maps to add.'),
+			Command(command='mx', namespace='add', target=self.add_mx_map, perms='mx:add_remote', admin=True)
+				.add_param('maps', nargs='*', type=str, required=True, help='MX ID(s) of maps to add.'),
 		)
 
 	async def search_mx_map(self, player, data, **kwargs):
