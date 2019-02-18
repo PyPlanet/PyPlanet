@@ -3,6 +3,7 @@ import os
 
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.mx.api import MXApi
+from pyplanet.apps.contrib.mx.views.mxsearch import MxSearchListView
 from pyplanet.apps.contrib.mx.exceptions import MXMapNotFound, MXInvalidResponse
 from pyplanet.contrib.command import Command
 from pyplanet.contrib.setting import Setting
@@ -32,14 +33,48 @@ class MX(AppConfig):  # pragma: no cover
 		await self.api.create_session()
 
 	async def on_start(self):
-		await self.instance.permission_manager.register('add_remote', 'Add map from remote source (such as MX)', app=self, min_level=2)
+		await self.instance.permission_manager.register('add_remote', 'Add map from remote source (such as MX)',
+														app=self, min_level=2)
 		await self.context.setting.register(
 			self.setting_mx_key
 		)
+
 		await self.instance.command_manager.register(
-			Command(command='mx', namespace='add', target=self.add_mx_map, perms='mx:add_remote', admin=True)
+			Command(command='search', namespace='mx', target=self.search_mx_map, perms='mx:add_remote', admin=True)
+				.add_param('arg', nargs='*', type=str, required=False, help='MX map search'),
+			Command(command='add', namespace='mx', target=self.add_mx_map, perms='mx:add_remote', admin=True)
 				.add_param('maps', nargs='*', type=str, required=True, help='MX ID(s) of maps to add.'),
-				)
+		)
+
+	async def search_mx_map(self, player, data, **kwargs):
+		self.api.key = await self.setting_mx_key.get_value()
+
+		try:
+			options = {
+				"api": "on",
+				"mode": 0,
+				"gv": 1,
+				"limit": 100
+			}
+			term = ""
+			if data.arg is not None:
+				term = " ".join(data.arg)
+				options['trackname'] = term
+
+			infos = await self.api.search(options)
+			if len(infos) == 0:
+				raise MXMapNotFound("No results for search term: {}".format(term))
+		except MXMapNotFound as e:
+			message = '$ff0Error: {}'.format(str(e))
+			await self.instance.chat(message, player)
+			return
+		except MXInvalidResponse as e:
+			message = '$ff0Error: Got invalid response from ManiaExchange: {}'.format(str(e))
+			await self.instance.chat(message, player.login)
+			return
+
+		view = MxSearchListView(self, player, infos)
+		await view.display()
 
 	async def add_mx_map(self, player, data, **kwargs):
 		# Make sure we update the key in the api.
@@ -70,7 +105,8 @@ class MX(AppConfig):  # pragma: no cover
 			return
 
 		# Fetch setting if juke after adding is enabled.
-		juke_after_adding = await self.instance.setting_manager.get_setting('admin', 'juke_after_adding', prefetch_values=True)
+		juke_after_adding = await self.instance.setting_manager.get_setting('admin', 'juke_after_adding',
+																			prefetch_values=True)
 		juke_maps = await juke_after_adding.get_value()
 		if 'jukebox' not in self.instance.apps.apps:
 			juke_maps = False
