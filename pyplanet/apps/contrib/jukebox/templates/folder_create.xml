@@ -5,10 +5,9 @@
 
   {{ ui.button("✖", id+"__button_close", 49, 59, 6,6, "d00") }} >
 
-  <quad pos="0 62.5" size="120 127" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList" scriptevents="1" />
-  <quad pos="0 61.5" size="118 11" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
+  <quad pos="0 62.5" size="120 127" halign="center" valign="top" style="Bgs1InRace" substyle="BgSystemBar" opacity="0.9" scriptevents="1" />
 
-  <frame pos="-54.5 45 0" id="folder_body" z-index="70">
+    <frame pos="-54.5 45 0" id="folder_body" z-index="70">
     <label pos="0 0" size="30 5" text="$fff$oName" textsize="1.2" valign="top"/>
     <entry pos="30 0" size="75 4" name="folder_name" id="folder_name"
            textsize="1.2" scriptevents="1" focusareacolor1="0003" focusareacolor2="FFF2"/>

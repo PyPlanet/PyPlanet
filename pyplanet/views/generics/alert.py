@@ -18,8 +18,8 @@ class AlertView(TemplateView):
 
 	SIZES = dict(
 		sm={
-			'top__pos': '0 12',
-			'top__size': '120 1',
+			'top__pos': '0 12.5',
+			'top__size': '126 7',
 			'box__size': '120 25',
 			'bottom__pos': '0 -12',
 			'bottom__size': '120 1',
@@ -32,7 +32,7 @@ class AlertView(TemplateView):
 		},
 		md={
 			'top__pos': '0 25',
-			'top__size': '150 1',
+			'top__size': '156 7',
 			'box__size': '150 50',
 			'bottom__pos': '0 -24',
 			'bottom__size': '150 1',
@@ -45,7 +45,7 @@ class AlertView(TemplateView):
 		},
 		lg={
 			'top__pos': '0 55',
-			'top__size': '206.5 1',
+			'top__size': '212.5 7',
 			'box__size': '200 100',
 			'bottom__pos': '0 -50',
 			'bottom__size': '200 1',
@@ -173,7 +173,7 @@ class PromptView(AlertView):
 	SIZES = dict(
 		sm={
 			'top__pos': '0 20',
-			'top__size': '120 1',
+			'top__size': '126 7',
 			'box__size': '120 40',
 			'bottom__pos': '0 -20',
 			'bottom__size': '120 1',
@@ -188,7 +188,7 @@ class PromptView(AlertView):
 		},
 		md={
 			'top__pos': '0 34',
-			'top__size': '150 1',
+			'top__size': '156 7',
 			'box__size': '150 67',
 			'bottom__pos': '0 -34',
 			'bottom__size': '150 1',
@@ -203,7 +203,7 @@ class PromptView(AlertView):
 		},
 		lg={
 			'top__pos': '0 62',
-			'top__size': '200 1',
+			'top__size': '206 7',
 			'box__size': '200 125',
 			'bottom__pos': '0 -62',
 			'bottom__size': '200 1',

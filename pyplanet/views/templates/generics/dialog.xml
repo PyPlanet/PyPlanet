@@ -14,8 +14,7 @@
         {% block contents %} {% endblock %}
       </frame>
 
-      <quad pos="60 0" size="120 140" bgcolor="0003" halign="center"/>
-      <quad pos="60 0" size="120 140" halign="center" style="Bgs1" substyle="BgDialogBlur" bluramount="0.1"/>
+      <quad pos="60 0" size="120 140" style="Bgs1" substyle="BgSystemBar" opacity="0.9" halign="center"/>
 
     </frame>
 	</frame>
