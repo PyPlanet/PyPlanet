@@ -5,12 +5,12 @@
     {% for time in times %}
       <frame pos="0 -{{ (loop.index0 * 3.45) }}" scale="0.8">
         <label pos="5 0" size="10 4" text="{{ time.index }}" textsize="1" textcolor="{{ time.color }}" valign="bottom"
-                   textfont="Gotham/Gotham-Bold" opacity="1" focusareacolor1="0000" focusareacolor2="0000"
+                   textfont="RajdhaniMono" opacity="1" focusareacolor1="0000" focusareacolor2="0000"
                    halign="center" textprefix="#" textemboss="1"/>
-            <label pos="10 0" size="35 4" text="{{ time.nickname }}" textsize="1" textcolor="{{ time.color }}" textfont="Gotham/Gotham-Medium"
+            <label pos="10 0" size="35 4" text="{{ time.nickname }}" textsize="1" textcolor="{{ time.color }}" textfont="RajdhaniMono"
                    opacity="1" focusareacolor1="0000" focusareacolor2="0000" valign="bottom" halign="left" textemboss="1"/>
 
-            <label pos="50 0" size="20 4" text="{{ time.score }}" textsize="1" textcolor="{{ time.color }}" textfont="Gotham/Gotham-Medium"
+            <label pos="50 0" size="20 4" text="{{ time.score }}" textsize="1" textcolor="{{ time.color }}" textfont="RajdhaniMono"
                    opacity="1" focusareacolor1="0000" focusareacolor2="0000" valign="bottom" halign="left" textemboss="1"/>
       </frame>
     {% endfor %}

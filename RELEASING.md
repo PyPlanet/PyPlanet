@@ -7,7 +7,7 @@
 * [ ] Check the Travis CI build status of the ``master`` branch.
 * [ ] Make sure we update the version number according to Semver 2.0.0.
 * [ ] Update `CHANGELOG.rst`.
-* [ ] Bump version with `bumpversion --new-version 0.6.0` (this will commit the changes directly).
+* [ ] Bump version with `bumpversion --new-version 0.6.0 final` (this will commit the changes directly).
 * [ ] (Only when manually updating, not using bumpversion) Update documentation version `conf.py` and `__init__.py` in PyPlanet root folder.
 * [ ] Run build commands with `make build` and test the cli with pip installation.
 * [ ] Create new branch for the big releases (if major/minor update, not for bugfix):

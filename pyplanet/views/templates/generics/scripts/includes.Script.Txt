@@ -2,6 +2,6 @@
 #Include "TextLib" as TextLib
 #Include "MathLib" as MathLib
 #Include "AnimLib" as AnimLib
-#Include "TextLib" as TL
-#Include "MathLib" as ML
-#Include "AnimLib" as AL
+#Include "ColorLib" as ColorLib
+#Include "AnimLib" as AnimLib
+

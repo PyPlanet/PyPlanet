@@ -63,11 +63,11 @@ Void UpdateInterface() {
     if (Difference > 0) {
       DifferencePrefix = "$C30";
       DifferenceIcon = ""; // Down. &#xf107;
-      DifferenceBackgroundColor = TL::ToColor("C30"); // Red
+      DifferenceBackgroundColor = TextLib::ToColor("C30"); // Red
     } else if (Difference < 0) {
       DifferencePrefix = "$02F";
       DifferenceIcon = ""; // Up. &#xf105;
-      DifferenceBackgroundColor = TL::ToColor("02F"); // Blue
+      DifferenceBackgroundColor = TextLib::ToColor("02F"); // Blue
     }
   }
 
@@ -97,13 +97,13 @@ Void UpdateInterface() {
 }
 
 Integer[] ParseCheckpoints(Text RawInput) {
-  if (TL::Length(RawInput) == 0) {
+  if (TextLib::Length(RawInput) == 0) {
     return Integer[];
   }
   declare Integer[] Output;
-  declare Text[] Checkpoints = TL::Split(",", RawInput);
+  declare Text[] Checkpoints = TextLib::Split(",", RawInput);
   foreach (Check in Checkpoints) {
-    Output.add(TL::ToInteger(Check));
+    Output.add(TextLib::ToInteger(Check));
   }
   return Output;
 }
@@ -125,7 +125,7 @@ Integer[] ParseCheckpoints(Text RawInput) {
   Sector_SectorDiff_IconBg = (Page.GetFirstChild("sector_time_diff_iconbg") as CMlQuad);
 
   // Score + cps from the records.
-  BestScore = TL::ToInteger(Sector_SectorTime_Text.DataAttributeGet("record"));
+  BestScore = TextLib::ToInteger(Sector_SectorTime_Text.DataAttributeGet("record"));
   BestCheckpoints = ParseCheckpoints(Sector_SectorTime_Text.DataAttributeGet("record-sectors"));
   BestSource = Sector_SectorTime_Text.DataAttributeGet("record-source");
 

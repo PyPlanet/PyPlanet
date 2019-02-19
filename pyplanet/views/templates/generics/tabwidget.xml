@@ -8,11 +8,11 @@
       {% if title %}
           <quad pos="0 -5" z-index="0" size="50 0.25" bgcolor="0ff" valign="bottom" opacity="1"/>
           {% if open_action %}
-          <label pos="25 -3" z-index="1" size="50 6" text="{{ title }}" textfont="gotham/gotham-medium" textsize="1"
+          <label pos="25 -3" z-index="1" size="50 6" text="{{ title }}" textfont="RajdhaniMono" textsize="1"
                  textemboss="1" halign="center" valign="center2" focusareacolor1="0000" focusareacolor2="0000"
                  action="{{ id }}__open_widget" scriptevents="1"/>
           {% else %}
-          <label pos="25 -3" z-index="1" size="50 6" text="{{ title }}" textfont="gotham/gotham-medium" textsize="1"
+          <label pos="25 -3" z-index="1" size="50 6" text="{{ title }}" textfont="RajdhaniMono" textsize="1"
                  textemboss="1" focusareacolor1="0000" focusareacolor2="0000" halign="center" valign="center2"/>
           {% endif %}
       {% endif %}

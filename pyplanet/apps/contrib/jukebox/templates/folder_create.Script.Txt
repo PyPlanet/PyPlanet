@@ -1,31 +1,26 @@
 ***OnInit***
 ***
-declare Entry_FolderName_Value <=> (Page.GetFirstChild("folder_name") as CMlEntry);
-declare Entry_FolderPrivacy_Value <=> (Page.GetFirstChild("folder_privacy") as CMlEntry);
-declare Entry_AdminStatus_Value <=> (Page.GetFirstChild("folder_is_admin") as CMlEntry);
+declare Cb_Public  <=> (Page.GetFirstChild("cb_public") as CMlFrame);
+declare Cb_Private <=> (Page.GetFirstChild("cb_private") as CMlFrame);
 
-declare Quad_FolderPrivacy_Public_Boolean <=> (Page.GetFirstChild("folder_privacy_public") as CMlQuad);
-declare Quad_FolderPrivacy_Private_Boolean <=> (Page.GetFirstChild("folder_privacy_private") as CMlQuad);
+declare Entry_FolderPrivacy_Value <=> (Page.GetFirstChild("folder_privacy") as CMlEntry);
+Entry_FolderPrivacy_Value.Value = "public";
+
 ***
 
 ***OnMouseClick***
 ***
-    if (Event.ControlId == "folder_privacy_public") {
-      // Check Admin status
-      if (Entry_AdminStatus_Value.Value == "1") {
-        // Uncheck other one.
-        Quad_FolderPrivacy_Private_Boolean.StyleSelected = False;
-        Quad_FolderPrivacy_Public_Boolean.StyleSelected = True;
-
-        Entry_FolderPrivacy_Value.Value = "public";
-      }
+if (Event.Control.HasClass("uiCheckboxElement") ) {
+    if (Event.Control.Parent.HasClass("uiCheckbox")) {
+        if (Event.Control.Parent.ControlId == "cb_public") {
+            Entry_FolderPrivacy_Value.Value = "public";
+            uiSetCheckbox(Cb_Private, False);
+            uiSetCheckbox(Cb_Public, True);
+        } else {
+            Entry_FolderPrivacy_Value.Value = "private";
+            uiSetCheckbox(Cb_Private, True);
+            uiSetCheckbox(Cb_Public, False);
+        }
     }
-
-    if (Event.ControlId == "folder_privacy_private") {
-      // Uncheck other one.
-      Quad_FolderPrivacy_Private_Boolean.StyleSelected = True;
-      Quad_FolderPrivacy_Public_Boolean.StyleSelected = False;
-
-      Entry_FolderPrivacy_Value.Value = "private";
-    }
+}
 ***

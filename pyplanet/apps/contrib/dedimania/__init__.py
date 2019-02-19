@@ -61,6 +61,11 @@ class Dedimania(AppConfig):
 			default=None, change_target=self.reload_settings
 		)
 
+		self.setting_chat_welcome = Setting(
+			'chat_welcome', 'Display welcome message', Setting.CAT_BEHAVIOUR, type=bool,
+			description='Whether to display a welcome message indicating the ranking limits (server and player).',
+			default=False
+		)
 		self.setting_chat_announce = Setting(
 			'chat_announce', 'Minimum index for chat announce', Setting.CAT_BEHAVIOUR, type=int,
 			description='Minimum record index needed for public new record/recordchange announcement (0 for disable).',
@@ -82,7 +87,8 @@ class Dedimania(AppConfig):
 	async def on_start(self):
 		# Init settings.
 		await self.context.setting.register(
-			self.setting_server_login, self.setting_dedimania_code, self.setting_chat_announce, self.setting_sent_announce,
+			self.setting_server_login, self.setting_dedimania_code,
+			self.setting_chat_welcome, self.setting_chat_announce, self.setting_sent_announce
 		)
 
 		# Load settings + initiate api.
@@ -379,6 +385,13 @@ class Dedimania(AppConfig):
 			)
 			if p_info:
 				self.player_info[player.login] = p_info
+
+				if await self.setting_chat_welcome.get_value():
+					message = '$0b3This server is using $l[http://dedimania.net/tm2stats/]Dedimania$l, current rank limits: $fff{}$0b3 (server), $fff{}$0b3 (player).'.format(
+						int(self.server_max_rank), p_info['max_rank']
+					)
+					await self.instance.chat(message, player)
+
 		except ConnectionRefusedError:
 			return
 		except TimeoutError:
@@ -589,9 +602,5 @@ class Dedimania(AppConfig):
 
 			compare_record = self.current_records[data.record - 1]
 
-		if not len(record):
-			message = '$0b3You don\'t have a Dedimania Record on this map yet.'
-			return await self.instance.chat(message, player)
-
-		view = views.DedimaniaCpCompareListView(self, record[0], compare_record)
+		view = views.DedimaniaCpCompareListView(self, record[0] if len(record) else None, compare_record)
 		await view.display(player)

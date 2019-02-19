@@ -12,12 +12,12 @@
       <entry pos="{{ sizes.input__pos }}" size="{{ sizes.input__size }}" halign="center" valign="center2" textsize="2" textcolor="FFF" default="{{ default }}" name="prompt_value" z-index="560" />
 
     {% if buttons|length >= 2 %}
-        {{ ui.button(buttons[0].name, id+"__button_0", sizes.button_0__pos__left, sizes.button_0__pos__top, 26, 5, "0d0") }}
-        {{ ui.button(buttons[1].name, id+"__button_1", sizes.button_1__pos__left, sizes.button_1__pos__top, 26, 5, "d00") }}
+        {{ ui.decoratedbutton(buttons[0].name, id+"__button_0", sizes.button_0__pos__left, sizes.button_0__pos__top, 26, 5) }}
+        {{ ui.decoratedbutton(buttons[1].name, id+"__button_1", sizes.button_1__pos__left, sizes.button_1__pos__top, 26, 5) }}
       {% elif buttons|length == 1 %}
-        {{ ui.button(buttons[0].name, id+"__button_0", sizes.button_0__pos__left, sizes.button_0__pos__top, 26, 5, "0d0") }}
+        {{ ui.decoratedbutton(buttons[0].name, id+"__button_0", sizes.button_0__pos__left, sizes.button_0__pos__top, 26, 5) }}
       {% else %}
-        {{ ui.button("Ok", id+"__button_0", sizes.button_0__pos__left, sizes.button_0__pos__top, 26, 5, "0d0") }}
+        {{ ui.decoratedbutton("Ok", id+"__button_0", sizes.button_0__pos__left, sizes.button_0__pos__top, 26, 5) }}
       {% endif %}
     {% endblock %}
   </frame>

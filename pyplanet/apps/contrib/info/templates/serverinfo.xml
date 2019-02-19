@@ -24,5 +24,5 @@
 {% endblock %}
 
 {% block maniascript %}
-<script><!-- {% include 'core.views/generics/scripts/autohide.Script.Txt' %} --></script>
+
 {% endblock %}

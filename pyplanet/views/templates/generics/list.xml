@@ -1,7 +1,7 @@
 {% extends 'core.views/generics/window.xml' %}
 
   {% block header %}
-    <label pos="210 -3.5" size="72 7" text="$o{{ count }} items" textsize="1.5" textfont="Gotham/Gotham-Book" halign="right" valign="center" />
+    <label pos="210 -3.5" size="72 7" text="$o{{ count }} items" textsize="1" textfont="RajdhaniMono" halign="right" valign="center" />
     {{ super() }}
   {% endblock %}
 
@@ -14,11 +14,11 @@
         <entry pos="0 -4.25" size="80 6" z-index="2" default="{{ search|default('Search...', True) }}"
                focusareacolor1="0003" name="list_search_field" selecttext="1" textsize="1.6"
                focusareacolor2="FFF2" scriptevents="1" valign="center"/>
-        {{ ui.button("🔍", id+"__list_button_search", 80, -1.35,6,6,"ddd") }}
+        {{ ui.decoratedbutton("🔍", id+"__list_button_search", 80, -1.35,6,6, "ddd") }}
     {% endif %}
 
     {% for button in buttons %}
-        {{ ui.button(button.title, id+"__list_buttons_"+loop.index0.__str__(), button.right, -4.35, button.width, 5, "ddd",) }}
+        {{ ui.decoratedbutton(button.title, id+"__list_buttons_"+loop.index0.__str__(), button.right, -4.35, button.width, 5, "ddd",) }}
     {% endfor %}
   </frame>
   {% endif %}
@@ -65,9 +65,9 @@
                 {% else %}
                     {% if field.action %}
                           {% if field.safe %}
-                              {{ ui.basicbutton("$fff"+field_renderer(row, field)|safe, id+"__list_body_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__(), field.left, 0, field.width, 5, "aaaa", "0000", "left") }}
+                              {{ ui.button("$fff"+field_renderer(row, field)|safe, id+"__list_body_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__(), field.left, 0, field.width, 5, "aaaa", "0000", "left") }}
                           {% else %}
-                              {{ ui.basicbutton("$fff"+field_renderer(row, field), id+"__list_body_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__(), field.left, 0, field.width, 5, "aaaa", "0000", "left") }}
+                              {{ ui.button("$fff"+field_renderer(row, field), id+"__list_body_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__(), field.left, 0, field.width, 5, "aaaa", "0000", "left") }}
                           {% endif %}
                     {% else %}
                          <label pos="{{ field.left }} -2.5" size="{{ field.width }} 5"
@@ -92,7 +92,7 @@
                 {% if action.require_confirm %}
                      {{ ui.confirmbutton(action.text|safe, id+"__list_action_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__() , (218 - actions_width + action.left), 0, action.width|default(5, True), 5, action.color) }}
                 {% else %}
-                     {{ ui.basicbutton(action.text|safe, id+"__list_action_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__() , (218 - actions_width + action.left ), 0, action.width|default(5, True), 5, action.color, action.color) }}
+                     {{ ui.button(action.text|safe, id+"__list_action_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__() , (218 - actions_width + action.left ), 0, action.width|default(5, True), 5, action.color, action.color) }}
                 {% endif %}
 
             {% endif %}
@@ -110,13 +110,13 @@
 
       <frame pos="0 -110">
 
-        {{ ui.basicbutton("", id+"__list_button_first", (110-25-20),4,8,8)}}
-        {{ ui.basicbutton("", id+"__list_button_prev_10", (110-25-12),4,8,8)}}
-        {{ ui.basicbutton("", id+"__list_button_prev", (110-25-4),4,8,8)}}
+        {{ ui.button("", id+"__list_button_first", (110-25-20),4,8,8)}}
+        {{ ui.button("", id+"__list_button_prev_10", (110-25-12),4,8,8)}}
+        {{ ui.button("", id+"__list_button_prev", (110-25-4),4,8,8)}}
 
-        {{ ui.basicbutton("", id+"__list_button_next", (110+25),4,8,8)}}
-        {{ ui.basicbutton("", id+"__list_button_next_10", (110+25+8),4,8,8)}}
-        {{ ui.basicbutton("", id+"__list_button_last", (110+25+16),4,8,8)}}
+        {{ ui.button("", id+"__list_button_next", (110+25),4,8,8)}}
+        {{ ui.button("", id+"__list_button_next_10", (110+25+8),4,8,8)}}
+        {{ ui.button("", id+"__list_button_last", (110+25+16),4,8,8)}}
 
         <label pos="110 1.5" size="50 5" text="$fff$oPage {{ page }} / {{ pages }}" textsize="1.5" halign="center"/>
       </frame>
@@ -124,4 +124,4 @@
     </frame>
   </frame>
 
-  {% endblock %}
+{% endblock %}

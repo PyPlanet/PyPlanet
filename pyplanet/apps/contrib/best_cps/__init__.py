@@ -2,10 +2,8 @@ import asyncio
 
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
-from pyplanet.apps.core.trackmania import callbacks as tm_signals
 
 from .view import BestCpTimesWidget
-from .view import CpTimesListView
 
 
 class BestCpTimes(AppConfig):
@@ -22,36 +20,12 @@ class BestCpTimes(AppConfig):
 		self.widget = None
 
 	async def on_start(self):
-		self.context.signals.listen(tm_signals.waypoint, self.player_cp)
 		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
 		self.context.signals.listen(mp_signals.map.map_begin, self.map_begin)
 		self.context.signals.listen(mp_signals.map.map_start__end, self.map_end)
 		self.best_cp_times.clear()
 		self.widget = BestCpTimesWidget(self)
 		asyncio.ensure_future(self.widget.display())
-
-	# When a player passes a CP
-	async def player_cp(self, player, raw, *args, **kwargs):
-		cpnm = int(raw['checkpointinlap'])
-		laptime = int(raw['laptime'])
-		pcp = PlayerCP(player, cpnm + 1, laptime)
-		if not self.best_cp_times:
-			self.best_cp_times.append(pcp)
-		else:
-			added = False
-			for idx, current_cp in enumerate(self.best_cp_times):
-				if pcp.cp < current_cp.cp:
-					self.best_cp_times.insert(idx, pcp)
-					added = True
-					break
-				elif pcp.cp == current_cp.cp:
-					if laptime < current_cp.time:
-						self.best_cp_times[idx] = pcp
-					added = True
-					break
-			if not added:
-				self.best_cp_times.append(pcp)
-		await self.widget.display()
 
 	# When the map starts
 	async def map_begin(self, *args, **kwargs):

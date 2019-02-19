@@ -42,6 +42,6 @@
 </frame>
 
   {{ ui.confirmbutton("Save", id+"__button_save", 30,-120, 24,6, "090") }}
-  {{ ui.button("Cancel", id+"__button_cancel", 60, -120, 24,6, "900") }}
+  {{ ui.decoratedbutton("Cancel", id+"__button_cancel", 60, -120, 24,6, "900") }}
 
 {% endblock %}

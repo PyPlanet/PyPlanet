@@ -620,7 +620,7 @@ class CreateFolderView(TemplateView):
 
 	async def get_context_data(self):
 		context = await super().get_context_data()
-		context['is_admin'] = self.player.level >= self.player.LEVEL_ADMIN
+		context['is_admin'] = int(not self.player.level >= self.player.LEVEL_ADMIN)
 		return context
 
 	async def close(self, player, *args, **kwargs):

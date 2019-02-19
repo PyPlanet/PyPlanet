@@ -447,7 +447,12 @@ class MapManager(CoreContrib):
 
 		if not extend_with:
 			extend_with = original_ta
+		if extend_with > 2000000000:
+			extend_with = 2000000000
+
 		temp_mode_settings['S_TimeLimit'] += abs(extend_with)
+		if temp_mode_settings['S_TimeLimit'] > 2000000000:
+			temp_mode_settings['S_TimeLimit'] = 2000000000
 
 		if not self._is_extended or not self._original_ta:
 			self._original_ta = mode_settings['S_TimeLimit']

@@ -20,7 +20,7 @@
 
 ***OnMouseOver***
 ***
-if (TL::Find("admin_toolbar_bar_button", Event.ControlId, True, True)) {
+if (TextLib::Find("admin_toolbar_bar_button", Event.ControlId, True, True)) {
     Toolbar_Tooltip_Label.SetText(Tooltips[Event.ControlId]);
     Toolbar_Tooltip_Label.Show();
     Toolbar_Tooltip_Quad.Show();
@@ -29,7 +29,7 @@ if (TL::Find("admin_toolbar_bar_button", Event.ControlId, True, True)) {
 
 ***OnMouseOut***
 ***
-if (TL::Find("admin_toolbar_bar_button", Event.ControlId, True, True)) {
+if (TextLib::Find("admin_toolbar_bar_button", Event.ControlId, True, True)) {
   Toolbar_Tooltip_Label.Hide();
   Toolbar_Tooltip_Quad.Hide();
 }

@@ -6,7 +6,7 @@
   <frame pos="-60 70"> <!-- window position -->
 
       {% block header %}
-          {{ ui.basicbutton("x", id+"__button_close", 114, 0, 6, 6, "d00", "000") }}
+          {{ ui.button("x", id+"__button_close", 114, 0, 6, 6, "d00", "000") }}
       {% endblock %}
 
 
@@ -14,14 +14,13 @@
         {% block contents %} {% endblock %}
       </frame>
 
-      <quad pos="0 1" size="120 1" bgcolor="3afa" />
-      <quad pos="0 -140" size="120 1" bgcolor="fffa" />
-      <quad pos="0 0" size="120 140" bgcolor="023f" />
+      <quad pos="60 0" size="120 140" bgcolor="0003" halign="center"/>
+      <quad pos="60 0" size="120 140" halign="center" style="Bgs1" substyle="BgDialogBlur" bluramount="0.1"/>
 
     </frame>
 	</frame>
 
-  <!-- this is here to disable other controls from clicking -->
+  <!-- this is to disable other controls from clicking -->
   <quad size="320 180" bgcolor="0000" scriptevents="1"/>
 </frame>
 

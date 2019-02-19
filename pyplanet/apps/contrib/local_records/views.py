@@ -3,16 +3,16 @@ import math
 from pyplanet.utils.style import style_strip
 from pyplanet.utils.times import format_time
 from pyplanet.views.generics import ask_confirmation
-from pyplanet.views.generics.tabwidget import TimesWidgetView
+from pyplanet.views.generics.widget import TimesWidgetView
 from pyplanet.views.generics.list import ManualListView
 from pyplanet.utils import times
 
 
 class LocalRecordsWidget(TimesWidgetView):
-	widget_x = 105
-	widget_y = 55
-	top_entries = 10
-	title = 'Server Champions'
+	widget_x = 125
+	widget_y = 56.5
+	top_entries = 5
+	title = 'Local Records'
 
 	def __init__(self, app):
 		super().__init__(self)
@@ -21,7 +21,7 @@ class LocalRecordsWidget(TimesWidgetView):
 		self.id = 'pyplanet__widgets_localrecords'
 
 		self.action = self.action_recordlist
-		self.record_amount = 30
+		self.record_amount = 15
 
 	async def get_player_data(self):
 		data = await super().get_player_data()
@@ -79,22 +79,17 @@ class LocalRecordsWidget(TimesWidgetView):
 					custom_start_index = (start_point + 1)
 
 			index = 1
-			first_time = None
 			for record in records:
 				record_player = await record.get_related('player')
 				list_record = dict()
-				if index == 1:
-					first_time = record.score
-
 				list_record['index'] = index
-				list_record['color'] = 'fff'
+				list_record['color'] = '$fff'
 				if index <= self.top_entries:
-					list_record['color'] = 'fff'
+					list_record['color'] = '$ff0'
 				if index == player_index:
-					list_record['color'] = 'aef'
+					list_record['color'] = '$0f3'
 				list_record['nickname'] = record_player.nickname
 				list_record['score'] = times.format_time(int(record.score))
-				list_record['diff'] = times.format_time(int(record.score - first_time))
 				if index == self.top_entries:
 					index = custom_start_index
 				else:
@@ -126,19 +121,15 @@ class LocalRecordsWidget(TimesWidgetView):
 			records = list(current_records[:self.record_amount])
 
 			index = 1
-			first_time = None
 			for record in records:
 				record_player = await record.get_related('player')
 				list_record = dict()
-				if index == 1:
-					first_time = record.score
 				list_record['index'] = index
-				list_record['color'] = 'fff'
+				list_record['color'] = '$fff'
 				if index <= self.top_entries:
-					list_record['color'] = 'fff'
+					list_record['color'] = '$ff0'
 				list_record['nickname'] = record_player.nickname
 				list_record['score'] = times.format_time(int(record.score))
-				list_record['diff'] = times.format_time(int(record.score - first_time))
 				index += 1
 				list_records.append(list_record)
 
@@ -283,7 +274,7 @@ class LocalRecordCpCompareListView(ManualListView):
 		self.compare_rank = compare_rank
 
 	async def get_fields(self):
-		own_player = await self.own_record.get_related('player')
+		own_player = await self.own_record.get_related('player') if self.own_record else None
 		compare_player = await self.compare_record.get_related('player')
 
 		return [
@@ -296,7 +287,7 @@ class LocalRecordCpCompareListView(ManualListView):
 				'type': 'label'
 			},
 			{
-				'name': '#{}: $n{}'.format(self.own_rank, style_strip(own_player.nickname)),
+				'name': '#{}: $n{}'.format(self.own_rank, style_strip(own_player.nickname)) if self.own_rank else '-',
 				'index': 'own_time',
 				'sorting': False,
 				'searching': False,
@@ -333,17 +324,18 @@ class LocalRecordCpCompareListView(ManualListView):
 		return '{}{}'.format(diff_prefix, format_time(abs(diff)))
 
 	async def get_data(self):
-		own_cps = [int(c) for c in self.own_record.checkpoints.split(',')]
 		compare_cps = [int(c) for c in self.compare_record.checkpoints.split(',')]
+		own_cps = [int(c) for c in self.own_record.checkpoints.split(',')] \
+			if self.own_record else [0 for _ in compare_cps]
 		total_cps = len(own_cps)
 
 		data = list()
 		for cp, (own, compare) in enumerate(zip(own_cps, compare_cps)):
 			data.append(dict(
 				cp='Finish' if (cp + 1) == total_cps else cp + 1,
-				own_time=format_time(own),
+				own_time=format_time(own) if own else '',
 				compare_time=format_time(compare),
-				difference=self.get_diff_text(own, compare)
+				difference=self.get_diff_text(own, compare) if self.own_record else '-'
 			))
 
 		return data

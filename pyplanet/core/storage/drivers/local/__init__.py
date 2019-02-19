@@ -65,6 +65,15 @@ class LocalDriver(StorageDriver):
 	async def exists(self, path: str, **kwargs):
 		return os.path.exists(self.absolute(path))
 
+	async def is_file(self, path: str, **kwargs):
+		return os.path.isfile(self.absolute(path))
+
+	async def is_dir(self, path: str, **kwargs):
+		return os.path.isdir(self.absolute(path))
+
+	async def is_link(self, path: str, **kwargs):
+		return os.path.islink(self.absolute(path))
+
 	async def symlink(self, source: str, dest: str, **kwargs):
 		os.symlink(self.absolute(source), self.absolute(dest), **kwargs)
 

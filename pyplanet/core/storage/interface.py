@@ -80,6 +80,15 @@ class StorageDriver:
 	async def exists(self, path: str, **kwargs):
 		raise NotImplementedError
 
+	async def is_file(self, path: str, **kwargs):
+		raise NotImplementedError
+
+	async def is_dir(self, path: str, **kwargs):
+		raise NotImplementedError
+
+	async def is_link(self, path: str, **kwargs):
+		raise NotImplementedError
+
 	async def symlink(self, source: str, dest: str, **kwargs):
 		raise NotImplemented
 

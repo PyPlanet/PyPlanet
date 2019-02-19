@@ -20,6 +20,14 @@ Void uiToggleCheckbox(CMlFrame frame) {
 	uiRenderCheckbox(frame);
 }
 
+Void uiSetCheckbox(CMlFrame frame, Boolean status) {
+	if (status) {
+	  frame.DataAttributeSet("checked", "1");
+	} else {
+		frame.DataAttributeSet("checked", "0");
+	}
+	uiRenderCheckbox(frame);
+}
 
 ***OnInit***
 ***

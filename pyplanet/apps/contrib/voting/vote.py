@@ -2,6 +2,7 @@ class Vote:
 	def __init__(self):
 		self.action = ''
 		self.requester = None
+		self.time_limit = None
 		self.votes_required = 0
 		self.votes_current = []
 
