@@ -47,6 +47,14 @@
     pyVisibleLayer[currentId] = "normal";
   }
 
+  // fix flickering on update...
+  if (currentLayer == pyVisibleLayer[currentId]) {
+      (Page.GetFirstChild("Window") as CMlFrame).Show();
+  } else {
+      (Page.GetFirstChild("Window") as CMlFrame).Hide();
+  }
+
+
 ***
 
 ***Loop***
