@@ -3,23 +3,23 @@ import math
 from pyplanet.utils.style import style_strip
 from pyplanet.utils.times import format_time
 from pyplanet.views.generics import ask_confirmation
-from pyplanet.views.generics.widget import TimesWidgetView
+from pyplanet.views.generics.tabwidget import TabTimesWidgetView
 from pyplanet.views.generics.list import ManualListView
 from pyplanet.utils import times
 
 
-class LocalRecordsWidget(TimesWidgetView):
+class LocalRecordsWidget(TabTimesWidgetView):
 	widget_x = 125
 	widget_y = 56.5
 	top_entries = 5
 	title = 'Local Records'
 
-	def __init__(self, app):
+	def __init__(self, app, layer="normal"):
 		super().__init__(self)
 		self.app = app
 		self.manager = app.context.ui
-		self.id = 'pyplanet__widgets_localrecords'
-
+		self.id = 'pyplanet__widgets_localrecords_{}'.format(layer)
+		self.layer = layer
 		self.action = self.action_recordlist
 		self.record_amount = 15
 

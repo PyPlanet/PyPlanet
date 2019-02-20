@@ -69,8 +69,8 @@ class _BaseUIManager:
 		:type manialink: pyplanet.core.ui.components.manialink._ManiaLink
 		"""
 		queries = list()
-		layer = getattr(manialink, 'layer', 'normal')
-
+		layer = getattr(manialink, 'layer')
+		name = getattr(manialink, 'title', manialink.id)
 		if isinstance(players, list):
 			for_logins = [p.login if isinstance(p, Player) else p for p in players]
 		elif manialink.player_data:
@@ -95,8 +95,10 @@ class _BaseUIManager:
 				else:
 					raise Exception('Manialink has no body or template defined!')
 
+
 				# Add manialink tag to body.
-				body = '<manialink version="{}" id="{}" layer="{}">{}</manialink>'.format(manialink.version, manialink.id, layer, body)
+				body = '<manialink version="{ver}" id="{id}" layer="{layer}" name="{name}">{body}</manialink>'.format(
+					ver=manialink.version, id=manialink.id, name=name, layer=layer, body=body)
 
 				# Prepare query
 				queries.append(self.instance.gbx(
@@ -113,7 +115,8 @@ class _BaseUIManager:
 				raise Exception('Manialink has no body or template defined!')
 
 			# Add manialink tag to body.
-			body = '<manialink version="{}" id="{}" layer="{}">{}</manialink>'.format(manialink.version, manialink.id, layer, body)
+			body = '<manialink version="{ver}" id="{id}" layer="{layer}" name="{name}">{body}</manialink>'.format(
+				ver=manialink.version, id=manialink.id, name=name, layer=layer, body=body)
 
 			# Add normal queries.
 			if for_logins and len(for_logins) > 0:

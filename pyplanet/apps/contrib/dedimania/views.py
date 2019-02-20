@@ -3,11 +3,12 @@ import math
 from pyplanet.utils.style import style_strip
 from pyplanet.utils.times import format_time
 from pyplanet.views.generics.widget import TimesWidgetView
+from pyplanet.views.generics.tabwidget import TabTimesWidgetView
 from pyplanet.views.generics.list import ManualListView
 from pyplanet.utils import times
 
 
-class DedimaniaRecordsWidget(TimesWidgetView):
+class DedimaniaRecordsWidget(TabTimesWidgetView):
 	widget_x = -160
 	widget_y = 12.5
 	size_x = 38
@@ -15,12 +16,12 @@ class DedimaniaRecordsWidget(TimesWidgetView):
 	top_entries = 5
 	title = 'Dedimania'
 
-	def __init__(self, app):
-		super().__init__(self)
+	def __init__(self, app, layer="normal"):
+		super().__init__(self, layer)
 		self.app = app
+		self.layer = layer
 		self.manager = app.context.ui
-		self.id = 'pyplanet__widgets_dedimaniarecords'
-
+		self.id = 'pyplanet__widgets_dedimaniarecords_{}'.format(layer)
 		self.action = self.action_recordlist
 		self.record_amount = 15
 
@@ -101,7 +102,8 @@ class DedimaniaRecordsWidget(TimesWidgetView):
 
 		# Add facts.
 		context.update({
-			'top_entries': self.top_entries
+			'top_entries': self.top_entries,
+			"layer": self.layer
 		})
 
 		if self.app.instance.performance_mode:
@@ -230,7 +232,8 @@ class DedimaniaCpCompareListView(ManualListView):
 				'type': 'label'
 			},
 			{
-				'name': '#{}: $n{}'.format(self.own_record.rank, style_strip(self.own_record.nickname)) if self.own_record else '-',
+				'name': '#{}: $n{}'.format(self.own_record.rank,
+										   style_strip(self.own_record.nickname)) if self.own_record else '-',
 				'index': 'own_time',
 				'sorting': False,
 				'searching': False,

@@ -8,7 +8,7 @@ from pyplanet.views.template import TemplateView
 logger = logging.getLogger(__name__)
 
 
-class WidgetView(TemplateView):
+class TabWidgetView(TemplateView):
 	widget_x = None
 	widget_y = None
 	size_x = None
@@ -16,14 +16,13 @@ class WidgetView(TemplateView):
 	title = None
 	action = None
 	distraction_hide = True
-
+	layer = "ScoreTable"
 	template_name = 'core.views/generics/tabwidget.xml'
 
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+	def __init__(self, layer="normal", *args, **kwargs):
+		super().__init__(layer=layer, *args, **kwargs)
 		self.relaxed_updating = True
-		self.layer = "ScoresTable"
-
+		self.layer = layer
 		# Setup the receivers.
 		self.subscribe('open_widget', self.open_widget)
 
@@ -64,8 +63,8 @@ class WidgetView(TemplateView):
 		"""
 		login = player.login if isinstance(player, Player) else player
 		if not player:
-			return await super().display(layer="ScoresTable", **kwargs)
-		return await super().display(player_logins=[login], layer="ScoresTable", **kwargs)
+			return await super().display(**kwargs)
+		return await super().display(player_logins=[login], **kwargs)
 
 	async def get_title(self):
 		return self.title
@@ -93,13 +92,15 @@ class WidgetView(TemplateView):
 			'title': await self.get_title(),
 			'open_action': self.action is not None,
 			'content_pos_x': 2,
-			'content_pos_y': -5
+			'content_pos_y': -5,
+			'layer': self.layer,
+			'id': self.id
 		})
 
 		return context
 
 
-class TimesWidgetView(WidgetView):
+class TabTimesWidgetView(TabWidgetView):
 	template_name = 'core.views/generics/tabtimeswidget.xml'
 
 	async def get_context_data(self):
@@ -110,7 +111,8 @@ class TimesWidgetView(WidgetView):
 			'content_pos_x': 1,
 			'content_pos_y': -4.5,
 			'top_entries': 3,
-			'times': None
+			'times': None,
+			'toggable': True
 		})
 
 		return context

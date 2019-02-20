@@ -36,6 +36,8 @@ class _ManiaLink:
 		:type id: str
 		:type version: str
 		:type timeout: int
+		:type layer: str layer to display manialink, possible values can be "normal", "ScoresTable", "ScreenIn3d", "altmenu", "cutscene"
+
 		"""
 		self.manager = manager
 		self.id = id or uuid.uuid4().hex
@@ -67,7 +69,6 @@ class _ManiaLink:
 		"""
 		Render template. Will render template and return body.
 
-		:param layer:
 		:param player_login: Render data only for player, set to None to globally render (and ignore player_data).
 		:param data: Data to append.
 		:param player_data: Data to append.
@@ -94,15 +95,15 @@ class _ManiaLink:
 		# Render and save in content.
 		return await template.render(**payload_data)
 
-	async def display(self, player_logins=None, layer="normal", **kwargs):
+	async def display(self, player_logins=None, **kwargs):
 		"""
 		Display the manialink. Will also render if no body is given. Will show per player or global. depending on
 		the data given and stored!
 
-		:param layer: layer to show manialink at.
 		:param player_logins: Only display to the list of player logins given.
+		:param layer: str  layer to display manialink, possible values can be "normal", "ScoresTable", "ScreenIn3d", "altmenu", "cutscene"
 		"""
-		self.layer = layer
+
 		if player_logins:
 			for login in player_logins:
 				self._is_player_shown[login] = True

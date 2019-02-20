@@ -16,7 +16,7 @@ class WidgetView(TemplateView):
 	title = None
 	action = None
 	distraction_hide = True
-
+	layer = "normal"
 	template_name = 'core.views/generics/widget.xml'
 
 	def __init__(self, *args, **kwargs):

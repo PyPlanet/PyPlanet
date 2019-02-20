@@ -1,6 +1,6 @@
 {% import 'core.views/generics/uiElements.xml' as ui %}
 
-<frame pos="-160 90" z-index="150"> <!-- set z-index high enough -->
+<frame pos="-160 90" z-index="150" id="Window"> <!-- set z-index high enough -->
 	<frame pos="160 -90"> <!-- reset to 0,0 -->
 
   <frame pos="-120 70"> <!-- window position -->

@@ -1,32 +1,83 @@
 {% import 'core.views/generics/uiElements.xml' as ui %}
 
-{% block before %} {% endblock %}
-
-<!-- <frame pos="{{ widget_x }} {{ widget_y }}" z-index="100" class="{% if distraction_hide %}distraction-hide{% endif %}"> -->
-  <frame pos="{{ widget_x }} {{ widget_y }}" z-index="100">
+<frame pos="{{ widget_x }} {{ widget_y }}" z-index="550" id="Window"
+       class="{% if distraction_hide %}distraction-hide{% endif %}">
   {% block title %}
       {% if title %}
-          <quad pos="0 -5" z-index="0" size="50 0.25" bgcolor="0ff" valign="bottom" opacity="1"/>
+      <quad pos="0 0" z-index="0" size="35 6" bgcolor="00000099"/>
           {% if open_action %}
-          <label pos="25 -3" z-index="1" size="50 6" text="{{ title }}" textfont="RajdhaniMono" textsize="1"
-                 textemboss="1" halign="center" valign="center2" focusareacolor1="0000" focusareacolor2="0000"
+          <label pos="17.5 -3" z-index="1" size="32 6" text="{{ title }}" textfont="RajdhaniMono" textsize="2.0"
+                 textemboss="1" halign="center" valign="center2" action="{{ id }}__open_widget" scriptevents="1"/>
+          <label pos="29 -3" z-index="2" size="4 6" text="&#xf08e;" textsize="1.0" halign="center" valign="center2"
                  action="{{ id }}__open_widget" scriptevents="1"/>
+                {% if toggable %}
+                <label pos="33 -3" z-index="2" size="4 6" text="" textsize="1.0" halign="center" valign="center2"
+                       data-layer="{{ layer }}" scriptevents="1" id="toggleLayer"/>
+                {% endif %}
           {% else %}
-          <label pos="25 -3" z-index="1" size="50 6" text="{{ title }}" textfont="RajdhaniMono" textsize="1"
-                 textemboss="1" focusareacolor1="0000" focusareacolor2="0000" halign="center" valign="center2"/>
+          <label pos="17.5 -3" z-index="1" size="32 6" text="{{ title }}" textfont="RajdhaniMono" textsize="2.0"
+                 textemboss="1" halign="center" valign="center2"/>
+                {% if toggable %}
+                <label pos="33 -3" z-index="2" size="4 6" text="" textsize="1.0" halign="center" valign="center2"
+                      data-layer="{{ layer }}" id="toggleLayer" scriptevents="1"/>
+                {% endif %}
           {% endif %}
       {% endif %}
   {% endblock %}
 
-  <frame pos="0 {% if title %}-8.5{% else %}0{% endif %}">
+  <frame pos="0 {% if title %}-6.5{% else %}0{% endif %}">
     {% block content %}{% endblock %}
   </frame>
 </frame>
-{% block after %}{% endblock %}
-
 
 <script><!-- {% include 'core.views/generics/scripts/includes.Script.Txt' %} --></script>
+{% block maniascript_pre %} {% endblock %}
 <script><!-- {% include 'core.views/generics/scripts/uiElements.Script.Txt' %} --></script>
 <script><!-- {% include 'core.views/generics/scripts/toggleUi.Script.Txt' %} --></script>
 {% block maniascript %} {% endblock %}
+<script><!--
+
+***OnInit***
+***
+  declare currentLayer = "{{ layer }}";
+  declare currentId = "{{ title }}";
+  declare oldVisibleLayer = "";
+  declare Text[Text] pyVisibleLayer for LocalUser = Text[Text];
+  if (! pyVisibleLayer.existskey(currentId)) {
+    pyVisibleLayer[currentId] = "normal";
+  }
+
+***
+
+***Loop***
+***
+
+  if (pyVisibleLayer.existskey(currentId) &&  (pyVisibleLayer[currentId] != oldVisibleLayer) ) {
+      oldVisibleLayer = pyVisibleLayer[currentId];
+        if (currentLayer == pyVisibleLayer[currentId]) {
+            (Page.GetFirstChild("Window") as CMlFrame).Show();
+        } else {
+            (Page.GetFirstChild("Window") as CMlFrame).Hide();
+        }
+    }
+
+    foreach(Event in PendingEvents) {
+        if (Event.Type == CMlScriptEvent::Type::MouseClick && Event.Control.ControlId == "toggleLayer") {
+            switch(Event.Control.DataAttributeGet("layer")) {
+                case "normal": {
+                   pyVisibleLayer[currentId] = "ScoresTable";
+                }
+                case "ScoresTable":{
+                   pyVisibleLayer[currentId] = "normal";
+                 }
+            }
+        }
+    }
+
+***
+
+
+
+
+--></script>
 <script><!-- {% include 'core.views/generics/scripts/main.Script.Txt' %} --></script>

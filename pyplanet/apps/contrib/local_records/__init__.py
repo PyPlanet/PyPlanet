@@ -25,6 +25,7 @@ class LocalRecords(AppConfig):
 
 		self.current_records = []
 		self.widget = None
+		self.widget2 = None
 
 		self.setting_chat_announce = Setting(
 			'chat_announce', 'Minimum index for chat announce', Setting.CAT_BEHAVIOUR, type=int,
@@ -43,8 +44,10 @@ class LocalRecords(AppConfig):
 		await self.instance.command_manager.register(
 			Command(command='records', target=self.show_records_list),
 			Command(
-				'localcps', target=self.command_localcps, description='Compare your local record checkpoints with another record.'
-			).add_param('record', required=False, type=int, help='Custom record rank to compare with. Defaults to 1.', default=1)
+				'localcps', target=self.command_localcps,
+				description='Compare your local record checkpoints with another record.'
+			).add_param('record', required=False, type=int, help='Custom record rank to compare with. Defaults to 1.',
+						default=1)
 		)
 
 		# Register signals
@@ -65,7 +68,11 @@ class LocalRecords(AppConfig):
 		if self.widget is None:
 			self.widget = LocalRecordsWidget(self)
 
+		if self.widget2 is None:
+			self.widget2 = LocalRecordsWidget(self, layer="ScoresTable")
+
 		await self.widget.display()
+		await self.widget2.display()
 
 	async def load_map_locals(self, map=None):
 		if map:
@@ -144,6 +151,8 @@ class LocalRecords(AppConfig):
 		await self.refresh_locals()
 		if self.widget:
 			await self.widget.refresh()
+		if self.widget2:
+			await self.widget2.refresh()
 
 	async def delete_record(self, record):
 		await LocalRecord.execute(
@@ -159,7 +168,7 @@ class LocalRecords(AppConfig):
 		)
 		self.current_records = list(record_list)
 
-	async def show_records_list(self, player, data = None, **kwargs):
+	async def show_records_list(self, player, data=None, **kwargs):
 		"""
 		Show record list view to player.
 
@@ -183,15 +192,20 @@ class LocalRecords(AppConfig):
 
 		if self.widget is None:
 			self.widget = LocalRecordsWidget(self)
+		if self.widget2 is None:
+			self.widget2 = LocalRecordsWidget(self, layer="ScoresTable")
 
 		await asyncio.gather(
 			self.chat_current_record(),
-			self.widget.display()
+			self.widget.display(),
+			self.widget2.display()
 		)
 
 	async def player_connect(self, player, is_spectator, source, signal):
 		if self.widget:
 			await self.widget.display(player=player)
+		if self.widget2:
+			await self.widget2.display(player=player)
 
 	async def player_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
 		record_limit = await self.setting_record_limit.get_value()
@@ -243,7 +257,9 @@ class LocalRecords(AppConfig):
 			new_index = self.current_records.index(current_record) + 1
 
 			if new_index == 1:
-				map = next((m for m in self.instance.map_manager.maps if m.uid == self.instance.map_manager.current_map.uid), None)
+				map = next(
+					(m for m in self.instance.map_manager.maps if m.uid == self.instance.map_manager.current_map.uid),
+					None)
 				if map is not None:
 					map.local = {'record_count': len(self.current_records), 'first_record': current_record}
 
@@ -276,8 +292,10 @@ class LocalRecords(AppConfig):
 
 		if self.widget is None:
 			self.widget = LocalRecordsWidget(self)
+		if self.widget2 is None:
+			self.widget2 = LocalRecordsWidget(self, layer="ScoresTable")
 
-		coros = [self.widget.display()]
+		coros = [self.widget.display(), self.widget2.display()]
 		if record_limit == 0 or new_index <= record_limit:
 			if chat_announce >= new_index:
 				coros.append(self.instance.chat(message))
