@@ -2,8 +2,6 @@
 The MX API client class.
 """
 import logging
-import urllib
-
 import aiohttp
 
 from pyplanet import __version__ as pyplanet_version
@@ -48,7 +46,7 @@ class MXApi:
 			}
 
 		if self.key:
-			options.key = self.key
+			options['key'] = self.key
 
 		url = 'https://{site}.mania-exchange.com/tracksearch2/search'.format(
 			site=self.site
