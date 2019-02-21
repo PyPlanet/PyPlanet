@@ -26,18 +26,26 @@ class MxSearchListView(ManualListView):
 		self.provide_search = False
 		self.fields = [
 			{
+				'name': 'ID',
+				'index': 'mxid',
+				'sorting': True,
+				'searching': False,
+				'width': 15,
+				'type': 'label'
+			},
+			{
 				'name': 'Map',
 				'index': 'gbxname',
 				'sorting': True,
-				'searching': True,
-				'width': 60,
+				'searching': False,
+				'width': 55,
 				'type': 'label'
 			},
 			{
 				'name': 'Author',
 				'index': 'author',
 				'sorting': True,
-				'searching': True,
+				'searching': False,
 				'width': 40,
 				'type': 'label',
 			},
