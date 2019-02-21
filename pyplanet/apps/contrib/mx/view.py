@@ -27,7 +27,7 @@ class MxSearchListView(ManualListView):
 		self.fields = [
 			{
 				'name': 'Map',
-				'index': 'name',
+				'index': 'gbxname',
 				'sorting': True,
 				'searching': True,
 				'width': 60,
@@ -59,14 +59,6 @@ class MxSearchListView(ManualListView):
 				'type': 'label'
 			},
 			{
-				'name': 'Length',
-				'index': 'length',
-				'sorting': True,
-				'searching': False,
-				'width': 25,
-				'type': 'label'
-			},
-			{
 				'name': 'Difficulty',
 				'index': 'difficulty',
 				'sorting': True,
@@ -75,6 +67,17 @@ class MxSearchListView(ManualListView):
 				'type': 'label'
 			},
 		]
+		print(self.app.instance.game.game)
+		if self.app.instance.game.game == "tm":
+			self.fields.append({
+				'name': 'Length',
+				'index': 'length',
+				'sorting': True,
+				'searching': False,
+				'width': 25,
+				'type': 'label'
+			})
+
 		self.sort_field = None
 		self.child = None
 		self.subscribe("mx_search", self.action_search)
@@ -136,22 +139,35 @@ class MxSearchListView(ManualListView):
 				raise MXMapNotFound("No results for search")
 
 		except MXMapNotFound as e:
-			print(str(e))
+			print(str(e))  # todo implement graphical feedback
 			return None
 		except MXInvalidResponse as e:
-			print(str(e))
+			print(str(e))  # todo implement graphical feedback
 			return None
-
-		self.cache = [dict(
-			mxid=_map['TrackID'],
-			name=_map['Name'],
-			author=_map['Username'],
-			envir=_map['EnvironmentName'],
-			awards='$fff🏆 {}'.format(_map['AwardCount']) if _map['AwardCount'] > 0 else "",
-			length=_map['LengthName'],
-			difficulty=_map['DifficultyName'],
-			maptype=_map['MapType'],
-			style=_map['StyleName']
-		) for _map in infos]
+		if self.app.instance.game.game == "tm":
+			self.cache = [dict(
+				mxid=_map['TrackID'],
+				name=_map['Name'],
+				gbxname=_map['GbxMapName'],
+				author=_map['Username'],
+				envir=_map['EnvironmentName'],
+				awards='$fff🏆 {}'.format(_map['AwardCount']) if _map['AwardCount'] > 0 else "",
+				length=_map['LengthName'],
+				difficulty=_map['DifficultyName'],
+				maptype=_map['MapType'],
+				style=_map['StyleName']
+			) for _map in infos]
+		else:
+			self.cache = [dict(
+				mxid=_map['TrackID'],
+				name=_map['Name'],
+				gbxname=_map['GbxMapName'],
+				author=_map['Username'],
+				envir=_map['EnvironmentName'],
+				awards='$fff🏆 {}'.format(_map['AwardCount']) if _map['AwardCount'] > 0 else "",
+				difficulty=_map['DifficultyName'],
+				maptype=_map['MapType'],
+				style=_map['StyleName']
+			) for _map in infos]
 
 		await self.refresh(self.player)
