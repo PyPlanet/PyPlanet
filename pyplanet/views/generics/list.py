@@ -87,8 +87,8 @@ class ListView(TemplateView):
 		self.provide_search = True
 
 		# Setup the receivers.
-		self.subscribe('list_button_close', self.close)
-		self.subscribe('list_button_refresh', self.refresh)
+		self.subscribe('button_close', self.close)
+		self.subscribe('button_refresh', self.refresh)
 		self.subscribe('list_button_search', self._search)
 
 		self.subscribe('list_button_first', self._first_page)

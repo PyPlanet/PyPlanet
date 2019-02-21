@@ -1,9 +1,9 @@
-{% macro checkbox(text = '', name='checkbox', posX=0, posY=0, checked=0, disabled=0, id='') %}
+{% macro checkbox(text='', name='checkbox', posX=0, posY=0, checked=0, disabled=0, id='') %}
 <frame pos="{{posX}} {{posY}}" {% if id != "" %}id="{{id}}"{% endif %} class="uiContainer uiCheckbox" data-checked="{{checked}}" data-disabled="{{disabled}}">
       <entry pos="900 900" z-index="0" size="6 6" textemboss="1" text="1" textsize="3" valign="center2" halign="center" textformat="Basic" name="{{ name }}" scriptevents="1" />
       <label pos="6 -2.5" z-index="0" size="100 5" text="{{ text }}" textsize="2" scriptevents="1" focusareacolor1="0000" focusareacolor2="0000" valign="center" />
       <label pos="2.5 -2" z-index="0" size="6 6" textemboss="0" textsize="3" scale="0" text="✓" valign="center2" halign="center" class="uiCheckboxElement" scriptevents="1" focusareacolor1="0000" focusareacolor2="0000" />
-      <label pos="2 -3" z-index="0" size="6 6" textemboss="0" textsize="4" text="⬜" valign="center2" halign="center" class="uiCheckboxElement" scriptevents="1" focusareacolor1="0000" focusareacolor2="0000"/>
+      <label pos="2 -2.5" z-index="0" size="6 6" textemboss="0" textsize="4" text="⬜" valign="center2" halign="center" class="uiCheckboxElement" scriptevents="1" focusareacolor1="0000" focusareacolor2="0000"/>
 </frame>
 {% endmacro %}
 
@@ -46,31 +46,35 @@
 </frame>
 {% endmacro %}
 
-
-{% macro scrollable(posX= 0, posY=0, width=50, height=50, scrollY=True, scrollX=False) %}
-<frame pos="{{posX}} {{posY}}">
-   <!-- <quad size="{{width}} {{height}}" style="Bgs1InRace" substyle="BgColorContour"/> -->
-    <quad size="0" style="Bgs1InRace" substyle="BgColorContour"/>
-    <frame size="{{width - 5}} {{height - 5}}">
-        <frame>
-          {{ caller() }}
-        </frame>
+{% macro scrollable(posX=0, posY=0, width=50, height=50) %}
+  <frame pos="{{posX}} {{posY}}">
+    <frame class="uiScrollable" scroll="1" size="{{width - 5}} {{height - 5}}">
+      <frame>
+            {{ caller() }}
+      </frame>
     </frame>
-    {% if scrollY %}
     <frame pos="{{width}} 0" class="uiScrollbarControl">
-        <quad pos="0 -4" size="4 10" halign="right" valign="top" class="uiScrollbar" data-axis="Y" bgcolor="fffa" bgcolorfocus="ffff" scriptevents="1"/>
-        <label size="4 4" sizen="4 4" width="4" height="4" halign="right" valign="top" text="⏶" scriptevents="1" focusareacolor1="aaa" focusareacolor2="777"/>
-        <label pos="0 -{{height}}" size="4 4" sizen="4 4"  halign="right" valign="bottom" text="⏷" scriptevents="1" focusareacolor1="aaa" focusareacolor2="777"/>
-        <quad size="4 {{height}}"  halign="right" valign="top" bgcolor="000a"/>
+          <quad pos="0 -4" size="4 10" halign="right" valign="top" class="uiScrollbar" data-axis="Y" bgcolor="fffa" bgcolorfocus="ffff" scriptevents="1"/>
+          <label size="4 4" sizen="4 4" width="4" height="4" halign="right" valign="top" text="⏶" scriptevents="1" focusareacolor1="aaa" focusareacolor2="777"/>
+          <label pos="0 -{{height}}" size="4 4" sizen="4 4"  halign="right" valign="bottom" text="⏷" scriptevents="1" focusareacolor1="aaa" focusareacolor2="777"/>
+          <quad size="4 {{height}}"  halign="right" valign="top" bgcolor="000a"/>
     </frame>
-    {% endif %}
-    {% if scrollX %}
-    <frame pos="0 -{{height +4}}"  class="uiScrollbarControl">
-        <quad pos="4 0" size="10 4" halign="left" valign="bottom" class="uiScrollbar" data-axis="X" bgcolor="fffa" bgcolorfocus="ffff" scriptevents="1"/>
-        <label size="4 4"   halign="left" valign="bottom" text="⏴" scriptevents="1" focusareacolor1="aaa" focusareacolor2="777"/>
-        <label pos="{{width}} 0"  size="4 4"  halign="right" valign="bottom" text="⏵" scriptevents="1" focusareacolor1="aaa" focusareacolor2="777"/>
-        <quad size="{{width}} 4"  halign="left" valign="bottom" bgcolor="000a"/>
+  </frame>
+{% endmacro %}
+
+
+{% macro inputMasked(text='', name='', posX= 0, posY=0, width=50) %}
+  <frame pos="{{ posX }} {{ posY }}" class="uiContainer uiInputMasked" data-type="Password" >
+     <entry pos="0 0" size="{{ (width - 5) }} 5" textsize="1.2" valign="center" focusareacolor1="0003" focusareacolor2="FFF2" default="{{ text|default('', True) }}" textformat="Password" name="{{ name }}" />
+     <frame pos="{{ (width - 2.5) }} 0" class="">
+        <quad size="5 5" style="Bgs1InRace" colorize="ddd" substyle="BgColorContour" halign="center" valign="center2" />
+        <label size="4 4" text="" class="uiMaskedToggle" halign="center" valign="center2" focusareacolor1="0000" focusareacolor2="ddd" scriptevents="1" translate="0" textsize="1.2"/>
     </frame>
- {% endif %}
-</frame>
+  </frame>
+{% endmacro %}
+
+{% macro input(text='', name='', posX=0, posY=0, width=50) %}
+  <frame pos="{{ posX }} {{ posY }}" class="uiContainer uiInputMasked" data-type="Password" >
+     <entry pos="0 0" size="{{ width }} 5" textsize="1.2" valign="center" focusareacolor1="0003" focusareacolor2="FFF2" default="{{ text|default('', True) }}" textformat="Basic" name="{{ name }}" />
+  </frame>
 {% endmacro %}

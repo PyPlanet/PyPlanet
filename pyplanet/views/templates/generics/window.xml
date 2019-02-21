@@ -5,10 +5,10 @@
 
   <frame pos="-120 70"> <!-- window position -->
       {% block header %}
-          <label pos="0 -2" textsize="2.5" size="220 7" text="{{title}}" halign="left" valign="top" textprefix="{{icon}}  " textfont="RajdhaniMono"/>
+          <label pos="2 -2" textsize="2.5" size="220 7" text="{{title}}" halign="left" valign="top" textprefix="{{icon}}  " textfont="RajdhaniMono"/>
             {% if fields %}
-                {{ ui.button("", id+"__list_button_refresh", 226,0,6,6,"ddd") }} >
-                {{ ui.button("✖", id+"__list_button_close", 232, 0, 6,6,"d00","0000") }} >
+                {{ ui.button("", id+"__button_refresh", 226,0,6,6,"ddd") }} >
+                {{ ui.button("✖", id+"__button_close", 232, 0, 6,6,"d00","0000") }} >
             {% else %}
                {{ ui.button("✖", id+"__button_close", 232, 0, 7, 7, "d00", "0000") }}
             {% endif %}

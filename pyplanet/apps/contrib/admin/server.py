@@ -7,7 +7,7 @@ from pyplanet.apps.core.maniaplanet.callbacks.player import player_chat
 from pyplanet.contrib.command import Command
 from xmlrpc.client import Fault
 
-from pyplanet.apps.contrib.admin.views.setting import ModeSettingMenuView
+from pyplanet.apps.contrib.admin.views.scriptsettings import ScriptSettingsView, ServerSettingsView
 
 
 class ServerAdmin:
@@ -22,21 +22,33 @@ class ServerAdmin:
 		self.chat_redirection = False
 
 	async def on_start(self):
-		await self.instance.permission_manager.register('callvoting', 'Handle server callvoting', app=self.app, min_level=1)
-		await self.instance.permission_manager.register('password', 'Set the server passwords', app=self.app, min_level=2)
+		await self.instance.permission_manager.register('callvoting', 'Handle server callvoting', app=self.app,
+														min_level=1)
+		await self.instance.permission_manager.register('password', 'Set the server passwords', app=self.app,
+														min_level=2)
 		await self.instance.permission_manager.register('servername', 'Set the server name', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('mode', 'Set the server game mode', app=self.app, min_level=2)
-		await self.instance.permission_manager.register('chat_toggle', 'Turn the public chat on or off', app=self.app, min_level=2)
+		await self.instance.permission_manager.register('chat_toggle', 'Turn the public chat on or off', app=self.app,
+														min_level=2)
+		await self.instance.permission_manager.register('server', 'Manage all server settings', app=self.app,
+														min_level=3)
 
 		await self.instance.command_manager.register(
-			Command(command='cancelcallvote', aliases=['cancelcall'], target=self.cancel_callvote, perms='admin:callvoting', admin=True),
-			Command(command='setpassword', aliases=['srvpass'], target=self.set_password, perms='admin:password', admin=True).add_param(name='password', required=False),
-			Command(command='setspecpassword', aliases=['spectpass'], target=self.set_spec_password, perms='admin:password', admin=True).add_param(name='password', required=False),
-			Command(command='servername', target=self.set_servername, perms='admin:servername', admin=True).add_param(name='server_name', required=True, nargs='*'),
-			Command(command='mode', target=self.set_mode, perms='admin:mode', admin=True).add_param(name='mode', required=True, nargs='*'),
+			Command(command='cancelcallvote', aliases=['cancelcall'], target=self.cancel_callvote,
+					perms='admin:callvoting', admin=True),
+			Command(command='setpassword', aliases=['srvpass'], target=self.set_password, perms='admin:password',
+					admin=True).add_param(name='password', required=False),
+			Command(command='setspecpassword', aliases=['spectpass'], target=self.set_spec_password,
+					perms='admin:password', admin=True).add_param(name='password', required=False),
+			Command(command='servername', target=self.set_servername, perms='admin:servername', admin=True).add_param(
+				name='server_name', required=True, nargs='*'),
+			Command(command='mode', target=self.set_mode, perms='admin:mode', admin=True).add_param(name='mode',
+																									required=True,
+																									nargs='*'),
 			Command(command='modesettings', target=self.mode_settings, perms='admin:mode', admin=True)
 				.add_param(name='setting', required=False)
 				.add_param(name='content', required=False),
+			Command(command='server', target=self.server_settings, perms='admin:server', admin=True),
 			Command(command='chat', target=self.chat_toggle, perms='admin:chat_toggle', admin=True)
 				.add_param(name='enable', required=False),
 		)
@@ -105,7 +117,27 @@ class ServerAdmin:
 	async def mode_settings(self, player, data, **kwargs):
 		setting_name = data.setting
 		if setting_name is None:
-			view = ModeSettingMenuView(self.app, player)
+			server_settings = await self.instance.mode_manager.get_settings()
+
+			mode_info = await self.app.instance.mode_manager.get_current_script_info()
+			descriptions = {}
+			for info in mode_info['ParamDescs']:
+				descriptions[info['Name']] = info['Desc']
+
+			types = {}
+			for key, value in server_settings.items():
+
+				if isinstance(value, bool):
+					types[key] = "bool"
+				elif isinstance(value, float):
+					types[key] = "float"
+				elif isinstance(value, int):
+					types[key] = "int"
+				else:
+					types[key] = "string"
+
+			view = ScriptSettingsView(self.app, player, server_settings, descriptions, types)
+
 			await view.display(player=player.login)
 		else:
 			if not data.content:
@@ -141,13 +173,17 @@ class ServerAdmin:
 					setting_name: type_setting
 				})
 
-				message = '$ff0Changed mode setting "$fff{}$ff0" to "$fff{}$ff0" (was: "$fff{}$ff0").'.format(setting_name, type_setting, current_value)
+				message = '$ff0Changed mode setting "$fff{}$ff0" to "$fff{}$ff0" (was: "$fff{}$ff0").'.format(
+					setting_name, type_setting, current_value)
 				await self.instance.chat(message, player)
 			except ValueError:
-				message = '$i$f00Unable to cast "$fff{}$f00" to required type ($fff{}$f00) for "$fff{}$f00".'.format(setting_value, current_type, setting_name)
+				message = '$i$f00Unable to cast "$fff{}$f00" to required type ($fff{}$f00) for "$fff{}$f00".'.format(
+					setting_value, current_type, setting_name)
 				await self.instance.chat(message, player)
 			except Fault as exception:
-				message = '$i$f00Unable to set "$fff{}$f00" to "$fff{}$f00": $fff{}$f00.'.format(setting_name, type_setting, exception)
+				message = '$i$f00Unable to set "$fff{}$f00" to "$fff{}$f00": $fff{}$f00.'.format(setting_name,
+																								 type_setting,
+																								 exception)
 				await self.instance.chat(message, player)
 
 	async def set_servername(self, player, data, **kwargs):
@@ -185,3 +221,58 @@ class ServerAdmin:
 				self.instance.gbx('SetServerPassword', data.password),
 				self.instance.chat(message, player)
 			)
+
+	async def server_settings(self, player, data, **kwargs):
+		server_settings = await self.instance.gbx('GetServerOptions')
+		settings = {}
+		for key, value in server_settings.items():
+			if "Current" not in key:
+				settings[key] = value
+
+		descriptions = {
+			'Name': 'Server Name',
+			'Comment': 'Server Comment',
+			'Password': 'Join Password',
+			'PasswordForSpectator': "Spectator Password",
+			'CurrentMaxPlayers': 'Current Max Players',
+			'CurrentMaxSpectators': 'Current Max Spectators',
+			'NextMaxPlayers': 'Max Players',
+			'NextMaxSpectators': "Next Max Spectators",
+			'KeepPlayerSlots': "Keep player Slots",
+			'IsP2PUpload': "Enable Peer to peer Upload",
+			'IsP2PDownload': "Enable Peer to peer Download",
+			'CurrentLadderMode': "Current Ladder Mode",
+			'NextLadderMode': "Next Ladder Mode",
+			'CurrentVehicleNetQuality': 'Current Vehicle Quality',
+			'NextVehicleNetQuality': 'Next Vehicle Quality',
+			'CurrentCallVoteTimeOut': 'Current Callvote Time out',
+			'NextCallVoteTimeOut': 'Next CallVote Timeout',
+			'CallVoteRatio': 'Callvote Ratio',
+			'AllowMapDownload': 'Allow Map Download',
+			'AutoSaveReplays': 'Autosave Replays',
+			'RefereePassword': 'Referee Password',
+			'RefereeMode': 'Referee Mode',
+			'AutoSaveValidationReplays': 'Autosave Validation Replays',
+			'HideServer': 'Hide Server',
+			'CurrentUseChangingValidationSeed': 'Current Use Changing Validation Seed',
+			'NextUseChangingValidationSeed': 'Next Use Changing Validation Seed',
+			'ClientInputsMaxLatency': 'Client Input Max Latency',
+			'DisableHorns': 'Disable Horns',
+			'DisableServiceAnnounces': 'Disable Announcements',
+		}
+
+		types = {}
+		for key, value in settings.items():
+			if isinstance(value, bool):
+				types[key] = "bool"
+			elif isinstance(value, float):
+				types[key] = "float"
+			elif isinstance(value, int):
+				types[key] = "int"
+			elif "Password" in key:
+				types[key] = "password"
+			else:
+				types[key] = "string"
+
+		view = ServerSettingsView(self.app, player, settings, descriptions, types)
+		await view.display(player=player.login)

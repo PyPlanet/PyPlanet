@@ -5,7 +5,6 @@ from pyplanet.apps.contrib.admin.server import ServerAdmin
 from pyplanet.apps.contrib.admin.pyplanet import PyPlanetAdmin
 from pyplanet.apps.contrib.admin.flow import FlowAdmin
 from pyplanet.apps.contrib.admin.toolbar import ToolbarAdmin
-from pyplanet.apps.contrib.admin.scriptsettings import ScriptSettingsAdmin
 from pyplanet.apps.contrib.admin.mapbrowser import MapBrowser
 
 
@@ -22,7 +21,6 @@ class Admin(AppConfig):
 		self.server = ServerAdmin(self)
 		self.pyplanet = PyPlanetAdmin(self)
 		self.flow = FlowAdmin(self)
-		self.scriptsettings = ScriptSettingsAdmin(self)
 		self.mapbrowser = MapBrowser(self)
 
 	async def on_start(self):
@@ -32,5 +30,4 @@ class Admin(AppConfig):
 		await self.server.on_start()
 		await self.pyplanet.on_start()
 		await self.flow.on_start()
-		await self.scriptsettings.on_start()
 		await self.mapbrowser.on_start()

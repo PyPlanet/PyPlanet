@@ -1,38 +1,59 @@
 {% extends 'core.views/generics/window.xml' %}
 
+  {% block header %}
+    <label pos="210 -3.5" size="72 7" text="$o{{ count }} items" textsize="1" textfont="RajdhaniMono" halign="right" valign="center" />
+    {{ super() }}
+  {% endblock %}
+
 {% block contents %}
-  {% call ui.scrollable(20, 0, 200, 100, True, False) %}
+
+  <frame pos="10 0" size="218 6" id="list_header">
+          <quad pos="0 0.2" size="220 5.2" z-index="-20" style="Bgs1InRace" substyle="BgCardList"/>
+          {% for field in fields %}
+          <label pos="{{ field.left }} -2.4" size="{{ field.width }} 4.9" text="$o$fff {{ field.name }}"
+                 textsize="1.3" valign="center2" />
+          {% endfor %}
+  </frame>
+
+  {% call ui.scrollable(10, -6, 218, 100) %}
 
     {% for name, setting_value in settings.items() %}
     <frame pos="2 -{{ (loop.index0 * 6) + 2}}">
-      <label pos="0 0" size="70 5" text="{{name}}" textsize="1.2" valign="top"/>
-      <label pos="70 0" size="40 5" text="{{descriptions[name]}}" textsize="1.2" valign="top"/>
+      <label pos="0 -2.5" size="80 5" text="{{name}}" textsize="1.2" valign="center" />
 
       {% if types[name] == "bool" %}
         {% if setting_value == True %}
-          {{ ui.checkbox("", name, 120, 2, 1) }}
+          {{ ui.checkbox("", name, 80, 0, 1) }}
         {% elif setting_value == False %}
-          {{ ui.checkbox("", name, 120, 2, 0) }}
+          {{ ui.checkbox("", name, 80, 0, 0) }}
         {% endif %}
-        {% elif types[name] == "string" %}
 
-         <entry pos="120 -2.5" size="60 5" name="{{name}}"
-             default="{{ setting_value|default('', True) }}" textsize="1.2" valign="center" focusareacolor1="0003" focusareacolor2="FFF2"/>
-
-      {% elif  types[name] == "int" or types[name] == "float"%}
-         <entry pos="120 -2.5" size="60 5" name="{{name}}"
-             default="{{ setting_value|default('0', True) }}" textsize="1.2" valign="center" focusareacolor1="0003" focusareacolor2="FFF2"/>
-
-      {% elif setting_value is mapping %}
-         {{ ui.dropdown(setting_value, name, 120,0) }}
+      {% elif types[name] == "string" %}
+          {{ ui.input(setting_value, name, 80, -2.5, 80) }}
+      {% elif types[name] == "password" %}
+           {{ ui.inputMasked(setting_value, name, 80, -2.5, 80) }}
+      {% elif types[name] == "int" or types[name] == "float" %}
+          {{ ui.input(setting_value|default("0",True), name, 80, -2.5, 80) }}
+      {% else %}
+         <label pos="80 -2.5" size="80 5" text="*listed value not supported*" textsize="1" halign="center" valign="center" />
       {% endif %}
-      <label pos="180 0" size="20 5" text="{{types[name]}}" textsize="1.2" valign="top"/>
+
+      <label pos="190 -2.5" size="60 5" text="{{types[name]}}" textsize="1.2" halign="center" valign="center" />
+
+      {% if loop.index0 % 2 != 0 %}
+          <quad pos="0 0" size="220 5" z-index="-20" bgcolor="0003"/>
+      {% endif %}
     </frame>
     {% endfor %}
-
   {% endcall %}
 
-  {{ ui.confirmbutton("Save", id+"__button_save", 180,-100, 24,6, "090") }}
-  {{ ui.decoratedbutton("Cancel", id+"__button_cancel", 202, -100, 24,6, "900") }}
+  <quad pos="10 -5" size="218 101" z-index="-20" bgcolor="0004"/>
 
+  {{ ui.confirmbutton("Save", id+"__button_save", 194-14,-110, 24, 6, "ddd") }}
+  {{ ui.decoratedbutton("Cancel", id+"__button_cancel", 218-12, -110, 24, 6, "ddd") }}
+
+{% endblock %}
+
+{% block maniascript %}
+<script><!-- {% include 'core.views/generics/scripts/scrollable.Script.Txt' %} --></script>
 {% endblock %}
