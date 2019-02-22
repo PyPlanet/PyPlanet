@@ -21,16 +21,16 @@ Void HideWindow(Boolean _anim, Vec2 WindowOrigin) {
     declare SizeY = TextLib::ToReal(Window.DataAttributeGet("sizey"));
 
                              //  top, left, right, bottom
-    declare Vec2[] positions = [<-120., 90.>, <-160., -90.>,<130., -90.>,<-120., -90.>];
-    declare Vec2[] sizes =     [<180., 10.>, <20., 190.>, <30., 190.>, <180., 30.>];
+    declare Vec2[] positions = [<-160., 91.>, <-161., -90.>,<130., -90.>,<-120., -90.>];
+    declare Vec2[] sizes =     [<320., 3.>, <20., 300.>, <30., 300.>, <180., 30.>];
     declare Vec2[] mult =      [<0., 1.>, <-1. ,0.>, <1., 0.>, <0., -1.>];
     declare found = False;
     declare Real posX = WindowOrigin.X;
     declare Real posY = WindowOrigin.Y;
     for(i, 0, 3) {
-        if (!found && intersect(WindowOrigin, <SizeX, SizeY>, positions[i], sizes[i])) {
-             posX = WindowOrigin.X + (mult[i].X * Window.Size.X);
-             posY = WindowOrigin.Y + (mult[i].Y * Window.Size.Y);
+        if ( intersect(WindowOrigin, <SizeX, SizeY>, positions[i], sizes[i])) {
+             posX = WindowOrigin.X + (mult[i].X * SizeX);
+             posY = WindowOrigin.Y + (mult[i].Y * SizeY);
              found = True;
         }
     }
@@ -38,19 +38,22 @@ Void HideWindow(Boolean _anim, Vec2 WindowOrigin) {
     if (found) {
         if (_anim) {
             declare Text position =  posX ^ " " ^ posY;
-            AnimMgr.Add(Window, "<elem pos=\""^ position ^"\"/>", 1500, CAnimManager::EAnimManagerEasing::BackIn);
+            AnimMgr.Add(Window, "<elem pos=\""^ position ^"\"/>", 750, CAnimManager::EAnimManagerEasing::BackIn);
         } else {
             Window.RelativePosition_V3 = <posX, posY>;
         }
+    } else {
+        Window.Hide();
     }
 
 }
 
 Void ShowWindow(Boolean _anim, Vec2 WindowOrigin) {
     declare Window = (Page.GetFirstChild("Window") as CMlFrame);
+    Window.Show();
     if (_anim) {
        declare Text position =  WindowOrigin.X ^ " " ^ WindowOrigin.Y ;
-       AnimMgr.Add(Window, "<elem pos=\""^ position ^"\"/>", 1500, CAnimManager::EAnimManagerEasing::BackOut);
+       AnimMgr.Add(Window, "<elem pos=\""^ position ^"\"/>", 750, CAnimManager::EAnimManagerEasing::BackOut);
     } else {
         Window.RelativePosition_V3 = <WindowOrigin.X,  WindowOrigin.Y>;
     }
