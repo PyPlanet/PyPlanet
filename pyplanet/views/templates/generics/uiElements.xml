@@ -77,9 +77,10 @@ pos="{{posX}} {{posY}}" {% if id != "" %}id="{{id}}"{% endif %} class="uiContain
 </frame>
 {% endmacro %}
 
-{% macro scrollable(posX=0, posY=0, width=50, height=50) %}
+{% macro scrollable(posX=0, posY=0, width=50, height=50, scrollWidth=0, scrollHeight=150) %}
 <frame pos="{{posX}} {{posY}}">
-  <frame class="uiScrollable" scroll="1" size="{{width - 5}} {{height - 5}}">
+  <frame class="uiScrollable" scroll="1" size="{{width - 5}} {{height - 5}}"
+         scrollmax="{{scrollWidth}} {{scrollHeight}}" >
     <frame>
       {{ caller() }}
     </frame>
@@ -93,6 +94,7 @@ pos="{{posX}} {{posY}}" {% if id != "" %}id="{{id}}"{% endif %} class="uiContain
            focusareacolor1="aaa" focusareacolor2="777"/>
     <quad size="4 {{height}}" halign="right" valign="top" bgcolor="000a"/>
   </frame>
+  <quad pos="0 0" size="{{width}} {{height}}" z-index="-20" bgcolor="0004"/>
 </frame>
 {% endmacro %}
 

@@ -15,7 +15,7 @@
           {% endfor %}
   </frame>
 
-  {% call ui.scrollable(10, -6, 218, 100) %}
+  {% call ui.scrollable(10, -6, 218, 100, 0, (count*4) ) %}
 
     {% for name, setting_value in settings.items() %}
     <frame pos="2 -{{ (loop.index0 * 6) + 2}}">
@@ -46,8 +46,6 @@
     </frame>
     {% endfor %}
   {% endcall %}
-
-  <quad pos="10 -5" size="218 101" z-index="-20" bgcolor="0004"/>
 
   {{ ui.confirmbutton("Save", id+"__button_save", 194-14,-110, 24, 6, "ddd") }}
   {{ ui.decoratedbutton("Cancel", id+"__button_cancel", 218-12, -110, 24, 6, "ddd") }}

@@ -13,7 +13,7 @@ Page.GetClassChildren ("uiScrollable", Page.MainFrame, True);
 foreach (frame in Page.GetClassChildren_Result) {
     declare Frame <=> (frame as CMlFrame);
     declare scroller = (Frame.Controls[0] as CMlFrame);
-    Frame.ScrollMax = <0., scroller.Size.Y>;
+    // Frame.ScrollMax = <0., scroller.Size.Y>;
     Frames.add(Frame);
 }
 
@@ -60,7 +60,7 @@ if (MouseLeftButton == False)  {
 }
 
 foreach (frame in Frames) {
-       (frame.Parent.Controls[1] as CMlFrame).Controls[0].RelativePosition_V3.Y =  -(4.0+ (frame.ScrollOffset.Y /100) * (frame.Controls[0].Size.Y -18.));
+       (frame.Parent.Controls[1] as CMlFrame).Controls[0].RelativePosition_V3.Y =  -(4.0+ (frame.ScrollOffset.Y / frame.ScrollMax.Y) * (frame.Controls[0].Size.Y -18.));
 }
 ***
 
