@@ -11,8 +11,8 @@ logger = logging.getLogger(__name__)
 class WidgetView(TemplateView):
 	widget_x = None
 	widget_y = None
-	size_x = None
-	size_y = None
+	size_x = 50
+	size_y = 50
 	title = None
 	action = None
 	distraction_hide = True

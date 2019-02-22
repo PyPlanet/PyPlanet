@@ -9,7 +9,8 @@ from pyplanet.contrib.player.exceptions import PlayerNotFound
 class MapInfoWidget(WidgetView):
 	widget_x = 125
 	widget_y = 90
-
+	size_x = 35
+	size_y = 15
 	template_name = 'info/mapinfo.xml'
 
 	def __init__(self, app):
@@ -52,6 +53,8 @@ class MapInfoWidget(WidgetView):
 class ServerInfoWidget(WidgetView):
 	widget_x = -160
 	widget_y = 90
+	size_x = 35
+	size_y = 20
 
 	template_name = 'info/serverinfo.xml'
 

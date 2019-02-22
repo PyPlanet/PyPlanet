@@ -1,12 +1,72 @@
 /* ----------------- ToggleUI ------------------ */
 
+/*Boolean intersect(Vec2 posA, Vec2 sizeA, Vec2 posB, Vec2 sizeB) {
+  return (MathLib::Abs(posA.X - posB.X) * 2 < (sizeA.X + sizeB.X)) &&
+         (MathLib::Abs(posA.Y - posB.Y) * 2 < (sizeA.Y + sizeB.Y));
+} */
+
+Boolean intersect(Vec2 _posA, Vec2 sizeA, Vec2 _posB, Vec2 sizeB) {
+  declare Vec2 scaleUp = <160., 90.>;
+  declare posA = _posA + scaleUp;
+  declare posB = _posB + scaleUp;
+  return MathLib::Max(posA.X, posB.X) < MathLib::Min(posA.X + sizeA.X, posB.X + sizeB.X) &&
+          MathLib::Max(posA.Y, posB.Y) < MathLib::Min(posA.Y + sizeA.Y, posB.Y + sizeB.Y);
+}
+
+
+
+Void HideWindow(Boolean _anim, Vec2 WindowOrigin) {
+    declare Window = (Page.GetFirstChild("Window") as CMlFrame);
+    declare SizeX = TextLib::ToReal(Window.DataAttributeGet("sizex"));
+    declare SizeY = TextLib::ToReal(Window.DataAttributeGet("sizey"));
+
+                             //  top, left, right, bottom
+    declare Vec2[] positions = [<-120., 90.>, <-160., -90.>,<130., -90.>,<-120., -90.>];
+    declare Vec2[] sizes =     [<180., 10.>, <20., 190.>, <30., 190.>, <180., 30.>];
+    declare Vec2[] mult =      [<0., 1.>, <-1. ,0.>, <1., 0.>, <0., -1.>];
+    declare found = False;
+    declare Real posX = WindowOrigin.X;
+    declare Real posY = WindowOrigin.Y;
+    for(i, 0, 3) {
+        if (!found && intersect(WindowOrigin, <SizeX, SizeY>, positions[i], sizes[i])) {
+             posX = WindowOrigin.X + (mult[i].X * Window.Size.X);
+             posY = WindowOrigin.Y + (mult[i].Y * Window.Size.Y);
+             found = True;
+        }
+    }
+
+    if (found) {
+        if (_anim) {
+            declare Text position =  posX ^ " " ^ posY;
+            AnimMgr.Add(Window, "<elem pos=\""^ position ^"\"/>", 1500, CAnimManager::EAnimManagerEasing::BackIn);
+        } else {
+            Window.RelativePosition_V3 = <posX, posY>;
+        }
+    }
+
+}
+
+Void ShowWindow(Boolean _anim, Vec2 WindowOrigin) {
+    declare Window = (Page.GetFirstChild("Window") as CMlFrame);
+    if (_anim) {
+       declare Text position =  WindowOrigin.X ^ " " ^ WindowOrigin.Y ;
+       AnimMgr.Add(Window, "<elem pos=\""^ position ^"\"/>", 1500, CAnimManager::EAnimManagerEasing::BackOut);
+    } else {
+        Window.RelativePosition_V3 = <WindowOrigin.X,  WindowOrigin.Y>;
+    }
+}
+
 ***OnInit***
 ***
 declare Boolean Net_DistractionFreeMode for UI;
 declare Boolean Prev_DistractionFreeMode = False;
+declare Vec2 WindowOrigin = Page.GetFirstChild("Window").RelativePosition_V3;
+declare Window = (Page.GetFirstChild("Window") as CMlFrame);
+declare SizeX = TextLib::ToReal(Window.DataAttributeGet("sizex"));
+declare SizeY = TextLib::ToReal(Window.DataAttributeGet("sizey"));
 
 if (Net_DistractionFreeMode == True) {
-    Page.GetFirstChild("Window").Hide();
+    HideWindow(False, WindowOrigin);
 }
 ***
 
@@ -17,10 +77,9 @@ if (Net_DistractionFreeMode == True) {
           Prev_DistractionFreeMode = Net_DistractionFreeMode;
 
           if (Net_DistractionFreeMode == True) {
-              Page.GetFirstChild("Window").Hide();
+               HideWindow(True, WindowOrigin);
           } else {
-            Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
-              Page.GetFirstChild("Window").Show();
+               ShowWindow(True, WindowOrigin);
           }
       }
 ***

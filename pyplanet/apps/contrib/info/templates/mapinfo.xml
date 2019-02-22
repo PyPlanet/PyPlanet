@@ -15,7 +15,7 @@
          id="author_label" scriptevents="1"
          />
 
-  <quad pos="0 -13" z-index="0" size="40 6" bgcolor="00000060"/>
+  <quad pos="0 -13" z-index="0" size="35 6" bgcolor="00000060"/>
   <quad pos="0 -13" z-index="0" size="6.5 6" bgcolor="00000060"/>
   <label pos="1.25 -13.75" z-index="1" size="5 5" text="&#xf017;"/>
   <label pos="20.5 -16.25" z-index="1" size="28.5 6" text="{{ map_authortime }}" textsize="1.6" valign="center2" halign="center" textfont="RajdhaniMono" textemboss="1"/>

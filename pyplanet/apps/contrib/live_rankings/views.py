@@ -7,7 +7,7 @@ from pyplanet.utils import times
 class LiveRankingsWidget(TimesWidgetView):
 	widget_x = -160
 	widget_y = 70.5
-	size_x = 38
+	size_x = 35
 	size_y = 55.5
 	top_entries = 5
 	title = 'Live Rankings'

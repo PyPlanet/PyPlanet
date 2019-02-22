@@ -11,8 +11,8 @@ logger = logging.getLogger(__name__)
 class TabWidgetView(TemplateView):
 	widget_x = None
 	widget_y = None
-	size_x = None
-	size_y = None
+	size_x = 38
+	size_y = 55
 	title = None
 	action = None
 	distraction_hide = True

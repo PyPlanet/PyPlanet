@@ -11,6 +11,8 @@ from pyplanet.utils import times
 class LocalRecordsWidget(TabTimesWidgetView):
 	widget_x = 125
 	widget_y = 56.5
+	size_x = 38
+	size_y = 55.5
 	top_entries = 5
 	title = 'Local Records'
 

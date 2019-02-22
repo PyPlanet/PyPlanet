@@ -1,7 +1,5 @@
-{% import 'core.views/generics/uiElements.xml' as ui %}
-
-<frame pos="{{ widget_x }} {{ widget_y }}" z-index="550" id="Window"
-       class="{% if distraction_hide %}distraction-hide{% endif %}">
+<frame pos="{{ widget_x }} {{ widget_y }}" size="{{size_x}} {{size_y}}" z-index="550" id="Window"
+       data-sizex="{{size_x}}" data-sizey="{{size_y}}" class="{% if distraction_hide %}distraction-hide{% endif %}">
   {% block title %}
       {% if title %}
       <quad pos="0 0" z-index="0" size="35 6" bgcolor="00000099"/>
@@ -28,11 +26,11 @@
   <frame pos="0 {% if title %}-6.5{% else %}0{% endif %}">
     {% block content %}{% endblock %}
   </frame>
+
 </frame>
 
 <script><!-- {% include 'core.views/generics/scripts/includes.Script.Txt' %} --></script>
 {% block maniascript_pre %} {% endblock %}
-<script><!-- {% include 'core.views/generics/scripts/uiElements.Script.Txt' %} --></script>
 <script><!-- {% include 'core.views/generics/scripts/toggleUi.Script.Txt' %} --></script>
 {% block maniascript %} {% endblock %}
 <script><!--
