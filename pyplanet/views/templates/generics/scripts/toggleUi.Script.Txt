@@ -2,14 +2,11 @@
 
 ***OnInit***
 ***
-declare netwrite Boolean Net_DistractionFreeMode for UI;
+declare Boolean Net_DistractionFreeMode for UI;
 declare Boolean Prev_DistractionFreeMode = False;
 
 if (Net_DistractionFreeMode == True) {
-  Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
-  foreach (Control in Page.GetClassChildren_Result) {
-    Control.Hide();
-  }
+    Page.GetFirstChild("Window").Hide();
 }
 ***
 
@@ -20,15 +17,10 @@ if (Net_DistractionFreeMode == True) {
           Prev_DistractionFreeMode = Net_DistractionFreeMode;
 
           if (Net_DistractionFreeMode == True) {
-            Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
-            foreach (Control in Page.GetClassChildren_Result) {
-              Control.Hide();
-            }
+              Page.GetFirstChild("Window").Hide();
           } else {
             Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
-            foreach (Control in Page.GetClassChildren_Result) {
-              Control.Show();
-            }
+              Page.GetFirstChild("Window").Show();
           }
       }
 ***

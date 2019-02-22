@@ -31,20 +31,30 @@ Void uiSetCheckbox(CMlFrame frame, Boolean status) {
 
 ***OnInit***
 ***
-Page.GetClassChildren ("uiContainer", Page.MainFrame, True);
+Page.GetClassChildren("uiCheckbox", Page.MainFrame, True);
 foreach (frame in Page.GetClassChildren_Result) {
-    if (frame.HasClass("uiCheckbox")) {
         uiRenderCheckbox((frame as CMlFrame));
-    }
 }
 ***
-
 
 ***OnMouseClick***
 ***
 if (Event.Control.HasClass("uiCheckboxElement") ) {
-    if (Event.Control.Parent.HasClass("uiCheckbox")) {
-        uiToggleCheckbox(Event.Control.Parent);
+    if (Event.Control.Parent.HasClass("uiCheckboxGroup")) {
+        Page.GetClassChildren("uiCheckboxGroup", Page.MainFrame, True);
+        declare group = Event.Control.DataAttributeGet("group");
+        foreach (frame in Page.GetClassChildren_Result) {
+            if (frame.HasClass(group)) {
+                if (frame != Event.Control.Parent) {
+                  uiSetCheckbox((frame as CMlFrame), False);
+                }
+            }
+        }
+        uiSetCheckbox(Event.Control.Parent, True);
+    } else {
+      if (Event.Control.Parent.HasClass("uiCheckbox")) {
+          uiToggleCheckbox(Event.Control.Parent);
+      }
     }
 }
 ***
@@ -202,11 +212,9 @@ Void uiRenderDropdown(CMlFrame frame) {
 
 ***OnInit***
 ***
-Page.GetClassChildren("uiContainer", Page.MainFrame, True);
+Page.GetClassChildren("uiDropdown", Page.MainFrame, True);
 foreach (frame in Page.GetClassChildren_Result) {
-    if (frame.HasClass("uiDropdown")) {
         uiRenderDropdown((frame as CMlFrame));
-    }
 }
 ***
 
@@ -229,8 +237,8 @@ if (Event.Control.HasClass("uiSelectElement")) {
 
 
 /* -------------------- masked input --------------------------------- */
-   ***OnMouseClick***
-   ***
+***OnMouseClick***
+***
     if (Event.Control.HasClass("uiMaskedToggle") ) {
          declare CMlFrame frame <=> Event.Control.Parent.Parent;
          declare CMlEntry input <=> (frame.Controls[0] as CMlEntry);
@@ -242,4 +250,4 @@ if (Event.Control.HasClass("uiSelectElement")) {
            input.TextFormat = CMlEntry::ETextFormat::Basic;
          }
     }
-   ***
+***

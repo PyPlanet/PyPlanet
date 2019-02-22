@@ -53,8 +53,6 @@
   } else {
       (Page.GetFirstChild("Window") as CMlFrame).Hide();
   }
-
-
 ***
 
 ***Loop***
@@ -83,9 +81,5 @@
     }
 
 ***
-
-
-
-
 --></script>
 <script><!-- {% include 'core.views/generics/scripts/main.Script.Txt' %} --></script>
