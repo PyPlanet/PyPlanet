@@ -38,6 +38,18 @@ Required permission:
   ``admin:reboot``, requires admin level 3.
 
 
+Toggle the admin toolbar personally
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Command:
+  ``//toolbar``
+Parameters:
+  None.
+Functionality:
+  Toggle the visibility of the admin toolbar personally.
+Required permission:
+  at least admin level 1.
+
+
 Maps
 ^^^^
 
