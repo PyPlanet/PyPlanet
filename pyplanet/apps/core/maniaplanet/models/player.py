@@ -43,6 +43,16 @@ class Player(TimedModel):
 	When is the player last seen on the server.
 	"""
 
+	total_playtime = IntegerField(default=0, null=False)
+	"""
+	The total playtime of the player
+	"""
+
+	total_donations = IntegerField(default=0, null=False)
+	"""
+	The total donations given by the player.
+	"""
+
 	level = IntegerField(choices=LEVEL_CHOICES, default=LEVEL_PLAYER)
 	"""
 	The level of the player. See the LEVEL_CHOICES tuple. Use methods like get_level_string on player object to retrieve
@@ -129,6 +139,7 @@ class PlayerFlow:
 		self.is_broadcasting = None
 		self.has_joined_game = None
 		self.zone = None
+		self.joined_at = None
 		self.other = dict()
 
 	def start_run(self):
