@@ -63,7 +63,13 @@ async def handle_scores(source, signal, **kwargs):
 			match_points=data['mappoints'], rank=data['rank'], best_lap_time=data['bestlaptime'],
 			best_lap_respawns=data['bestlaprespawns'], map_points=data['mappoints'], best_race_time=data['bestracetime'],
 			round_points=data['roundpoints'], best_race_checkpoints=data['bestracecheckpoints'],
-			best_race_respawns=data['bestracerespawns']
+			best_race_respawns=data['bestracerespawns'],
+
+			# New since 2.5.0, so check if exist as we want backward compatibility.
+			prevracetime=data['prevracetime'] if 'prevracetime' in data else None,
+			prevracerespawns=data['prevracerespawns'] if 'prevracerespawns' in data else None,
+			prevracecheckpoints=data['prevracecheckpoints'] if 'prevracecheckpoints' in data else None,
+			prevstuntsscore=data['prevstuntsscore'] if 'prevstuntsscore' in data else None,
 		)
 
 	def get_team_scores(data):
