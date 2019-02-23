@@ -89,6 +89,11 @@ class Transactions(AppConfig):
 					else:
 						message = '$f0fYou made a donation of $fff{}$f0f planets. Thank You!'.format(current_bill['amount'])
 						await self.instance.chat(message, current_bill['player'].login)
+
+					# Update the player's total donations statistics.
+					player = current_bill['player']
+					player.total_donations += current_bill['amount']
+					await player.save()
 				else:
 					message = '$f0fPayment of $fff{}$f0f planets to $fff{}$f0f confirmed!'.format(-current_bill['amount'], current_bill['player'])
 					await self.instance.chat(message, current_bill['admin'].login)

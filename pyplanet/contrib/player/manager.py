@@ -167,6 +167,9 @@ class PlayerManager(CoreContrib):
 				level=Player.LEVEL_MASTER if is_owner else Player.LEVEL_PLAYER,
 			)
 
+		# Set the join time.
+		player.flow.joined_at = datetime.datetime.now()
+
 		# Update counter and state.
 		async with self._counter_lock:
 			player.flow.player_id = info['PlayerId']
@@ -251,6 +254,11 @@ class PlayerManager(CoreContrib):
 			self._online.remove(player)
 		if login in self._online_logins:
 			self._online_logins.remove(login)
+
+		# Calculate the number of seconds on the server and update the total time on server.
+		if player.flow.joined_at:
+			time_on_server = datetime.datetime.now() - player.flow.joined_at
+			player.total_playtime += int(time_on_server.total_seconds())
 
 		try:
 			del Player.CACHE[login]
