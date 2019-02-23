@@ -32,7 +32,6 @@ class MXApi:
 			await self.session.__aexit__()
 
 	async def search(self, options, **kwargs):
-
 		if options is None:
 			options = {
 				"api": "on",

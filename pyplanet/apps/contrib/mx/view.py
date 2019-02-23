@@ -2,8 +2,12 @@
 Mode Settings Views.
 """
 import asyncio
+import logging
+
 from pyplanet.views.generics import ManualListView
 from pyplanet.apps.contrib.mx.exceptions import MXMapNotFound, MXInvalidResponse
+
+logger = logging.getLogger(__name__)
 
 
 class MxSearchListView(ManualListView):
@@ -20,10 +24,17 @@ class MxSearchListView(ManualListView):
 		self.player = player
 		self.app = app
 		self.api = api
+
 		self.template_name = 'mx/search.xml'
 		self.response_future = asyncio.Future()
+
 		self.cache = None
-		self.provide_search = False
+		self.has_data = False
+
+		self.search_map = None
+		self.search_author = None
+		self.provide_search = True
+
 		self.fields = [
 			{
 				'name': 'ID',
@@ -75,7 +86,7 @@ class MxSearchListView(ManualListView):
 				'type': 'label'
 			},
 		]
-		print(self.app.instance.game.game)
+
 		if self.app.instance.game.game == "tm":
 			self.fields.append({
 				'name': 'Length',
@@ -91,8 +102,18 @@ class MxSearchListView(ManualListView):
 		self.subscribe("mx_search", self.action_search)
 
 	async def get_data(self):
-		if self.cache:
-			return self.cache
+		if not self.has_data:
+			# First opening, request the data.
+			await self.do_search(refresh=False)
+			self.has_data = True
+
+		return self.cache
+
+	async def get_object_data(self):
+		data = await super().get_object_data()
+		data['search_map'] = self.search_map
+		data['search_author'] = self.search_author
+		return data
 
 	async def display(self, player=None):
 		return await super().display(player or self.player)
@@ -113,19 +134,17 @@ class MxSearchListView(ManualListView):
 		await self.app.instance.command_manager.execute(user, '//mx add', str(map['mxid']))
 
 	async def action_search(self, user, action, values, *args, **kwargs):
-		mx_map = values['map']
-		mx_author = values['author']
+		self.search_map = values['map']
+		self.search_author = values['author']
 
 		if values['map'] == "Search Map...":
-			mx_map = None
+			self.search_map = None
 		if values['author'] == "Search Author...":
-			mx_author = None
+			self.search_author = None
 
-		# todo find a way to add mx_map and mx_author to context_data
+		await self.do_search(self.search_map, self.search_author)
 
-		await self.do_search(mx_map, mx_author)
-
-	async def do_search(self, trackname=None, authorname=None, **terms):
+	async def do_search(self, trackname=None, authorname=None, refresh=True, **terms):
 		try:
 			options = {
 				"api": "on",
@@ -141,16 +160,19 @@ class MxSearchListView(ManualListView):
 			if authorname is not None:
 				options['anyauthor'] = authorname
 
-			print(options)
 			infos = await self.api.search(options)
 			if len(infos) == 0:
 				raise MXMapNotFound("No results for search")
 
 		except MXMapNotFound as e:
-			print(str(e))  # todo implement graphical feedback
+			message = '$f00Error requesting MX-API: Map not found!'
+			await self.app.instance.chat(message, self.player)
+			logger.debug('MX-API: Map not found: {}'.format(str(e)))
 			return None
 		except MXInvalidResponse as e:
-			print(str(e))  # todo implement graphical feedback
+			message = '$f00Error requesting MX-API: Got an invalid response!'
+			await self.app.instance.chat(message, self.player)
+			logger.warning('MX-API: Invalid response: {}'.format(str(e)))
 			return None
 		if self.app.instance.game.game == "tm":
 			self.cache = [dict(
@@ -178,4 +200,5 @@ class MxSearchListView(ManualListView):
 				style=_map['StyleName']
 			) for _map in infos]
 
-		await self.refresh(self.player)
+		if refresh:
+			await self.refresh(self.player)

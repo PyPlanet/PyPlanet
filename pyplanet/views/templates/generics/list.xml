@@ -17,10 +17,12 @@
     <frame pos="-109 49.5" id="list_search_frame">
       <quad pos="0 0" size="218 8.5" z-index="-50" style="Bgs1InRace" substyle="BgCardList"/>
       {% if provide_search %}
+        {% block toolbar_search %}
       <entry pos="2 -4.25" size="80 6" z-index="2" default="{{ search|default('Search...', True) }}"
              focusareacolor1="0003" name="list_search_field" selecttext="1" textsize="1.6"
              focusareacolor2="FFF2" scriptevents="1" valign="center" />
       <quad pos="83 -1.35" size="6 6" bgcolor="FFFA" style="Icons64x64_1" substyle="Maximize" action="{{ id }}__list_button_search" />
+        {% endblock %}
       {% endif %}
 
       {% for button in buttons %}
