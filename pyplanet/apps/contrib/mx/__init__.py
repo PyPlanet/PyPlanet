@@ -3,6 +3,7 @@ import os
 
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.mx.api import MXApi
+from pyplanet.apps.contrib.mx.view import MxSearchListView
 from pyplanet.apps.contrib.mx.exceptions import MXMapNotFound, MXInvalidResponse
 from pyplanet.contrib.command import Command
 from pyplanet.contrib.setting import Setting
@@ -28,18 +29,27 @@ class MX(AppConfig):  # pragma: no cover
 		self.api.server_login = self.instance.game.server_player_login
 		# Set the default site in.
 		self.api.site = self.instance.game.game
-
 		await self.api.create_session()
 
 	async def on_start(self):
-		await self.instance.permission_manager.register('add_remote', 'Add map from remote source (such as MX)', app=self, min_level=2)
+		await self.instance.permission_manager.register(
+			'add_remote', 'Add map from remote source (such as MX)', app=self, min_level=2)
 		await self.context.setting.register(
 			self.setting_mx_key
 		)
+
 		await self.instance.command_manager.register(
+			Command(command='search', namespace='mx', target=self.search_mx_map, perms='mx:add_remote', admin=True),
+			Command(command='add', namespace='mx', target=self.add_mx_map, perms='mx:add_remote', admin=True)
+				.add_param('maps', nargs='*', type=str, required=True, help='MX ID(s) of maps to add.'),
 			Command(command='mx', namespace='add', target=self.add_mx_map, perms='mx:add_remote', admin=True)
 				.add_param('maps', nargs='*', type=str, required=True, help='MX ID(s) of maps to add.'),
-				)
+		)
+
+	async def search_mx_map(self, player, data, **kwargs):
+		self.api.key = await self.setting_mx_key.get_value()
+		window = MxSearchListView(self, player, self.api)
+		await window.display()
 
 	async def add_mx_map(self, player, data, **kwargs):
 		# Make sure we update the key in the api.
@@ -70,7 +80,8 @@ class MX(AppConfig):  # pragma: no cover
 			return
 
 		# Fetch setting if juke after adding is enabled.
-		juke_after_adding = await self.instance.setting_manager.get_setting('admin', 'juke_after_adding', prefetch_values=True)
+		juke_after_adding = await self.instance.setting_manager.get_setting(
+			'admin', 'juke_after_adding', prefetch_values=True)
 		juke_maps = await juke_after_adding.get_value()
 		if 'jukebox' not in self.instance.apps.apps:
 			juke_maps = False
