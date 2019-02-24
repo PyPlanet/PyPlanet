@@ -61,17 +61,17 @@ pos="{{posX}} {{posY}}" {% if id != "" %}id="{{id}}"{% endif %} class="uiContain
 <frame pos="{{posX}} {{posY}}" class="uiContainer uiDropdown" data-selected="{{selectedIndex}}" data-open="0">
   <label pos="{{width - 5}} 0" size="{{width}} {{height}}" z-index="2" class="uiSelectElement" text="⏷"
          textcolor="fff"/>
-  <label pos="0 0" size="{{width}} {{height}}" textprefix=" " text="Select..." focusareacolor1="000"
-         focusareacolor2="111" scriptevents="1" class="uiSelectElement"/>
-  <entry pos="900 900" size="26 5" textemboss="1" text="1" textsize="3" valign="center2" halign="center"
+  <label pos="0 -{{height/2}}" size="{{width}} {{height}}"  textsize="1.2" textprefix=" " text="Select..." focusareacolor1="000"
+         focusareacolor2="111" valign="center" scriptevents="1" class="uiSelectElement"/>
+  <entry pos="900 900" size="26 5" textemboss="1" text="1" textsize="1.2" valign="center2" halign="center"
          textformat="Basic" name="{{name}}"/>
   {% for entry in values %}
-  {% if (loop.first) %}
-  <frame pos="0 -{{height}}" class="uiDropdownSelect" size="{{width}} {{loop.length*5}}">
-    {% endif %}
-    <label pos="0 -{{loop.index0 * height}}" size="{{width}} {{height}}" text="{{entry.text}}"
-           data-value="{{entry.value}}" data-index="{{loop.index0}}" focusareacolor1="000" focusareacolor2="222"
-           scriptevents="1" class="uiSelectElement"/>
+      {% if (loop.first) %}
+         <frame pos="0 -{{height}}" z-index="10" class="uiDropdownSelect" size="{{width}} {{loop.length*5}}">
+      {% endif %}
+    <label pos="0 -{{loop.index * height - height/2}}" size="{{width}} {{height}}" text="{{entry.text}}"
+           data-value="{{entry.value}}" valign="center" data-index="{{loop.index0}}" focusareacolor1="000" focusareacolor2="222"
+           scriptevents="1"  textsize="1.2" class="uiSelectElement"/>
     {% endfor %}
   </frame>
 </frame>
@@ -111,8 +111,9 @@ pos="{{posX}} {{posY}}" {% if id != "" %}id="{{id}}"{% endif %} class="uiContain
 {% endmacro %}
 
 {% macro input(text='', name='', posX=0, posY=0, width=50) %}
-<frame pos="{{ posX }} {{ posY }}" class="uiContainer uiInputMasked" data-type="Password">
+<frame pos="{{ posX }} {{ posY }}" class="uiContainer uiInput" data-type="Basic">
   <entry pos="0 0" size="{{ width }} 5" textsize="1.2" valign="center" focusareacolor1="0003" focusareacolor2="FFF2"
-         default="{{ text|default('', True) }}" textformat="Basic" name="{{ name }}"/>
+         default="{{ text|default('', True) }}" textselect="1" scriptevents="1" textformat="Basic" name="{{ name }}"/>
 </frame>
+
 {% endmacro %}

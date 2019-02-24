@@ -33,6 +33,9 @@ class MxSearchListView(ManualListView):
 
 		self.search_map = None
 		self.search_author = None
+		self.style = "-1"
+		self.mode = "0"
+
 		self.provide_search = True
 
 		self.fields = [
@@ -113,6 +116,112 @@ class MxSearchListView(ManualListView):
 		data = await super().get_object_data()
 		data['search_map'] = self.search_map
 		data['search_author'] = self.search_author
+		data['mode'] = [
+			{
+				"text": "Default",
+				"value": "0"
+			},
+			{
+				"text": "Latest Tracks",
+				"value": "2"
+			},
+			{
+				"text": "Recently Awarded",
+				"value": "3"
+			},
+			{
+				"text": "Best Maps of the Month",
+				"value": "5"
+			},
+			{
+				"text": "Best Karma of Month",
+				"value": "22"
+			}
+		]
+		if self.app.instance.game.game == "tm":
+			data['styles'] = [
+				{
+					"text": "Select...",
+					"value": "-1"
+				},
+				{
+					"text": "Race",
+					"value": "1"
+				},
+				{
+					"text": "Fullspeed",
+					"value": "2"
+				},
+				{
+					"text": "Tech",
+					"value": "3"
+				},
+				{
+					"text": "RPG",
+					"value": "4"
+				},
+				{
+					"text": "LOL",
+					"value": "5"
+				},
+				{
+					"text": "Press Forward",
+					"value": "6"
+				},
+				{
+					"text": "Speedtech",
+					"value": "7"
+				},
+				{
+					"text": "Multilap",
+					"value": "8"
+				},
+				{
+					"text": "Offroad",
+					"value": "9"
+				},
+				{
+					"text": "Trial",
+					"value": "10"
+				},
+			]
+		else:
+			data['styles'] = [
+				{
+					"text": "Select...",
+					"value": "-1"
+				},
+				{
+					"text": "Solo",
+					"value": "1"
+				},
+				{
+					"text": "Team",
+					"value": "2"
+				},
+				{
+					"text": "Versus",
+					"value": "3"
+				},
+				{
+					"text": "Other",
+					"value": "4"
+				},
+			]
+
+		data['style_index'] = 0
+		i = 0
+		for i, val in enumerate(data['styles']):  # for name, age in dictionary.iteritems():  (for Python 2.x)
+			if self.style == val['value']:
+				data['style_index'] = i
+			i += 1
+
+		data['mode_index'] = 0
+		for i, val in enumerate(data['mode']):  # for name, age in dictionary.iteritems():  (for Python 2.x)
+			if self.mode == val['value']:
+				data['mode_index'] = i
+			i += 1
+
 		return data
 
 	async def display(self, player=None):
@@ -126,6 +235,7 @@ class MxSearchListView(ManualListView):
 				'text': 'Install',
 				'width': 12,
 				'action': self.action_install,
+				'require_confirm': True,
 				'safe': True
 			}
 		]
@@ -136,6 +246,8 @@ class MxSearchListView(ManualListView):
 	async def action_search(self, user, action, values, *args, **kwargs):
 		self.search_map = values['map']
 		self.search_author = values['author']
+		self.mode = values['mode']
+		self.style = values['style']
 
 		if values['map'] == "Search Map...":
 			self.search_map = None
@@ -148,11 +260,13 @@ class MxSearchListView(ManualListView):
 		try:
 			options = {
 				"api": "on",
-				"mode": 0,
+				"mode": self.mode,
 				"gv": 1,
 				"limit": 100,
 				"tpack": self.app.instance.game.dedicated_title.split("@", 1)[0]
 			}
+			if self.style is not "-1":
+				options['style'] = self.style
 
 			if trackname is not None:
 				options['trackname'] = trackname
