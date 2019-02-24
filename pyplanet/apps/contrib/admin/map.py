@@ -91,6 +91,11 @@ class MapAdmin:
 		# Simulate command.
 		await self.remove_map(player, Namespace(nr=map_dictionary['id']))
 
+		# Remove from the cache.
+		for item in view.cache:
+			if item['id'] == map_dictionary['id']:
+				view.cache.remove(item)
+
 		# Reload parent view.
 		await view.refresh(player)
 

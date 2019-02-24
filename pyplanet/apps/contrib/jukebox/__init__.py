@@ -7,6 +7,7 @@ from pyplanet.apps.contrib.jukebox.folders import FolderManager
 from pyplanet.contrib.command import Command
 
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
+from pyplanet.contrib.setting import Setting
 from pyplanet.views.generics.alert import show_alert
 
 
@@ -22,6 +23,14 @@ class Jukebox(AppConfig):
 		self.jukebox = []
 		self.folder_manager = FolderManager(self)
 
+		# Settings.
+		self.setting_newest_days_range = Setting(
+			'newest_days_range', 'Number of days for a map to be new', Setting.CAT_BEHAVIOUR, type=int,
+			description='The number of days to a map should be visible in the newest mapfolder (defaults to 14 days).',
+			default=14,
+			change_target=self.folder_manager.update_folders
+		)
+
 	async def on_start(self):
 		# Register permissions + commands.
 		await self.instance.permission_manager.register('clear', 'Clear the jukebox', app=self, min_level=1)
@@ -32,6 +41,9 @@ class Jukebox(AppConfig):
 			Command(command='jukebox', target=self.chat_command).add_param(name='option', required=False),
 			Command(command='mapfolders', target=self.show_map_folders)
 		)
+
+		# Register settings.
+		await self.context.setting.register(self.setting_newest_days_range)
 
 		# Register callback.
 		self.context.signals.listen(mp_signals.flow.podium_start, self.podium_start)

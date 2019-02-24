@@ -147,3 +147,27 @@ class StatisticsProcessor:
 		self.topsums_cache = topsums[:100]
 		self.topsums_cache_time = datetime.now()
 		return self.topsums_cache
+
+	async def get_top_active_players(self):
+		"""
+		Get the top active players of the server.
+
+		:return: List of top 100 players on the server ordered by the total playtimes.
+		"""
+		return await Player.objects.execute(
+			Player.select(Player)
+				.order_by(-Player.total_playtime)
+				.limit(100)
+		)
+
+	async def get_top_donating_players(self):
+		"""
+		Get the top donating players of the server.
+
+		:return: List of top 100 players on the server ordered by the total donations.
+		"""
+		return await Player.objects.execute(
+			Player.select(Player)
+				.order_by(-Player.total_donations)
+				.limit(100)
+		)

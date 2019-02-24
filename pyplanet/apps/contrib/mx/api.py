@@ -31,8 +31,41 @@ class MXApi:
 		if self.session and hasattr(self.session, '__aexit__'):
 			await self.session.__aexit__()
 
-	async def search(self, **params):
-		pass
+	async def search(self, options, **kwargs):
+		if options is None:
+			options = {
+				"api": "on",
+				"mode": 0,
+				"style": 0,
+				"order": -1,
+				"length": -1,
+				"page": 0,
+				"gv": 1,
+				"limit": 150
+			}
+
+		if self.key:
+			options['key'] = self.key
+
+		url = 'https://{site}.mania-exchange.com/tracksearch2/search'.format(
+			site=self.site
+		)
+		response = await self.session.get(url, params=options)
+
+		if response.status == 404:
+			raise MXMapNotFound('Got not found status from ManiaExchange: {}'.format(response.status))
+		if response.status < 200 or response.status > 399:
+			raise MXInvalidResponse('Got invalid response status from ManiaExchange: {}'.format(response.status))
+
+		maps = list()
+		json = await response.json()
+		for info in json['results']:
+			# Parse some differences between the api game endpoints.
+			mx_id = info['TrackID'] if 'TrackID' in info else info['MapID']
+			info['MapID'] = mx_id
+			info['MapUID'] = info['TrackUID'] if 'TrackUID' in info else info['MapUID']
+			maps.append(info)
+		return maps
 
 	async def map_info(self, *ids):
 		url = 'https://api.mania-exchange.com/{site}/maps/{ids}'.format(
@@ -43,6 +76,8 @@ class MXApi:
 		response = await self.session.get(url, params=params)
 		if response.status == 404:
 			raise MXMapNotFound('Map has not been found!')
+		if response.status == 302:
+			raise MXInvalidResponse('Map author has declined info for the map. Status code: {}'.format(response.status))
 		if response.status < 200 or response.status > 399:
 			raise MXInvalidResponse('Got invalid response status from ManiaExchange: {}'.format(response.status))
 		maps = list()
@@ -63,6 +98,9 @@ class MXApi:
 		response = await self.session.get(url, params=params)
 		if response.status == 404:
 			raise MXMapNotFound('Map has not been found!')
+		if response.status == 302:
+			raise MXInvalidResponse(
+				'Map author has declined download of the map. Status code: {}'.format(response.status))
 		if response.status < 200 or response.status > 399:
 			raise MXInvalidResponse('Got invalid response status from ManiaExchange: {}'.format(response.status))
 		return response
