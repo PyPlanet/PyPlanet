@@ -15,11 +15,18 @@ logger = logging.getLogger(__name__)
 
 
 class Voting(AppConfig):
+	"""
+	Chat-based voting plugin.
+	"""
+		
 	name = 'pyplanet.apps.contrib.voting'
 	game_dependencies = ['trackmania', 'shootmania']
 	app_dependencies = ['core.maniaplanet']
 
 	def __init__(self, *args, **kwargs):
+		"""
+		Initializes the voting plugin.
+		"""
 		super().__init__(*args, **kwargs)
 
 		self.current_vote = None
@@ -87,6 +94,14 @@ class Voting(AppConfig):
 		)
 
 	async def on_start(self):
+		"""
+		Called on starting the application.
+		Will register the voting settings, permissions, signals and commands.
+		Also creates the voting widget.
+
+		Disables callvoting (server-based voting).
+		"""
+
 		await self.context.setting.register(
 			self.setting_voting_enabled, self.setting_voting_ratio, self.setting_voting_timeout,
 			self.setting_remind_interval, self.setting_enabled_replay, self.setting_enabled_restart,
@@ -109,7 +124,6 @@ class Voting(AppConfig):
 		)
 
 		self.widget = VoteWidget(self)
-		await self.widget.display()
 
 		# Register callback.
 		self.context.signals.listen(mp_signals.flow.podium_start, self.podium_start)
@@ -121,29 +135,62 @@ class Voting(AppConfig):
 			await self.instance.gbx('SetCallVoteTimeOut', 0)
 
 	async def on_stop(self):
-		# Enable callvoting again on unloading the plugin.
+		"""
+		Called on unloading the application.
+		Enables callvoting (server-based voting).
+		"""
+
 		timeout = await self.setting_callvoting_timeout.get_value()
 		await self.instance.gbx('SetCallVoteTimeOut', timeout)
 
 	async def player_connect(self, player, is_spectator, source, signal):
+		"""
+		Called on a player connecting to the server.
+		Will display the voting widget to the player if a vote is currently running.
+
+		:param player: player that is joining the server
+		:param is_spectator: whether the joining player is a spectator
+		"""
+
 		if self.widget is None:
 			self.widget = VoteWidget(self)
 
-		await self.widget.display(player=player)
+		# If there is currently a vote, display the voting widget.
+		if self.current_vote is not None:
+			await self.widget.display(player=player)
 
 	async def podium_start(self, **kwargs):
+		"""
+		Called when the server switches to the podium (when the map is finished).
+		Will cancel the current vote is there is one running.
+		Also prohibits starting a new vote.
+		"""
+
 		self.podium_stage = True
 
 		if self.current_vote is not None:
 			message = '$0cfVote to $fff{}$0cf has been cancelled.'.format(self.current_vote.action)
 			await self.instance.chat(message)
 
-			self.current_vote = None
+			# Hide the voting widget and reset the current vote
+			await self.reset_vote()
 
 	async def map_start(self, *args, **kwargs):
+		"""
+		Called when a new map is being started.
+		Enables starting a new vote again.
+		"""
+
 		self.podium_stage = False
 
 	async def cancel_vote(self, player, data, **kwargs):
+		"""
+		Admin command: //cancel
+		Cancels the current vote if there is one running.
+
+		:param player: player (admin) cancelling the vote
+		"""
+
 		if self.current_vote is None:
 			message = '$i$f00There is currently no vote in progress.'
 			await self.instance.chat(message, player)
@@ -152,9 +199,17 @@ class Voting(AppConfig):
 		message = '$0cfAdmin $fff{}$z$s$0cf cancelled the current vote to $fff{}$z$s$0cf.'.format(player.nickname, self.current_vote.action)
 		await self.instance.chat(message)
 
-		self.current_vote = None
+		# Hide the voting widget and reset the current vote
+		await self.reset_vote()
 
 	async def pass_vote(self, player, data, **kwargs):
+		"""
+		Admin command: //pass
+		Passes the current vote if there is one running.
+
+		:param player: player (admin) passing the vote
+		"""
+
 		if self.current_vote is None:
 			message = '$i$f00There is currently no vote in progress.'
 			await self.instance.chat(message, player)
@@ -163,11 +218,19 @@ class Voting(AppConfig):
 		message = '$0cfAdmin $fff{}$z$s$0cf passed the current vote to $fff{}$z$s$0cf.'.format(player.nickname, self.current_vote.action)
 		await self.instance.chat(message)
 
-		await self.current_vote.fire_finished_event(True)
+		await self.current_vote.fire_passed_event(True)
 
-		self.current_vote = None
+		# Hide the voting widget and reset the current vote
+		await self.reset_vote()
 
 	async def vote_added(self, vote, player):
+		"""
+		Called when a player voted in favour of the current vote.
+
+		:param vote: current vote
+		:param player: player voting for the vote
+		"""
+
 		if len(vote.votes_current) >= vote.votes_required:
 			message = '$fff{}$z$s$0cf voted to $fff{}$0cf.'.format(player.nickname, vote.action)
 			await self.instance.chat(message)
@@ -180,6 +243,13 @@ class Voting(AppConfig):
 			await self.instance.chat(message)
 
 	async def vote_removed(self, vote, player):
+		"""
+		Called when a player voted against the current vote.
+
+		:param vote: current vote
+		:param player: player voting against the vote
+		"""
+
 		required_votes = (vote.votes_required - len(vote.votes_current))
 		message = '$0cfThere {} $fff{}$0cf more {} needed to $fff{}$0cf (use $fffF5$0cf to vote){}.'.format(
 			('are' if required_votes > 1 else 'is'), required_votes, ('votes' if required_votes > 1 else 'vote'), vote.action,
@@ -188,6 +258,13 @@ class Voting(AppConfig):
 		await self.instance.chat(message)
 
 	async def vote_yes(self, player, data, **kwargs):
+		"""
+		Chat command: /yes
+		Called when a player votes in favour of the vote via the chat.
+
+		:param player: player voting
+		"""
+
 		if self.current_vote is None:
 			message = '$i$f00There is currently no vote in progress.'
 			await self.instance.chat(message, player)
@@ -201,8 +278,17 @@ class Voting(AppConfig):
 		if not await self.current_vote.add_vote(player):
 			message = '$i$f00You have already voted on this vote!'
 			await self.instance.chat(message, player)
+		else:
+			await self.widget.hide(player_logins=[player.login])
 
 	async def vote_no(self, player, data, **kwargs):
+		"""
+		Chat command: /no
+		Called when a player votes against the vote via the chat.
+
+		:param player: player voting
+		"""
+
 		if self.current_vote is None:
 			message = '$i$f00There is currently no vote in progress.'
 			await self.instance.chat(message, player)
@@ -217,7 +303,16 @@ class Voting(AppConfig):
 		message = '$0cfYou have successfully voted $fffno$0cf.'
 		await self.instance.chat(message, player)
 
+		await self.widget.hide(player_logins=[player.login])
+
 	async def vote_replay(self, player, data, **kwargs):
+		"""
+		Chat command: /replay
+		Called when a player requests to start a replay vote.
+
+		:param player: player requesting the vote
+		"""
+
 		if self.current_vote is not None:
 			message = '$i$f00You cannot start a vote while one is already in progress.'
 			await self.instance.chat(message, player)
@@ -255,7 +350,7 @@ class Voting(AppConfig):
 				await self.instance.chat(message, player)
 				return
 
-		self.current_vote = await self.create_vote('replay this map', player, self.vote_replay_finished)
+		await self.create_vote('replay this map', player, self.vote_replay_passed)
 
 		if 'timeattack' in (await self.instance.mode_manager.get_current_script()).lower() \
 			and await self.setting_enabled_time_extend.get_value():
@@ -270,7 +365,14 @@ class Voting(AppConfig):
 
 		await self.current_vote.add_vote(player)
 
-	async def vote_replay_finished(self, vote, forced):
+	async def vote_replay_passed(self, vote, forced):
+		"""
+		Called when a replay vote gets passed.
+
+		:param vote: vote that passed
+		:param forced: whether the vote was forced passed by an admin
+		"""
+
 		if 'jukebox' not in self.instance.apps.apps:
 			return
 
@@ -286,9 +388,17 @@ class Voting(AppConfig):
 			message = '$0cfVote to $fff{}$0cf has passed.'.format(vote.action)
 			await self.instance.chat(message)
 
-		self.current_vote = None
+		# Hide the voting widget and reset the current vote
+		await self.reset_vote()
 
 	async def vote_restart(self, player, data, **kwargs):
+		"""
+		Chat command: /restart
+		Called when a player requests to start a restart vote.
+
+		:param player: player requesting the vote
+		"""
+
 		if self.current_vote is not None:
 			message = '$i$f00You cannot start a vote while one is already in progress.'
 			await self.instance.chat(message, player)
@@ -314,7 +424,7 @@ class Voting(AppConfig):
 			await self.instance.chat(message, player)
 			return
 
-		self.current_vote = await self.create_vote('restart this map', player, self.vote_restart_finished)
+		await self.create_vote('restart this map', player, self.vote_restart_passed)
 
 		message = '$fff{}$z$s$0cf wants to $fff{}$0cf, $fff{}$0cf more {} needed (use $fffF5$0cf to vote){}.'.format(
 			player.nickname, self.current_vote.action, self.current_vote.votes_required, ('votes' if self.current_vote.votes_required > 1 else 'vote'),
@@ -324,10 +434,18 @@ class Voting(AppConfig):
 
 		await self.current_vote.add_vote(player)
 
-	async def vote_restart_finished(self, vote, forced):
+	async def vote_restart_passed(self, vote, forced):
+		"""
+		Called when a restart vote gets passed.
+
+		:param vote: vote that passed
+		:param forced: whether the vote was forced passed by an admin
+		"""
+
 		message = '$0cfVote to $fff{}$0cf has passed.'.format(vote.action)
 
-		self.current_vote = None
+		# Hide the voting widget and reset the current vote
+		await self.reset_vote()
 
 		# Dedimania save vreplay/ghost replays first.
 		if 'dedimania' in self.instance.apps.apps:
@@ -344,6 +462,13 @@ class Voting(AppConfig):
 			await self.instance.chat(message)
 
 	async def vote_skip(self, player, data, **kwargs):
+		"""
+		Chat command: /skip
+		Called when a player requests to start a skip vote.
+
+		:param player: player requesting the vote
+		"""
+
 		if self.current_vote is not None:
 			message = '$i$f00You cannot start a vote while one is already in progress.'
 			await self.instance.chat(message, player)
@@ -369,7 +494,7 @@ class Voting(AppConfig):
 			await self.instance.chat(message, player)
 			return
 
-		self.current_vote = await self.create_vote('skip this map', player, self.vote_skip_finished)
+		await self.create_vote('skip this map', player, self.vote_skip_passed)
 
 		message = '$fff{}$z$s$0cf wants to $fff{}$0cf, $fff{}$0cf more {} needed (use $fffF5$0cf to vote){}.'.format(
 			player.nickname, self.current_vote.action, self.current_vote.votes_required, ('votes' if self.current_vote.votes_required > 1 else 'vote'),
@@ -379,10 +504,18 @@ class Voting(AppConfig):
 
 		await self.current_vote.add_vote(player)
 
-	async def vote_skip_finished(self, vote, forced):
+	async def vote_skip_passed(self, vote, forced):
+		"""
+		Called when a skip vote gets passed.
+
+		:param vote: vote that passed
+		:param forced: whether the vote was forced passed by an admin
+		"""
+
 		message = '$0cfVote to $fff{}$0cf has passed.'.format(vote.action)
 
-		self.current_vote = None
+		# Hide the voting widget and reset the current vote
+		await self.reset_vote()
 
 		await self.instance.gbx('NextMap')
 
@@ -390,6 +523,13 @@ class Voting(AppConfig):
 			await self.instance.chat(message)
 
 	async def vote_extend(self, player, data, **kwargs):
+		"""
+		Chat command: /extend
+		Called when a player requests to start an extend vote.
+
+		:param player: player requesting the vote
+		"""
+
 		if self.current_vote is not None:
 			message = '$i$f00You cannot start a vote while one is already in progress.'
 			await self.instance.chat(message, player)
@@ -420,7 +560,7 @@ class Voting(AppConfig):
 			await self.instance.chat(message, player)
 			return
 
-		self.current_vote = await self.create_vote('extend time limit on this map', player, self.vote_extend_finished)
+		await self.create_vote('extend time limit on this map', player, self.vote_extend_passed)
 
 		message = '$fff{}$z$s$0cf wants to $fff{}$0cf, $fff{}$0cf more {} needed (use $fffF5$0cf to vote){}.'.format(
 			player.nickname, self.current_vote.action, self.current_vote.votes_required,
@@ -430,9 +570,18 @@ class Voting(AppConfig):
 		await self.instance.chat(message)
 		await self.current_vote.add_vote(player)
 
-	async def vote_extend_finished(self, vote, forced):
+	async def vote_extend_passed(self, vote, forced):
+		"""
+		Called when an extend vote gets passed.
+
+		:param vote: vote that passed
+		:param forced: whether the vote was forced passed by an admin
+		"""
+
 		message = '$0cfVote to $fff{}$0cf has passed.'.format(vote.action)
-		self.current_vote = None
+		
+		# Hide the voting widget and reset the current vote
+		await self.reset_vote()
 
 		try:
 			await self.instance.map_manager.extend_ta()
@@ -442,6 +591,12 @@ class Voting(AppConfig):
 			await self.instance.chat('$0cfVote to $fff{}$0cf has failed, current mode not Time Attack?')
 
 	async def vote_reminder(self, vote):
+		"""
+		Called in a loop to keep informing players via the chat that a vote is open.
+
+		:param vote: vote that is currently open
+		"""
+
 		await asyncio.sleep(await self.setting_remind_interval.get_value())
 
 		if self.current_vote is not None:
@@ -457,6 +612,12 @@ class Voting(AppConfig):
 				asyncio.ensure_future(self.vote_reminder(vote))
 
 	async def vote_canceller(self, vote):
+		"""
+		Called in a loop to keep checking whether the current vote should be cancelled because the time limit is passed.
+
+		:param vote: vote that is currently open
+		"""
+
 		await asyncio.sleep(1)
 
 		if self.current_vote is not None and self.current_vote.time_limit is not None:
@@ -466,11 +627,20 @@ class Voting(AppConfig):
 				)
 				await self.instance.chat(message)
 
-				self.current_vote = None
+				# Hide the voting widget and reset the current vote
+				await self.reset_vote()
 			else:
 				asyncio.ensure_future(self.vote_canceller(vote))
 
-	async def create_vote(self, action, player, finished_event):
+	async def create_vote(self, action, player, passed_event):
+		"""
+		Called to create a new current vote.
+
+		:param action: kind of vote that should be created
+		:param player: player requesting the vote
+		:param passed_event: method to be called when the vote is passed
+		"""
+
 		ratio = await self.setting_voting_ratio.get_value()
 		players = self.instance.player_manager.count_players
 
@@ -484,7 +654,7 @@ class Voting(AppConfig):
 		new_vote.votes_required = needed_votes
 		new_vote.vote_added = self.vote_added
 		new_vote.vote_removed = self.vote_removed
-		new_vote.vote_finished = finished_event
+		new_vote.vote_passed = passed_event
 
 		time_limit = await self.setting_voting_timeout.get_value()
 		if time_limit > 0:
@@ -493,4 +663,21 @@ class Voting(AppConfig):
 
 		asyncio.ensure_future(self.vote_reminder(new_vote))
 
+		# Set the current vote here, so the widget can access it.
+		self.current_vote = new_vote
+
+		# Display the voting widget.
+		await self.widget.display()
+
+		# Hide the widget for the vote requester, as that person always votes.
+		await self.widget.hide(player_logins=[player.login])
+
 		return new_vote
+
+	async def reset_vote(self):
+		"""
+		Called to reset the current vote - will hide the widget and reset the variable.
+		"""
+
+		await self.widget.hide()
+		self.current_vote = None
