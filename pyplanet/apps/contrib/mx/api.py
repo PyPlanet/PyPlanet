@@ -2,6 +2,7 @@
 The MX API client class.
 """
 import logging
+
 import aiohttp
 
 from pyplanet import __version__ as pyplanet_version
@@ -67,6 +68,32 @@ class MXApi:
 			maps.append(info)
 		return maps
 
+	async def search_pack(self, options, **kwargs):
+		if options is None:
+			options = {
+				"api": "on"
+			}
+
+		if self.key:
+			options['key'] = self.key
+
+		url = 'https://{site}.mania-exchange.com/mappack/search'.format(
+			site=self.site
+		)
+		response = await self.session.get(url, params=options)
+
+		if response.status == 404:
+			raise MXMapNotFound('Got not found status from ManiaExchange: {}'.format(response.status))
+		if response.status < 200 or response.status > 399:
+			raise MXInvalidResponse('Got invalid response status from ManiaExchange: {}'.format(response.status))
+
+		maps = list()
+		json = await response.json()
+		for info in json:
+			# Parse some differences between the api game endpoints.
+			maps.append(info)
+		return maps
+
 	async def map_info(self, *ids):
 		url = 'https://api.mania-exchange.com/{site}/maps/{ids}'.format(
 			site=self.site,
@@ -88,6 +115,46 @@ class MXApi:
 			info['MapUID'] = info['TrackUID'] if 'TrackUID' in info else info['MapUID']
 			maps.append((mx_id, info))
 		return maps
+
+	async def pack_info(self, id, token):
+		url = 'https://{site}.mania-exchange.com/api/mappack/get_info/{id}?token={token}'.format(
+			site=self.site,
+			id=id,
+			token=token
+		)
+		params = {'key': self.key} if self.key else {}
+		response = await self.session.get(url, params=params)
+		if response.status == 404:
+			raise MXMapNotFound('Map has not been found!')
+		if response.status == 302:
+			raise MXInvalidResponse('Map author has declined info for the map. Status code: {}'.format(response.status))
+		if response.status < 200 or response.status > 399:
+			raise MXInvalidResponse('Got invalid response status from ManiaExchange: {}'.format(response.status))
+
+		return response.json()
+
+	async def get_pack_ids(self, pack_id, token):
+		url = 'https://{site}.mania-exchange.com/api/mappack/get_tracks/{id}?token={token}'.format(
+			site=self.site,
+			id=pack_id,
+			token=token
+		)
+		params = {'key': self.key} if self.key else {}
+		response = await self.session.get(url, params=params)
+		if response.status == 404:
+			raise MXMapNotFound('Map pack not found!')
+		if response.status < 200 or response.status > 399:
+			raise MXInvalidResponse('Got invalid response status from ManiaExchange: {}'.format(response.status))
+		maps = list()
+		if response.content_length > 0:
+			for info in await response.json():
+				# Parse some differences between the api game endpoints.
+				mx_id = info['TrackID']
+				maps.append((mx_id, info))
+
+			return maps
+		else:
+			raise MXMapNotFound("Mx returned with empty response.")
 
 	async def download(self, mx_id):
 		url = 'https://{site}.mania-exchange.com/tracks/download/{id}'.format(
