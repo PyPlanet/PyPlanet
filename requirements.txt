@@ -2,7 +2,7 @@
 colorlog==4.0.2
 
 # Templating
-Jinja2==2.10.0
+Jinja2==2.10.1
 
 # DB/Storage
 peewee==2.10.2
@@ -17,7 +17,7 @@ asyncssh==1.15.1
 # Network
 aiohttp==2.3.9
 requests==2.21.0
-urllib3==1.24.1
+urllib3==1.25.2
 
 # Utils
 cached-property==1.5.1
