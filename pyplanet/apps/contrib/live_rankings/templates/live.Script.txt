@@ -1,0 +1,9 @@
+***OnMouseClick***
+***
+if (Event.Control.HasClass("toggleSpec")) {
+    if (InputPlayer.RequestsSpectate) {
+      declare frame <=> Event.Control.Parent;
+      SetSpectateTarget(frame.DataAttributeGet("login"));
+     }
+}
+***

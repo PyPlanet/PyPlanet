@@ -90,6 +90,7 @@ class LiveRankingsWidget(TimesWidgetView):
 			if index == player_index:
 				list_record['color'] = '$0f3'
 
+			list_record['login'] = record['login']
 			list_record['nickname'] = record['nickname']
 
 			if self.format_times:
