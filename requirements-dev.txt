@@ -1,10 +1,10 @@
 -r requirements.txt
 
 # Documentation Building.
-sphinx==1.8.3
+sphinx==2.0.1
 sphinx-autobuild==0.7.1
-sphinx_rtd_theme==0.4.2
-sphinx-intl==0.9.11
+sphinx_rtd_theme==0.4.3
+sphinx-intl==1.0.0
 
 # Testing Utilities.
 nose
