@@ -1,4 +1,14 @@
-<frame pos="0 0">
-  <quad pos="0 0" size="0 0" action="{{ id }}__yes" actionkey="1" />
-  <quad pos="0 0" size="0 0" action="{{ id }}__no" actionkey="2" />
-</frame>
+{% extends 'core.views/generics/widget.xml' %}
+
+{% block content %}
+  <quad pos="0 0" z-index="0" size="50 10" bgcolor="00000060"/>
+  <label pos="25 -2" z-index="1" size="50 4" text="Vote to {{ vote_type }}" textsize="1.2" textfont="RajdhaniMono" textemboss="1" halign="center" valign="center2"/>
+  <quad pos="1 -4" z-index="0" size="23.5 5" bgcolor="73FF5160"/>
+  <label pos="12.75 -6.5" z-index="2" size="23.5 5" textsize="2.0" textfont="RajdhaniMono"
+         text="Yes (F5)" action="{{ id }}__yes" actionkey="1" scriptevents="1" halign="center" valign="center2"/>
+
+  <quad pos="25.5 -4" z-index="0" size="23.5 5" bgcolor="FF7B7B60"/>
+  <label pos="37.25 -6.5" z-index="2" size="23.5 5" textsize="2.0" textfont="RajdhaniMono" focusareacolor1="9EFF9300"
+         text="No (F6)" action="{{ id }}__no" actionkey="2" scriptevents="2" halign="center" valign="center2"/>
+
+{% endblock %}
