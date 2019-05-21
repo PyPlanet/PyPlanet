@@ -86,7 +86,7 @@ class MapManager(CoreContrib):
 		return map_info
 
 	async def handle_playlist_change(self, source, **kwargs):
-		return await self.update_list()
+		return await self.update_list(full_update=True)
 
 	async def _podium_start(self, **kwargs):
 		"""
