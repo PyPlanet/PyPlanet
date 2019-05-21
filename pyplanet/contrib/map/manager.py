@@ -1,6 +1,7 @@
 import asyncio
 import os
 import logging
+import re
 
 from xmlrpc.client import Fault
 from peewee import DoesNotExist
@@ -52,6 +53,9 @@ class MapManager(CoreContrib):
 		self._is_extended = False
 		self._original_ta = None
 
+		# Regular Expression to extract the MX-ID from a filename.
+		self._mx_id_regex = re.compile('(?:PyPlanet-MX\\/)([A-Z]{2})-(\\d+)\\.')
+
 	async def on_start(self):
 		self._instance.signals.listen('maniaplanet:playlist_modified', lambda: '')
 		self._instance.signals.listen('maniaplanet:podium_start', self._podium_start)
@@ -74,12 +78,16 @@ class MapManager(CoreContrib):
 		:return: Map instance.
 		:rtype: pyplanet.apps.core.maniaplanet.models.map.Map
 		"""
+		# Try to retrieve the MX-id from the filename.
+		mx_id = self._extract_mx_id(info['FileName'])
+
+		# Get or create.
 		map_info = await Map.get_or_create_from_info(
 			uid=info['UId'], name=info['Name'], author_login=info['Author'], file=info['FileName'],
 			environment=info['Environnement'], map_type=info['MapType'], map_style=info['MapStyle'],
 			num_laps=info['NbLaps'], num_checkpoints=info['NbCheckpoints'], time_author=info['AuthorTime'],
 			time_bronze=info['BronzeTime'], time_silver=info['SilverTime'], time_gold=info['GoldTime'],
-			price=info['CopperPrice']
+			price=info['CopperPrice'], mx_id=mx_id,
 		)
 		self._previous_map = self._current_map
 		self._current_map = map_info
@@ -87,6 +95,19 @@ class MapManager(CoreContrib):
 
 	async def handle_playlist_change(self, source, **kwargs):
 		return await self.update_list(full_update=True)
+
+	def _extract_mx_id(self, file_name):
+		"""
+		Try to extract the MX-id from a filename.
+
+		:param file_name: File name from Dedicated.
+		:type file_name: str
+		:return: String or None
+		"""
+		matches = re.findall(self._mx_id_regex, file_name)
+		if not matches or len(matches) != 1 or len(matches[0]) != 2:
+			return None
+		return matches[0][1]
 
 	async def _podium_start(self, **kwargs):
 		"""
@@ -124,10 +145,11 @@ class MapManager(CoreContrib):
 			# Insert all missing maps into the DB.
 			rows = list()
 			for details in diff:
+				mx_id = self._extract_mx_id(details['FileName'])
 				rows.append(dict(
 					uid=details['UId'], file=details['FileName'], name=details['Name'], author_login=details['Author'],
 					environment=details['Environnement'], time_gold=details['GoldTime'], price=details['CopperPrice'],
-					map_type=details['MapType'], map_style=details['MapStyle']
+					map_type=details['MapType'], map_style=details['MapStyle'], mx_id=mx_id
 				))
 
 			if len(rows) > 0:
@@ -162,11 +184,15 @@ class MapManager(CoreContrib):
 			async with self.lock:
 				for details in raw_list:
 					if not any(m.uid == details['UId'] for m in self._maps):
+						# Detect any MX-id from the filename.
+						mx_id = self._extract_mx_id(details['FileName'])
+
 						# Map not yet in self._maps. Add it.
 						map_instance = await Map.get_or_create_from_info(
 							details['UId'], details['FileName'], details['Name'], details['Author'],
 							environment=details['Environnement'], time_gold=details['GoldTime'],
-							price=details['CopperPrice'], map_type=details['MapType'], map_style=details['MapStyle']
+							price=details['CopperPrice'], map_type=details['MapType'], map_style=details['MapStyle'],
+							mx_id=mx_id,
 						)
 						self._maps.add(map_instance)
 						updated.append(map_instance)
