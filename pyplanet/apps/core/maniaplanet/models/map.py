@@ -79,6 +79,12 @@ class Map(TimedModel):
 	Time of author and all medals.
 	"""
 
+	mx_id = IntegerField(null=True, default=None, index=True)
+	"""
+	The MX-id of the map when it was added with PyPlanet. Can be None even if it's been added by PyPlanet or when
+	it's been added by another method (manual upload or external software).
+	"""
+
 	CACHE = dict()
 
 	def __str__(self):
