@@ -31,6 +31,12 @@ class Jukebox(AppConfig):
 			change_target=self.folder_manager.update_folders
 		)
 
+		self.setting_allow_juking = Setting(
+			'allow_juking', 'Allow juking of maps by players', Setting.CAT_BEHAVIOUR, type=bool,
+			description='Allow juking maps by non-admin players.',
+			default=True,
+		)
+
 	async def on_start(self):
 		# Register permissions + commands.
 		await self.instance.permission_manager.register('clear', 'Clear the jukebox', app=self, min_level=1)
@@ -43,7 +49,7 @@ class Jukebox(AppConfig):
 		)
 
 		# Register settings.
-		await self.context.setting.register(self.setting_newest_days_range)
+		await self.context.setting.register(self.setting_newest_days_range, self.setting_allow_juking)
 
 		# Register callback.
 		self.context.signals.listen(mp_signals.flow.podium_start, self.podium_start)
@@ -131,6 +137,11 @@ class Jukebox(AppConfig):
 
 	async def add_to_jukebox(self, player, map):
 		async with self.lock:
+			if player.level == 0 and not await self.setting_allow_juking.get_value():
+				message = '$i$f00Juking maps has been disabled for players!'
+				await self.instance.chat(message, player)
+				return
+
 			if player.level == 0 and any(item['player'].login == player.login for item in self.jukebox):
 				message = '$i$f00You already have a map in the jukebox! Wait till it\'s been played before adding another.'
 				await self.instance.chat(message, player)
