@@ -25,8 +25,8 @@
   <!-- <quad size="320 180" bgcolor="FFFA" style="Bgs1" substyle="BgDialogBlur" bluramount="0.1" scriptevents="1" /> -->
 </frame>
 
-<script><!-- {% include 'core.views/generics/scripts/includes.Script.Txt' %} --></script>
+<script><![CDATA[ {% include 'core.views/generics/scripts/includes.Script.Txt' %} ]]></script>
 {% block maniascript_pre %} {% endblock %}
-<script><!-- {% include 'core.views/generics/scripts/uiElements.Script.Txt' %} --></script>
+<script><![CDATA[ {% include 'core.views/generics/scripts/uiElements.Script.Txt' %} ]]></script>
 {% block maniascript %} {% endblock %}
-<script><!-- {% include 'core.views/generics/scripts/main.Script.Txt' %} --></script>
+<script><![CDATA[ {% include 'core.views/generics/scripts/main.Script.Txt' %} ]]></script>

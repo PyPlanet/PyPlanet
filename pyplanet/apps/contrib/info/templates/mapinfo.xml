@@ -22,5 +22,5 @@
 {% endblock %}
 
 {% block maniascript %}
-  <script><!--{% include 'info/mapinfo.Script.Txt' %}--></script>
+  <script><![CDATA[{% include 'info/mapinfo.Script.Txt' %}]]></script>
 {% endblock %}

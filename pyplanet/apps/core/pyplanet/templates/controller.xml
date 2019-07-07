@@ -9,4 +9,4 @@
          url="https://github.com/PyPlanet/PyPlanet/issues/new" halign="center" />
 {% endif %}
 
-<script><!-- {% include 'core.pyplanet/controller.Script.Txt' %} --></script>
+<script><![CDATA[ {% include 'core.pyplanet/controller.Script.Txt' %} ]]></script>

@@ -21,4 +21,4 @@
 
 </frame>
 
-<script><!-- {% include 'queue/queue.Script.Txt' %} --></script>
+<script><![CDATA[ {% include 'queue/queue.Script.Txt' %} ]]></script>

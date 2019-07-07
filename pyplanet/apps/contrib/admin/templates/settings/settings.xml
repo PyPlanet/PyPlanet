@@ -15,25 +15,19 @@
           {% endfor %}
   </frame>
 
-  {% call ui.scrollable(10, -6, 218, 100, 0, (count*4) ) %}
-
-    {% for name, setting_value in settings.items() %}
+<scrollable pos="10 -6" size="218 100" scrollsize="218 {{count*5}}">
+  {% for name, setting_value in settings.items() %}
     <frame pos="2 -{{ (loop.index0 * 6) + 2}}">
       <label pos="0 -2.5" size="80 5" text="{{name}}" textsize="1.2" valign="center" />
 
       {% if types[name] == "bool" %}
-        {% if setting_value == True %}
-          {{ ui.checkbox("", name, 80, 0, 1) }}
-        {% elif setting_value == False %}
-          {{ ui.checkbox("", name, 80, 0, 0) }}
-        {% endif %}
-
+       <checkbox pos="80 0" size="30 5" text="" name="{{name}}" checked="setting_value|int"/>
       {% elif types[name] == "string" %}
-          {{ ui.input(setting_value, name, 80, -2.5, 80) }}
+          <input text="{{setting_value}}" name="{{name}}" pos="80 -2.5" size="80 5" />
       {% elif types[name] == "password" %}
-           {{ ui.inputMasked(setting_value, name, 80, -2.5, 80) }}
+        <inputmasked text="{{setting_value}}" name="{{name}}" pos="80 -2.5" size="80 5" />
       {% elif types[name] == "int" or types[name] == "float" %}
-          {{ ui.input(setting_value|default("0",True), name, 80, -2.5, 80) }}
+         <input text='{{setting_value|default("0",True)}}' name="{{name}}" pos="80 -2.5" size="80 5" />
       {% else %}
          <label pos="80 -2.5" size="80 5" text="*listed value not supported*" textsize="1" halign="center" valign="center" />
       {% endif %}
@@ -45,13 +39,13 @@
       {% endif %}
     </frame>
     {% endfor %}
-  {% endcall %}
+</scrollable>
 
-  {{ ui.confirmbutton("Save", id+"__button_save", 194-14,-110, 24, 6, "ddd") }}
-  {{ ui.decoratedbutton("Cancel", id+"__button_cancel", 218-12, -110, 24, 6, "ddd") }}
+<confirmbutton text="Save" action="{{id}}__button_save" pos="170 -110" size="24 6" focuscolor="ddd" bgcolor="777" textcolor="fff"/>
+<decoratedbutton text="Cancel" action="{{id}}__button_cancel" pos="206 -110" size="24 6" focuscolor="777" bgcolor="fff" textcolor="fff"/>
 
 {% endblock %}
 
 {% block maniascript %}
-<script><!-- {% include 'core.views/generics/scripts/scrollable.Script.Txt' %} --></script>
+<script><![CDATA[ {% include 'core.views/generics/scripts/scrollable.Script.Txt' %} ]]></script>
 {% endblock %}

@@ -25,9 +25,9 @@
   </frame>
 </frame>
 
-<script><!-- {% include 'core.views/generics/scripts/includes.Script.Txt' %} --></script>
-<script><!-- {% include 'core.views/generics/scripts/uiElements.Script.Txt' %} --></script>
+<script><![CDATA[ {% include 'core.views/generics/scripts/includes.Script.Txt' %} ]]></script>
+<script><![CDATA[ {% include 'core.views/generics/scripts/uiElements.Script.Txt' %} ]]></script>
 {% block maniascript %}
-  <script><!-- {% include 'jukebox/folder_create.Script.Txt' %} --></script>
+  <script><![CDATA[ {% include 'jukebox/folder_create.Script.Txt' %} ]]></script>
 {% endblock %}
-<script><!-- {% include 'core.views/generics/scripts/main.Script.Txt' %} --></script>
+<script><![CDATA[ {% include 'core.views/generics/scripts/main.Script.Txt' %} ]]></script>

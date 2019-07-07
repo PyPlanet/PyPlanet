@@ -7,5 +7,5 @@
 
 
 {% block maniascript %}
-<script><!--{% include 'clock/clock.Script.Txt' %}--></script>
+<script><![CDATA[{% include 'clock/clock.Script.Txt' %}]]></script>
 {% endblock %}

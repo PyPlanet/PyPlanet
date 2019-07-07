@@ -2,7 +2,7 @@
 
   {% block contents %}
 <frame pos="10 -30">
-<label pos="0 0" size="30 5" text="$fff$oName" textsize="1.2" valign="top"/>
+  <label pos="0 0" size="30 5" text="$fff$oName" textsize="1.2" valign="top"/>
   <label pos="30 0" size="70 5" text="$fff$i{{ setting.name }}" textsize="1.2" valign="top"/>
 
   <label pos="0 -5" size="30 5" text="$fff$oDescription" textsize="1.2" valign="top"/>
@@ -30,7 +30,8 @@
            textsize="1.2" default="{{ setting_value|default('', True) }}" scriptevents="1"
            focusareacolor1="0003" focusareacolor2="FFF2"/>
     {% elif setting.type == types.bool %}
-    {{ ui.checkbox("Enabled/Activated", "setting_value_field", 30, 0, setting_value|int) }}
+    <checkbox pos="30 0" size="30 5" text="Enable/Activated" name="{{setting_value_field}}"
+              checked="{{setting_value|int}}"/>
     {% elif setting.type == types.set or setting.type == types.list %}
     <frame id="setting_value_list">
       <entry hidden="1" id="setting_value_field" name="setting_value_field" default="{{ setting_value }}"/>
@@ -41,7 +42,7 @@
 
 </frame>
 
-  {{ ui.confirmbutton("Save", id+"__button_save", 30,-120, 24,6) }}
-  {{ ui.decoratedbutton("Cancel", id+"__button_cancel", 60, -120, 24,6) }}
+<confirmbutton text="Save" action="{{id}}__button_save" pos="30 -120" size="24 6" textcolor="000" focuscolor="fff" bgcolor="ddd"/>
+<decoratedbutton text="Cancel" action="{{id}}__button_cancel" pos="60 -120" size="24 6" focuscolor="fff" textcolor="000" />
 
-{% endblock %}
+  {% endblock %}

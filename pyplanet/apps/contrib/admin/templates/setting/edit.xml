@@ -1,6 +1,6 @@
 {% extends 'core.views/generics/dialog.xml' %}
 
-{% block contents %}
+  {% block contents %}
 <frame pos="10 -20" id="setting_body" z-index="70">
   <label pos="0 0" size="30 5" text="$fff$oName" textsize="1.2" valign="top"/>
   <label pos="30 0" size="70 5" text="$fff$i{{ setting.name }}" textsize="1.2" valign="top"/>
@@ -20,14 +20,20 @@
            textsize="1.2" default="{{ setting_value|default('', True) }}" scriptevents="1"
            focusareacolor1="0003" focusareacolor2="FFF2"/>
     {% elif setting.type == types.bool %}
-        {{ ui.checkbox("Enable/Activated", "setting_value_field", 30, 0, setting_value|int) }}
+    <checkbox pos="30 0" size="30 5" text="Enable/Activated" name="{{setting_value_field}}"
+              checked="{{setting_value|int}}"/>
     {% elif setting.type == types.set or setting.type == types.list %}
-        {{ ui.dropdown(setting_value, "setting_value_field") }}
+
+    <dropdown pos="0 0" name="{{setting_value_field}}" size="30 5">
+      {{%for setting in setting_value %}}
+      <option value="{{setting.value}}" text="{{setting.text}}"/>
+      {{% endfor %}
+    </dropdown>
     {% endif %}
   </frame>
 </frame>
 
-  {{ ui.confirmbutton("Save", id+"__button_save", 30,-120, 24,6) }}
-  {{ ui.decoratedbutton("Cancel", id+"__button_cancel", 60, -120, 24,6) }}
+<confirmbutton text="Save!!!" name="{{id}}__button_save" pos="30 -120" size="24 6"/>
+<decoratedbutton text="cancel" name="{{id}}__button_cancel" pos="60 -120" size="24 6"/>
 
   {% endblock %}

@@ -19,15 +19,15 @@
 
 {% block maniascript_pre %}
 <script>
-<!--
+<![CDATA[
 #Struct BestCp {
     Text nickname;
     Integer time;
     Text login;
 }
---></script>
+]]></script>
 {% endblock %}
 
 {% block maniascript %}
-<script><!-- {% include 'best_cps/widget.Script.txt' %} --></script>
+<script><![CDATA[ {% include 'best_cps/widget.Script.txt' %} ]]></script>
 {% endblock %}

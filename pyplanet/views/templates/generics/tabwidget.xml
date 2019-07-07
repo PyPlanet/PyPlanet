@@ -29,11 +29,11 @@
 
 </frame>
 
-<script><!-- {% include 'core.views/generics/scripts/includes.Script.Txt' %} --></script>
+<script><![CDATA[ {% include 'core.views/generics/scripts/includes.Script.Txt' %} ]]></script>
 {% block maniascript_pre %} {% endblock %}
-<script><!-- {% include 'core.views/generics/scripts/toggleUi.Script.Txt' %} --></script>
+<script><![CDATA[ {% include 'core.views/generics/scripts/toggleUi.Script.Txt' %} ]]></script>
 {% block maniascript %} {% endblock %}
-<script><!--
+<script><![CDATA[
 
 ***OnInit***
 ***
@@ -79,5 +79,5 @@
     }
 
 ***
---></script>
-<script><!-- {% include 'core.views/generics/scripts/main.Script.Txt' %} --></script>
+]]></script>
+<script><![CDATA[ {% include 'core.views/generics/scripts/main.Script.Txt' %} ]]></script>

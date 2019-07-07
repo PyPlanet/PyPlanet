@@ -23,7 +23,7 @@
   <quad size="320 180" bgcolor="0000" scriptevents="1"/>
 </frame>
 
-<script><!-- {% include 'core.views/generics/scripts/includes.Script.Txt' %} --></script>
-<script><!-- {% include 'core.views/generics/scripts/uiElements.Script.Txt' %} --></script>
+<script><![CDATA[ {% include 'core.views/generics/scripts/includes.Script.Txt' %} ]]></script>
+<script><![CDATA[ {% include 'core.views/generics/scripts/uiElements.Script.Txt' %} ]]></script>
 {% block maniascript %} {% endblock %}
-<script><!-- {% include 'core.views/generics/scripts/main.Script.Txt' %} --></script>
+<script><![CDATA[ {% include 'core.views/generics/scripts/main.Script.Txt' %} ]]></script>

@@ -75,7 +75,7 @@ with `.Script.Txt` and add the following line to your ManiaLink (XML) template:
 
 .. code-block:: xml
 
-  <script><!-- {% include 'my_app/sample.Script.Txt' %} --></script>
+  <script><![CDATA[ {% include 'my_app/sample.Script.Txt' %} ]]></script>
 
 That's it! Now you can start with writing ManiaScript in the `sample.Script.Txt`. You can use Jinja2 inside your
 ManiaScript to add dynamic content as well.
