@@ -1,4 +1,5 @@
 {% import 'core.views/generics/uiElements.xml' as ui %}
+{% include 'core.views/style.xml' %}
 
 <frame pos="-160 90" z-index="200"> <!-- set z-index high enough -->
 	<frame pos="160 -90"> <!-- reset to 0,0 -->

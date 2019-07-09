@@ -13,12 +13,12 @@
       <quad pos="0 0" size="218 8.5" z-index="-50" style="Bgs1InRace" substyle="BgCardList"/>
       {% if provide_search %}
         {% block toolbar_search %}
-            {{ ui.input(search|default('Search...', True), "list_search_field", 2, -4.25, 80) }}
-            {{ ui.decoratedbutton("🔍", id+"__list_button_search", 80, -1.35,6,6, "ddd") }}
+            <input text="{{search|default('Search...', True)}}" name="list_search_field" pos="2 -4.25" size="78 6" />
+            <decoratedbutton text="🔍" action="{{id}}__list_button_search" pos="80 -1.35" size="6 6" />
         {% endblock %}
       {% endif %}
       {% for button in buttons %}
-           {{ ui.decoratedbutton(button.title, id+"__list_buttons_"+loop.index0.__str__(), button.right, -4.35, button.width, 5, "ddd",) }}
+           <decoratedbutton text="button.title" name="{{id}}__list_buttons_{{loop.index0.__str__()}}" pos="button.right -4.35" size="button.width 5" />
       {% endfor %}
     </frame>
 
@@ -35,13 +35,16 @@
           <frame pos="0.1 -0 0">
               {% for field in fields %}
                   {% if field.sorting %}
-                      <label pos="{{ field.left }} -2.4" size="{{ field.width }} 4.9" text="$o$fff {{ field.name }}" textsize="1.3"
-                             valign="center2" action="{{ id }}__list_header_{{ loop.index0 }}" focusareacolor1="0000"
-                             focusareacolor2="fff3"/>
+                      <label pos="{{ field.left }} -2.4" size="{{ field.width }} 4.9" focusareacolor1="0000"
+                             text="" focusareacolor2="fff3" valign="center2" action="{{ id }}__list_header_{{ loop.index0 }}"/>
+                      <label pos="{{ field.left }} -2.4" size="{{ field.width - 4 }} 4.9" text="$o$fff {{ field.name }}" textsize="1.3"
+                             valign="center2" />
                       {% if field._sort == 1 %}
-                           <label size="4 4" pos="{{ field.left + field.width - 5 }} 0" z-index="2" halign="left" valign="top" text="⏶" />
+                           <label size="4 4" pos="{{ field.left + field.width - 4 }} 0" z-index="2" halign="left" valign="top" text="⏶" />
                       {% elif field._sort == 0 %}
-                           <label pos="{{ field.left + field.width - 5 }} 0" size="4 4" halign="left" valign="top" text="⏷"  />
+                           <label pos="{{ field.left + field.width - 4 }} 0" size="4 4" halign="left" valign="top" text="⏷"  />
+                      {% else %}
+                            <label size="4 4" pos="{{ field.left + field.width -3 }} -2.4" z-index="2" halign="left" valign="center2" text="" textsize="1.5"/>
                       {% endif %}
 
                   {% else %}
@@ -51,14 +54,14 @@
               {% endfor %}
           </frame>
       </frame>
+        <quad pos="0 -4.8" size="218 100.2" z-index="-300" style="Bgs1InRace" substyle="BgCardList"/>
 
       <frame pos="0.1 -4.9" id="list_content" z-index="1">
-          {% for row in objects %}
+
+        {% for row in objects %}
 
           {% set outer_loop = loop %}
           <frame pos="0 {{ loop.index0 * -5 }}">
-
-
 
             {% for field in fields %}
                 {% if field.manialink %}
@@ -66,14 +69,13 @@
                 {% else %}
                     {% if field.action %}
                           {% if field.safe %}
-                              {{ ui.button("$fff"+field_renderer(row, field)|safe, id+"__list_body_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__(), field.left, 0, field.width, 5, "aaaa", "0000", "left") }}
+                              <button type="none" text="{{field_renderer(row, field)|safe}}" action="{{id}}__list_body_{{outer_loop.index0.__str__()}}_{{loop.index0.__str__()}}" pos="{{field.left}} 0" size="{{field.width}} 5" valign="left" />
                           {% else %}
-                              {{ ui.button("$fff"+field_renderer(row, field), id+"__list_body_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__(), field.left, 0, field.width, 5, "aaaa", "0000", "left") }}
+                              <button type="none" text="{{field_renderer(row, field)}}" action="{{id}}__list_body_{{outer_loop.index0.__str__()}}_{{loop.index0.__str__()}}" pos="{{field.left}} 0" size="{{field.width}} 5" valign="left" />
                           {% endif %}
                     {% else %}
-                         <label pos="{{ field.left }} -2.5" size="{{ field.width }} 5"
-                 text="$fff  {% if field.safe %}{{ field_renderer(row, field)|safe }}{% else %}{{ field_renderer(row, field) }}{% endif %}"
-                 textsize="1.2" valign="center2"/>
+                         <label pos="{{ field.left }} -2.5" size="{{ field.width }} 5" text="$fff  {% if field.safe %}{{ field_renderer(row, field)|safe }}{% else %}{{ field_renderer(row, field) }}{% endif %}"
+                           textsize="1.2" valign="center2"/>
                     {% endif %}
                 {% endif %}
 
@@ -91,9 +93,9 @@
             />
             {% elif action.type == 'label' %}
                 {% if action.require_confirm %}
-                     {{ ui.confirmbutton(action.text|safe, id+"__list_action_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__() , (218 - actions_width + action.left), 0, action.width|default(5, True), 5, action.color) }}
+                     <confirmbutton type="none" text="{{action.text|safe}}" action="{{id}}__list_action_{{outer_loop.index0.__str__()}}_{{loop.index0.__str__()}}" pos="{{218 - actions_width + action.left}} 0" size="{{action.width|default(5, True)}} 5" />
                 {% else %}
-                     {{ ui.button(action.text|safe, id+"__list_action_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__() , (218 - actions_width + action.left ), 0, action.width|default(5, True), 5, action.color, action.color) }}
+                     <button type="none" text="{{action.text|safe}}" action="{{id}}__list_action_{{outer_loop.index0.__str__()}}_{{loop.index0.__str__()}}" pos="{{218 - actions_width + action.left}} 0" size="{{action.width|default(5, True)}} 5" />
                 {% endif %}
 
             {% endif %}
@@ -101,28 +103,27 @@
             {% endfor %}
 
             {% if loop.index0 % 2 != 0 %}
-                <quad pos="0 0" size="217.8 5" z-index="-20" bgcolor="0003"/>
+              <quad pos="0 0" size="218 5" z-index="-30" bgcolor="0003"/>
             {% endif %}
           </frame>
 
           {% endfor %}
-         <quad pos="0 0.1" size="218 100.2" z-index="-21" style="Bgs1InRace" substyle="BgCardList"/>
+
         </frame>
 
       <frame pos="0 -110">
 
-        {{ ui.button("", id+"__list_button_first", (110-25-20),4,8,8)}}
-        {{ ui.button("", id+"__list_button_prev_10", (110-25-12),4,8,8)}}
-        {{ ui.button("", id+"__list_button_prev", (110-25-4),4,8,8)}}
+        <button type="none" text=""  action="{{id}}__list_button_first" pos="{{110-25-20}} 4" size="8 8" />
+        <button type="none" text="" action="{{id}}__list_button_prev_10" pos="{{110-25-12}} 4" size="8 8"/>
+        <button type="none" text="" action="{{id}}__list_button_prev"  pos="{{110-25-4}} 4" size="8 8"/>
 
-        {{ ui.button("", id+"__list_button_next", (110+25),4,8,8)}}
-        {{ ui.button("", id+"__list_button_next_10", (110+25+8),4,8,8)}}
-        {{ ui.button("", id+"__list_button_last", (110+25+16),4,8,8)}}
+        <button type="none" text="" action="{{id}}__list_button_next" pos="{{110+25}} 4" size="8 8"/>
+        <button type="none" text="" action="{{id}}__list_button_next_10" pos="{{110+25+8}} 4" size="8 8"/>
+        <button type="none" text="" action="{{id}}__list_button_last" pos="{{110+25+16}} 4" size="8 8"/>
 
         <label pos="110 1.5" size="50 5" text="$fff$oPage {{ page }} / {{ pages }}" textsize="1.5" halign="center"/>
       </frame>
 
     </frame>
   </frame>
-
 {% endblock %}

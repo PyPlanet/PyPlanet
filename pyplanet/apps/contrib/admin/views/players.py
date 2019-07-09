@@ -25,7 +25,7 @@ class PlayerListView(ManualListView):
 			{
 				'name': 'Nickname',
 				'index': 'nickname',
-				'sorting': True,
+				'sorting': False,
 				'searching': True,
 				'width': 60,
 				'type': 'label'
@@ -33,7 +33,7 @@ class PlayerListView(ManualListView):
 			{
 				'name': 'Login',
 				'index': 'login',
-				'sorting': False,
+				'sorting': True,
 				'searching': True,
 				'width': 40,
 				'type': 'label',
@@ -62,10 +62,11 @@ class PlayerListView(ManualListView):
 
 	async def get_data(self):
 		players = self.app.instance.player_manager.online
+
 		return [dict(
 			nickname=p.nickname,
 			login=p.login,
-			is_spectator='$f00&#xf03d;' if p.flow.is_spectator else '$73f&#xf007;',
+			is_spectator='$f00&#xf03d;' if p.flow.is_spectator else '$fff&#xf007;',
 			is_spectator_bool=p.flow.is_spectator,
 			level='{}: {}'.format(p.level, p.get_level_string())
 		) for p in players]
@@ -83,6 +84,7 @@ class PlayerListView(ManualListView):
 				'width': 12,
 				'action': self.action_force,
 				'safe': True,
+				'require_confirm': True
 			},
 			{
 				'name': 'Ignore',
@@ -91,6 +93,7 @@ class PlayerListView(ManualListView):
 				'width': 12,
 				'action': self.action_ignore,
 				'safe': True,
+				'require_confirm': True
 			},
 			{
 				'name': 'Warn',
@@ -99,6 +102,7 @@ class PlayerListView(ManualListView):
 				'width': 12,
 				'action': self.action_warn,
 				'safe': True,
+				'require_confirm': True
 			},
 			{
 				'name': 'Kick',
@@ -107,6 +111,7 @@ class PlayerListView(ManualListView):
 				'width': 12,
 				'action': self.action_kick,
 				'safe': True,
+				'require_confirm': True
 			},
 			{
 				'name': 'Ban',
@@ -115,6 +120,8 @@ class PlayerListView(ManualListView):
 				'width': 12,
 				'action': self.action_ban,
 				'safe': True,
+
+				'require_confirm': True
 			},
 			{
 				'name': 'Blacklist',
@@ -123,6 +130,8 @@ class PlayerListView(ManualListView):
 				'width': 12,
 				'action': self.action_blacklist,
 				'safe': True,
+
+				'require_confirm': True
 			},
 		]
 

@@ -1,4 +1,4 @@
-{% import 'core.views/generics/uiElements.xml' as ui %}
+{% include 'core.views/style.xml' %}
 
 <frame pos="0 0" z-index="900">
   <quad pos="0 0" size="320 180" halign="center" valign="center" style="Bgs1" substyle="BgDialogBlur" bluramount="0.1" scriptevents="1" z-index="500" />
@@ -11,12 +11,12 @@
       <label pos="{{ sizes.text__pos }}" size="{{ sizes.text__size }}" halign="left" valign="center2" textsize="2" textcolor="FFF" autonewline="1" text="{{ message }}" />
 
       {% if buttons|length >= 2 %}
-        {{ ui.decoratedbutton(buttons[0].name, id+"__button_0", sizes.button_0__pos__left, sizes.button_0__pos__top, 26, 5, "ddd") }}
-        {{ ui.decoratedbutton(buttons[1].name, id+"__button_1", sizes.button_1__pos__left, sizes.button_1__pos__top, 26, 5, "ddd") }}
+        <decoratedbutton text="{{buttons[0].name}}" action="{{id}}__button_0" pos="{{sizes.button_0__pos__left}} {{sizes.button_0__pos__top}}" size="26 5" />
+        <button text="{{buttons[1].name}}" action="{{id}}__button_1" pos="{{sizes.button_1__pos__left}} {{sizes.button_1__pos__top}}" size="26 5" />
       {% elif buttons|length == 1 %}
-        {{ ui.decoratedbutton(buttons[0].name, id+"__button_0", sizes.button_0__pos__left, sizes.button_0__pos__top, 26, 5, "ddd") }}
+        <decoratedbutton text="{{buttons[0].name}}" action="{{id}}__button_0" pos="{{sizes.button_0__pos__left}} {{sizes.button_0__pos__top}}" size="26 5" />
       {% else %}
-        {{ ui.decoratedbutton("Ok", id+"__button_0", sizes.button_0__pos__left, sizes.button_0__pos__top, 26, 5, "ddd") }}
+        <decoratedbutton text="Ok" action="{{id}}__button_0" pos="{{sizes.button_0__pos__left}} {{sizes.button_0__pos__top}}" size="26 5" />
       {% endif %}
     {% endblock %}
   </frame>

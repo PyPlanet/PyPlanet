@@ -22,6 +22,7 @@ class _BaseUIManager:
 		self.instance = instance
 		self.manialinks = dict()
 		self.send_queue = list()
+		self.xslt = eTree.parse("pyplanet/views/templates/xlst.xml")
 
 	async def on_start(self):
 		asyncio.ensure_future(self.send_loop())
@@ -102,8 +103,7 @@ class _BaseUIManager:
 					ver=manialink.version, id=manialink.id, name=name, layer=layer, body=body).encode()
 
 				dom = eTree.XML(xml)
-				xslt = eTree.parse("pyplanet/views/templates/xlst.xml")
-				transform = eTree.XSLT(xslt)
+				transform = eTree.XSLT(self.xslt)
 				body = eTree.tostring(transform(dom), pretty_print=True).decode()
 
 				# Prepare query
@@ -124,8 +124,7 @@ class _BaseUIManager:
 			xml = '<?xml version="1.0" encoding="UTF-8"?>\n<manialink version="{ver}" id="{id}" layer="{layer}" name="{name}">{body}</manialink>'.format(
 				ver=manialink.version, id=manialink.id, name=name, layer=layer, body=body).encode()
 			dom = eTree.XML(xml)
-			xslt = eTree.parse("pyplanet/views/templates/xlst.xml")
-			transform = eTree.XSLT(xslt)
+			transform = eTree.XSLT(self.xslt)
 			body = eTree.tostring(transform(dom), pretty_print=True).decode()
 
 			# Add normal queries.

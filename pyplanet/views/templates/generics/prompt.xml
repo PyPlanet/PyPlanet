@@ -1,4 +1,4 @@
-{% import 'core.views/generics/uiElements.xml' as ui %}
+{% include 'core.views/style.xml' %}
 
 <frame pos="0 0" z-index="900">
   <quad pos="0 0" size="320 180" halign="center" valign="center" style="Bgs1" substyle="BgDialogBlur" scriptevents="1" z-index="500" />
@@ -12,8 +12,8 @@
       <entry pos="{{ sizes.input__pos }}" size="{{ sizes.input__size }}" halign="center" valign="center2" textsize="2" textcolor="FFF" default="{{ default }}" name="prompt_value" z-index="560" />
 
     {% if buttons|length >= 2 %}
-        {{ ui.decoratedbutton(buttons[0].name, id+"__button_0", sizes.button_0__pos__left, sizes.button_0__pos__top, 26, 5) }}
-        {{ ui.decoratedbutton(buttons[1].name, id+"__button_1", sizes.button_1__pos__left, sizes.button_1__pos__top, 26, 5) }}
+        <decoratedbutton text="{{buttons[0].name}}" action="{{id}}__button_0" pos="{{sizes.button_0__pos__left sizes.button_0__pos__top}}" size="26 5" />
+        {{ ui.button(buttons[1].name, id+"__button_1", sizes.button_1__pos__left, sizes.button_1__pos__top, 26, 5) }}
       {% elif buttons|length == 1 %}
         {{ ui.decoratedbutton(buttons[0].name, id+"__button_0", sizes.button_0__pos__left, sizes.button_0__pos__top, 26, 5) }}
       {% else %}

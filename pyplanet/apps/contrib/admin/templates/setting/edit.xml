@@ -20,11 +20,10 @@
            textsize="1.2" default="{{ setting_value|default('', True) }}" scriptevents="1"
            focusareacolor1="0003" focusareacolor2="FFF2"/>
     {% elif setting.type == types.bool %}
-    <checkbox pos="30 0" size="30 5" text="Enable/Activated" name="{{setting_value_field}}"
+    <checkbox pos="30 0" size="30 5" text="Enable/Activated" name="setting_value_field"
               checked="{{setting_value|int}}"/>
     {% elif setting.type == types.set or setting.type == types.list %}
-
-    <dropdown pos="0 0" name="{{setting_value_field}}" size="30 5">
+    <dropdown pos="0 0" name="setting_value_field" size="30 5">
       {{%for setting in setting_value %}}
       <option value="{{setting.value}}" text="{{setting.text}}"/>
       {{% endfor %}
@@ -33,7 +32,7 @@
   </frame>
 </frame>
 
-<confirmbutton text="Save!!!" name="{{id}}__button_save" pos="30 -120" size="24 6"/>
-<decoratedbutton text="cancel" name="{{id}}__button_cancel" pos="60 -120" size="24 6"/>
+<confirmbutton text="Save" action="{{id}}__button_save" pos="30 -120" size="24 6"/>
+<decoratedbutton text="Cancel" action="{{id}}__button_cancel" pos="60 -120" size="24 6"/>
 
   {% endblock %}

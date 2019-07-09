@@ -30,7 +30,7 @@
            textsize="1.2" default="{{ setting_value|default('', True) }}" scriptevents="1"
            focusareacolor1="0003" focusareacolor2="FFF2"/>
     {% elif setting.type == types.bool %}
-    <checkbox pos="30 0" size="30 5" text="Enable/Activated" name="{{setting_value_field}}"
+    <checkbox pos="30 0" size="30 5" text="Enable/Activated" name="setting_value_field"
               checked="{{setting_value|int}}"/>
     {% elif setting.type == types.set or setting.type == types.list %}
     <frame id="setting_value_list">

@@ -25,16 +25,14 @@
 
     <!--#endregion-->
     <!--#region uiCheckbox definition-->
-    <frame
-      pos="{@pos}" id="{@id}" class="uiContainer uiCheckbox" data-checked="{@checked}"
-      data-disabled="{@disabled}}">
-      <entry pos="900 900" z-index="0" size="6 6" textemboss="1" text="1" textsize="3" valign="center2" halign="center"
-             textformat="Basic" name="@name" scriptevents="1"/>
+    <frame pos="{@pos}" id="{@id}" class="uiContainer uiCheckbox" data-checked="{@checked}" data-disabled="{@disabled}">
+      <entry pos="900 900" z-index="0" size="6 6" text="1" textsize="3" valign="center2" halign="center"
+             textformat="Basic" name="{@name}" scriptevents="1"/>
       <label pos="6 -2.5" z-index="0" size="100 5" text="{@text}" textsize="2" scriptevents="1"
-             focusareacolor1="0000"
-             focusareacolor2="0000" valign="center"/>
+             focusareacolor1="0000" focusareacolor2="0000" valign="center"/>
       <label pos="2.5 -2" z-index="0" size="6 6" textemboss="0" textsize="3" scale="0" text="✓" valign="center2"
-             halign="center" class="uiCheckboxElement" scriptevents="1" focusareacolor1="0000" focusareacolor2="0000"/>
+             halign="center" class="uiCheck uiCheckboxElement" scriptevents="1" focusareacolor1="0000"
+             focusareacolor2="0000"/>
       <label pos="2 -2.5" z-index="0" size="6 6" textemboss="0" textsize="4" text="⬜" valign="center2" halign="center"
              class="uiCheckboxElement" scriptevents="1" focusareacolor1="0000" focusareacolor2="0000"/>
     </frame>
@@ -50,19 +48,18 @@
     <xsl:param name="name"/>
     <xsl:param name="group"/>
     <xsl:param name="text"/>
+    <xsl:param name="type"/>
     <!--#endregion-->
     <!--#region uiCheckbox definition-->
     <frame
       pos="{@pos}" id="{@id}" class="uiContainer uiCheckbox uiCheckboxGroup {{group}}" data-checked="{@checked}"
-      data-disabled="{@disabled}}">
+      data-disabled="{@disabled}">
       <entry pos="900 900" z-index="0" size="6 6" textemboss="1" text="1" textsize="3" valign="center2" halign="center"
-             textformat="Basic" name="@name" scriptevents="1"/>
+             textformat="Basic" name="{@name}" scriptevents="1"/>
       <label pos="6 -2.5" z-index="0" size="100 5" text="{@text}" textsize="2" scriptevents="1"
-             focusareacolor1="0000"
-             focusareacolor2="0000" valign="center"/>
+             focusareacolor1="0000" focusareacolor2="0000" valign="center"/>
       <label pos="2.5 -2" z-index="0" size="6 6" textemboss="0" textsize="3" scale="0" text="✓" valign="center2"
-             halign="center" class="uiCheckboxElement" data-group="{@group}" scriptevents="1" focusareacolor1="0000"
-             focusareacolor2="0000"/>
+             halign="center" class="uiCheck uiCheckboxElement" data-group="{@group}" scriptevents="1"/>
       <label pos="2 -2.5" z-index="0" size="6 6" textemboss="0" textsize="4" text="⬜" valign="center2" halign="center"
              class="uiCheckboxElement" data-group="{@group}" scriptevents="1" focusareacolor1="0000"
              focusareacolor2="0000"/>
@@ -74,9 +71,7 @@
     <!--#region Button parameters-->
     <xsl:param name="id"/>
     <xsl:param name="action"/>
-    <xsl:param name="focuscolor"/>
-    <xsl:param name="textcolor"/>
-    <xsl:param name="bgcolor"/>
+    <xsl:param name="type"/>
     <xsl:param name="halign"/>
     <xsl:param name="valign"/>
     <xsl:param name="text"/>
@@ -88,12 +83,11 @@
     <xsl:param name="posXdiv" select="$width div 2"/>
     <!--#endregion -->
     <!--#region Button parameters-->
-    <frame pos="{$posX +$posXdiv} {($posY - $posYdiv)}" class="uiContainer uiButton" data-action="{@action}">
-      <quad size="{$width} {$height}" style="Bgs1InRace" colorize="{@bgcolor}" substyle="BgColorContour"
+    <frame pos="{$posX +$posXdiv} {($posY - $posYdiv)}" class="uiContainer uiButton">
+      <quad size="{$width} {$height}" style="Bgs1InRace" class="{@type}" substyle="BgColorContour"
             halign="center" valign="center2"/>
-      <label size="{($width - 1)} {($height - 1)}" text="{@text}" class="uiButtonElement" halign="center"
-             valign="center2"
-             focusareacolor1="0000" focusareacolor2="{@focuscolor}" textcolor="{@textcolor}" scriptevents="1" translate="0" textsize="1.2"/>
+      <label size="{($width - 1)} {($height - 1)}" text="{@text}" class="{@type} uiButtonElement" halign="center"
+             valign="center2" focusareacolor1="0000" scriptevents="1" translate="0" textsize="1.2" action="{@action}"/>
     </frame>
     <!--#endregion -->
   </xsl:template>
@@ -102,8 +96,7 @@
     <!--#region Button parameters-->
     <xsl:param name="id"/>
     <xsl:param name="action"/>
-    <xsl:param name="color"/>
-    <xsl:param name="bgcolor"/>
+    <xsl:param name="type"/>
     <xsl:param name="halign"/>
     <xsl:param name="valign"/>
     <xsl:param name="text"/>
@@ -117,15 +110,15 @@
     <!--#region Button definition-->
     <xsl:choose>
       <xsl:when test="@halign = 'center'">
-        <frame pos="{$posX + $posXdiv} {($posY - $posYdiv)}" class="uiContainer uiButton" data-action="{@action}">
-          <label size="{$width} {$height}" text="{@text}" class="uiButtonElement" halign="center" valign="center"
-                 focusareacolor1="{@bgcolor}" focusareacolor2="{@color}" scriptevents="1" translate="0" textsize="1.2"/>
+        <frame pos="{$posX} {-($posY - $posYdiv)}" class="uiContainer uiButton">
+          <label size="{$width} {$height}" text="{@text}" class="{@type} uiButtonElement" halign="center"
+                 valign="center" scriptevents="1" translate="0" textsize="1.2" action="{@action}"/>
         </frame>
       </xsl:when>
       <xsl:otherwise>
-        <frame pos="{$posX} {-($posY - $posYdiv)}" class="uiContainer uiButton" data-action="{@action}">
-          <label size="{$width} {$height}" text="{@text}" class="uiButtonElement" halign="center" valign="center"
-                 focusareacolor1="{@bgcolor}" focusareacolor2="{@color}" scriptevents="1" translate="0" textsize="1.2"/>
+        <frame pos="{$posX + $posXdiv} {($posY - $posYdiv)}" class="uiContainer uiButton">
+          <label size="{$width} {$height}" text="{@text}" class="{@type} uiButtonElement" halign="center"
+                 valign="center" scriptevents="1" translate="0" textsize="1.2" action="{@action}"/>
         </frame>
       </xsl:otherwise>
     </xsl:choose>
@@ -136,12 +129,10 @@
     <!--#region Button parameters-->
     <xsl:param name="id"/>
     <xsl:param name="action"/>
-    <xsl:param name="textcolor"/>
-    <xsl:param name="focuscolor"/>
-    <xsl:param name="bgcolor"/>
     <xsl:param name="halign"/>
     <xsl:param name="valign"/>
     <xsl:param name="text"/>
+    <xsl:param name="type"/>
     <xsl:param name="posX" select="number(substring-before(concat(@pos,' '),' '))"/>
     <xsl:param name="posY" select="number(substring-after(concat(@pos,' '),' '))"/>
     <xsl:param name="width" select="number(substring-before(concat(@size,' '),' '))"/>
@@ -152,15 +143,17 @@
     <!--#region Button definition-->
     <xsl:choose>
       <xsl:when test="@halign = 'center'">
-        <frame pos="{$posX + $posXdiv} {($posY - $posYdiv)}" class="uiContainer uiButton" data-action="{@action}">
-          <label size="{$width} {$height}" text="{@text}" class="uiConfirmButtonElement" halign="center" valign="center"
-                 focusareacolor1="{@bgcolor}" focusareacolor2="{@focuscolor}" textcolor="{@textcolor}" scriptevents="1" translate="0" textsize="1.2"/>
+        <frame pos="{$posX} {($posY - $posYdiv)}" class="uiContainer uiButton" data-action="{@action}">
+          <label size="{$width} {$height}" text="{@text}" class="{@type} uiConfirmButtonElement" halign="center"
+                 valign="center"
+                 scriptevents="1" translate="0" textsize="1.2"/>
         </frame>
       </xsl:when>
       <xsl:otherwise>
-        <frame pos="{$posX} {($posY - $posYdiv)}" class="uiContainer uiButton" data-action="{@action}">
-          <label size="{$width} {$height}" text="{@text}" class="uiConfirmButtonElement" halign="center" valign="center"
-                 focusareacolor1="{@bgcolor}" focusareacolor2="{@focuscolor}" textcolor="{@textcolor}" scriptevents="1" translate="0" textsize="1.2"/>
+        <frame pos="{$posX + $posXdiv} {($posY - $posYdiv)}" class="uiContainer uiButton" data-action="{@action}">
+          <label size="{$width} {$height}" text="{@text}" class="{@type} uiConfirmButtonElement" halign="center"
+                 valign="center"
+                 scriptevents="1" translate="0" textsize="1.2"/>
         </frame>
       </xsl:otherwise>
     </xsl:choose>
@@ -218,18 +211,17 @@
     <!--#region dropdown parameters-->
     <frame pos="{$posX} {$posY}" class="uiContainer uiDropdown" data-selected="{@selectedindex}" data-open="0">
       <label pos="{$width - 5}} 0" size="5 {$height}" z-index="2" class="uiSelectElement" text="⏷"
-             textcolor="fff"/>
+      />
       <label pos="0 -{$heightDiv}" size="{$width} {$height}" textsize="1.2" textprefix=" " text="Select..."
-             focusareacolor1="000" focusareacolor2="111" valign="center" scriptevents="1" class="uiSelectElement"/>
+             valign="center" scriptevents="1" class="uiSelectElement"/>
       <entry pos="900 900" size="26 5" textemboss="1" text="1" textsize="1.2" valign="center2" halign="center"
              textformat="Basic" name="{@name}"/>
 
       <frame pos="0 -{$height}" z-index="10" class="uiDropdownSelect" size="{$width} {$optionsCount*$height}">
         <xsl:for-each select="option">
           <label pos="0 -{position() * $height - $heightDiv}" size="{$width} {$height}" text="{@text}"
-                 data-value="{@value}" valign="center" data-index="{position() - 1}" focusareacolor1="000"
-                 focusareacolor2="222"
-                 scriptevents="1" textsize="1.2" class="uiSelectElement"/>
+                 data-value="{@value}" valign="center" data-index="{position() - 1}" scriptevents="1" textsize="1.2"
+                 class="uiSelectElement"/>
         </xsl:for-each>
       </frame>
     </frame>
@@ -261,28 +253,6 @@
       </frame>
       <quad pos="0 0" size="{$width} {$height}" z-index="-20" bgcolor="0004"/>
     </frame>
-
-  </xsl:template>
-
-  <xsl:template match="window">
-    <!--#region Window-->
-    <frame pos="-160 90" z-index="150" id="Window"> <!-- set z-index high enough -->
-      <frame pos="160 -90"> <!-- reset to 0,0 -->
-
-        <frame pos="-120 70"> <!-- window position -->
-          <label pos="2 -2" textsize="2.5" size="220 7" text="{{title}}" halign="left" valign="top"
-                 textprefix="{{icon}}  " textfont="RajdhaniMono"/>
-
-          <frame pos="0 -18">
-            <xsl:apply-templates select="node()"/>
-          </frame>
-          <quad pos="120 0" size="240 140" bgcolor="0003" halign="center"/>
-          <quad pos="120 0" size="240 140" halign="center" style="Bgs1" substyle="BgDialogBlur" bluramount="0.1"/>
-
-        </frame>
-      </frame>
-    </frame>
-    <!--#endregion -->
   </xsl:template>
 
 </xsl:stylesheet>

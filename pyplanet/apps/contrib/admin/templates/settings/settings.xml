@@ -15,13 +15,13 @@
           {% endfor %}
   </frame>
 
-<scrollable pos="10 -6" size="218 100" scrollsize="218 {{count*5}}">
+<scrollable pos="10 -5" size="218 100" scrollsize="218 {{count*5}}">
   {% for name, setting_value in settings.items() %}
     <frame pos="2 -{{ (loop.index0 * 6) + 2}}">
       <label pos="0 -2.5" size="80 5" text="{{name}}" textsize="1.2" valign="center" />
 
       {% if types[name] == "bool" %}
-       <checkbox pos="80 0" size="30 5" text="" name="{{name}}" checked="setting_value|int"/>
+       <checkbox pos="80 0" size="30 5" text="" name="{{name}}" checked="{{setting_value|int}}"/>
       {% elif types[name] == "string" %}
           <input text="{{setting_value}}" name="{{name}}" pos="80 -2.5" size="80 5" />
       {% elif types[name] == "password" %}
@@ -41,8 +41,8 @@
     {% endfor %}
 </scrollable>
 
-<confirmbutton text="Save" action="{{id}}__button_save" pos="170 -110" size="24 6" focuscolor="ddd" bgcolor="777" textcolor="fff"/>
-<decoratedbutton text="Cancel" action="{{id}}__button_cancel" pos="206 -110" size="24 6" focuscolor="777" bgcolor="fff" textcolor="fff"/>
+<confirmbutton text="Save" action="{{id}}__button_save" pos="180 -110" size="24 6" />
+<button text="Cancel" action="{{id}}__button_cancel" pos="206 -110" size="24 6" />
 
 {% endblock %}
 
