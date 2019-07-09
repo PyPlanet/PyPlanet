@@ -14,9 +14,9 @@
         <decoratedbutton text="{{buttons[0].name}}" action="{{id}}__button_0" pos="{{sizes.button_0__pos__left}} {{sizes.button_0__pos__top}}" size="26 5" />
         <button text="{{buttons[1].name}}" action="{{id}}__button_1" pos="{{sizes.button_1__pos__left}} {{sizes.button_1__pos__top}}" size="26 5" />
       {% elif buttons|length == 1 %}
-        <decoratedbutton text="{{buttons[0].name}}" action="{{id}}__button_0" pos="{{sizes.button_0__pos__left}} {{sizes.button_0__pos__top}}" size="26 5" />
+        <decoratedbutton text="{{buttons[0].name}}" action="{{id}}__button_0" pos="0 {{sizes.button_0__pos__top}}" size="26 5" />
       {% else %}
-        <decoratedbutton text="Ok" action="{{id}}__button_0" pos="{{sizes.button_0__pos__left}} {{sizes.button_0__pos__top}}" size="26 5" />
+        <decoratedbutton text="Ok" action="{{id}}__button_0" pos="0 {{sizes.button_0__pos__top}}" size="26 5" />
       {% endif %}
     {% endblock %}
   </frame>
