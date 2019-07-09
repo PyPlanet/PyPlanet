@@ -39,12 +39,48 @@ class MX(AppConfig):  # pragma: no cover
 		)
 
 		await self.instance.command_manager.register(
+			Command(command='info', namespace='mx', target=self.mx_info),
+
 			Command(command='search', namespace='mx', target=self.search_mx_map, perms='mx:add_remote', admin=True),
 			Command(command='add', namespace='mx', target=self.add_mx_map, perms='mx:add_remote', admin=True)
 				.add_param('maps', nargs='*', type=str, required=True, help='MX ID(s) of maps to add.'),
 			Command(command='mx', namespace='add', target=self.add_mx_map, perms='mx:add_remote', admin=True)
 				.add_param('maps', nargs='*', type=str, required=True, help='MX ID(s) of maps to add.'),
 		)
+
+	async def mx_info(self, player, data, **kwargs):
+		map_info = await self.api.map_info(self.instance.map_manager.current_map.uid)
+		if len(map_info) != 1:
+			message = '$f00Map could not be found on MX!'
+			await self.instance.chat(message, player)
+			return
+		map_info = map_info[0][1]
+
+		messages = [
+			'$o$ff0Mania-Exchange info:$o Name: $fff{}$ff0, MX-username: $fff{}'.format(
+				map_info['Name'], map_info['Username']
+			)
+		]
+		if 'ReplayCount' in map_info:  # If TM with ReplayCount
+			messages.append(
+				'$ff0Number of replays: $fff{}$ff0, Number of awards: $fff{}$ff0, MX-ID: $l[{}]$fff{}$l $n(click to open MX)'.format(
+					map_info['ReplayCount'], map_info['AwardCount'], 'https://{}.mania-exchange.com/s/tr/{}'.format(
+						self.instance.game.game, map_info['TrackID']
+					),
+					map_info['TrackID']
+				)
+			)
+		else:
+			messages.append(
+				'$ff0MX-ID: $l[{}]$fff{}$l (click to open MX)'.format(
+					'https://{}.mania-exchange.com/s/tr/{}'.format(
+						self.instance.game.game, map_info['MapID']
+					),
+					map_info['MapID']
+				)
+			)
+
+		await self.instance.gbx.multicall(*[self.instance.chat(message, player) for message in messages])
 
 	async def search_mx_map(self, player, data, **kwargs):
 		self.api.key = await self.setting_mx_key.get_value()
@@ -63,11 +99,11 @@ class MX(AppConfig):  # pragma: no cover
 			if len(infos) == 0:
 				raise MXMapNotFound()
 		except MXMapNotFound:
-			message = '$ff0Error: Can\'t add map from MX. Map not found on ManiaExchange!'
+			message = '$f00Error: Can\'t add map from MX. Map not found on ManiaExchange!'
 			await self.instance.chat(message, player)
 			return
 		except MXInvalidResponse as e:
-			message = '$ff0Error: Got invalid response from ManiaExchange: {}'.format(str(e))
+			message = '$f00Error: Got invalid response from ManiaExchange: {}'.format(str(e))
 			await self.instance.chat(message, player.login)
 			return
 
@@ -75,7 +111,7 @@ class MX(AppConfig):  # pragma: no cover
 			if not await self.instance.storage.driver.exists(os.path.join('UserData', 'Maps', 'PyPlanet-MX')):
 				await self.instance.storage.driver.mkdir(os.path.join('UserData', 'Maps', 'PyPlanet-MX'))
 		except Exception as e:
-			message = '$ff0Error: Can\'t check or create folder: {}'.format(str(e))
+			message = '$f00Error: Can\'t check or create folder: {}'.format(str(e))
 			await self.instance.chat(message, player.login)
 			return
 
