@@ -13,11 +13,11 @@
 
     {% if buttons|length >= 2 %}
         <decoratedbutton text="{{buttons[0].name}}" action="{{id}}__button_0" pos="{{sizes.button_0__pos__left sizes.button_0__pos__top}}" size="26 5" />
-        {{ ui.button(buttons[1].name, id+"__button_1", sizes.button_1__pos__left, sizes.button_1__pos__top, 26, 5) }}
+        <button text="{{buttons[1].name}}" action="{{id}}__button_1" pos="{{sizes.button_1__pos__left}} {{sizes.button_1__pos__top}}" size="26 5" />
       {% elif buttons|length == 1 %}
-        {{ ui.decoratedbutton(buttons[0].name, id+"__button_0", sizes.button_0__pos__left, sizes.button_0__pos__top, 26, 5) }}
+        <decoratedbutton text="{{buttons[0].name}}" action="{{id}}__button_0" pos="{{sizes.button_0__pos__left sizes.button_0__pos__top}}" size="26 5" />
       {% else %}
-        {{ ui.decoratedbutton("Ok", id+"__button_0", sizes.button_0__pos__left, sizes.button_0__pos__top, 26, 5) }}
+        <decoratedbutton text="Ok" action="{{id}}__button_0" pos="{{sizes.button_0__pos__left sizes.button_0__pos__top}}" size="26 5" />
       {% endif %}
     {% endblock %}
   </frame>
@@ -27,4 +27,3 @@
 <script><![CDATA[ {% include 'core.views/generics/scripts/uiElements.Script.Txt' %} ]]></script>
   {% block maniascript %} {% endblock %}
 <script><![CDATA[ {% include 'core.views/generics/scripts/main.Script.Txt' %} ]]></script>
-

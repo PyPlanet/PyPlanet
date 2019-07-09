@@ -1,4 +1,3 @@
-{% import 'core.views/generics/uiElements.xml' as ui %}
 {% include 'core.views/style.xml' %}
 
 <frame pos="-160 90" z-index="200"> <!-- set z-index high enough -->
@@ -7,7 +6,7 @@
   <frame pos="-60 70"> <!-- window position -->
 
       {% block header %}
-          {{ ui.button("x", id+"__button_close", 114, 0, 6, 6, "d00", "000") }}
+          <button type="danger" text="x" action="{{id}}__button_close" pos="114 0" size="6 6" />
       {% endblock %}
 
 

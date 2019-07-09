@@ -83,12 +83,26 @@
     <xsl:param name="posXdiv" select="$width div 2"/>
     <!--#endregion -->
     <!--#region Button parameters-->
-    <frame pos="{$posX +$posXdiv} {($posY - $posYdiv)}" class="uiContainer uiButton">
-      <quad size="{$width} {$height}" style="Bgs1InRace" class="{@type}" substyle="BgColorContour"
-            halign="center" valign="center2"/>
-      <label size="{($width - 1)} {($height - 1)}" text="{@text}" class="{@type} uiButtonElement" halign="center"
-             valign="center2" focusareacolor1="0000" scriptevents="1" translate="0" textsize="1.2" action="{@action}"/>
-    </frame>
+    <xsl:choose>
+      <xsl:when test="@halign = 'center'">
+        <frame pos="{$posX +$posXdiv} {($posY - $posYdiv)}" class="uiContainer uiButton">
+          <quad size="{$width} {$height}" style="Bgs1InRace" class="{@type}" substyle="BgColorContour"
+                halign="center" valign="center2"/>
+          <label size="{($width - 1)} {($height - 1)}" text="{@text}" class="{@type} uiButtonElement" halign="center"
+                 valign="center2" focusareacolor1="0000" scriptevents="1" translate="0" textsize="1.2"
+                 action="{@action}"/>
+        </frame>
+      </xsl:when>
+      <xsl:otherwise>
+         <frame pos="{$posX} {($posY - $posYdiv)}" class="uiContainer uiButton">
+          <quad size="{$width} {$height}" style="Bgs1InRace" class="{@type}" substyle="BgColorContour"
+                halign="center" valign="center2"/>
+          <label size="{($width - 1)} {($height - 1)}" text="{@text}" class="{@type} uiButtonElement" halign="center"
+                 valign="center2" focusareacolor1="0000" scriptevents="1" translate="0" textsize="1.2"
+                 action="{@action}"/>
+        </frame>
+      </xsl:otherwise>
+    </xsl:choose>
     <!--#endregion -->
   </xsl:template>
 
@@ -110,7 +124,7 @@
     <!--#region Button definition-->
     <xsl:choose>
       <xsl:when test="@halign = 'center'">
-        <frame pos="{$posX} {-($posY - $posYdiv)}" class="uiContainer uiButton">
+        <frame pos="{$posX} {($posY - $posYdiv)}" class="uiContainer uiButton">
           <label size="{$width} {$height}" text="{@text}" class="{@type} uiButtonElement" halign="center"
                  valign="center" scriptevents="1" translate="0" textsize="1.2" action="{@action}"/>
         </frame>

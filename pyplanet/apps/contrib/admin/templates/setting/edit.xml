@@ -24,9 +24,9 @@
               checked="{{setting_value|int}}"/>
     {% elif setting.type == types.set or setting.type == types.list %}
     <dropdown pos="0 0" name="setting_value_field" size="30 5">
-      {{%for setting in setting_value %}}
+      {%for setting in setting_value %}
       <option value="{{setting.value}}" text="{{setting.text}}"/>
-      {{% endfor %}
+      {% endfor %}
     </dropdown>
     {% endif %}
   </frame>

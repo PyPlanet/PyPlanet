@@ -7,7 +7,7 @@
 <frame pos="10 -10">
   {% for folder in folders %}
 <frame pos="0 -{{ loop.index0 * 5 }}">
-  {{ ui.button(folder.icon + " " + folder.name, id+"__folder_select__"+folder.id.__str__(), 0, 0, 105, 5) }}
+  <button type="none" text="{{folder.icon }} {{folder.name}}" action="{{id}}__folder_select__{{folder.id.__str__()}}" pos="0 0" size="105 5" />
   {% if loop.index0 % 2 != 0 %}
   <quad pos="0 0" size="105.0 5" bgcolor="aaa1"/>
   {% else %}
@@ -17,7 +17,7 @@
 {% endfor %}
 </frame>
 
-  {{ ui.decoratedbutton("Close", id+"__button_cancel", 48, -124) }}
+<decoratedbutton text="Cancel" action="{{id}}__button_cancel" pos="48 -124" size="26 5" />
 
 {% endblock %}
 

@@ -2,9 +2,18 @@
 
 
 {% block toolbar_search %}
-  {{ ui.input(search_map|default('Search Map...', True), "map", 2, -4.25, 40) }}
-  {{ ui.input(search_author|default('Search Author...', True), "author", 43, -4.25, 40) }}
-  {{ ui.dropdown(mode,"mode", mode_index, 84, -2, 40) }}
-  {{ ui.dropdown(styles,"style", style_index, 125, -2, 40) }}
-  {{ ui.button("🔍 search", id+"__mx_search", 167, -2,26,5) }}
+  <input text="{{search_map|default('Search Map...', True)}}" name="map" pos="2 -4.25" size="40 5" />
+  <input text="{{search_author|default('Search Author...', True)}}" name="author" pos="43 -4.25" size="40 5" />
+  <dropdown name="mode" selectedindex="{{mode_index}}" pos="84 -2" size="40 5">
+    {% for setting in mode %}
+      <option value="{{setting.value}}" text="{{setting.text}}"/>
+    {% endfor %}
+  </dropdown>
+
+  <dropdown name="style" selectedindex="{{style_index}}" pos="125 -2" size="40 5">
+    {% for setting in styles %}
+      <option value="{{setting.value}}" text="{{setting.text}}"/>
+    {% endfor %}
+  </dropdown>
+  <button text="🔍 search" action="{{id}}__mx_search" pos="167 -2" size="26 5"/>
 {% endblock %}

@@ -18,7 +18,7 @@
         {% endblock %}
       {% endif %}
       {% for button in buttons %}
-           <decoratedbutton text="button.title" name="{{id}}__list_buttons_{{loop.index0.__str__()}}" pos="button.right -4.35" size="button.width 5" />
+           <decoratedbutton text="{{button.title}}" action="{{id}}__list_buttons_{{loop.index0.__str__()}}" pos="{{button.right}} -1.35" size="{{button.width}} 5" />
       {% endfor %}
     </frame>
 
