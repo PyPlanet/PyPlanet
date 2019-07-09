@@ -20,5 +20,5 @@
 {% endblock %}
 
 {% block maniascript %}
-  <script><![CDATA[ {% include 'live_rankings/widget.Script.txt' %} ]]></script>
+  <script><![CDATA[ {% include 'live_rankings/live.Script.txt' %} ]]></script>
 {% endblock %}

@@ -21,5 +21,5 @@
 {% endblock %}
 
 {% block maniascript %}
-
+<script><![CDATA[ {% include 'core.views/generics/scripts/autohide.Script.Txt' %} ]]></script>
 {% endblock %}

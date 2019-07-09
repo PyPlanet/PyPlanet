@@ -23,4 +23,5 @@
 
 {% block maniascript %}
   <script><![CDATA[{% include 'info/mapinfo.Script.Txt' %}]]></script>
+  <script><![CDATA[ {% include 'core.views/generics/scripts/autohide.Script.Txt' %} ]]></script>
 {% endblock %}

@@ -3,12 +3,11 @@ import math
 from pyplanet.utils.style import style_strip
 from pyplanet.utils.times import format_time
 from pyplanet.views.generics.widget import TimesWidgetView
-from pyplanet.views.generics.tabwidget import TabTimesWidgetView
 from pyplanet.views.generics.list import ManualListView
 from pyplanet.utils import times
 
 
-class DedimaniaRecordsWidget(TabTimesWidgetView):
+class DedimaniaRecordsWidget(TimesWidgetView):
 	widget_x = -160
 	widget_y = 12.5
 	size_x = 38
