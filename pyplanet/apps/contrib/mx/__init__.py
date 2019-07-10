@@ -1,12 +1,14 @@
 import logging
 import os
 
+from io import BytesIO
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.mx.api import MXApi
-from pyplanet.apps.contrib.mx.view import MxSearchListView
 from pyplanet.apps.contrib.mx.exceptions import MXMapNotFound, MXInvalidResponse
+from pyplanet.apps.contrib.mx.view import MxSearchListView, MxPacksListView
 from pyplanet.contrib.command import Command
 from pyplanet.contrib.setting import Setting
+from zipfile import ZipFile
 
 logger = logging.getLogger(__name__)
 
@@ -39,13 +41,22 @@ class MX(AppConfig):  # pragma: no cover
 		)
 
 		await self.instance.command_manager.register(
+			# support backwards
+			Command(command='mx', namespace='add', target=self.add_mx_map, perms='mx:add_remote', admin=True).add_param(
+				'maps', nargs='*', type=str, required=True, help='MX ID(s) of maps to add.'),
+
+			# new mx namespace
+			Command(command='search', namespace='mx', target=self.search_mx_map, perms='mx:add_remote', admin=True),
 			Command(command='info', namespace='mx', target=self.mx_info),
 
-			Command(command='search', namespace='mx', target=self.search_mx_map, perms='mx:add_remote', admin=True),
-			Command(command='add', namespace='mx', target=self.add_mx_map, perms='mx:add_remote', admin=True)
-				.add_param('maps', nargs='*', type=str, required=True, help='MX ID(s) of maps to add.'),
-			Command(command='mx', namespace='add', target=self.add_mx_map, perms='mx:add_remote', admin=True)
-				.add_param('maps', nargs='*', type=str, required=True, help='MX ID(s) of maps to add.'),
+			Command(command='add', namespace='mx', target=self.add_mx_map, perms='mx:add_remote', admin=True).add_param(
+				'maps', nargs='*', type=str, required=True, help='MX ID(s) of maps to add.'),
+
+			# new mxpack namespace
+			Command(command='search', namespace='mxpack', target=self.search_mx_pack, perms='mx:add_remote',
+					admin=True),
+			Command(command='add', namespace='mxpack', target=self.add_mx_pack, perms='mx:add_remote', admin=True)
+				.add_param('pack', nargs='*', type=str, required=True, help='MX ID(s) of mappacks to add.'),
 		)
 
 	async def mx_info(self, player, data, **kwargs):
@@ -82,10 +93,67 @@ class MX(AppConfig):  # pragma: no cover
 
 		await self.instance.gbx.multicall(*[self.instance.chat(message, player) for message in messages])
 
+	async def search_mx_pack(self, player, data, **kwargs):
+		self.api.key = await self.setting_mx_key.get_value()
+		window = MxPacksListView(self, player, self.api)
+		await window.display()
+
 	async def search_mx_map(self, player, data, **kwargs):
 		self.api.key = await self.setting_mx_key.get_value()
 		window = MxSearchListView(self, player, self.api)
 		await window.display()
+
+	async def add_mx_pack(self, player, data, **kwargs):
+		try:
+			pack_id = data.pack[0]
+			token = data.pack[1] if len(data.pack) == 2 else ""
+			path = os.path.join('UserData', 'Maps', 'PyPlanet-MXPacks')
+
+			if not await self.instance.storage.driver.exists(path):
+				await self.instance.storage.driver.mkdir(path)
+
+			path = os.path.join('UserData', 'Maps', 'PyPlanet-MXPacks', pack_id)
+			if not await self.instance.storage.driver.exists(path):
+				await self.instance.storage.driver.mkdir(path)
+
+			response = await self.api.download_pack(pack_id, token)
+			if not response:
+				await self.instance.chat("Map pack not found", player.login)
+				return
+
+			data = await response.read()
+			zipfile = ZipFile(BytesIO(data))
+			count = 0
+			for name in zipfile.namelist():
+				map_filename = os.path.join('PyPlanet-MXPacks', pack_id, name)
+				async with self.instance.storage.open_map(map_filename, 'wb+') as map_file:
+					await map_file.write(zipfile.open(name).read())
+					await map_file.close()
+
+				# insert map to server
+				result = await self.instance.map_manager.add_map(map_filename, save_matchsettings=False)
+				if result:
+					count += 1
+
+			zipfile.close()
+			message = '$ff0Admin $fff{}$z$s$ff0 has added the map pack $fff{}$z$s$ff0 from MX $fff{}$z$s$ff0 maps added to server...'.format(
+				player.nickname, pack_id, count)
+			await self.instance.chat(message)
+
+			# save maps
+			try:
+				await self.instance.map_manager.save_matchsettings()
+			except:
+				pass
+			# update map list
+			try:
+				await self.instance.map_manager.update_list(full_update=True)
+			except:
+				pass
+
+		except MXMapNotFound:
+			message = '$ff0Error: Can\'t add map pack from MX, due error.'
+			await self.instance.chat(message, player)
 
 	async def add_mx_map(self, player, data, **kwargs):
 		# Make sure we update the key in the api.
