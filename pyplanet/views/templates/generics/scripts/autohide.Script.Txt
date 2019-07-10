@@ -34,6 +34,7 @@ if (GUIPlayer != Null) {
             }
       }
       if (override_enable) {
+            Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
             foreach (Control in Page.GetClassChildren_Result) {
               Control.Show();
             }

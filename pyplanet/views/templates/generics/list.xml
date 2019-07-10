@@ -13,7 +13,7 @@
       <quad pos="0 0" size="218 8.5" z-index="-50" style="Bgs1InRace" substyle="BgCardList"/>
       {% if provide_search %}
         {% block toolbar_search %}
-            <input text="{{search|default('Search...', True)}}" name="list_search_field" pos="2 -4.25" size="78 6" />
+            <input text="{{search|default('Search...', True)}}" name="list_search_field" pos="2 -4.25" size="74 6" />
             <decoratedbutton text="🔍" action="{{id}}__list_button_search" pos="80 -1.35" size="6 6" />
         {% endblock %}
       {% endif %}
