@@ -1,12 +1,15 @@
 <stylesheet>
   <style class="success" focusareacolor2="0d0" focusareacolor1="070" colorize="0d0"/>
   <style class="danger" focusareacolor2="d00" focusareacolor1="700" colorize="d00"/>
-  <style class="info" focusareacolor2="0dd" focusareacolor1="077" colorize="0dd" />
+  <style class="info" focusareacolor2="0dd" focusareacolor1="077" colorize="0dd"/>
   <style class="warning" focusareacolor2="dd0" focusareacolor1="770" colorize="dd0"/>
   <style class="none" focusareacolor2="777" focusareacolor1="0000" colorize="fff0"/>
-
-  <style class="uiButtonElement uiConfirmButtonElement" focusareacolor2="ddd" focusareacolor1="777" textcolor="fff" z-index="20"/>
-  <style class="uiSelectElement" focusareacolor1="000" focusareacolor2="222" />
-  <style class="uiCheckboxElement" focusareacolor1="0000" focusareacolor2="0000" />
-  <style class="uiCheck" focusareacolor1="0000" focusareacolor2="0000" textcolor="0d0" />
- </stylesheet>
+  <!-- element styles -->
+  <style class="uiButtonElement uiConfirmButtonElement" focusareacolor2="ddd" focusareacolor1="777" textcolor="fff"/>
+  <style class="uiSelectElement" focusareacolor1="000" focusareacolor2="222"/>
+  <style class="uiCheckboxElement" focusareacolor1="0000" focusareacolor2="0000"/>
+  <style class="uiCheck" focusareacolor1="0000" focusareacolor2="0000" textcolor="0d0"/>
+  <!-- ui styles-->
+  <style class="widgetTitle" bgcolor="0009"/>
+  <style class="widgetBg" bgcolor="0006" />
+</stylesheet>

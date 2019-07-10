@@ -1,12 +1,12 @@
+{% include 'core.views/style.xml' %}
+
 <frame pos="{{ widget_x }} {{ widget_y }}" data-sizex="{{size_x}}" data-sizey="{{size_y}}" id="Window" class="{% if distraction_hide %}distraction-hide{% endif %}">
   {% block title %}
       {% if title %}
-      <quad pos="0 0" z-index="0" size="35 6" bgcolor="00000099"/>
+      <quad class="widgetTitle" pos="0 0" z-index="0" size="35 6" />
           {% if open_action %}
           <label pos="17.5 -3" z-index="1" size="35 6" text="{{ title }}" textfont="RajdhaniMono" textsize="2.0"
-                 textemboss="1"
-                 halign="center" valign="center2"
-                 action="{{ id }}__open_widget" scriptevents="1"/>
+                 textemboss="1" halign="center" valign="center2" action="{{ id }}__open_widget" scriptevents="1"/>
           <label pos="33 -3" z-index="2" size="4 6" text="&#xf08e;" textsize="1.0" halign="center" valign="center2"
                  action="{{ id }}__open_widget" scriptevents="1"/>
           {% else %}

@@ -30,3 +30,4 @@ bcrypt==3.1.6
 raven==6.10.0
 xmltodict==0.12.0
 PyYAML==3.13
+lxml=4.3.4

@@ -4,7 +4,7 @@
     {% block content %}
         {% for time in range(18) %} 
             <frame id="CpFrame_{{loop.index0}}" pos="{% if (loop.index0) % 6 == 0 %}35.65{% else %}{{ ((loop.index0) % 6 * 35.65)+35.65 }}{% endif %} -{{ ((loop.index0) // 6 * 3.5) - 6.5 }}">
-              <quad pos="0 0" z-index="0" size="4 3" bgcolor="000000" opacity="0.4"/>
+              <quad pos="0 0" z-index="0" size="4 3" class="widgetTitle"/>
               <label pos="2 -1.5" z-index="1" size="4 3" text="{{ loop.index0 }}" textsize="0.3" textfont="RajdhaniMono"  textemboss="1" halign="center" valign="center2"/>
               <quad pos="4.25 0" z-index="0" size="20.5 3" bgcolor="000000" opacity="0.4"/>
               <label pos="4.5 -1.5" z-index="1" size="20 3" text="" textsize="0.2" textfont="RajdhaniMono"  textemboss="1" halign="left" valign="center2" style="TextCardSmall" action="pyplanet__widgets_currentcps__spec_{{ time.login }}"/>

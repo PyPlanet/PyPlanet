@@ -46,11 +46,13 @@ if (GUIPlayer != Null) {
           }
       }
 }
+
 if (MathLib::Distance(mousePosition, <MouseX, MouseY>) >= 10.) {
-  override_enable = True;
+    override_enable = True;
 }
+
 if (MouseLeftButton) {
-override_enable = True;
+    override_enable = True;
 }
 
 

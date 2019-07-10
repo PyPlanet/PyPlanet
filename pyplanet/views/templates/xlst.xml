@@ -185,7 +185,7 @@
     <!--#region input definition-->
     <frame pos="{@pos}" class="uiContainer uiInputMasked" data-type="Password">
       <entry pos="0 0" size="{($width - 5)} 5" textsize="1.2" valign="center" focusareacolor1="0003"
-             focusareacolor2="FFF2" default="{@text}" textformat="Password" name="{@name}"/>
+             selecttext="1" focusareacolor2="FFF2" default="{@text}" textformat="Password" name="{@name}"/>
       <frame pos="{($width - 2.5)} 0" class="">
         <quad size="5 5" style="Bgs1InRace" colorize="ddd" substyle="BgColorContour" halign="center" valign="center2"/>
         <label size="4 4" text="" class="uiMaskedToggle" halign="center" valign="center2" focusareacolor1="0000"
@@ -206,7 +206,7 @@
     <!--#region input definition-->
     <frame pos="{@pos}" class="uiContainer uiInput" data-type="Basic">
       <entry pos="0 0" size="{$width} 5" textsize="1.2" valign="center" focusareacolor1="0003" focusareacolor2="FFF2"
-             default="{@text}" textselect="1" scriptevents="1" textformat="Basic" name="{@name}"/>
+             default="{@text}" selecttext="1" scriptevents="1" textformat="Basic" name="{@name}"/>
     </frame>
     <!--#endregion-->
   </xsl:template>
