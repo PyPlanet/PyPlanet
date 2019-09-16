@@ -3,10 +3,11 @@ import os
 
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.mx.api import MXApi
-from pyplanet.apps.contrib.mx.view import MxSearchListView
 from pyplanet.apps.contrib.mx.exceptions import MXMapNotFound, MXInvalidResponse
+from pyplanet.apps.contrib.mx.view import MxSearchListView, MxPacksListView
 from pyplanet.contrib.command import Command
 from pyplanet.contrib.setting import Setting
+from collections import namedtuple
 
 logger = logging.getLogger(__name__)
 
@@ -40,12 +41,20 @@ class MX(AppConfig):  # pragma: no cover
 
 		await self.instance.command_manager.register(
 			Command(command='info', namespace='mx', target=self.mx_info),
+			# support backwards
+			Command(command='mx', namespace='add', target=self.add_mx_map, perms='mx:add_remote', admin=True).add_param(
+				'maps', nargs='*', type=str, required=True, help='MX ID(s) of maps to add.'),
 
+			# new mx namespace
 			Command(command='search', namespace='mx', target=self.search_mx_map, perms='mx:add_remote', admin=True),
-			Command(command='add', namespace='mx', target=self.add_mx_map, perms='mx:add_remote', admin=True)
-				.add_param('maps', nargs='*', type=str, required=True, help='MX ID(s) of maps to add.'),
-			Command(command='mx', namespace='add', target=self.add_mx_map, perms='mx:add_remote', admin=True)
-				.add_param('maps', nargs='*', type=str, required=True, help='MX ID(s) of maps to add.'),
+			Command(command='add', namespace='mx', target=self.add_mx_map, perms='mx:add_remote', admin=True).add_param(
+				'maps', nargs='*', type=str, required=True, help='MX ID(s) of maps to add.'),
+
+			# new mxpack namespace
+			Command(command='search', namespace='mxpack', target=self.search_mx_pack, perms='mx:add_remote',
+					admin=True),
+			Command(command='add', namespace='mxpack', target=self.add_mx_pack, perms='mx:add_remote', admin=True)
+				.add_param('pack', nargs='*', type=str, required=True, help='MX ID(s) of mappacks to add.'),
 		)
 
 	async def mx_info(self, player, data, **kwargs):
@@ -82,10 +91,33 @@ class MX(AppConfig):  # pragma: no cover
 
 		await self.instance.gbx.multicall(*[self.instance.chat(message, player) for message in messages])
 
+	async def search_mx_pack(self, player, data, **kwargs):
+		self.api.key = await self.setting_mx_key.get_value()
+		window = MxPacksListView(self, player, self.api)
+		await window.display()
+
 	async def search_mx_map(self, player, data, **kwargs):
 		self.api.key = await self.setting_mx_key.get_value()
 		window = MxSearchListView(self, player, self.api)
 		await window.display()
+
+	async def add_mx_pack(self, player, data, **kwargs):
+		try:
+			pack_id = data.pack[0]
+			token = data.pack[1] if len(data.pack) == 2 else ""
+			ids = await self.api.get_pack_ids(pack_id, token)
+			mx_ids = list()
+			for obj in ids:
+				mx_ids.append(str(obj[0]))
+
+			mock = namedtuple("data", ["maps"])
+
+			await self.instance.chat('$ff0MX: Installing mappack... This can take a while.', player)
+			await self.add_mx_map(player, mock(maps=mx_ids))
+			await self.instance.chat('$ff0MX: Done Installing mappack!', player)
+		except MXMapNotFound:
+			message = '$ff0Error: Can\'t add map pack from MX, due error.'
+			await self.instance.chat(message, player)
 
 	async def add_mx_map(self, player, data, **kwargs):
 		# Make sure we update the key in the api.
