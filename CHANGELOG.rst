@@ -27,6 +27,8 @@ Core
 Apps
 ~~~~
 
+* New App: Integrated the Current CPS App from Teemann into the bundled apps (will get a refactor later on).
+
 * Feature: Add MX Info command ``/mx info``.
 * Feature: Add command to show/hide the admin toolbar ``//toolbar``.
 * Feature: Add a setting to disable/enable juking maps by players.
