@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.7.0 (xx September 2019)
+0.7.0 (xx October 2019)
 -------------------------
 
 Core
@@ -22,7 +22,6 @@ Core
 * Security: Update some libraries to fix some security issues (none of which were critical).
 
 * Bugfix: When a map is removed it previously didn't always got removed from the /list view, this has been fixed.
-* Bugfix:
 
 Apps
 ~~~~
@@ -35,7 +34,6 @@ Apps
 * Feature: Add voting widget (displaying buttons when a vote is ongoing).
 * Feature: Add support for MX MapPacks. ``//mxpack search`` and ``//mxpack add [id]``.
 * Feature: Add a setting to decide how many days a map should be classified as 'new' and be included in the mapfolder 'new maps'.
-* Feature: Refactored the best-cps widget to be fully ManiaScript, this will increase performance on the server with lots of players driving in rounds-based modes.
 * Feature: Added a warn button to the manage players view (``//players``).
 * Feature: Add a timeout to the chatvotes, the timeout is an adjustable setting. (default 120 seconds).
 
