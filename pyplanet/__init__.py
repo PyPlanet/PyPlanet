@@ -2,5 +2,5 @@
 PyPlanet, a robust and simple Maniaplanet Server Controller for Python 3.5+.
 Please see LICENSE file in root of project.
 """
-__version__ = '0.7.0-rc1'
+__version__ = '0.7.0-rc2'
 __author__ = 'Tom Valk'
