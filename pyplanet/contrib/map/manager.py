@@ -94,7 +94,9 @@ class MapManager(CoreContrib):
 		return map_info
 
 	async def handle_playlist_change(self, source, **kwargs):
-		return await self.update_list(full_update=True)
+		pass
+		# if source and source[2]:
+		# 	return await self.update_list(full_update=True)
 
 	def _extract_mx_id(self, file_name):
 		"""
