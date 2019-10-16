@@ -138,6 +138,15 @@ matrix:
       env: TOXENV=py37-integration-mysql
     - python: 3.8
       env: TOXENV=py37-integration-postgresql
+
+  include:
+    - python: 3.5
+      if: branch = master
+    - python: 3.6
+      if: branch = master
+    - python: 3.7
+    - python: 3.8
+
   last_finish: true
 
 before_install:
