@@ -28,14 +28,14 @@ env:
     - TOXENV=py36-unit-postgresql
     - TOXENV=py37-unit-mysql
     - TOXENV=py37-unit-postgresql
-    - TOXENV=py38-unit-mysql
-    - TOXENV=py38-unit-postgresql
+#    - TOXENV=py38-unit-mysql
+#    - TOXENV=py38-unit-postgresql
 
     # Integration tests.
     - TOXENV=py35-integration-mysql
     - TOXENV=py36-integration-mysql
     - TOXENV=py37-integration-mysql
-    - TOXENV=py38-integration-mysql
+#    - TOXENV=py38-integration-mysql
 
 matrix:
   exclude:
@@ -55,14 +55,14 @@ matrix:
       env: TOXENV=py37-integration-mysql
     - python: 3.6
       env: TOXENV=py37-integration-postgresql
-    - python: 3.6
-      env: TOXENV=py38-unit-mysql
-    - python: 3.6
-      env: TOXENV=py38-unit-postgresql
-    - python: 3.6
-      env: TOXENV=py38-integration-mysql
-    - python: 3.6
-      env: TOXENV=py38-integration-postgresql
+#    - python: 3.6
+#      env: TOXENV=py38-unit-mysql
+#    - python: 3.6
+#      env: TOXENV=py38-unit-postgresql
+#    - python: 3.6
+#      env: TOXENV=py38-integration-mysql
+#    - python: 3.6
+#      env: TOXENV=py38-integration-postgresql
 
     - python: 3.5
       env: TOXENV=py36-unit-mysql
@@ -80,14 +80,14 @@ matrix:
       env: TOXENV=py37-integration-mysql
     - python: 3.5
       env: TOXENV=py37-integration-postgresql
-    - python: 3.5
-      env: TOXENV=py38-unit-mysql
-    - python: 3.5
-      env: TOXENV=py38-unit-postgresql
-    - python: 3.5
-      env: TOXENV=py38-integration-mysql
-    - python: 3.5
-      env: TOXENV=py38-integration-postgresql
+#    - python: 3.5
+#      env: TOXENV=py38-unit-mysql
+#    - python: 3.5
+#      env: TOXENV=py38-unit-postgresql
+#    - python: 3.5
+#      env: TOXENV=py38-integration-mysql
+#    - python: 3.5
+#      env: TOXENV=py38-integration-postgresql
 
     - python: 3.7
       env: TOXENV=py35-unit-mysql
@@ -105,46 +105,46 @@ matrix:
       env: TOXENV=py36-integration-mysql
     - python: 3.7
       env: TOXENV=py36-integration-postgresql
-    - python: 3.7
-      env: TOXENV=py38-unit-mysql
-    - python: 3.7
-      env: TOXENV=py38-unit-postgresql
-    - python: 3.7
-      env: TOXENV=py38-integration-mysql
-    - python: 3.7
-      env: TOXENV=py38-integration-postgresql
+#    - python: 3.7
+#      env: TOXENV=py38-unit-mysql
+#    - python: 3.7
+#      env: TOXENV=py38-unit-postgresql
+#    - python: 3.7
+#      env: TOXENV=py38-integration-mysql
+#    - python: 3.7
+#      env: TOXENV=py38-integration-postgresql
+#
+#    - python: 3.8
+#      env: TOXENV=py35-unit-mysql
+#    - python: 3.8
+#      env: TOXENV=py35-unit-postgresql
+#    - python: 3.8
+#      env: TOXENV=py35-integration-mysql
+#    - python: 3.8
+#      env: TOXENV=py35-integration-postgresql
+#    - python: 3.8
+#      env: TOXENV=py36-unit-mysql
+#    - python: 3.8
+#      env: TOXENV=py36-unit-postgresql
+#    - python: 3.8
+#      env: TOXENV=py36-integration-mysql
+#    - python: 3.8
+#      env: TOXENV=py36-integration-postgresql
+#    - python: 3.8
+#      env: TOXENV=py37-unit-mysql
+#    - python: 3.8
+#      env: TOXENV=py37-unit-postgresql
+#    - python: 3.8
+#      env: TOXENV=py37-integration-mysql
+#    - python: 3.8
+#      env: TOXENV=py37-integration-postgresql
 
-    - python: 3.8
-      env: TOXENV=py35-unit-mysql
-    - python: 3.8
-      env: TOXENV=py35-unit-postgresql
-    - python: 3.8
-      env: TOXENV=py35-integration-mysql
-    - python: 3.8
-      env: TOXENV=py35-integration-postgresql
-    - python: 3.8
-      env: TOXENV=py36-unit-mysql
-    - python: 3.8
-      env: TOXENV=py36-unit-postgresql
-    - python: 3.8
-      env: TOXENV=py36-integration-mysql
-    - python: 3.8
-      env: TOXENV=py36-integration-postgresql
-    - python: 3.8
-      env: TOXENV=py37-unit-mysql
-    - python: 3.8
-      env: TOXENV=py37-unit-postgresql
-    - python: 3.8
-      env: TOXENV=py37-integration-mysql
-    - python: 3.8
-      env: TOXENV=py37-integration-postgresql
-
-  include:
-    - python: 3.5
-      if: branch = master
-    - python: 3.6
-      if: branch = master
-    - python: 3.7
+#  include:
+#    - python: 3.5
+#      if: branch = master
+#    - python: 3.6
+#      if: branch = master
+#    - python: 3.7
 #    - python: 3.8
 
   last_finish: true
