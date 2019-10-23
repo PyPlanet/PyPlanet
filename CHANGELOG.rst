@@ -1,6 +1,16 @@
 Changelog
 =========
 
+0.7.1 (23 October 2019)
+-------------------------
+
+Core
+~~~~
+
+* Bugfix: External map changes are detected wrongly resulting in performance impact in map change on large servers. This issue has been resolved.
+
+
+
 0.7.0 (05 October 2019)
 -------------------------
 
