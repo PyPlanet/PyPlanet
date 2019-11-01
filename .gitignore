@@ -68,6 +68,9 @@ env*/
 out
 gen
 
+# Visual Studio Code
+.vscode
+
 ### Project specific
 /dedicated
 /tmp

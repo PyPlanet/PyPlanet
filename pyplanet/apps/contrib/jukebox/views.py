@@ -56,6 +56,7 @@ class JukeboxListView(ManualListView):
 
 	async def action_drop(self, player, values, instance, **kwargs):
 		await self.app.drop_from_jukebox(player, instance)
+		await self.refresh(player=player)
 
 	async def get_data(self):
 		index = 1
