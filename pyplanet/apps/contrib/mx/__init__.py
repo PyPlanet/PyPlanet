@@ -4,7 +4,7 @@ import os
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.mx.api import MXApi
 from pyplanet.apps.contrib.mx.exceptions import MXMapNotFound, MXInvalidResponse
-from pyplanet.apps.contrib.mx.view import MxSearchListView, MxPacksListView
+from pyplanet.apps.contrib.mx.view import MxSearchListView, MxPacksListView, MxStatusListView
 from pyplanet.contrib.command import Command
 from pyplanet.contrib.setting import Setting
 from collections import namedtuple
@@ -49,6 +49,7 @@ class MX(AppConfig):  # pragma: no cover
 			Command(command='search', namespace='mx', target=self.search_mx_map, perms='mx:add_remote', admin=True),
 			Command(command='add', namespace='mx', target=self.add_mx_map, perms='mx:add_remote', admin=True).add_param(
 				'maps', nargs='*', type=str, required=True, help='MX ID(s) of maps to add.'),
+			Command(command='status', namespace='mx', target=self.status_mx_maps, perms='mx:add_remote', admin=True),
 
 			# new mxpack namespace
 			Command(command='search', namespace='mxpack', target=self.search_mx_pack, perms='mx:add_remote',
@@ -100,6 +101,11 @@ class MX(AppConfig):  # pragma: no cover
 		self.api.key = await self.setting_mx_key.get_value()
 		window = MxSearchListView(self, player, self.api)
 		await window.display()
+
+	async def status_mx_maps(self, player, data, **kwargs):
+		self.api.key = await self.setting_mx_key.get_value()
+		window = MxStatusListView(self, self.api)
+		await window.display(player=player)
 
 	async def add_mx_pack(self, player, data, **kwargs):
 		try:
