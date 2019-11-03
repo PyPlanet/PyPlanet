@@ -451,10 +451,11 @@ class MxStatusListView(ManualListView):
 			if cancel is True:
 				return
 
-			# Remove the current version from the server and add the new one from MX.
+			# Remove the current version from the server.
 			mock_remove = namedtuple("data", ["nr"])
 			await self.app.instance.apps.apps['admin'].map.remove_map(player, mock_remove(nr=instance['map_id']))
 
+			# Add the new version from MX.
 			mock_add = namedtuple("data", ["maps"])
 			await self.app.add_mx_map(player, mock_add(maps=[instance['index']]))
 			
@@ -462,33 +463,40 @@ class MxStatusListView(ManualListView):
 			await self.refresh(player=player)
 
 	async def get_data(self):
+		# Determine which maps on the server could be found on MX (filter those with an ID attached).
 		mx_maps_on_server = [map for map in self.app.instance.map_manager.maps if map.mx_id is not None]
 		mx_maps_info = await self.api.map_info([map.mx_id for map in mx_maps_on_server])
 
+		# Loop through the MX-compatible maps on the server.
 		items = []
 		for item in mx_maps_on_server:
-			mx_map = next((mx_map_info for mx_map_info in mx_maps_info if mx_map_info[0] == item.mx_id), None)
+			# Initialize view data fields.
 			version_match = ''
-			version_match_order = 0
+			version_match_order = None
 			mx_version_date = ''
 			action_update = False
+
+			# Get MX information for the map (gets None if it couldn't be found).
+			mx_map = next((mx_map_info for mx_map_info in mx_maps_info if mx_map_info[0] == item.mx_id), None)
 
 			if mx_map is None:
 				version_match = 'Not on MX'
 				version_match_order = 1
-			elif mx_map[1]['TrackUID'] == item.uid:
-				version_match = '$0a0Up-to-date'
-				version_match_order = 2
+			else:
 				mx_version_date = datetime.strptime(mx_map[1]['UpdatedAt'], '%Y-%m-%dT%H:%M:%S.%f').strftime("%Y-%m-%d %H:%M:%S")
-			elif mx_map[1]['TrackUID'] is not item.uid:
-				version_match = '$00fNew version'
-				version_match_order = 0
-				mx_version_date = datetime.strptime(mx_map[1]['UpdatedAt'], '%Y-%m-%dT%H:%M:%S.%f').strftime("%Y-%m-%d %H:%M:%S")
-				action_update = True
+
+				if mx_map[1]['TrackUID'] == item.uid:
+					version_match = '$0a0Up-to-date'
+					version_match_order = 2
+				else:
+					version_match = '$00fNew version'
+					version_match_order = 0
+					action_update = True
 
 			action_update_content = '🔁 Update' if action_update else '          -'
 			items.append({'map_id': item.id, 'index': item.mx_id, 'map_name': item.name, 'version_match': version_match, 'version_match_order': version_match_order,
 				'updated_on_server': item.updated_at, 'mx_version': mx_version_date, 'action_update': action_update, 'action_update_content': action_update_content})
 
+		# Initially sort the maps based on the 'version_match_order': New version -> Not on MX -> Up-to-date.
 		items.sort(key=lambda x: x['version_match_order'])
 		return items

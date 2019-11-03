@@ -108,7 +108,9 @@ class MXApi:
 		# Split the map identifiers into groups, as the ManiaExchange API only accepts a limited amount of maps in one request.
 		map_ids = ids[0]
 		split_map_ids = [map_ids[i * self.map_info_page_size:(i + 1) * self.map_info_page_size] for i in range((len(map_ids) + self.map_info_page_size - 1) // self.map_info_page_size)]
-		split_results = [await self.map_info_page(split_ids) for split_ids in split_map_ids]
+		split_results = []
+		for split_ids in split_map_ids:
+			split_results.append(await self.map_info_page(split_ids))
 
 		# Join the multiple result lists back into one list.
 		return [map for map_list in split_results for map in map_list]
