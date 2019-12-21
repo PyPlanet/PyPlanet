@@ -45,7 +45,7 @@ class Jukebox(AppConfig):
 			Command(command='clearjukebox', target=self.clear_jukebox, perms='jukebox:clear', admin=True),
 			Command(command='list', target=self.show_map_list).add_param(name='search', required=False),
 			Command(command='jukebox', target=self.chat_command).add_param(name='option', required=False),
-			Command(command='mapfolders', target=self.show_map_folders)
+			Command(command='mapfolders', aliases=['mf'], target=self.show_map_folders),
 		)
 
 		# Register settings.
