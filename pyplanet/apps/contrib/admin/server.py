@@ -172,6 +172,10 @@ class ServerAdmin:
 				self.instance.chat(message, player)
 			)
 
+		await self.app.context.signals.get_signal('maniaplanet:server_password').send(
+			dict(password=data.password, kind='spectator'), True
+		)
+
 	async def set_password(self, player, data, **kwargs):
 		if data.password is None or data.password == 'none':
 			message = '$ff0You removed the server password.'
@@ -185,3 +189,7 @@ class ServerAdmin:
 				self.instance.gbx('SetServerPassword', data.password),
 				self.instance.chat(message, player)
 			)
+
+		await self.app.context.signals.get_signal('maniaplanet:server_password').send(
+			dict(password=data.password, kind='player'), True
+		)
