@@ -23,10 +23,12 @@ class Queue(AppConfig):
 		self.list = QueueList()
 		self.list.change_hook = self.change_hook
 		self.widget = QueueView(self)
+		self.has_password = False
 
 		self.context.signals.listen(mp_signals.player.player_info_changed, self.player_change)
 		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
 		self.context.signals.listen(mp_signals.player.player_disconnect, self.player_disconnect)
+		self.context.signals.listen(mp_signals.other.server_password, self.password_change)
 
 		self.context.signals.listen(mp_signals.player.player_enter_player_slot, self.slot_change)
 		self.context.signals.listen(mp_signals.player.player_enter_spectator_slot, self.slot_change)
@@ -39,6 +41,32 @@ class Queue(AppConfig):
 			Command('clear', namespace='queue', target=self.command_queue_clear, admin=True, perms='queue:manage_queue'),
 			Command('shuffle', namespace='queue', target=self.command_queue_shuffle, admin=True, perms='queue:manage_queue'),
 		)
+
+		self.has_password = self.instance.game.server_password is not None and len(self.instance.game.server_password) > 0
+
+		await self.init_queue()
+
+	async def on_stop(self):
+		"""
+		On stop will make sure the spectators can change to player slots again.
+		"""
+		try:
+			await self.instance.gbx.multicall(*[
+				self.instance.gbx('ForceSpectator', l, 0) for l in self.instance.player_manager.online_logins
+			])
+		except:
+			pass
+
+	async def init_queue(self):
+		"""
+		Init/enable the queue
+
+		:return:
+		"""
+		# Check for server password, if set, ignore and disable app.
+		if self.has_password:
+			logger.debug('Not loading queue! Player password has been set!')
+			return
 
 		# Make sure the spectators can't switch to player, and players can't join directly as player.
 		# Also make sure the widget is displayed to the spectators.
@@ -54,16 +82,35 @@ class Queue(AppConfig):
 				self.widget.display(player_logins=logins)
 			)
 
-	async def on_stop(self):
+	async def disable_queue(self):
 		"""
-		On stop will make sure the spectators can change to player slots again.
+		Disable the queue widget and functions.
+
+		:return:
 		"""
+		logger.debug('Stopping the queue app! User password set?!')
+
+		await self.list.clear()
+
+		# Change the force spec state on players (unforce state).
 		try:
 			await self.instance.gbx.multicall(*[
 				self.instance.gbx('ForceSpectator', l, 0) for l in self.instance.player_manager.online_logins
 			])
 		except:
 			pass
+
+		# Hide all widgets.
+		await self.widget.hide()
+
+	async def password_change(self, password, kind, **kwargs):
+		if kind == 'player' and password is not None:
+			self.has_password = True
+			await self.disable_queue()
+
+		if self.has_password and kind == 'player' and password is None:
+			self.has_password = False
+			await self.init_queue()
 
 	async def player_change(self, player, **_):
 		"""
@@ -73,6 +120,9 @@ class Queue(AppConfig):
 		:type player: pyplanet.apps.core.maniaplanet.models.player.Player
 		:return:
 		"""
+		if self.has_password:
+			return
+
 		if player.flow.is_spectator and player.flow.has_player_slot:
 			# Release the player slot to the game.
 			try:
@@ -96,6 +146,9 @@ class Queue(AppConfig):
 		:param is_spectator: Is player spectator?
 		:type player: pyplanet.apps.core.maniaplanet.models.player.Player
 		"""
+		if self.has_password:
+			return
+
 		if player.flow.is_server or player.flow.is_referee:
 			return
 
@@ -124,6 +177,9 @@ class Queue(AppConfig):
 		Any slot changes will be captured here. We will investigate the free player spots and put a player into player
 		mode if any player is in the queue and free spaces are available.
 		"""
+		if self.has_password:
+			return
+
 		max_players = self.instance.game.server_max_players
 		num_players = self.instance.player_manager.count_players
 		free_spots = max_players - num_players
