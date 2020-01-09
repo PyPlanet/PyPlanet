@@ -1,6 +1,6 @@
 
-Installation by Binary (Experimental)
--------------------------------------
+Installation by Binary (Not working atm)
+----------------------------------------
 
 .. error::
 
