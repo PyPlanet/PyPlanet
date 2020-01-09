@@ -80,7 +80,6 @@ class ScriptSettingsView(TemplateView):
 	async def wait_for_response(self):
 		return await self.response_future
 
-
 	async def refresh(self, player, *args, **kwargs):
 		"""
 		Refresh list with current properties for a specific player. Can be used to show new data changes.

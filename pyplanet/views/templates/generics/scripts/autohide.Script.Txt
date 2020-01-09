@@ -1,11 +1,13 @@
-
 ***OnInit***
 ***
+declare Boolean override_enable = False;
+declare Vec2 mousePosition = <MouseX, MouseY>;
+
 if (GUIPlayer != Null) {
-    if (GUIPlayer.RaceState == CTmMlPlayer::ERaceState::Running && GUIPlayer.DisplaySpeed != 0) {
+    if (InputPlayer.RaceState == CTmMlPlayer::ERaceState::Running && InputPlayer.Distance >= 15) {
         Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
         foreach (Control in Page.GetClassChildren_Result) {
-           Control.Hide();
+            Control.Hide();
         }
     }
 }
@@ -15,7 +17,6 @@ if (GUIPlayer != Null) {
 ***
 
 if ( ClientUI.UISequence == CUIConfig::EUISequence::Podium ) {
-
       Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
         foreach (Control in Page.GetClassChildren_Result) {
           Control.Show();
@@ -23,19 +24,33 @@ if ( ClientUI.UISequence == CUIConfig::EUISequence::Podium ) {
 }
 
 if (GUIPlayer != Null) {
-      if ( GUIPlayer.RaceState == CTmMlPlayer::ERaceState::BeforeStart || GUIPlayer.RaceState == CTmMlPlayer::ERaceState::Finished) {
+      if (GUIPlayer.RaceState == CTmMlPlayer::ERaceState::BeforeStart || GUIPlayer.RaceState == CTmMlPlayer::ERaceState::Finished) {
             Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+            override_enable = False;
+            mousePosition = <MouseX, MouseY>;
             foreach (Control in Page.GetClassChildren_Result) {
               Control.Show();
             }
       }
-
-      if (GUIPlayer.RaceState == CTmMlPlayer::ERaceState::Running && GUIPlayer.DisplaySpeed != 0) {
-      Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+      if (override_enable) {
             foreach (Control in Page.GetClassChildren_Result) {
-              Control.Hide();
+              Control.Show();
             }
+      } else {
+          if (InputPlayer.RaceState == CTmMlPlayer::ERaceState::Running && InputPlayer.Distance >= 15) {
+          Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+                foreach (Control in Page.GetClassChildren_Result) {
+                  Control.Hide();
+                }
+          }
       }
 }
-***
+if (MathLib::Distance(mousePosition, <MouseX, MouseY>) >= 10.) {
+  override_enable = True;
+}
+if (MouseLeftButton) {
+override_enable = True;
+}
 
+
+***

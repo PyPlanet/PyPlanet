@@ -37,8 +37,9 @@ Void HideWindow(Boolean _anim, Vec2 WindowOrigin) {
 
     if (found) {
         if (_anim) {
+            log("hide");
             declare Text position =  posX ^ " " ^ posY;
-            AnimMgr.Add(Window, "<elem pos=\""^ position ^"\"/>", 750, CAnimManager::EAnimManagerEasing::BackIn);
+            AnimMgr.Add(Window, "<frame pos=\""^ position ^"\"/>", 750, CAnimManager::EAnimManagerEasing::BackIn);
         } else {
             Window.RelativePosition_V3 = <posX, posY>;
         }
@@ -53,7 +54,7 @@ Void ShowWindow(Boolean _anim, Vec2 WindowOrigin) {
     Window.Show();
     if (_anim) {
        declare Text position =  WindowOrigin.X ^ " " ^ WindowOrigin.Y ;
-       AnimMgr.Add(Window, "<elem pos=\""^ position ^"\"/>", 750, CAnimManager::EAnimManagerEasing::BackOut);
+       AnimMgr.Add(Window, "<frame pos=\""^ position ^"\"/>", 750, CAnimManager::EAnimManagerEasing::BackOut);
     } else {
         Window.RelativePosition_V3 = <WindowOrigin.X,  WindowOrigin.Y>;
     }
@@ -61,7 +62,7 @@ Void ShowWindow(Boolean _anim, Vec2 WindowOrigin) {
 
 ***OnInit***
 ***
-declare Boolean Net_DistractionFreeMode for UI;
+declare netwrite Boolean Net_DistractionFreeMode for UI;
 declare Boolean Prev_DistractionFreeMode = False;
 declare Vec2 WindowOrigin = Page.GetFirstChild("Window").RelativePosition_V3;
 declare Window = (Page.GetFirstChild("Window") as CMlFrame);
@@ -78,7 +79,7 @@ if (Net_DistractionFreeMode == True) {
 ***
       if (Prev_DistractionFreeMode != Net_DistractionFreeMode) {
           Prev_DistractionFreeMode = Net_DistractionFreeMode;
-
+          log("change: "^Net_DistractionFreeMode);
           if (Net_DistractionFreeMode == True) {
                HideWindow(True, WindowOrigin);
           } else {
