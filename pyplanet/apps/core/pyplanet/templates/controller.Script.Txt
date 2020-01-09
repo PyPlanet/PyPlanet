@@ -1,8 +1,9 @@
-declare Boolean Net_DistractionFreeMode for UI;
+
+declare netwrite Boolean Net_DistractionFreeMode for UI;
 
 while(True) {
   foreach (Event in PendingEvents) {
-    if (Event.Type == CMlScriptEvent::Type::KeyPress && Event.KeyCode == 46) {
+    if (Event.Type == CMlScriptEvent::Type::KeyPress && Event.KeyCode == 45) {
       if (Net_DistractionFreeMode == True) {
         Net_DistractionFreeMode = False;
       } else {

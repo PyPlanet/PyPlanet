@@ -1,6 +1,57 @@
 Changelog
 =========
 
+0.7.1 (23 October 2019)
+-------------------------
+
+Core
+~~~~
+
+* Bugfix: External map changes are detected wrongly resulting in performance impact in map change on large servers. This issue has been resolved.
+
+
+
+0.7.0 (05 October 2019)
+-------------------------
+
+Core
+~~~~
+
+* **Breaking**: Removed the deprecated ``app.mapinfo``.
+
+* Feature: Keeping track of the MX-id in the database (Database Migration is executed at first startup, no action required for this).
+* Feature: Keep track of the total donations and total playtime of the players. Show it with ``/topactive`` and ``/topdons``.
+
+* Improvement: Upgrade several external libraries.
+* Improvement: Support for the latest XMLRPC Scripted version and latest dedicated version. (Min. dedicated is now set to 2018-02-09_16_00).
+* Improvement: Improve the cleanup and initial reset of the UI Properties.
+* Improvement: Changed the key to show/hide some widgets from F7 to F8.
+* Improvement: Added one missing scripted event handler for Shootmania.
+* Improvement: Update the maplist when a change is detected by the server (useful when adding/removing maps in another tool).
+
+* Security: Update some libraries to fix some security issues (none of which were critical).
+
+* Bugfix: When a map is removed it previously didn't always got removed from the /list view, this has been fixed.
+
+Apps
+~~~~
+
+* New App: Integrated the Current CPS App from Teemann into the bundled apps (will get a refactor later on).
+
+* Feature: Add MX Info command ``/mx info``.
+* Feature: Add command to show/hide the admin toolbar ``//toolbar``.
+* Feature: Add a setting to disable/enable juking maps by players.
+* Feature: Add voting widget (displaying buttons when a vote is ongoing).
+* Feature: Add support for MX MapPacks. ``//mxpack search`` and ``//mxpack add [id]``.
+* Feature: Add a setting to decide how many days a map should be classified as 'new' and be included in the mapfolder 'new maps'.
+* Feature: Added a warn button to the manage players view (``//players``).
+* Feature: Add a timeout to the chatvotes, the timeout is an adjustable setting. (default 120 seconds).
+
+* Improvement: The dedimania welcome message also contains the limits of the player and server according to their donation status. (This is a setting and can be turned on, off by default!)
+* Improvement: Small improvements in the map karma app related to usability and chat feedback.
+
+
+
 0.6.4 (17 February 2019)
 ------------------------
 

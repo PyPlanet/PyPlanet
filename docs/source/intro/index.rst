@@ -8,6 +8,5 @@ Getting Started (installation)
   :maxdepth: 1
 
   requirements
-  installation-simple
   installation-linux
   installation-windows

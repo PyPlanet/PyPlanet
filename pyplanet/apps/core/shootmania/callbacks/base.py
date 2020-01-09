@@ -344,6 +344,27 @@ on_command = Callback(
 """
 
 
+on_default = Callback(
+	call='Script.Shootmania.Event.Default',
+	namespace='shootmania',
+	code='on_default',
+	target=handle_generic,
+)
+"""
+:Signal: 
+	On Default Event
+:Code:
+	``shootmania:on_default``
+:Description:
+	Callback sent when a old event or default event has been fired.
+:Original Callback:
+	`Script` Shootmania.Event.Default
+
+:param time: Time of server when callback is sent.
+:param type: Name of the command
+"""
+
+
 player_added = Callback(
 	call='Script.Shootmania.Event.OnPlayerAdded',
 	namespace='shootmania',

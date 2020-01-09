@@ -16,14 +16,14 @@ Debian / Ubuntu
 
 Install the operating system requirements by executing the following commands:
 
-``sudo apt-get update && sudo apt-get install build-essential libssl-dev libffi-dev python3-dev zlib1g-dev``
+``sudo apt-get update && sudo apt-get install build-essential libssl-dev libffi-dev python3-dev zlib1g-dev liblzma-dev``
 
 Fedora / RHEL based
 ```````````````````
 
 Install the operating system requirements by executing the following commands:
 
-``sudo yum install gcc libffi-devel python3-devel openssl-devel zlib``.
+``sudo yum install gcc libffi-devel python3-devel openssl-devel zlib zlib-devel bzip2 bzip2-devel xz xz-devel sqlite sqlite-devel``.
 
 
 2. Install PyEnv and Python
@@ -51,8 +51,8 @@ The following steps are the same for all distributions.
 
 .. code-block:: bash
 
-  pyenv install 3.7.0
-  pyenv global 3.7.0
+  pyenv install 3.7.6
+  pyenv global 3.7.6
 
 
 .. attention::
@@ -82,7 +82,7 @@ use virtual environments, but we recommend to use it.
 
 .. code-block:: bash
 
-    pyenv virtualenv 3.7.0 my-env
+    pyenv virtualenv 3.7.6 my-env
     # Where 'my-env' is your environment name, you need adjust this if you have multiple installations.
 
 **Activate virtualenv**:

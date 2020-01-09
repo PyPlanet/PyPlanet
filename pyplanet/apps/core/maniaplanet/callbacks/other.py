@@ -86,6 +86,27 @@ server_chat = Signal(
 """
 
 
+server_password = Signal(
+	namespace='maniaplanet',
+	code='server_password'
+)
+"""
+:Signal:
+	Server player or spectator password changed
+:Code:
+	``maniaplanet:server_password``
+:Description:
+	Custom signal called when the password has been changed with PyPlanet.
+:Origin Callback:
+	None.
+
+:param password: String with the new password.
+:param kind: Kind of password, could be 'player' or 'spectator'.
+:type password: str
+:type kind: str
+"""
+
+
 channel_progression_start = Callback(
 	call='Script.ManiaPlanet.ChannelProgression_Start',
 	namespace='maniaplanet',
@@ -93,7 +114,7 @@ channel_progression_start = Callback(
 	target=handle_generic
 )
 """
-:Signal: 
+:Signal:
 	Signal sent when channel progression sequence starts.
 :Code:
 	``maniaplanet:channel_progression_start``
@@ -113,7 +134,7 @@ channel_progression_end = Callback(
 	target=handle_generic
 )
 """
-:Signal: 
+:Signal:
 	Signal sent when channel progression sequence ends.
 :Code:
 	``maniaplanet:channel_progression_end``

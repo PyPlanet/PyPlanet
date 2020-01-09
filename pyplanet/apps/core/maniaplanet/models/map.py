@@ -79,6 +79,12 @@ class Map(TimedModel):
 	Time of author and all medals.
 	"""
 
+	mx_id = IntegerField(null=True, default=None, index=True)
+	"""
+	The MX-id of the map when it was added with PyPlanet. Can be None even if it's been added by PyPlanet or when
+	it's been added by another method (manual upload or external software).
+	"""
+
 	CACHE = dict()
 
 	def __str__(self):
@@ -127,6 +133,9 @@ class Map(TimedModel):
 			if map.file != file or map.name != name:
 				map.file = file
 				map.name = name
+				needs_save = True
+			if 'mx_id' in kwargs and map.mx_id != kwargs['mx_id']:
+				map.mx_id = kwargs['mx_id']
 				needs_save = True
 		except DoesNotExist:
 			map = Map(uid=uid, file=file, name=name, author_login=author_login)
