@@ -10,7 +10,7 @@ class TestTemplate(asynctest.TestCase):
 		instance = Controller.prepare(name='default').instance
 		await instance.db.connect()
 		await instance.apps.discover()
-		template = await load_template('core.views/generics/list.xml')
+		template = await load_template('core.views/uikit/v1/list.xml')
 		assert template and template.template
 		assert isinstance(template.template, Template)
 
@@ -18,7 +18,7 @@ class TestTemplate(asynctest.TestCase):
 		instance = Controller.prepare(name='default').instance
 		await instance.db.connect()
 		await instance.apps.discover()
-		template = await load_template('core.views/generics/list.xml')
+		template = await load_template('core.views/uikit/v1/list.xml')
 		body = await template.render(
 			title='TRY_TO_SEARCH_THIS'
 		)

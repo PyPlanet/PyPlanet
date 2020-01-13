@@ -1,5 +1,6 @@
-{% import 'core.views/generics/uiElements.xml' as ui %}
+{% extends 'core.views/uikit/v1/generics/bootstrap.xml' %}
 
+{% block main %}
 <frame pos="0 17 0" z-index="250">
   <label pos="-20.5 57.8 0" size="60 7" text="  Create new folder" textsize="2.5" textcolor="FFFFFFF" halign="left"/>
 
@@ -19,15 +20,13 @@
       {{ ui.checkbox("Public, readable by everyone, writable by admins. (only for admins)", "cp_folder_public", 0,-10, 0, is_admin, "cb_public" ) }}
     </frame>
 
-    {{ ui.confirmbutton("Save", id+"__button_save", 15,-100, 24,6) }}
-    {{ ui.decoratedbutton("Cancel", id+"__button_cancel",80, -100, 24,6) }}
+    {{ ui.button_confirm("Save", id+"__button_save", 15,-100, 24,6) }}
+    {{ ui.button_outline("Cancel", id+"__button_cancel",80, -100, 24,6) }}
 
   </frame>
 </frame>
+{% endblock %}
 
-<script><!-- {% include 'core.views/generics/scripts/includes.Script.Txt' %} --></script>
-<script><!-- {% include 'core.views/generics/scripts/uiElements.Script.Txt' %} --></script>
 {% block maniascript %}
   <script><!-- {% include 'jukebox/folder_create.Script.Txt' %} --></script>
 {% endblock %}
-<script><!-- {% include 'core.views/generics/scripts/main.Script.Txt' %} --></script>

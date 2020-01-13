@@ -17,7 +17,7 @@ class WidgetView(TemplateView):
 	action = None
 	distraction_hide = True
 	layer = "normal"
-	template_name = 'core.views/generics/widget.xml'
+	template_name = 'core.views/uikit/v1/widget.xml'
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -99,7 +99,7 @@ class WidgetView(TemplateView):
 
 
 class TimesWidgetView(WidgetView):
-	template_name = 'core.views/generics/timeswidget.xml'
+	template_name = 'core.views/uikit/v1/timeswidget.xml'
 
 	async def get_context_data(self):
 		context = await super().get_context_data()

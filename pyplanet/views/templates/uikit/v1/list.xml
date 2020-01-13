@@ -1,0 +1,128 @@
+{% extends 'core.views/uikit/v1/window.xml' %}
+
+
+  {% block header %}
+    <label pos="210 -3.5" size="72 7" text="$o{{ count }} items" textsize="1" textfont="RajdhaniMono" halign="right" valign="center" />
+    {{ super() }}
+  {% endblock %}
+
+{% block contents %}
+<frame pos="0 17">
+  {% if provide_search or (buttons is defined and (buttons | length > 0)) %}
+    <frame pos="10 -10" id="list_search_frame">
+      <quad pos="0 0" size="218 8.5" z-index="-50" style="Bgs1InRace" substyle="BgCardList"/>
+      {% if provide_search %}
+        {% block toolbar_search %}
+            {{ ui.input(search|default('Search...', True), "list_search_field", 2, -4.25, 78) }}
+            {{ ui.button_outline("🔍", id+"__list_button_search", 80, -1.35,6,6, "ddd") }}
+        {% endblock %}
+      {% endif %}
+      {% for button in buttons %}
+           {{ ui.button_outline(button.title, id+"__list_buttons_"+loop.index0.__str__(), button.right, -4.35, button.width, 5, "ddd",) }}
+      {% endfor %}
+    </frame>
+
+  {% endif %}
+
+  {% if provide_search or (buttons is defined and (buttons | length > 0)) %}
+      <frame pos="10 -20">
+  {% else %}
+      <frame pos="10 -15">
+  {% endif %}
+
+      <frame pos="0 0" id="list_header">
+          <quad pos="0 0.2" size="218 5.2" z-index="-20" style="Bgs1InRace" substyle="BgCardList"/>
+          <frame pos="0.1 -0 0">
+              {% for field in fields %}
+                  {% if field.sorting %}
+                      <label pos="{{ field.left }} -2.4" size="{{ field.width }} 4.9" text="$o$fff {{ field.name }}" textsize="1.3"
+                             valign="center2" action="{{ id }}__list_header_{{ loop.index0 }}" focusareacolor1="0000"
+                             focusareacolor2="fff3"/>
+                      {% if field._sort == 1 %}
+                           <label size="4 4" pos="{{ field.left + field.width - 5 }} 0" z-index="2" halign="left" valign="top" text="⏶" />
+                      {% elif field._sort == 0 %}
+                           <label pos="{{ field.left + field.width - 5 }} 0" size="4 4" halign="left" valign="top" text="⏷"  />
+                      {% endif %}
+
+                  {% else %}
+                      <label pos="{{ field.left }} -2.4" size="{{ field.width }} 4.9" text="$o$fff {{ field.name }}" textsize="1.3"
+                             valign="center2"/>
+                  {% endif %}
+              {% endfor %}
+          </frame>
+      </frame>
+
+      <frame pos="0.1 -4.9" id="list_content" >
+
+
+        {% for row in objects %}
+          {% set outer_loop = loop %}
+          <frame pos="0 {{ loop.index0 * -5 }}" >
+
+
+
+            {% for field in fields %}
+                {% if field.manialink %}
+                    {{ field.manialink|safe }}
+                {% else %}
+                    {% if field.action %}
+                          {% if field.safe %}
+                              {{ ui.button("$fff"+field_renderer(row, field)|safe, id+"__list_body_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__(), field.left, 0, field.width, 5, "aaaa", "0000", "left") }}
+                          {% else %}
+                              {{ ui.button("$fff"+field_renderer(row, field), id+"__list_body_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__(), field.left, 0, field.width, 5, "aaaa", "0000", "left") }}
+                          {% endif %}
+                    {% else %}
+                         <label pos="{{ field.left }} -2.5" size="{{ field.width }} 5"
+                 text="$fff  {% if field.safe %}{{ field_renderer(row, field)|safe }}{% else %}{{ field_renderer(row, field) }}{% endif %}"
+                 textsize="1.2" valign="center2"/>
+                    {% endif %}
+                {% endif %}
+
+            {% endfor %}
+
+            {% for action in actions %}
+            {% if action.type == 'quad' %}
+            <quad pos="{{ 218 - actions_width + action.left }} 0" size="{{ action.width|default(5, True) }} 5"
+                  style="{{ action.style }}" substyle="{{ action.substyle }}"
+            {% if action.attrs %}{{ action.attrs|safe }}{% endif %}
+            {% if action.require_confirm %}data-{% endif %}action="{{ id }}__list_action_{{ outer_loop.index0 }}_{{
+            loop.index0 }}"
+            scriptevents="1"
+            class="{{ action.classes|join(' ') }} {% if action.needs_confirm %}needs-confirm{% endif %}"
+            />
+            {% elif action.type == 'label' %}
+                {% if action.require_confirm %}
+                     {{ ui.button_confirm(action.text|safe, id+"__list_action_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__() , (218 - actions_width + action.left), 0, action.width|default(5, True), 5, action.color) }}
+                {% else %}
+                     {{ ui.button(action.text|safe, id+"__list_action_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__() , (218 - actions_width + action.left ), 0, action.width|default(5, True), 5, action.color, action.color) }}
+                {% endif %}
+
+            {% endif %}
+
+            {% endfor %}
+
+             {% if loop.index0 % 2 != 0 %}
+                <quad pos="0 0" size="217.8 5"  bgcolor="0003" />
+             {% endif %}
+          </frame>
+
+          {% endfor %}
+         <quad pos="0 0.1" size="218 100.2" bgcolor="0003" />
+        </frame>
+
+      <frame pos="0 -110">
+
+        {{ ui.button("", id+"__list_button_first", (110-25-20),4,8,8)}}
+        {{ ui.button("", id+"__list_button_prev_10", (110-25-12),4,8,8)}}
+        {{ ui.button("", id+"__list_button_prev", (110-25-4),4,8,8)}}
+
+        {{ ui.button("", id+"__list_button_next", (110+25),4,8,8)}}
+        {{ ui.button("", id+"__list_button_next_10", (110+25+8),4,8,8)}}
+        {{ ui.button("", id+"__list_button_last", (110+25+16),4,8,8)}}
+
+        <label pos="110 1.5" size="50 5" text="$fff$oPage {{ page }} / {{ pages }}" textsize="1.5" halign="center"/>
+      </frame>
+
+    </frame>
+  </frame>
+{% endblock %}

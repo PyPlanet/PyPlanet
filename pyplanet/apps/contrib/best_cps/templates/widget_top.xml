@@ -1,6 +1,6 @@
-{% extends 'core.views/generics/widget.xml' %}
+{% extends 'core.views/uikit/v1/widget.xml' %}
 
-  <frame pos="+35.65 0">
+  <frame pos="35.65 0">
     {% block content %}
       {% if cps != None %}
         {% for time in cps %}
@@ -18,4 +18,3 @@
       {% endif %}
     {% endblock %}
   </frame>
-</frame>

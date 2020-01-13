@@ -1,10 +1,5 @@
 /* ----------------- ToggleUI ------------------ */
 
-/*Boolean intersect(Vec2 posA, Vec2 sizeA, Vec2 posB, Vec2 sizeB) {
-  return (MathLib::Abs(posA.X - posB.X) * 2 < (sizeA.X + sizeB.X)) &&
-         (MathLib::Abs(posA.Y - posB.Y) * 2 < (sizeA.Y + sizeB.Y));
-} */
-
 Boolean intersect(Vec2 _posA, Vec2 sizeA, Vec2 _posB, Vec2 sizeB) {
   declare Vec2 scaleUp = <160., 90.>;
   declare posA = _posA + scaleUp;
@@ -37,7 +32,6 @@ Void HideWindow(Boolean _anim, Vec2 WindowOrigin) {
 
     if (found) {
         if (_anim) {
-            log("hide");
             declare Text position =  posX ^ " " ^ posY;
             AnimMgr.Add(Window, "<frame pos=\""^ position ^"\"/>", 750, CAnimManager::EAnimManagerEasing::BackIn);
         } else {

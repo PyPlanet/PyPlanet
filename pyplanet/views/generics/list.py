@@ -66,7 +66,7 @@ class ListView(TemplateView):
 	actions = []
 	buttons = []
 
-	template_name = 'core.views/generics/list.xml'
+	template_name = 'core.views/uikit/v1/list.xml'
 
 	single_list = True
 	"""Change this to False to have multiple lists open at the same time."""

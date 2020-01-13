@@ -1,6 +1,28 @@
+{% import 'core.views/uikit/v1/generics/ui.xml' as ui %}
+{% include 'core.views/uikit/v1/generics/style.xml' %}
 
 
-Void dummy() {
+{% block main %}
+<!-- template contents will be inserted here -->
+{% endblock %}
+
+<script><![CDATA[
+#Include "TextLib" as TextLib
+#Include "MathLib" as MathLib
+#Include "AnimLib" as AnimLib
+#Include "ColorLib" as ColorLib
+
+{% include 'core.views/uikit/v1/generics/scripts.Script.txt' %}
+
+]]></script>
+
+{% block maniascript %}
+<!-- script contents will be inserted here -->
+{% endblock %}
+
+<script><![CDATA[
+
+Void _nothing() {
 }
 
 /* --------------------- Main Script ------------------------ */
@@ -36,6 +58,7 @@ main() {
 		}
 
 		+++Loop+++
-
   }
+
 }
+]]></script>

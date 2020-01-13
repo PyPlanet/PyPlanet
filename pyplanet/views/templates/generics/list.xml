@@ -1,128 +1,121 @@
-{% extends 'core.views/generics/window.xml' %}
-
-  {% block header %}
-    <label pos="210 -3.5" size="72 7" text="$o{{ count }} items" textsize="1" textfont="RajdhaniMono" halign="right" valign="center" />
-    {{ super() }}
-  {% endblock %}
-
-
-{% block contents %}
 <frame pos="0 17">
+  {% if provide_search %}
+    <quad pos="0 62.5" size="220 137" z-index="-50" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
+  {% else %}
+    <quad pos="0 62.5" size="220 127" z-index="-50" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
+  {% endif %}
+  <quad pos="0 61.5" size="218 11" z-index="-49" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
+
+  <quad pos="-108 60.5 0" size="9 9" z-index="1" style="{{ icon_style }}" substyle="{{ icon_substyle }}"/>
+  <label pos="-97 57.8 0" size="190 7" z-index="2" text="$o{{ title }}" textsize="2.5" textcolor="FFFFFFF" halign="left"/>
+  <label pos="92 57.6 0" size="72 5" text="$o({{ count }} items)" textsize="1.5" halign="right"/>
+
+  <quad pos="99 59.5 0" size="7 7" z-index="1" style="Icons128x32_1" substyle="Close" action="{{ id }}__list_button_close"/>
+  <quad pos="94 59 0" size="6 6" z-index="1" style="Icons64x64_1" substyle="Refresh" action="{{ id }}__list_button_refresh" />
+
   {% if provide_search or (buttons is defined and (buttons | length > 0)) %}
-    <frame pos="10 -10" id="list_search_frame">
+    <frame pos="-109 49.5" id="list_search_frame">
       <quad pos="0 0" size="218 8.5" z-index="-50" style="Bgs1InRace" substyle="BgCardList"/>
       {% if provide_search %}
         {% block toolbar_search %}
-            {{ ui.input(search|default('Search...', True), "list_search_field", 2, -4.25, 80) }}
-            {{ ui.decoratedbutton("🔍", id+"__list_button_search", 80, -1.35,6,6, "ddd") }}
+      <entry pos="2 -4.25" size="80 6" z-index="2" default="{{ search|default('Search...', True) }}"
+             focusareacolor1="0003" name="list_search_field" selecttext="1" textsize="1.6"
+             focusareacolor2="FFF2" scriptevents="1" valign="center" />
+      <quad pos="83 -1.35" size="6 6" bgcolor="FFFA" style="Icons64x64_1" substyle="Maximize" action="{{ id }}__list_button_search" />
         {% endblock %}
       {% endif %}
+
       {% for button in buttons %}
-           {{ ui.decoratedbutton(button.title, id+"__list_buttons_"+loop.index0.__str__(), button.right, -4.35, button.width, 5, "ddd",) }}
+        <label pos="{{ button.right }} -4.35" size="{{ button.width }} 4.9" text="$o$fff{{ button.title }}" textsize="1.3"
+                   valign="center2" halign="center" action="{{ id }}__list_buttons_{{ loop.index0 }}" focusareacolor1="0005" focusareacolor2="0007" />
       {% endfor %}
     </frame>
-
   {% endif %}
 
   {% if provide_search or (buttons is defined and (buttons | length > 0)) %}
-      <frame pos="10 -20">
+    <frame pos="-109 39.5">
   {% else %}
-      <frame pos="10 -15">
+    <frame pos="-109 49.5">
   {% endif %}
-
-      <frame pos="0 0" id="list_header">
-          <quad pos="0 0.2" size="218 5.2" z-index="-20" style="Bgs1InRace" substyle="BgCardList"/>
-          <frame pos="0.1 -0 0">
-              {% for field in fields %}
-                  {% if field.sorting %}
-                      <label pos="{{ field.left }} -2.4" size="{{ field.width }} 4.9" text="$o$fff {{ field.name }}" textsize="1.3"
-                             valign="center2" action="{{ id }}__list_header_{{ loop.index0 }}" focusareacolor1="0000"
-                             focusareacolor2="fff3"/>
-                      {% if field._sort == 1 %}
-                           <label size="4 4" pos="{{ field.left + field.width - 5 }} 0" z-index="2" halign="left" valign="top" text="⏶" />
-                      {% elif field._sort == 0 %}
-                           <label pos="{{ field.left + field.width - 5 }} 0" size="4 4" halign="left" valign="top" text="⏷"  />
-                      {% endif %}
-
-                  {% else %}
-                      <label pos="{{ field.left }} -2.4" size="{{ field.width }} 4.9" text="$o$fff {{ field.name }}" textsize="1.3"
-                             valign="center2"/>
-                  {% endif %}
-              {% endfor %}
-          </frame>
+    <frame pos="0 0" id="list_header">
+      <quad pos="0 0.1" size="218 105.2" z-index="-21" style="Bgs1InRace" substyle="BgCardList"/>
+      <quad pos="0 0.2" size="218 5.2" z-index="-20" style="Bgs1InRace" substyle="BgCardList"/>
+      <frame pos="0.1 -0 0">
+        {% for field in fields %}
+          {% if field.sorting %}
+            <label pos="{{ field.left }} -2.4" size="{{ field.width }} 4.9" text="$o$fff {{ field.name }}" textsize="1.3"
+                   valign="center2" action="{{ id }}__list_header_{{ loop.index0 }}" focusareacolor1="0000" focusareacolor2="fff3" />
+            {% if field._sort == 1 %}
+              <quad pos="{{ field.left + field.width - 5 }} 0" z-index="2" size="5 5" style="Icons64x64_1" substyle="ShowUp2" />
+            {% elif field._sort == 0 %}
+              <quad pos="{{ field.left + field.width - 5 }} 0" z-index="2" size="5 5" style="Icons64x64_1" substyle="ShowDown2" />
+            {% endif %}
+          {% else %}
+            <label pos="{{ field.left }} -2.4" size="{{ field.width }} 4.9" text="$o$fff {{ field.name }}" textsize="1.3" valign="center2" />
+          {% endif %}
+        {% endfor %}
       </frame>
-
-      <frame pos="0.1 -4.9" id="list_content" z-index="1">
-          {% for row in objects %}
-
-          {% set outer_loop = loop %}
-          <frame pos="0 {{ loop.index0 * -5 }}">
-
-
-
-            {% for field in fields %}
-                {% if field.manialink %}
-                    {{ field.manialink|safe }}
-                {% else %}
-                    {% if field.action %}
-                          {% if field.safe %}
-                              {{ ui.button("$fff"+field_renderer(row, field)|safe, id+"__list_body_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__(), field.left, 0, field.width, 5, "aaaa", "0000", "left") }}
-                          {% else %}
-                              {{ ui.button("$fff"+field_renderer(row, field), id+"__list_body_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__(), field.left, 0, field.width, 5, "aaaa", "0000", "left") }}
-                          {% endif %}
-                    {% else %}
-                         <label pos="{{ field.left }} -2.5" size="{{ field.width }} 5"
-                 text="$fff  {% if field.safe %}{{ field_renderer(row, field)|safe }}{% else %}{{ field_renderer(row, field) }}{% endif %}"
-                 textsize="1.2" valign="center2"/>
-                    {% endif %}
-                {% endif %}
-
-            {% endfor %}
-
-            {% for action in actions %}
-            {% if action.type == 'quad' %}
-            <quad pos="{{ 218 - actions_width + action.left }} 0" size="{{ action.width|default(5, True) }} 5"
-                  style="{{ action.style }}" substyle="{{ action.substyle }}"
-            {% if action.attrs %}{{ action.attrs|safe }}{% endif %}
-            {% if action.require_confirm %}data-{% endif %}action="{{ id }}__list_action_{{ outer_loop.index0 }}_{{
-            loop.index0 }}"
-            scriptevents="1"
-            class="{{ action.classes|join(' ') }} {% if action.needs_confirm %}needs-confirm{% endif %}"
-            />
-            {% elif action.type == 'label' %}
-                {% if action.require_confirm %}
-                     {{ ui.confirmbutton(action.text|safe, id+"__list_action_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__() , (218 - actions_width + action.left), 0, action.width|default(5, True), 5, action.color) }}
-                {% else %}
-                     {{ ui.button(action.text|safe, id+"__list_action_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__() , (218 - actions_width + action.left ), 0, action.width|default(5, True), 5, action.color, action.color) }}
-                {% endif %}
-
+    </frame>
+    <frame pos="0.1 -4.9" id="list_content" z-index="1">
+      {% for row in objects %}
+        {% set outer_loop = loop %}
+        <frame pos="0 {{ loop.index0 * -5 }}">
+          {% if loop.index0 % 2 != 0 %}
+            <quad pos="0 0" size="217.8 5" z-index="-20" bgcolor="0003"/>
+          {% endif %}
+          {% for field in fields %}
+            {% if field.manialink %}
+              {{ field.manialink|safe }}
+            {% else %}
+              {% if field.action %}
+                <label pos="{{ field.left }} -2.5" size="{{ field.width }} 5"
+                       textsize="1.2" valign="center2" action="{{ id }}__list_body_{{ outer_loop.index0 }}_{{ loop.index0 }}"
+                       text="$fff  {% if field.safe %}{{ field_renderer(row, field)|safe }}{% else %}{{ field_renderer(row, field) }}{% endif %}"
+                       focusareacolor1="0000" focusareacolor2="fff2" />
+              {% else %}
+                <label pos="{{ field.left }} -2.5" size="{{ field.width }} 5"
+                       text="$fff  {% if field.safe %}{{ field_renderer(row, field)|safe }}{% else %}{{ field_renderer(row, field) }}{% endif %}"
+                       textsize="1.2" valign="center2" />
+              {% endif %}
             {% endif %}
-
-            {% endfor %}
-
-            {% if loop.index0 % 2 != 0 %}
-                <quad pos="0 0" size="217.8 5" z-index="-20" bgcolor="0003"/>
-            {% endif %}
-          </frame>
-
           {% endfor %}
-         <quad pos="0 0.1" size="218 100.2" z-index="-21" style="Bgs1InRace" substyle="BgCardList"/>
+
+          {% for action in actions %}
+            {% if action.type == 'quad' %}
+              <quad pos="{{ 218 - actions_width + action.left }} 0" size="{{ action.width|default(5, True) }} 5" style="{{ action.style }}" substyle="{{ action.substyle }}"
+                    {% if action.attrs %}{{ action.attrs|safe }}{% endif %}
+                    {% if action.require_confirm %}data-{% endif %}action="{{ id }}__list_action_{{ outer_loop.index0 }}_{{ loop.index0 }}"
+                    scriptevents="1"
+                    class="{{ action.classes|join(' ') }} {% if action.needs_confirm %}needs-confirm{% endif %}"
+              />
+            {% elif action.type == 'label' %}
+              <label pos="{{ 218 - actions_width + action.left + (action.width|default(5, True) / 2) - 0.5 }} -2.5" size="{{ action.width|default(5, True) }} 5"
+                     {% if action.style %}style="{{ action.style }}"{% endif %} {% if action.substyle %}substyle="{{ action.substyle }}"{% endif %}
+                     {% if action.attrs %}{{ action.attrs|safe }}{% endif %}
+                     {% if action.safe %} text="$fff{{ action.text|safe }}" {% else %} text="{{ action.text }}" {% endif %}
+                     focusareacolor1="0000" focusareacolor2="fff2"
+                     textsize="{{ action.textsize|default('1.2', True) }}"
+                     halign="center" valign="center2"
+                     scriptevents="1"
+                     {% if action.require_confirm %}data-{% endif %}action="{{ id }}__list_action_{{ outer_loop.index0 }}_{{ loop.index0 }}"
+                     class="{{ action.classes|join(' ') }} {% if action.require_confirm %}require-confirm{% endif %}"
+              />
+            {% endif %}
+          {% endfor %}
         </frame>
-
-      <frame pos="0 -110">
-
-        {{ ui.button("", id+"__list_button_first", (110-25-20),4,8,8)}}
-        {{ ui.button("", id+"__list_button_prev_10", (110-25-12),4,8,8)}}
-        {{ ui.button("", id+"__list_button_prev", (110-25-4),4,8,8)}}
-
-        {{ ui.button("", id+"__list_button_next", (110+25),4,8,8)}}
-        {{ ui.button("", id+"__list_button_next_10", (110+25+8),4,8,8)}}
-        {{ ui.button("", id+"__list_button_last", (110+25+16),4,8,8)}}
-
-        <label pos="110 1.5" size="50 5" text="$fff$oPage {{ page }} / {{ pages }}" textsize="1.5" halign="center"/>
-      </frame>
-
+      {% endfor %}
+    </frame>
+    <frame pos="109 -109.5">
+      <quad pos="0 0" size="218 7" z-index="-49" halign="center" valign="center" style="Bgs1InRace" substyle="BgCardList"/>
+      <quad pos="-110 4" size="10 8" bgcolor="FFFA" style="Icons64x64_1" substyle="ArrowFirst" action="{{ id }}__list_button_first" />
+      <quad pos="-102 4" size="10 8" bgcolor="FFFA" style="Icons64x64_1" substyle="ArrowFastPrev" action="{{ id }}__list_button_prev_10" />
+      <quad pos="-94 4" size="10 8" bgcolor="FFFA" style="Icons64x64_1" substyle="ArrowPrev" action="{{ id }}__list_button_prev" />
+      <quad pos="84 4" size="10 8" bgcolor="FFFA" style="Icons64x64_1" substyle="ArrowNext" action="{{ id }}__list_button_next" />
+      <quad pos="92 4" size="10 8" bgcolor="FFFA" style="Icons64x64_1" substyle="ArrowFastNext" action="{{ id }}__list_button_next_10" />
+      <quad pos="100 4" size="10 8" bgcolor="FFFA" style="Icons64x64_1" substyle="ArrowLast" action="{{ id }}__list_button_last" />
+      <label pos="0 1.5" size="72 5" text="$fff$oPage {{ page }} / {{ pages }}" textsize="1.5" halign="center"/>
     </frame>
   </frame>
+</frame>
 
-{% endblock %}
+<script><!-- {% include 'core.views/generics/list.Script.Txt' %} --></script>

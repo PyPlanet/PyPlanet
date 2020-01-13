@@ -1,10 +1,13 @@
+{% extends 'core.views/uikit/v1/generics/bootstrap.xml' %}
+
+{% block main %}
 <frame pos="65 -83" z-index="60" id="admin_toolbar_bar_frame">
   <quad pos="0 0" z-index="0" size="26 6" bgcolor="00000060"/>
-  <quad pos="26.5 0" z-index="0" size="19.75 6" bgcolor="00000060"/>
+  <quad pos="26.5 0" z-index="0" size="25.75 6" bgcolor="00000060"/>
 
   <!-- Tooltip -->
-  <quad pos="0 4" z-index="0" size="46.25 4" bgcolor="00000040" hidden="1" id="admin_toolbar_bar_tooltip_quad"/>
-  <label pos="23.125 2.25" z-index="1" size="46.25 4" text="$fffTooltip" halign="center" valign="center2"
+  <quad pos="0 4" z-index="0" size="52.25 4" bgcolor="00000040" hidden="1" id="admin_toolbar_bar_tooltip_quad"/>
+  <label pos="26.125 2.25" z-index="1" size="52.25 4" text="$fffTooltip" halign="center" valign="center2"
          id="admin_toolbar_bar_tooltip_text" textsize="0.9" hidden="1"/>
 
   <!-- Bar 1 Icons -->
@@ -38,12 +41,15 @@
   <label pos="36.25 -3.2" z-index="1" size="6.5 6" text="&#xf1de;" halign="center" valign="center2"
          id="admin_toolbar_bar_button_modesettings" textsize="2.0"
          scriptevents="1" action="{{ id }}__bar_button_modesettings"/>
-  <label pos="42.75 -3.2" z-index="1" size="6.5 6" text="&#xf0c0;" halign="center" valign="center2"
+  <label pos="42.75 -3.2" z-index="1" size="6.5 6" text="" halign="center" valign="center2"
+         id="admin_toolbar_bar_button_server" textsize="2.0"
+         scriptevents="1" action="{{ id }}__bar_button_server"/>'
+  <label pos="48.75 -3.2" z-index="1" size="6.5 6" text="&#xf0c0;" halign="center" valign="center2"
          id="admin_toolbar_bar_button_players" textsize="2.0"
          scriptevents="1" action="{{ id }}__bar_button_players"/>
 </frame>
+{% endblock %}
 
-<script><!-- {% include 'core.views/generics/scripts/includes.Script.Txt' %} --></script>
+{% block maniascript %}
 <script><!-- {% include 'admin/toolbar/toolbar.Script.Txt' %} --></script>
-
-<script><!-- {% include 'core.views/generics/scripts/main.Script.Txt' %} --></script>
+{% endblock %}

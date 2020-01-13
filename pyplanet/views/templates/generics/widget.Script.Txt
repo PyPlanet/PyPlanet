@@ -1,0 +1,29 @@
+
+declare Boolean Prev_DistractionFreeMode = False;
+declare netwrite Boolean Net_DistractionFreeMode for UI;
+
+if (Net_DistractionFreeMode == True) {
+  Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+  foreach (Control in Page.GetClassChildren_Result) {
+    Control.Hide();
+  }
+}
+
+while(True) {
+  if (Prev_DistractionFreeMode != Net_DistractionFreeMode) {
+    Prev_DistractionFreeMode = Net_DistractionFreeMode;
+
+    if (Net_DistractionFreeMode == True) {
+      Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+      foreach (Control in Page.GetClassChildren_Result) {
+        Control.Hide();
+      }
+    } else {
+      Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+      foreach (Control in Page.GetClassChildren_Result) {
+        Control.Show();
+      }
+    }
+  }
+  yield;
+}

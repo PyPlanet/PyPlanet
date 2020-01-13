@@ -1,23 +1,28 @@
+{% extends 'core.views/uikit/v1/generics/bootstrap.xml' %}
+
+{% block main %}
 <frame pos="{{ widget_x }} {{ widget_y }}" size="{{size_x}} {{size_y}}" z-index="550" id="Window"
        data-sizex="{{size_x}}" data-sizey="{{size_y}}" class="{% if distraction_hide %}distraction-hide{% endif %}">
   {% block title %}
       {% if title %}
-      <quad pos="0 0" z-index="0" size="35 6" bgcolor="00000099"/>
+      <quad pos="0 -6" size="35 0.30" bgcolor="FFFa" />
+      <quad pos="0 -5.5" size="15 0.5" bgcolor="FFFa" />
           {% if open_action %}
-          <label pos="17.5 -3" z-index="1" size="32 6" text="{{ title }}" textfont="RajdhaniMono" textsize="2.0"
-                 textemboss="1" halign="center" valign="center2" action="{{ id }}__open_widget" scriptevents="1"/>
-          <label pos="29 -3" z-index="2" size="4 6" text="&#xf08e;" textsize="1.0" halign="center" valign="center2"
-                 action="{{ id }}__open_widget" scriptevents="1"/>
+          <label pos="17.5 -6" z-index="1" size="35 6" text="{{ title }}" textfont="RajdhaniMono" textsize="1.5"
+                 textemboss="1" halign="center" valign="bottom" action="{{ id }}__open_widget" scriptevents="1"
+          focusareacolor1="0000" focusareacolor2="0000" />
+          <!-- <label pos="29 -3" z-index="2" size="4 6" text="&#xf08e;" textsize="1.0" halign="center" valign="center2"
+                 action="{{ id }}__open_widget" scriptevents="1"/> -->
                 {% if toggable %}
                 <label pos="33 -3" z-index="2" size="4 6" text="" textsize="1.0" halign="center" valign="center2"
                        data-layer="{{ layer }}" scriptevents="1" id="toggleLayer"/>
                 {% endif %}
           {% else %}
-          <label pos="17.5 -3" z-index="1" size="32 6" text="{{ title }}" textfont="RajdhaniMono" textsize="2.0"
-                 textemboss="1" halign="center" valign="center2"/>
+          <label pos="17.5 -6" z-index="1" size="32 6" text="{{ title }}" textfont="RajdhaniMono" textsize="2.0"
+                 textemboss="1" halign="center" valign="bottom" focusareacolor1="0000" focusareacolor2="0000" />
                 {% if toggable %}
                 <label pos="33 -3" z-index="2" size="4 6" text="" textsize="1.0" halign="center" valign="center2"
-                      data-layer="{{ layer }}" id="toggleLayer" scriptevents="1"/>
+                      data-layer="{{ layer }}" id="toggleLayer" scriptevents="1" focusareacolor1="0000"/>
                 {% endif %}
           {% endif %}
       {% endif %}
@@ -28,11 +33,10 @@
   </frame>
 
 </frame>
+{% endblock %}
 
-<script><!-- {% include 'core.views/generics/scripts/includes.Script.Txt' %} --></script>
-{% block maniascript_pre %} {% endblock %}
-<script><!-- {% include 'core.views/generics/scripts/toggleUi.Script.Txt' %} --></script>
-{% block maniascript %} {% endblock %}
+
+{% block maniascript %}
 <script><!--
 
 ***OnInit***
@@ -80,4 +84,7 @@
 
 ***
 --></script>
-<script><!-- {% include 'core.views/generics/scripts/main.Script.Txt' %} --></script>
+  <script><!-- {% include 'core.views/uikit/v1/scripts/toggle_ui.Script.txt' %} --></script>
+  {{ super() }}
+
+  {% endblock %}

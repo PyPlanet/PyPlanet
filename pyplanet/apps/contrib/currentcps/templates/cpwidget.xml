@@ -1,4 +1,4 @@
-{% extends 'core.views/generics/widget.xml' %}
+{% extends 'core.views/uikit/v1/widget.xml' %}
 
 {% block content %}
   {% if cps != None %}

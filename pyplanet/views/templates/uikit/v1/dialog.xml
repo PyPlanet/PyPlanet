@@ -1,5 +1,6 @@
-{% import 'core.views/generics/uiElements.xml' as ui %}
+{% extends 'core.views/uikit/v1/generics/bootstrap.xml' %}
 
+{% block main %}
 <frame pos="-160 90" z-index="200"> <!-- set z-index high enough -->
 	<frame pos="160 -90"> <!-- reset to 0,0 -->
 
@@ -22,8 +23,4 @@
   <!-- this is to disable other controls from clicking -->
   <quad size="320 180" bgcolor="0000" scriptevents="1"/>
 </frame>
-
-<script><!-- {% include 'core.views/generics/scripts/includes.Script.Txt' %} --></script>
-<script><!-- {% include 'core.views/generics/scripts/uiElements.Script.Txt' %} --></script>
-{% block maniascript %} {% endblock %}
-<script><!-- {% include 'core.views/generics/scripts/main.Script.Txt' %} --></script>
+{% endblock %}

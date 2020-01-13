@@ -1,0 +1,24 @@
+{% extends 'core.views/uikit/v1/generics/bootstrap.xml' %}
+
+{% block main %}
+<frame pos="0 0" z-index="900">
+  <quad pos="0 0" size="320 180" halign="center" valign="center" style="Bgs1" substyle="BgDialogBlur" bluramount="0.1" scriptevents="1" z-index="500" />
+  <quad size="{{ sizes.box__size }}" halign="center" valign="center" style="Bgs1InRace" substyle="BgSystemBar" opacity="0.9" z-index="501" />
+
+  <frame z-index="550">
+    {% block body %}
+      <label pos="{{ sizes.text__pos }}" size="{{ sizes.text__size }}" halign="left" valign="center2" textsize="2" textcolor="FFF" autonewline="1" text="{{ message }}" />
+
+      {% if buttons|length >= 2 %}
+        {{ ui.button_outline(buttons[0].name, id+"__button_0", sizes.button_0__pos__left, sizes.button_0__pos__top, 26, 5, "ddd") }}
+        {{ ui.button_outline(buttons[1].name, id+"__button_1", sizes.button_1__pos__left, sizes.button_1__pos__top, 26, 5, "ddd") }}
+      {% elif buttons|length == 1 %}
+        {{ ui.button_outline(buttons[0].name, id+"__button_0", sizes.button_0__pos__left, sizes.button_0__pos__top, 26, 5, "ddd") }}
+      {% else %}
+        {{ ui.button_outline("Ok", id+"__button_0", sizes.button_0__pos__left, sizes.button_0__pos__top, 26, 5, "ddd") }}
+      {% endif %}
+    {% endblock %}
+  </frame>
+</frame>
+{% endblock %}
+

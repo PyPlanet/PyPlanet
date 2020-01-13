@@ -1,5 +1,4 @@
-{% extends "core.views/generics/list.xml" %}
-
+{% extends 'core.views/uikit/v1/list.xml' %}
 
 {% block toolbar_search %}
   {{ ui.input(search_map|default('Search Map...', True), "map", 2, -4.25, 40) }}

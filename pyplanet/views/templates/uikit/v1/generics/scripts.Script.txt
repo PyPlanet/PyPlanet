@@ -1,66 +1,3 @@
-/* ----------------- Checkbox ------------------ */
-
-Void uiRenderCheckbox(CMlFrame frame) {
-    declare uiControl = frame.Controls[2];
-	if (frame.DataAttributeGet("checked") == "1") {
-       AnimMgr.Add(uiControl, "<frame scale=\"1.\" />", 250, CAnimManager::EAnimManagerEasing::BackOut);
-    } else {
-       AnimMgr.Add(uiControl, "<frame scale=\"0.\" />", 100, CAnimManager::EAnimManagerEasing::BackIn);
-	  }
-      declare CMlEntry entry = (frame.Controls[0] as CMlEntry);
-	    entry.Value = frame.DataAttributeGet("checked") ;
-}
-
-Void uiToggleCheckbox(CMlFrame frame) {
-	if  (frame.DataAttributeGet("checked") == "1") {
-		frame.DataAttributeSet("checked", "0");
-	} else {
-		frame.DataAttributeSet("checked", "1");
-	}
-	uiRenderCheckbox(frame);
-}
-
-Void uiSetCheckbox(CMlFrame frame, Boolean status) {
-	if (status) {
-	  frame.DataAttributeSet("checked", "1");
-	} else {
-		frame.DataAttributeSet("checked", "0");
-	}
-	uiRenderCheckbox(frame);
-}
-
-***OnInit***
-***
-Page.GetClassChildren("uiCheckbox", Page.MainFrame, True);
-foreach (frame in Page.GetClassChildren_Result) {
-        uiRenderCheckbox((frame as CMlFrame));
-}
-***
-
-***OnMouseClick***
-***
-if (Event.Control.HasClass("uiCheckboxElement") ) {
-    if (Event.Control.Parent.HasClass("uiCheckboxGroup")) {
-        Page.GetClassChildren("uiCheckboxGroup", Page.MainFrame, True);
-        declare group = Event.Control.DataAttributeGet("group");
-        foreach (frame in Page.GetClassChildren_Result) {
-            if (frame.HasClass(group)) {
-                if (frame != Event.Control.Parent) {
-                  uiSetCheckbox((frame as CMlFrame), False);
-                }
-            }
-        }
-        uiSetCheckbox(Event.Control.Parent, True);
-    } else {
-      if (Event.Control.Parent.HasClass("uiCheckbox")) {
-          uiToggleCheckbox(Event.Control.Parent);
-      }
-    }
-}
-***
-
-/* ------------------ end Checkbox ------------------- */
-
 /* ------------------- Button ------------------------- */
 Void TriggerButtonClick(CMlControl Control) {
     declare Parent = Control.Parent;
@@ -168,6 +105,68 @@ Void TriggerConfirmButtonClick(Text ControlId) {
 }
 
 /*  ------------------- end ConfirmButton ------------------------- */
+/* ----------------- Checkbox ------------------ */
+
+Void uiRenderCheckbox(CMlFrame frame) {
+    declare uiControl = frame.Controls[2];
+	if (frame.DataAttributeGet("checked") == "1") {
+       AnimMgr.Add(uiControl, "<frame scale=\"1.\" />", 250, CAnimManager::EAnimManagerEasing::BackOut);
+    } else {
+       AnimMgr.Add(uiControl, "<frame scale=\"0.\" />", 100, CAnimManager::EAnimManagerEasing::BackIn);
+	  }
+      declare CMlEntry entry = (frame.Controls[0] as CMlEntry);
+	    entry.Value = frame.DataAttributeGet("checked") ;
+}
+
+Void uiToggleCheckbox(CMlFrame frame) {
+	if  (frame.DataAttributeGet("checked") == "1") {
+		frame.DataAttributeSet("checked", "0");
+	} else {
+		frame.DataAttributeSet("checked", "1");
+	}
+	uiRenderCheckbox(frame);
+}
+
+Void uiSetCheckbox(CMlFrame frame, Boolean status) {
+	if (status) {
+	  frame.DataAttributeSet("checked", "1");
+	} else {
+		frame.DataAttributeSet("checked", "0");
+	}
+	uiRenderCheckbox(frame);
+}
+
+***OnInit***
+***
+Page.GetClassChildren("uiCheckbox", Page.MainFrame, True);
+foreach (frame in Page.GetClassChildren_Result) {
+        uiRenderCheckbox((frame as CMlFrame));
+}
+***
+
+***OnMouseClick***
+***
+if (Event.Control.HasClass("uiCheckboxElement") ) {
+    if (Event.Control.Parent.HasClass("uiCheckboxGroup")) {
+        Page.GetClassChildren("uiCheckboxGroup", Page.MainFrame, True);
+        declare group = Event.Control.DataAttributeGet("group");
+        foreach (frame in Page.GetClassChildren_Result) {
+            if (frame.HasClass(group)) {
+                if (frame != Event.Control.Parent) {
+                  uiSetCheckbox((frame as CMlFrame), False);
+                }
+            }
+        }
+        uiSetCheckbox(Event.Control.Parent, True);
+    } else {
+      if (Event.Control.Parent.HasClass("uiCheckbox")) {
+          uiToggleCheckbox(Event.Control.Parent);
+      }
+    }
+}
+***
+
+/* ------------------ end Checkbox ------------------- */
 
 /*  ------------------- Dropdown ------------------------- */
 
@@ -235,7 +234,6 @@ if (Event.Control.HasClass("uiSelectElement")) {
 
 /*  ------------------- end Dropdown ------------------------- */
 
-
 /* -------------------- masked input --------------------------------- */
 ***OnMouseClick***
 ***
@@ -251,3 +249,72 @@ if (Event.Control.HasClass("uiSelectElement")) {
          }
     }
 ***
+
+/*  ------------------- end masked input ------------------------- */
+/*  ------------------- Scrollable area ------------------------- */
+
+***OnInit***
+***
+declare CMlFrame py_scroll_frame = Null;
+declare CMlFrame py_scroll_content = Null;
+declare Boolean py_scroll_activeY = False;
+declare Boolean py_scroll_activeX = False;
+declare Vec2 py_scroll_pos = <0.,0.>;
+declare CMlFrame[] Frames;
+
+Page.GetClassChildren ("uiScrollable", Page.MainFrame, True);
+foreach (frame in Page.GetClassChildren_Result) {
+    declare Frame <=> (frame as CMlFrame);
+    declare scroller = (Frame.Controls[0] as CMlFrame);
+    // Frame.ScrollMax = <0., scroller.Size.Y>;
+    Frames.add(Frame);
+}
+
+***
+
+***OnMouseClick***
+***
+if (Event.Control != Null && Event.Control.HasClass("uiScrollbar") )  {
+	if (Event.Control.DataAttributeGet("axis") == "X") {
+		py_scroll_activeX = True;
+	} else {
+		py_scroll_activeY = True;
+	}
+	py_scroll_frame = Event.Control.Parent.Parent;
+	py_scroll_pos = <MouseX, MouseY> - Event.Control.RelativePosition_V3 ;
+	py_scroll_content = (py_scroll_frame.Controls[0] as CMlFrame); // gets the bounding frame
+}
+***
+
+***Loop***
+***
+
+if (py_scroll_activeY) {
+			declare Real pos = (MouseY - py_scroll_pos.Y) ;
+			declare Real lowerLimit = -py_scroll_frame.Controls[1].Size.Y + (py_scroll_frame.Controls[1] as CMlFrame).Controls[0].Size.Y;
+
+			if (pos > 0.) {
+				pos = 0.;
+			}
+
+			if (pos < lowerLimit)  {
+				pos = lowerLimit;
+			}
+
+		 declare Real diff = MathLib::Abs(lowerLimit);
+	   declare Real percentage = ((MathLib::Abs(pos)) / diff) * py_scroll_content.ScrollMax.Y;
+	   py_scroll_content.ScrollOffset = <0., percentage>;
+
+}
+
+if (MouseLeftButton == False)  {
+	py_scroll_activeX = False;
+	py_scroll_activeY = False;
+}
+
+foreach (frame in Frames) {
+       (frame.Parent.Controls[1] as CMlFrame).Controls[0].RelativePosition_V3.Y =  -(4.0+ (frame.ScrollOffset.Y / frame.ScrollMax.Y) * (frame.Controls[0].Size.Y -18.));
+}
+***
+
+/*  ------------------- end Scrollable area ------------------------- */

@@ -1,4 +1,4 @@
-{% extends 'core.views/generics/tabwidget.xml' %}
+{% extends 'core.views/uikit/v1/widget.xml' %}
 
 {% block content %}
   {% if times != None %}
@@ -13,9 +13,4 @@
       </frame>
     {% endfor %}
   {% endif %}
-{% endblock %}
-
-
-{% block maniascript %}
-
 {% endblock %}

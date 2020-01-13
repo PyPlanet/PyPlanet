@@ -1,4 +1,4 @@
-{% extends 'core.views/generics/dialog.xml' %}
+{% extends 'core.views/uikit/v1/dialog.xml' %}
 
 {% block contents %}
 <label pos="60 0" size="90 5" text="Select the folder you want the map to be inserted to."
@@ -17,7 +17,7 @@
 {% endfor %}
 </frame>
 
-  {{ ui.decoratedbutton("Close", id+"__button_cancel", 48, -124) }}
+  {{ ui.button_outline("Close", id+"__button_cancel", 48, -124) }}
 
 {% endblock %}
 

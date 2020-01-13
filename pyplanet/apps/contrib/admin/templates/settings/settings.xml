@@ -1,4 +1,4 @@
-{% extends 'core.views/generics/window.xml' %}
+{% extends 'core.views/uikit/v1/window.xml' %}
 
   {% block header %}
     <label pos="210 -3.5" size="72 7" text="$o{{ count }} items" textsize="1" textfont="RajdhaniMono" halign="right" valign="center" />
@@ -31,7 +31,7 @@
       {% elif types[name] == "string" %}
           {{ ui.input(setting_value, name, 80, -2.5, 80) }}
       {% elif types[name] == "password" %}
-           {{ ui.inputMasked(setting_value, name, 80, -2.5, 80) }}
+           {{ ui.input_masked(setting_value, name, 80, -2.5, 80) }}
       {% elif types[name] == "int" or types[name] == "float" %}
           {{ ui.input(setting_value|default("0",True), name, 80, -2.5, 80) }}
       {% else %}
@@ -47,11 +47,7 @@
     {% endfor %}
   {% endcall %}
 
-  {{ ui.confirmbutton("Save", id+"__button_save", 194-14,-110, 24, 6, "ddd") }}
-  {{ ui.decoratedbutton("Cancel", id+"__button_cancel", 218-12, -110, 24, 6, "ddd") }}
+  {{ ui.button_confirm("Save", id+"__button_save", 194-14,-110, 24, 6, "ddd") }}
+  {{ ui.button_outline("Cancel", id+"__button_cancel", 218-12, -110, 24, 6, "ddd") }}
 
-{% endblock %}
-
-{% block maniascript %}
-<script><!-- {% include 'core.views/generics/scripts/scrollable.Script.Txt' %} --></script>
 {% endblock %}

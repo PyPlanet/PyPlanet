@@ -1,4 +1,4 @@
-{% extends 'core.views/generics/widget.xml' %}
+{% extends 'core.views/uikit/v1/widget.xml' %}
 
 {% block content %}
   <quad pos="0 0" z-index="0" size="35 6" bgcolor="00000060"/>
@@ -18,8 +18,4 @@
   <label pos="17.8 -9.5" z-index="1" size="11.5 6" text="{{ karma_percentage }}%"  textfont="RajdhaniMono" textsize="2.0"  halign="center" valign="center2"/>
   <quad pos="24  -6.5" z-index="0" size="11.5 6" bgcolor="00000060"/>
   <label pos="29.8 -9.5" z-index="1" size="11.5 6" text="{{ positive_votes }}"  textfont="RajdhaniMono" textsize="2.0"  halign="center" valign="center2" textcolor="73FF51BB"/>
-{% endblock %}
-
-{% block maniascript %}
-
 {% endblock %}

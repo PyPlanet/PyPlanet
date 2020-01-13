@@ -1,4 +1,4 @@
-{% extends 'core.views/generics/dialog.xml' %}
+{% extends 'core.views/uikit/v1/dialog.xml' %}
 
   {% block contents %}
 <frame pos="10 -30">
@@ -41,7 +41,7 @@
 
 </frame>
 
-  {{ ui.confirmbutton("Save", id+"__button_save", 30,-120, 24,6) }}
-  {{ ui.decoratedbutton("Cancel", id+"__button_cancel", 60, -120, 24,6) }}
+  {{ ui.button_confirm("Save", id+"__button_save", 30,-120, 24,6) }}
+  {{ ui.button_outline("Cancel", id+"__button_cancel", 60, -120, 24,6) }}
 
 {% endblock %}

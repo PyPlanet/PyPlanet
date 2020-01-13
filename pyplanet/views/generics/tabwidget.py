@@ -17,7 +17,7 @@ class TabWidgetView(TemplateView):
 	action = None
 	distraction_hide = True
 	layer = "ScoreTable"
-	template_name = 'core.views/generics/tabwidget.xml'
+	template_name = 'core.views/uikit/v1/tabwidget.xml'
 
 	def __init__(self, layer="normal", *args, **kwargs):
 		super().__init__(layer=layer, *args, **kwargs)
@@ -101,7 +101,7 @@ class TabWidgetView(TemplateView):
 
 
 class TabTimesWidgetView(TabWidgetView):
-	template_name = 'core.views/generics/tabtimeswidget.xml'
+	template_name = 'core.views/uikit/v1/tabtimeswidget.xml'
 
 	async def get_context_data(self):
 		context = await super().get_context_data()

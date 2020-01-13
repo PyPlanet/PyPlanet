@@ -31,6 +31,7 @@ class ToolbarView(TemplateView):
 
 		self.subscribe('bar_button_settings', self.action_settings)
 		self.subscribe('bar_button_modesettings', self.action_modesettings)
+		self.subscribe('bar_button_server', self.action_server)
 		self.subscribe('bar_button_players', self.action_player_list)
 
 	async def get_context_data(self):
@@ -57,6 +58,9 @@ class ToolbarView(TemplateView):
 
 	async def action_modesettings(self, player, *args, **kwargs):
 		return await self.app.instance.command_manager.execute(player, '//modesettings')
+
+	async def action_server(self, player, *args, **kwargs):
+		return await self.app.instance.command_manager.execute(player, '//server')
 
 	async def action_player_list(self, player, *args, **kwargs):
 		return await self.app.instance.command_manager.execute(player, '//players')

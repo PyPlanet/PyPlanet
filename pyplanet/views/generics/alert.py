@@ -14,7 +14,7 @@ class AlertView(TemplateView):
 	sm, md and lg.
 	"""
 
-	template_name = 'core.views/generics/alert.xml'
+	template_name = 'core.views/uikit/v1/alert.xml'
 
 	SIZES = dict(
 		sm={
@@ -168,7 +168,7 @@ class PromptView(AlertView):
 
 	"""
 
-	template_name = 'core.views/generics/prompt.xml'
+	template_name = 'core.views/uikit/v1/prompt.xml'
 
 	SIZES = dict(
 		sm={
