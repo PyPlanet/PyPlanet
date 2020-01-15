@@ -94,7 +94,7 @@
                 {% if action.require_confirm %}
                      {{ ui.button_confirm(action.text|safe, id+"__list_action_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__() , (218 - actions_width + action.left), 0, action.width|default(5, True), 5, action.color) }}
                 {% else %}
-                     {{ ui.button(action.text|safe, id+"__list_action_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__() , (218 - actions_width + action.left ), 0, action.width|default(5, True), 5, action.color, action.color) }}
+                     {{ ui.button_outline(action.text|safe, id+"__list_action_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__() , (218 - actions_width + action.left ), 0, action.width|default(5, True), 5, action.color) }}
                 {% endif %}
 
             {% endif %}
