@@ -10,10 +10,10 @@
           <quad pos="0 -6" size="59 0.55" bgcolor="FFFa" />
           <label pos="2 -2" textsize="2.5" size="220 7" text="{{title}}" halign="left" valign="top" textprefix="{{icon}}  " textfont="RajdhaniMono"/>
             {% if fields %}
-                {{ ui.button("", id+"__button_refresh", 226, 0, 6, 6, "ddd") }} >
-                {{ ui.button("✖", id+"__button_close", 232, 0, 6,6, "d00", "0000") }} >
+                {{ ui.button_basic("", id+"__button_refresh", 226, 0, 6, 6, "ddd") }} >
+                {{ ui.button_basic("✖", id+"__button_close", 232, 0, 6,6, "d00", "0000") }} >
             {% else %}
-               {{ ui.button("✖", id+"__button_close", 232, 0, 7, 7, "d00", "0000") }}
+               {{ ui.button_basic("✖", id+"__button_close", 232, 0, 7, 7, "d00", "0000") }}
             {% endif %}
      {% endblock %}
 
