@@ -78,19 +78,26 @@
 {% macro input_masked(text='', name='', posX= 0, posY=0, width=50) %}
 <frame pos="{{ posX }} {{ posY }}" class="uiContainer uiInputMasked" data-type="Password">
   <entry pos="0 0" size="{{ (width - 5) }} 5" textsize="1.2" valign="center" focusareacolor1="0003"
-         focusareacolor2="FFF2" default="{{ text|default('', True) }}" textformat="Password" name="{{ name }}"/>
+         focusareacolor2="FFF2" selecttext="1" default="{{ text|default('', True) }}" textformat="Password" name="{{ name }}"/>
   <frame pos="{{ (width - 2.5) }} 0" class="">
-    <quad size="5 5" style="Bgs1InRace" colorize="ddd" substyle="BgColorContour" halign="center" valign="center2"/>
-    <label size="4 4" text="" class="uiMaskedToggle" halign="center" valign="center2" focusareacolor1="0000"
+    <quad size="10 10" scale="0.5" style="Bgs1InRace" colorize="ddd" substyle="BgColorContour" halign="center" valign="center2"/>
+    <label size="4 4" text="" class="uiMaskedToggle" halign="center" valign="center2" focusareacolor1="0000"
            focusareacolor2="ddd" scriptevents="1" translate="0" textsize="1.2"/>
   </frame>
+</frame>
+{% endmacro %}
+
+{% macro input_password(text='', name='', posX=0, posY=0, width=50) %}
+<frame pos="{{ posX }} {{ posY }}" class="uiContainer uiInput" data-type="Basic">
+  <entry pos="0 0" size="{{ width }} 5" textsize="1.2" valign="center" focusareacolor1="0003" focusareacolor2="FFF2"
+         default="{{ text|default('', True) }}" selecttext="1" scriptevents="1" textformat="Password" name="{{ name }}"/>
 </frame>
 {% endmacro %}
 
 {% macro input(text='', name='', posX=0, posY=0, width=50) %}
 <frame pos="{{ posX }} {{ posY }}" class="uiContainer uiInput" data-type="Basic">
   <entry pos="0 0" size="{{ width }} 5" textsize="1.2" valign="center" focusareacolor1="0003" focusareacolor2="FFF2"
-         default="{{ text|default('', True) }}" textselect="1" scriptevents="1" textformat="Basic" name="{{ name }}"/>
+         default="{{ text|default('', True) }}" selecttext="1" scriptevents="1" textformat="Basic" name="{{ name }}"/>
 </frame>
 {% endmacro %}
 

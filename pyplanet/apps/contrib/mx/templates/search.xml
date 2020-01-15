@@ -5,5 +5,5 @@
   {{ ui.input(search_author|default('Search Author...', True), "author", 43, -4.25, 40) }}
   {{ ui.dropdown(mode,"mode", mode_index, 84, -2, 40) }}
   {{ ui.dropdown(styles,"style", style_index, 125, -2, 40) }}
-  {{ ui.button("🔍 search", id+"__mx_search", 167, -2,26,5) }}
+  {{ ui.button("🔍 search", id+"__mx_search", 167, -2,26,5, "aaa", "777") }}
 {% endblock %}

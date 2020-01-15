@@ -243,9 +243,11 @@ if (Event.Control.HasClass("uiSelectElement")) {
          if (input.DataAttributeGet("type") == "Basic") {
            input.DataAttributeSet("type", "Password");
            input.TextFormat = CMlEntry::ETextFormat::Password;
+           (Event.Control as CMlLabel).Value = "";
          } else {
            input.DataAttributeSet("type", "Basic");
            input.TextFormat = CMlEntry::ETextFormat::Basic;
+           (Event.Control as CMlLabel).Value = "";
          }
     }
 ***
