@@ -46,7 +46,7 @@
 	{% endif %}
 
   {% if player_level > 2 %}
-    <label pos="-12 -84" data-action="{{ id }}__adm_server" text=" Dedicated" class="button" scriptevents="1"  opacity="1" size="22 6" valign="center2" halign="center" textsize="2" focusareacolor1="777a" focusareacolor2="aaaa"/>
+    <label pos="-12 -84" data-action="{{ id }}__adm_server" text=" Server" class="button" scriptevents="1"  opacity="1" size="22 6" valign="center2" halign="center" textsize="2" focusareacolor1="777a" focusareacolor2="aaaa"/>
     <label pos="13 -84" data-action="{{ id }}__adm_mode" text="🎮 Mode" class="button" scriptevents="1"  opacity="1" size="22 6" valign="center2" halign="center" textsize="2" focusareacolor1="777a" focusareacolor2="aaaa"/>
     <label pos="38 -84" data-action="{{ id }}__adm_settings" text=" PyPlanet" class="button" scriptevents="1"  opacity="1" size="22 6" valign="center2" halign="center" textsize="2" focusareacolor1="777a" focusareacolor2="aaaa"/>
   {% endif %}
@@ -54,7 +54,7 @@
 
 <frame id="background" z-index="100" pos="0 20">
     <quad pos="0 47" z-index="0" size="100 0.3" bgcolor="FFFA" valign="center" halign="center" />
-    <label pos="-48 51" size="89 8" text="PyPlanet 0.7.1"  scale="1" z-index="-0" textsize="4" halign="left" valign="center" textfont="RajdhaniMono"/>
+    <label pos="-48 51" size="89 8" text="PyPlanet {{version}}"  scale="1" z-index="-0" textsize="4" halign="left" valign="center" textfont="RajdhaniMono"/>
     <label pos="46 51" z-index="1" size="6 6" text="X" halign="center" valign="center" scriptevents="1" focusareacolor1="000" focusareacolor2="d00" id="close" scale="0.7"/>
 
     {% if player_level > 2 %}

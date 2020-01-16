@@ -1,4 +1,5 @@
 from pyplanet.views.generics.widget import TemplateView
+from pyplanet import __version__ as version
 
 
 class MenuView(TemplateView):
@@ -33,6 +34,7 @@ class MenuView(TemplateView):
 	async def get_context_data(self):
 		context = await super().get_context_data()
 		context['player_level'] = 0
+		context['version'] = version
 		return context
 
 	async def get_per_player_data(self, login):
