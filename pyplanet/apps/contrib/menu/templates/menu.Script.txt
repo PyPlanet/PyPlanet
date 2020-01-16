@@ -1,0 +1,139 @@
+/** @context CTmMlScriptIngame */
+
+declare Boolean isShown;
+
+Void show()  {
+   // CloseInGameMenu(CTmMlScriptIngame::EInGameMenuResult::Resume);
+   	 isShown = True;
+	 declare CMlFrame frame <=> (Page.GetFirstChild("buttons") as CMlFrame);
+	 declare CMlFrame background <=> (Page.GetFirstChild("background") as CMlFrame);
+	 declare CMlLabel icon <=> (Page.GetFirstChild("icon") as CMlLabel);
+	 declare start = Now+200;
+	 declare counter = 0;
+
+	foreach (Elem in background.Controls) {
+				AnimMgr.Add(Elem, "<elem scale=\"1\" />", 1000, CAnimManager::EAnimManagerEasing::ElasticOut2);
+			}
+
+	foreach (Button in frame.Controls) {
+			AnimMgr.Add(Button, "<quad scale=\"1.\" />", (start+(counter*25 )), 750, CAnimManager::EAnimManagerEasing::ElasticOut2);
+			counter+=1;
+	}
+
+}
+
+Void hide() {
+ isShown = False;
+ declare CMlFrame frame <=> (Page.GetFirstChild("buttons") as CMlFrame);
+ declare CMlFrame background <=> (Page.GetFirstChild("background") as CMlFrame);
+
+ declare start = Now;
+ declare counter = 0;
+foreach (Elem in frame.Controls) {
+		 AnimMgr.Flush(Elem);
+		 AnimMgr.Add(Elem, "<elem scale=\"0\" />", Now, 600, CAnimManager::EAnimManagerEasing::ElasticIn);
+}
+
+foreach (Elem in background.Controls) {
+		AnimMgr.Flush(Elem);
+		AnimMgr.Add(Elem, "<elem scale=\"0\" />", Now, 600, CAnimManager::EAnimManagerEasing::ElasticIn);
+	}
+}
+
+Void InitialHide() {
+ declare CMlFrame frame <=> (Page.GetFirstChild("buttons") as CMlFrame);
+ declare CMlFrame background <=> (Page.GetFirstChild("background") as CMlFrame);
+
+	foreach (Elem in background.Controls) {
+		Elem.RelativeScale = 0.;
+		AnimMgr.Flush(Elem);
+
+	}
+
+	foreach (Elem in frame.Controls) {
+		Elem.RelativeScale = 0.;
+		AnimMgr.Flush(Elem);
+		}
+}
+
+Void onButtonOver(CMlControl Element) {
+	if (Element.HasClass("noAnim")  == False) {
+		AnimMgr.Add(Element, "<elem scale=\"1.2\" />", 400, CAnimManager::EAnimManagerEasing::ElasticOut);
+	}
+}
+
+Void onButtonOut(CMlControl Element) {
+		AnimMgr.Add(Element, "<elem scale=\"1.0\" />", 400, CAnimManager::EAnimManagerEasing::ElasticOut);
+}
+
+
+main() {
+	isShown = False;
+	InitialHide();
+
+	while (True) {
+		yield;
+
+		foreach (Event in PendingEvents) {
+			if (Event.ControlId == "open" && Event.Type == CMlScriptEvent::Type::MouseClick) {
+				if (!isShown) {
+					show();
+				} else {
+					hide();
+				}
+			}
+
+			if (isShown) {
+				if (Event.Type == CMlScriptEvent::Type::MouseClick) {
+					switch(Event.ControlId) {
+						case "setSpectator": {
+							if (!Playground.IsSpectatorClient) {
+							Playground.RequestSpectatorClient(True);
+							} else {
+							Playground.RequestSpectatorClient(False);
+							}
+						}
+						case "close": {
+							hide();
+						}
+						case "exitServer": {
+							Playground.QuitServer(False);
+						}
+					}
+				}
+
+				if (Event.Type == CMlScriptEvent::Type::MouseOver && Event.Control.HasClass("button")) {
+							onButtonOver(Event.Control);
+					}
+
+					if (Event.Type == CMlScriptEvent::Type::MouseOut && Event.Control.HasClass("button")) {
+							onButtonOut(Event.Control);
+					}
+
+					if (Event.Type == CMlScriptEvent::Type::MouseClick && Event.Control.HasClass("button") ) {
+						if (Event.Control.DataAttributeExists("action")) {
+							isShown = False;
+							AnimMgr.Flush(Event.Control);
+							AnimMgr.Add(Event.Control, "<elem scale=\"1.0\" />", 0, CAnimManager::EAnimManagerEasing::Linear);
+							InitialHide();
+							TriggerPageAction(Event.Control.DataAttributeGet("action"));
+						}
+					}
+				}
+			}
+		}
+
+
+		/*
+		// @todo enable when maniaplanet get fix
+
+		if (Playground.IsInGameMenuDisplayed) {
+			if (!isShown) {
+			CloseInGameMenu(CTmMlScriptIngame::EInGameMenuResult::Resume);
+			isShown=True;
+			show();
+			}
+		} */
+
+}
+

@@ -1,0 +1,69 @@
+<label pos="-150 -60" size="20 5" text="Menu" textsize="1" halign="center" valign="center" scriptevents="1" focusareacolor1="0006" focusareacolor2="000a" id="open" scale="1" z-index="90" />
+
+<frame id="buttons" pos="-13 40" z-index="101">
+	<frame pos="0 -20" halign="center" valign="top">
+		<label pos="13 39" size="74 6"  scale="1" z-index="-0" textsize="8" halign="center" valign="center" textfont="RajdhaniMono" text=""/>
+		<label pos="13 32" size="74 6" text="Votes"  scale="1" z-index="-0" textsize="3" halign="center" valign="center" textfont="RajdhaniMono"/>
+		<label pos="13 10" size="74 6"  scale="1" z-index="-0" textsize="8" halign="center" valign="center" textfont="RajdhaniMono" text=""/>
+		<label pos="13 2" size="74 6" text="Player"  scale="1" z-index="-0" textsize="3" halign="center" valign="center" textfont="RajdhaniMono"/>
+
+    {% if player_level > 1 %}
+      <label pos="13 -21" size="74 6"  scale="1" z-index="-0" textsize="8" halign="center" valign="center" textfont="RajdhaniMono" text=""/>
+      <label pos="13 -29" size="74 6" text="Server Operator"  scale="1" z-index="-0" textsize="3" halign="center" valign="center" textfont="RajdhaniMono"/>
+		{% endif %}
+
+    {% if player_level > 2 %}
+      <label pos="13 -48" size="74 6"  scale="1" z-index="-0" textsize="8" halign="center" valign="center" textfont="RajdhaniMono" text="🎮"/>
+      <label pos="13 -55" size="74 6" text="Manage"  scale="1" z-index="-0" textsize="3" halign="center" valign="center" textfont="RajdhaniMono"/>
+    {% endif %}
+	</frame>
+
+	<label pos="-11 3" data-action="{{ id }}__vote_restart" text=" Replay" class="button" scriptevents="1"  opacity="1" size="22 6" halign="center" valign="center2" textsize="2" focusareacolor1="777a" focusareacolor2="aaaa"/>
+	<label pos="13 3" data-action="{{ id }}__vote_skip" text=" Skip" class="button" scriptevents="1"  opacity="1" size="22 6" halign="center" valign="center2" textsize="2" focusareacolor1="777a" focusareacolor2="aaaa"/>
+	<label pos="37 3" data-action="{{ id }}__vote_extend" text=" Extend" class="button" scriptevents="1"  opacity="1" size="22 6" halign="center" valign="center2" textsize="2" focusareacolor1="777a" focusareacolor2="aaaa"/>
+
+  {% if player_level > 1 %}
+    <label pos="-29 3" data-action="{{ id }}__vote_adm_pass" text="✔" class="button" scriptevents="1"  opacity="1" size="10 6" valign="center2" halign="center" textsize="2" focusareacolor1="393a" focusareacolor2="0d0a"/>
+    <label pos="55 3" data-action="{{ id }}__vote_adm_cancel" text="✖" class="button" scriptevents="1"  opacity="1" size="10 6" valign="center2" halign="center" textsize="2" focusareacolor1="933a" focusareacolor2="d00a"/>
+  {% endif %}
+
+  {% if player_level == 0 %}
+    <label pos="-11 -27" data-action="{{ id }}__players" text="Players" class="button" scriptevents="1"  opacity="1" size="22 6" valign="center2" halign="center" textsize="2" focusareacolor1="777a" focusareacolor2="aaaa" />
+  {% else %}
+    <label pos="-11 -27" data-action="{{ id }}__adm_players" text="Players" class="button" scriptevents="1"  opacity="1" size="22 6" valign="center2" halign="center" textsize="2" focusareacolor1="777a" focusareacolor2="aaaa" />
+  {% endif %}
+
+  <label pos="37 -27" id="setSpectator" text="Spectate" class="button" scriptevents="1"  opacity="1" size="22 6" valign="center2" halign="center" textsize="2" focusareacolor1="777a" focusareacolor2="aaaa"/>
+  <label pos="13 -27" data-action="{{ id }}__maps" text="Maps" class="button" scriptevents="1"  opacity="1" size="22 6" valign="center2" halign="center" textsize="2" focusareacolor1="777a" focusareacolor2="aaaa"/>
+
+  {% if player_level > 1 %}
+    <label pos="-17 -58" data-action="{{ id }}__adm_prev" class="button" scriptevents="1"  opacity="1" size="10 6" valign="center2" halign="center" textsize="2" focusareacolor1="777a" focusareacolor2="aaaa" text=""/>
+    <label pos="-5 -58" data-action="{{ id }}__adm_res" class="button" scriptevents="1"  opacity="1" size="10 6" valign="center2" halign="center" textsize="2" focusareacolor1="777a" focusareacolor2="aaaa" text=""/>
+    <label pos="19 -58" data-action="{{ id }}__adm_skip" text="" class="button" scriptevents="1"  opacity="1" size="10 6" valign="center2" halign="center" textsize="2" focusareacolor1="777a" focusareacolor2="aaaa"/>
+    <label pos="7 -58" data-action="{{ id }}__adm_replay" text="" class="button" scriptevents="1"  opacity="1" size="10 6" valign="center2" halign="center" textsize="2" focusareacolor1="777a" focusareacolor2="aaaa"/>
+    <label pos="31 -58" data-action="{{ id }}__adm_er" text="" class="button" scriptevents="1"  opacity="1" size="10 6" valign="center2" halign="center" textsize="2" focusareacolor1="777a" focusareacolor2="aaaa"/>
+    <label pos="43 -58" data-action="{{ id }}__adm_shuffle" text="" class="button" scriptevents="1"  opacity="1" size="10 6" valign="center2" halign="center" textsize="2" focusareacolor1="777a" focusareacolor2="aaaa"/>
+	{% endif %}
+
+  {% if player_level > 2 %}
+    <label pos="-12 -84" data-action="{{ id }}__adm_server" text=" Dedicated" class="button" scriptevents="1"  opacity="1" size="22 6" valign="center2" halign="center" textsize="2" focusareacolor1="777a" focusareacolor2="aaaa"/>
+    <label pos="13 -84" data-action="{{ id }}__adm_mode" text="🎮 Mode" class="button" scriptevents="1"  opacity="1" size="22 6" valign="center2" halign="center" textsize="2" focusareacolor1="777a" focusareacolor2="aaaa"/>
+    <label pos="38 -84" data-action="{{ id }}__adm_settings" text=" PyPlanet" class="button" scriptevents="1"  opacity="1" size="22 6" valign="center2" halign="center" textsize="2" focusareacolor1="777a" focusareacolor2="aaaa"/>
+  {% endif %}
+</frame>
+
+<frame id="background" z-index="100" pos="0 20">
+    <quad pos="0 47" z-index="0" size="100 0.3" bgcolor="FFFA" valign="center" halign="center" />
+    <label pos="-48 51" size="89 8" text="PyPlanet 0.7.1"  scale="1" z-index="-0" textsize="4" halign="left" valign="center" textfont="RajdhaniMono"/>
+    <label pos="46 51" z-index="1" size="6 6" text="X" halign="center" valign="center" scriptevents="1" focusareacolor1="000" focusareacolor2="d00" id="close" scale="0.7"/>
+
+    {% if player_level > 2 %}
+      <quad  pos="-0 55" z-index="0" size="100 130" style="Bgs1" substyle="BgDialogBlur" valign="top" halign="center"/>
+    {% elif player_level > 1 %}
+      <quad  pos="-0 55" z-index="0" size="100 100" style="Bgs1" substyle="BgDialogBlur" valign="top" halign="center"/>
+    {% else %}
+      <quad  pos="-0 55" z-index="0" size="100 70" style="Bgs1" substyle="BgDialogBlur" valign="top" halign="center"/>
+    {% endif %}
+</frame>
+
+<script><!-- {% include 'menu/menu.Script.txt' %} --></script>

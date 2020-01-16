@@ -20,12 +20,13 @@
       <frame pos="0 -18">
         {% block contents %} {% endblock %}
       </frame>
-    <quad pos="120 0" size="240 140" bgcolor="0003" halign="center"/>
-    <quad pos="120 0" size="240 140" halign="center" style="Bgs1" substyle="BgDialogBlur" bluramount="0.1" />
+
+    <quad pos="120 0" size="240 140" halign="center" style="Bgs1" substyle="BgDialogBlur" />
 
   </frame>
 	</frame>
-  <!-- <quad size="320 180" bgcolor="FFFA" style="Bgs1" substyle="BgDialogBlur" bluramount="0.1" scriptevents="1" /> -->
+   <!-- disables clicking other elements when window is open -->
+  <quad size="320 180" bgcolor="0000" scriptevents="1" />
 </frame>
 {% endblock %}
 

@@ -18,7 +18,7 @@
         {% endblock %}
       {% endif %}
       {% for button in buttons %}
-           {{ ui.button_outline(button.title, id+"__list_buttons_"+loop.index0.__str__(), button.right, -4.35, button.width, 5, "ddd",) }}
+           {{ ui.button_outline(button.title, id+"__list_buttons_"+loop.index0.__str__(), button.right-15, -1.5, button.width, 5, "ddd",) }}
       {% endfor %}
     </frame>
 

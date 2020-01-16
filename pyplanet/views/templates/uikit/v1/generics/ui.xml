@@ -9,9 +9,9 @@
 </frame>
 {% endmacro %}
 
-{% macro button_basic(text='Default', action='', posX=0, posY=0, width=18, height=5, color="aaaa", bgcolor="0000", halign="center") %}
+{% macro button_basic(text='Default', action='', posX=0, posY=0, width=18, height=5, color="aaaa", bgcolor="0000", halign="center", id="") %}
   {% if halign == "center" %}
-<frame pos="{{posX + (width/2)}}  {{posY - (height/2)}}" class="uiContainer uiButton" data-action="{{action}}">
+<frame pos="{{posX + (width/2)}}  {{posY - (height/2)}}" class="uiContainer uiButton" data-action="{{action}}" id="{{id}}">
 {% else %}
 <frame pos="{{posX}} {{posY - (height/2)}}" class="uiContainer uiButton" data-action="{{action}}">
   {% endif %}
@@ -29,8 +29,8 @@
 </frame>
 {% endmacro %}
 
-{% macro button_confirm(text='Default', action='', posX=0, posY=0, width=18, height=5, color="aaa") %}
-<frame pos="{{posX + (width/2)}}  {{posY - (height/2)}}" class="uiContainer uiButton" data-action="{{action}}">
+{% macro button_confirm(text='Default', action='', posX=0, posY=0, width=18, height=5, color="aaa", id="") %}
+<frame pos="{{posX + (width/2)}}  {{posY - (height/2)}}" class="uiContainer uiButton" data-action="{{action}}" id="{{id}}">
   <quad size="{{width*2}} {{height*2}}" style="Bgs1InRace" colorize="{{color}}" substyle="BgColorContour" halign="center"
         valign="center2" scale="0.5"/>
   <label size="{{width-1}} {{height-1}}" text="{{text}}" class="uiConfirmButtonElement" halign="center" valign="center2"
