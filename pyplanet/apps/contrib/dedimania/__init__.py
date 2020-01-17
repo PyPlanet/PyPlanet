@@ -292,8 +292,20 @@ class Dedimania(AppConfig):
 			except (DedimaniaTransportException, DedimaniaFault) as e:
 				logger.error(e)
 				if 'session' not in str(e):
-					message = '$f00Error: Dedimania got an error, didn\'t send records :( (Error: {})'.format(str(e))
-					await self.instance.chat(message)
+					await self.instance.gbx.multicall(
+						self.instance.chat(
+							'$f00Error: Dedimania got an error, didn\'t send records. '
+							'There might be an issue with the map or the dedimania server!'
+						),
+						self.instance.chat(
+							'$f00Error Details: {}'.format(str(e))
+						)
+					)
+				else:
+					await self.instance.chat(
+						'$f00Error: Dedimania got an error, didn\'t send records. '
+						'There might be an issue with the map or the dedimania server!'
+					)
 
 	async def cleanup(self):
 		"""
