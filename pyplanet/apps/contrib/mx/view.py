@@ -1,11 +1,13 @@
 """
-Mode Settings Views.
+MX List Views.
 """
 import asyncio
 import logging
 
-from pyplanet.views.generics import ManualListView
+from pyplanet.views.generics import ManualListView, ask_confirmation
 from pyplanet.apps.contrib.mx.exceptions import MXMapNotFound, MXInvalidResponse
+from datetime import datetime
+from collections import namedtuple
 
 logger = logging.getLogger(__name__)
 
@@ -362,3 +364,139 @@ class MxPacksListView(ManualListView):
 
 		if refresh:
 			await self.refresh(self.player)
+
+
+class MxStatusListView(ManualListView):
+	
+	title = 'Server maps status on Mania-Exchange'
+	icon_style = 'Icons128x128_1'
+	icon_substyle = 'Browse'
+
+	def __init__(self, app, api):
+		"""
+		:param app: App config instance.
+		:param player: Player instance.
+		:type app: pyplanet.apps.contrib.mx.app.RealMX
+		"""
+		super().__init__()
+		self.manager = app.context.ui
+		self.app = app
+		self.api = api
+
+	async def get_fields(self):
+		fields = [
+			{
+				'name': 'ID',
+				'index': 'index',
+				'sorting': True,
+				'searching': True,
+				'width': 15,
+				'type': 'label'
+			},
+			{
+				'name': 'Map',
+				'index': 'map_name',
+				'sorting': True,
+				'searching': True,
+				'width': 91.5,
+				'type': 'label'
+			},
+			{
+				'name': 'On Server',
+				'index': 'updated_on_server',
+				'sorting': True,
+				'searching': False,
+				'width': 33,
+				'type': 'label'
+			},
+			{
+				'name': 'MX Version',
+				'index': 'mx_version',
+				'sorting': True,
+				'searching': False,
+				'width': 33,
+				'type': 'label'
+			},
+			{
+				'name': 'Status',
+				'index': 'version_match',
+				'sorting': True,
+				'searching': False,
+				'width': 25,
+				'type': 'label'
+			},
+		]
+		
+		# Can only update the map via MX if it's possible to remove the current version.
+		if 'admin' in self.app.instance.apps.apps:
+			fields.append({
+				'name': 'Update',
+				'index': 'action_update_content',
+				'sorting': False,
+				'searching': False,
+				'width': 20,
+				'type': 'label',
+				'action': self.action_update_map
+			})
+
+		return fields
+
+	async def action_update_map(self, player, values, instance, **kwargs):
+		# Check if the map could be updated.
+		if instance['action_update'] is True:
+			# Ask for confirmation.
+			cancel = bool(await ask_confirmation(player, 'Are you sure you want to update map \'{}\'$z$s to the version from MX?'.format(
+				instance['map_name']
+			), size='sm'))
+			if cancel is True:
+				return
+
+			# Remove the current version from the server.
+			mock_remove = namedtuple("data", ["nr"])
+			await self.app.instance.apps.apps['admin'].map.remove_map(player, mock_remove(nr=instance['map_id']))
+
+			# Add the new version from MX.
+			mock_add = namedtuple("data", ["maps"])
+			await self.app.add_mx_map(player, mock_add(maps=[instance['index']]))
+			
+			# Update the current view.
+			await self.refresh(player=player)
+
+	async def get_data(self):
+		# Determine which maps on the server could be found on MX (filter those with an ID attached).
+		mx_maps_on_server = [map for map in self.app.instance.map_manager.maps if map.mx_id is not None]
+		mx_maps_info = await self.api.map_info([map.mx_id for map in mx_maps_on_server])
+
+		# Loop through the MX-compatible maps on the server.
+		items = []
+		for item in mx_maps_on_server:
+			# Initialize view data fields.
+			version_match = ''
+			version_match_order = None
+			mx_version_date = ''
+			action_update = False
+
+			# Get MX information for the map (gets None if it couldn't be found).
+			mx_map = next((mx_map_info for mx_map_info in mx_maps_info if mx_map_info[0] == item.mx_id), None)
+
+			if mx_map is None:
+				version_match = 'Not on MX'
+				version_match_order = 1
+			else:
+				mx_version_date = datetime.strptime(mx_map[1]['UpdatedAt'], '%Y-%m-%dT%H:%M:%S.%f').strftime("%Y-%m-%d %H:%M:%S")
+
+				if mx_map[1]['TrackUID'] == item.uid:
+					version_match = '$0a0Up-to-date'
+					version_match_order = 2
+				else:
+					version_match = '$00fNew version'
+					version_match_order = 0
+					action_update = True
+
+			action_update_content = '🔁 Update' if action_update else '          -'
+			items.append({'map_id': item.id, 'index': item.mx_id, 'map_name': item.name, 'version_match': version_match, 'version_match_order': version_match_order,
+				'updated_on_server': item.updated_at, 'mx_version': mx_version_date, 'action_update': action_update, 'action_update_content': action_update_content})
+
+		# Initially sort the maps based on the 'version_match_order': New version -> Not on MX -> Up-to-date.
+		items.sort(key=lambda x: x['version_match_order'])
+		return items
