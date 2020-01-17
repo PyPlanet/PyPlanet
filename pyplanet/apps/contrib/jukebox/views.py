@@ -385,7 +385,8 @@ class FolderMapListView(MapListView):
 		)
 
 		# Refresh list.
-		await self.refresh(player)
+		self.cache = list()
+		await self.display(player)
 
 	async def get_buttons(self):
 		buttons = await super().get_buttons()
@@ -566,7 +567,7 @@ class FolderListView(ManualListView):
 		)
 
 		# Refresh list.
-		await self.refresh(player)
+		await self.display(player)
 
 	async def action_show(self, player, values, instance, **kwargs):
 		await self.folder_manager.display_folder(player, instance)
