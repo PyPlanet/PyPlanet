@@ -1,6 +1,27 @@
 Changelog
 =========
 
+0.7.2 (xx January 2020) (UNRELEASED)
+------------------------------------
+
+Core
+~~~~
+
+* Improvement: Python 3.8.x support!
+* Improvement: Update libraries used.
+* Bugfix: Make sure the MX-id is properly extracted and inserted into the database.
+
+Apps
+~~~~
+
+* Feature: Add MX map update window. Access it with //mx status. You can update your maps when there are any available updates.
+* Improvement: Add dedimania link to the dedimania page in the chat message and the record list.
+* Improvement: Add alias for the command /mapfolders: /mf.
+* Improvement: Add alias for the MX search: //mx list and //mxpack list.
+* Improvement: Improve the error messages from a failing Dedimania service.
+* Bugfix: Make sure the queue app is inactive when the server is password protected.
+
+
 0.7.1 (23 October 2019)
 -------------------------
 

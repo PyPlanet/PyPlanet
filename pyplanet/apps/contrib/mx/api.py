@@ -18,6 +18,7 @@ class MXApi:
 		self.session = None
 		self.site = None
 		self.key = None
+		self.map_info_page_size = 50
 
 	async def create_session(self):
 		self.session = await aiohttp.ClientSession(
@@ -99,9 +100,24 @@ class MXApi:
 		return maps
 
 	async def map_info(self, *ids):
+		if isinstance(ids[0], str) or isinstance(ids[0], int):
+			# In case just one value is being passed, put it into an array.
+			ids = [ids]
+
+		# Split the map identifiers into groups, as the ManiaExchange API only accepts a limited amount of maps in one request.
+		map_ids = ids[0]
+		split_map_ids = [map_ids[i * self.map_info_page_size:(i + 1) * self.map_info_page_size] for i in range((len(map_ids) + self.map_info_page_size - 1) // self.map_info_page_size)]
+		split_results = []
+		for split_ids in split_map_ids:
+			split_results.append(await self.map_info_page(split_ids))
+
+		# Join the multiple result lists back into one list.
+		return [map for map_list in split_results for map in map_list]
+
+	async def map_info_page(self, *ids):
 		url = 'https://api.mania-exchange.com/{site}/maps/{ids}'.format(
 			site=self.site,
-			ids=','.join(ids)
+			ids=','.join(str(id) for id in ids[0])
 		)
 		params = {'key': self.key} if self.key else {}
 		response = await self.session.get(url, params=params)
