@@ -4,7 +4,6 @@ The MX API client class.
 import logging
 
 import aiohttp
-import math
 
 from pyplanet import __version__ as pyplanet_version
 from pyplanet.apps.contrib.mx.exceptions import MXMapNotFound, MXInvalidResponse
