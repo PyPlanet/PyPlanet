@@ -85,7 +85,7 @@ class DedimaniaAPI:
 				self.retries = 0
 				return data[0]
 			raise DedimaniaTransportException('Invalid response from dedimania!')
-		except (ConnectionError, ReadTimeout, ConnectionRefusedError) as e:
+		except (ConnectionError, ReadTimeout, ConnectionRefusedError, requests.exceptions.ConnectionError) as e:
 			raise DedimaniaTransportException(e) from e
 		except ConnectTimeout as e:
 			raise DedimaniaTransportException(e) from e
