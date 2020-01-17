@@ -49,7 +49,7 @@ class UIProperties:  # pragma: no cover
 		await self.reset()
 		await self.refresh_properties()
 		self._instance.signals.listen(pyplanet_start_after, self.send_properties)
-		
+
 	async def reset(self):
 		"""
 		Reset the UI Properties to the default ManiaPlanet ones.
@@ -67,7 +67,7 @@ class UIProperties:  # pragma: no cover
 
 	async def refresh_properties(self):
 		if self._instance.game.game == 'tm':
-			method = 'Trackmania§.UI.GetProperties'
+			method = 'Trackmania.UI.GetProperties'
 		else:
 			method = 'Shootmania.UI.GetProperties'
 		try:
