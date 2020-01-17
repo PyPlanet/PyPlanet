@@ -47,7 +47,7 @@
     {% endfor %}
   {% endcall %}
 
-  {{ ui.button_confirm("Save", id+"__button_save", 194-14,-110, 24, 6, "ddd") }}
-  {{ ui.button_outline("Cancel", id+"__button_cancel", 218-12, -110, 24, 6, "ddd") }}
+  {{ ui.button_confirm("Save", id+"__button_save", 180, -110, 24, 6) }}
+  {{ ui.button_outline("Cancel", id+"__button_cancel", 206, -110, 24, 6) }}
 
 {% endblock %}

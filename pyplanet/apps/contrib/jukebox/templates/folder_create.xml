@@ -4,7 +4,7 @@
 <frame pos="0 17 0" z-index="250">
   <label pos="-20.5 57.8 0" size="60 7" text="  Create new folder" textsize="2.5" textcolor="FFFFFFF" halign="left"/>
 
-  {{ ui.button("✖", id+"__button_close", 49, 59, 6,6, "d00") }} >
+  {{ ui.button_basic("✖", id+"__button_close", 49, 59, 6,6, "closeButton") }} >
 
   <quad pos="0 62.5" size="120 127" halign="center" valign="top" style="Bgs1InRace" substyle="BgSystemBar" opacity="0.9" scriptevents="1" />
 

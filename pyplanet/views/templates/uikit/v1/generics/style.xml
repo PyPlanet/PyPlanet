@@ -1,14 +1,23 @@
 <stylesheet>
-  <style class="success" focusareacolor2="0d0" focusareacolor1="070" colorize="0d0"/>
-  <style class="danger" focusareacolor2="d00" focusareacolor1="700" colorize="d00"/>
-  <style class="info" focusareacolor2="0dd" focusareacolor1="077" colorize="0dd"/>
-  <style class="warning" focusareacolor2="dd0" focusareacolor1="770" colorize="dd0"/>
-  <style class="none" focusareacolor2="777" focusareacolor1="0000" colorize="fff0"/>
+  <style class="success" focusareacolor1="050" focusareacolor2="070" colorize="0d0" />
+  <style class="danger" focusareacolor1="500" focusareacolor2="700" colorize="d00" />
+  <style class="info" focusareacolor1="055" focusareacolor2="077" colorize="0dd" />
+  <style class="warning" focusareacolor1="550" focusareacolor2="770" colorize="dd0" />
+  <style class="transparent" focusareacolor1="0000" focusareacolor2="555a" colorize="fff0" />
+  <style class="closeButton" focusareacolor1="0000" focusareacolor2="d00" />
+  <style class="textButton" textsize="1" focusareacolor1="0000" focusareacolor2="777a" />
   <!-- element styles -->
-  <style class="uiButtonElement uiConfirmButtonElement" focusareacolor2="ddd" focusareacolor1="777" textcolor="fff"/>
-  <style class="uiSelectElement" focusareacolor1="000" focusareacolor2="222"/>
-  <style class="uiCheckboxElement" focusareacolor1="0000" focusareacolor2="0000"/>
-  <style class="uiCheck" focusareacolor1="0000" focusareacolor2="0000" textcolor="0d0"/>
+
+  <style class="uiButtonElement" focusareacolor1="555" focusareacolor2="777a" textcolor="fff" textsize="1.2"/>
+  <style class="uiButtonOutline" focusareacolor1="0000" focusareacolor2="777a" textcolor="fff" textsize="1.2"/>
+  <style class="uiConfirmButtonElement" focusareacolor2="777a" textcolor="fff" textsize="1.2"/>
+  <style class="uiSelectElement" focusareacolor1="000" focusareacolor2="222" textsize="1"/>
+  <style class="uiCheckboxElement" focusareacolor1="0000" focusareacolor2="0000" textsize="1.2"/>
+  <style class="uiCheck" focusareacolor1="0000" focusareacolor2="0000" textcolor="fff" textsize="3" />
+  <style class="uiMaskedToggle" focusareacolor1="0000" focusareacolor2="0000" textsize="1.2" />
+  <style class="uiEntry" focusareacolor1="0003" focusareacolor2="fff2" textcolor="fff" textsize="1.2"/>
+  <style class="uiScrollbar" bgcolor="fffa" bgcolorfocus="ffff" />
+
   <!-- ui styles-->
   <style class="widgetTitle" bgcolor="0009"/>
   <style class="widgetBg" bgcolor="0006" />
