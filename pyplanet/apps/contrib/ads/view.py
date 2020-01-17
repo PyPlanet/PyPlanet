@@ -1,9 +1,9 @@
-from pyplanet.views import TemplateView
+from pyplanet.views.generics.widget import WidgetView
 
 
-class DiscordLogoView(TemplateView):
-	widget_x = 0
-	widget_y = 90
+class DiscordLogoView(WidgetView):
+	widget_x = 135
+	widget_y = -50
 	size_x = 50
 	size_y = 50
 	template_name = 'ads/discord_logo.xml'
@@ -24,9 +24,11 @@ class DiscordLogoView(TemplateView):
 		return await super().display(**kwargs)
 
 
-class PayPalLogoView(TemplateView):
-	widget_x = 0
-	widget_y = 0
+class PayPalLogoView(WidgetView):
+	widget_x = 135
+	widget_y = -50
+	size_x = 50
+	size_y = 50
 	template_name = 'ads/paypal_logo.xml'
 
 	def __init__(self, app, *args, **kwargs):
