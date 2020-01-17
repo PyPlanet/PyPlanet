@@ -20,6 +20,7 @@ Apps
 * Improvement: Add alias for the MX search: //mx list and //mxpack list.
 * Improvement: Improve the error messages from a failing Dedimania service.
 * Bugfix: Make sure the queue app is inactive when the server is password protected.
+* Bugfix: Make sure admins can't kick/ban/blacklist admins at the same level or higher.
 
 
 0.7.1 (23 October 2019)
