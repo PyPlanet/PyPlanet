@@ -46,14 +46,15 @@ class MX(AppConfig):  # pragma: no cover
 				'maps', nargs='*', type=str, required=True, help='MX ID(s) of maps to add.'),
 
 			# new mx namespace
-			Command(command='search', namespace='mx', target=self.search_mx_map, perms='mx:add_remote', admin=True),
+			Command(command='search', aliases=['list'], namespace='mx', target=self.search_mx_map, perms='mx:add_remote',
+					admin=True),
 			Command(command='add', namespace='mx', target=self.add_mx_map, perms='mx:add_remote', admin=True).add_param(
 				'maps', nargs='*', type=str, required=True, help='MX ID(s) of maps to add.'),
 			Command(command='status', namespace='mx', target=self.status_mx_maps, perms='mx:add_remote', admin=True),
 
 			# new mxpack namespace
-			Command(command='search', namespace='mxpack', target=self.search_mx_pack, perms='mx:add_remote',
-					admin=True),
+			Command(command='search', aliases=['list'], namespace='mxpack', target=self.search_mx_pack,
+					perms='mx:add_remote', admin=True),
 			Command(command='add', namespace='mxpack', target=self.add_mx_pack, perms='mx:add_remote', admin=True)
 				.add_param('pack', nargs='*', type=str, required=True, help='MX ID(s) of mappacks to add.'),
 		)
