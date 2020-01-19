@@ -1,5 +1,6 @@
 import asyncio
 import math
+import re
 
 from playhouse.shortcuts import model_to_dict
 
@@ -160,6 +161,13 @@ class MapListView(ManualListView):
 			},
 		]
 
+		if self.player.level > 1:
+			fields.insert(0, {
+				'name': '#',
+				'type': 'checkbox',
+				'width': 6
+			})
+
 		def render_optional_time(row, field):
 			value = row[field['index']]
 			if value is None:
@@ -182,9 +190,9 @@ class MapListView(ManualListView):
 				return ''
 			prefix = ''
 			if value > 0.0:
-				prefix = '$6CF'
+				prefix = '$6C6 '
 			elif value < 0.0:
-				prefix = '$F66'
+				prefix = '$F66 '
 
 			return '{}{}'.format(prefix, value)
 
@@ -237,22 +245,29 @@ class MapListView(ManualListView):
 		buttons = [
 			{
 				'title': 'Folders',
-				'width': 26,
+				'width': 24,
 				'action': self.action_folders
 			}
 		]
+		if self.player.level > 1:
+			buttons.append({
+				'title': ' Selected',
+				'width': 24,
+				'action': self.action_delete_selected,
+				'require_confirm': True
+			})
 
 		if self.supports_advanced:
 			if self.advanced:
 				buttons.append({
 					'title': 'Simple list',
-					'width': 30,
+					'width': 24,
 					'action': self.action_advanced
 				})
 			else:
 				buttons.append({
 					'title': 'Advanced list',
-					'width': 30,
+					'width': 24,
 					'action': self.action_advanced
 				})
 
@@ -260,6 +275,19 @@ class MapListView(ManualListView):
 
 	async def action_jukebox(self, player, values, map_info, **kwargs):
 		await self.app.add_to_jukebox(player, await self.app.instance.map_manager.get_map(map_info['uid']))
+
+	async def action_delete_selected(self, player, values, **kwargs):
+		for key, value in values.items():
+			if key.startswith('checkbox_') and value == '1':
+				match = re.search('^checkbox_([0-9]+)_([0-9]+)$', key)
+				if len(match.groups()) != 2:
+					return
+
+				row = int(match.group(1))
+				print(self.objects[row])
+				await self.app.instance.command_manager.execute(player, '//remove {}'.format(self.objects[row]['id']))
+		self.cache = list()
+		await self.display(player=self.player)
 
 	async def action_folders(self, player, values, **kwargs):
 		await self.app.folder_manager.display_folder_list(player)
@@ -282,12 +310,12 @@ class MapListView(ManualListView):
 		await self.refresh(player=self.player)
 
 	@classmethod
-	def add_action(cls, target, name, text, color='777', require_confirm=False, order=0):
+	def add_action(cls, target, name, text, class_name='', require_confirm=False, order=0):
 		cls.custom_actions.append(dict(
 			name=name,
 			action=target,
 			text=text,
-			color=color,
+			class_name=class_name,
 			safe=True,
 			type='label',
 			order=order,
@@ -333,7 +361,7 @@ class FolderMapListView(MapListView):
 		self.folder_instance = None
 
 	async def get_fields(self):
-		fields = await super().get_fields()
+		fields = await super().get_fields
 
 		for field in self.fields:
 			fields.append(field)

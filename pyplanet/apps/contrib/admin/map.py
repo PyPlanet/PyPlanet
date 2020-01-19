@@ -70,7 +70,7 @@ class MapAdmin:
 		# If jukebox app is loaded, register the map actions.
 		if 'jukebox' in self.instance.apps.apps:
 			from pyplanet.apps.contrib.jukebox.views import MapListView
-			MapListView.add_action(self.list_action_remove, 'Delete', '&#xf1f8;', color="900")
+			MapListView.add_action(self.list_action_remove, 'Delete', '&#xf1f8;', class_name="danger")
 
 	async def list_action_remove(self, player, values, map_dictionary, view, **kwargs):
 		# Check permission.

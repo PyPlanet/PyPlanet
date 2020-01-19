@@ -38,9 +38,13 @@
 
   {% macro checkbox(text='', name='checkbox', pos_x=0, pos_y=0, checked=0, disabled=0, class='', id='') %}
 <frame pos="{{pos_x}} {{pos_y}}" {% if id != "" %}id="{{id}}"{% endif %} class="uiContainer uiCheckbox" data-checked="{{checked}}" data-disabled="{{disabled}}">
-<entry pos="900 900" z-index="0" size="6 6" textemboss="1" text="1" textsize="3" valign="center2" halign="center" textformat="Basic" name="{{ name }}" scriptevents="1"/>
-<label pos="6 -2.5" z-index="0" size="100 5" text="{{ text }}" textsize="2" scriptevents="1" focusareacolor1="0000"
+<entry pos="900 900" z-index="0" size="6 6" textemboss="1" text="1" textsize="3" valign="center2" halign="center" textformat="Basic" name="{{ name }}" scriptevents="1" default="{{checked}}"/>
+{% if text != '' %}
+  <label pos="6 -2.5" z-index="0" size="100 5" text="{{ text }}" textsize="2" scriptevents="1" focusareacolor1="0000"
        focusareacolor2="0000" valign="center"/>
+{% else %}
+  <label pos="6 -2.5" z-index="0" size="0 0" />
+{% endif %}
 <label pos="2.5 -2" z-index="0" size="6 6" textemboss="0" scale="0" valign="center2"
        halign="center" text="✓" class="{{class}} uiCheck uiCheckboxElement" scriptevents="1"/>
 <label pos="2 -2.5" z-index="0" size="6 6" textemboss="0" textsize="4" text="⬜" valign="center2" halign="center"
