@@ -361,7 +361,7 @@ class FolderMapListView(MapListView):
 		self.folder_instance = None
 
 	async def get_fields(self):
-		fields = await super().get_fields
+		fields = await super().get_fields()
 
 		for field in self.fields:
 			fields.append(field)
