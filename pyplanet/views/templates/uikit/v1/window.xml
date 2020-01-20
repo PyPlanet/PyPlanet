@@ -10,8 +10,8 @@
           <quad pos="0 -6" size="59 0.55" bgcolor="FFFa" />
           <label pos="2 -2" textsize="2.5" size="220 7" text="{{title}}" halign="left" valign="top" textprefix="{{icon}}  " textfont="RajdhaniMono"/>
             {% if fields %}
-                {{ ui.button_basic("", id+"__button_refresh", 226, 0, 6, 6, "transparent") }} >
-                {{ ui.button_basic("✖", id+"__button_close", 232, 0, 6,6, "closeButton" ) }} >
+                {{ ui.button_basic("", id+"__button_refresh", 226, 0, 6, 6, "transparent") }}
+                {{ ui.button_basic("✖", id+"__button_close", 232, 0, 6,6, "closeButton" ) }}
             {% else %}
                {{ ui.button_basic("✖", id+"__button_close", 232, 0, 7, 7, "closeButton" ) }}
             {% endif %}
@@ -24,6 +24,7 @@
     <quad pos="120 0" size="240 140" halign="center" style="Bgs1" substyle="BgDialogBlur" />
 
   </frame>
+
 	</frame>
    <!-- disables clicking other elements when window is open -->
   <quad size="320 180" bgcolor="0000" scriptevents="1" />

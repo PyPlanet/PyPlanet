@@ -25,7 +25,6 @@
           {% endif %}
       {% endfor %}
     </frame>
-
   {% endif %}
 
   {% if provide_search or (buttons is defined and (buttons | length > 0)) %}
@@ -33,11 +32,11 @@
   {% else %}
       <frame pos="10 -15">
   {% endif %}
+
       <frame pos="0 0" id="list_header">
           <quad pos="0 0.2" size="218 5.2" z-index="-20" style="Bgs1InRace" substyle="BgCardList"/>
           <frame pos="0.1 -0 0">
               {% for field in fields %}
-
                   {% if field.sorting %}
                       <label pos="{{ field.left }} -2.4" size="{{ field.width }} 4.9" text="$o$fff {{ field.name }}" textsize="1.3"
                              valign="center2" action="{{ id }}__list_header_{{ loop.index0 }}" focusareacolor1="0000"
@@ -87,10 +86,8 @@
                   style="{{ action.style }}" substyle="{{ action.substyle }}"
             {% if action.attrs %}{{ action.attrs|safe }}{% endif %}
             {% if action.require_confirm %}data-{% endif %}action="{{ id }}__list_action_{{ outer_loop.index0 }}_{{
-            loop.index0 }}"
-            scriptevents="1"
-            class="{{ action.classes|join(' ') }} {% if action.needs_confirm %}needs-confirm{% endif %}"
-            />
+            loop.index0 }}" scriptevents="1" class="{{ action.classes|join(' ') }} {% if action.require_confirm %}needs-confirm{% endif %}" />
+
             {% elif action.type == 'label' %}
                 {% if action.require_confirm %}
                      {{ ui.button_confirm(action.text|safe, id+"__list_action_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__() , (218 - actions_width + action.left), 0, action.width|default(5, True), 5, action.color) }}

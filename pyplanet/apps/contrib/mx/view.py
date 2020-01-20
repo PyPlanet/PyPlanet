@@ -364,7 +364,7 @@ class MxPacksListView(ManualListView):
 		self.app = app
 		self.api = api
 
-		self.template_name = 'mx/search.xml'
+		self.template_name = 'mx/search_pack.xml'
 		self.response_future = asyncio.Future()
 
 		self.cache = None
@@ -414,7 +414,7 @@ class MxPacksListView(ManualListView):
 				'sorting': True,
 				'searching': False,
 				'width': 15,
-				'type': 'label'
+				'type': 'label',
 			}
 		]
 
@@ -493,6 +493,7 @@ class MxPacksListView(ManualListView):
 			await self.app.instance.chat(message, self.player)
 			logger.warning('MX-API: Invalid response: {}'.format(str(e)))
 			return None
+
 		self.cache = [dict(
 				mxid=_map['ID'],
 				name=_map['Name'],

@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 
 from pyplanet.views.generics import ManualListView
 from pyplanet.utils import gbxparser
@@ -75,6 +76,17 @@ class BrowserView(ManualListView):
 	async def get_fields(self):
 		return self.fields
 
+	async def get_buttons(self):
+		buttons = [
+			{
+				'title': ' Selected',
+				'width': 20,
+				'action': self.action_install_selected,
+				'require_confirm': True
+			}
+		]
+		return buttons
+
 	async def action_file(self, player, values, instance, **kwargs):
 		isdir = instance['icon'] == ''
 		filename = instance['file_name']
@@ -85,6 +97,16 @@ class BrowserView(ManualListView):
 				await self.set_dir(os.path.join(self.current_dir, filename))
 		else:
 			await self.add_map(filename, player)
+
+	async def action_install_selected(self, player, values, **kwargs):
+		for key, value in values.items():
+			if key.startswith('checkbox_') and value == '1':
+				match = re.search('^checkbox_([0-9]+)_([0-9]+)$', key)
+				if len(match.groups()) != 2:
+					return
+
+				row = int(match.group(1))
+				await self.add_map(self.objects[row]['file_name'], player)
 
 	async def add_map(self, filename, player):
 		map_path = os.path.join(self.current_dir, filename)

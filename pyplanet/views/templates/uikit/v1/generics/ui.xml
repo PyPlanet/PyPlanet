@@ -110,7 +110,7 @@
 {% macro scrollable(pos_x=0, pos_y=0, width=50, height=50, scrollWidth=0, scrollHeight=150) %}
 <frame pos="{{pos_x}} {{pos_y}}">
   <frame class="uiScrollable" scroll="1" size="{{width - 5}} {{height - 5}}"
-         scrollmax="{{scrollWidth}} {{scrollHeight}}" >
+         scrollmax="{{scrollWidth}} {{scrollHeight}}">
     <frame>
       {{ caller() }}
     </frame>
