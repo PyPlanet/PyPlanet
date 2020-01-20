@@ -164,8 +164,9 @@ class PlayerAdmin:
 		try:
 			if data.login not in self.instance.player_manager.online_logins:
 				raise PlayerNotFound()
-
 			mute_player = await self.instance.player_manager.get_player(data.login)
+			if mute_player.level >= player.level:
+				raise PermissionError()
 			message = '$ff0Admin $fff{}$z$s$ff0 has muted $fff{}$z$s$ff0.'.format(player.nickname, mute_player.nickname)
 			await self.instance.gbx.multicall(
 				self.instance.gbx('Ignore', data.login),
@@ -173,6 +174,9 @@ class PlayerAdmin:
 			)
 		except PlayerNotFound:
 			message = '$i$f00Unknown login!'
+			await self.instance.chat(message, player)
+		except PermissionError:
+			message = '$i$f00Can\'t perform this action on an admin at the same or higher level as you!'
 			await self.instance.chat(message, player)
 
 	async def unignore_player(self, player, data, **kwargs):
@@ -194,8 +198,10 @@ class PlayerAdmin:
 		try:
 			if data.login not in self.instance.player_manager.online_logins:
 				raise PlayerNotFound()
-
 			kick_player = await self.instance.player_manager.get_player(data.login)
+			if kick_player.level >= player.level:
+				raise PermissionError()
+
 			message = '$ff0Admin $fff{}$z$s$ff0 has kicked $fff{}$z$s$ff0.'.format(player.nickname, kick_player.nickname)
 			await self.instance.gbx.multicall(
 				self.instance.gbx('Kick', data.login),
@@ -204,10 +210,15 @@ class PlayerAdmin:
 		except PlayerNotFound:
 			message = '$i$f00Unknown login!'
 			await self.instance.chat(message, player)
+		except PermissionError:
+			message = '$i$f00Can\'t perform this action on an admin at the same or higher level as you!'
+			await self.instance.chat(message, player)
 
 	async def ban_player(self, player, data, **kwargs):
 		try:
 			ban_player = await self.instance.player_manager.get_player(data.login)
+			if ban_player.level >= player.level:
+				raise PermissionError()
 			message = '$ff0Admin $fff{}$z$s$ff0 has banned $fff{}$z$s$ff0.'.format(player.nickname, ban_player.nickname)
 			await self.instance.gbx.multicall(
 				self.instance.gbx('Ban', data.login),
@@ -215,6 +226,9 @@ class PlayerAdmin:
 			)
 		except PlayerNotFound:
 			message = '$i$f00Unknown login!'
+			await self.instance.chat(message, player)
+		except PermissionError:
+			message = '$i$f00Can\'t perform this action on an admin at the same or higher level as you!'
 			await self.instance.chat(message, player)
 
 	async def unban_player(self, player, data, **kwargs):
@@ -227,7 +241,11 @@ class PlayerAdmin:
 	async def blacklist_player(self, player, data, **kwargs):
 		try:
 			blacklist_player = await self.instance.player_manager.get_player(data.login)
+			if blacklist_player.level >= player.level:
+				raise PermissionError()
+
 			message = '$ff0Admin $fff{}$z$s$ff0 has blacklisted $fff{}$z$s$ff0.'.format(player.nickname, blacklist_player.nickname)
+
 
 			try:
 				await self.instance.gbx.multicall(
@@ -250,6 +268,9 @@ class PlayerAdmin:
 				self.instance.gbx('BlackList', data.login),
 				self.instance.chat(message)
 			)
+		except PermissionError:
+			message = '$i$f00Can\'t perform this action on an admin at the same or higher level as you!'
+			await self.instance.chat(message, player)
 
 	async def unblacklist_player(self, player, data, **kwargs):
 		message = '$ff0Admin $fff{}$z$s$ff0 has un-blacklisted $fff{}$z$s$ff0.'.format(player.nickname, data.login)

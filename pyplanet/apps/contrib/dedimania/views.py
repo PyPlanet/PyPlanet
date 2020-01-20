@@ -177,7 +177,9 @@ class DedimaniaRecordsListView(ManualListView):
 		self.manager = app.context.ui
 
 	async def get_title(self):
-		return 'Dedimania Records on {}'.format(self.app.instance.map_manager.current_map.name)
+		return 'Dedimania Records on $l[http://dedimania.net/tm2stats/?do=stat&UId={}&Show=RECORDS]{}$l'.format(
+			self.app.instance.map_manager.current_map.uid, self.app.instance.map_manager.current_map.name
+		)
 
 	async def get_data(self):
 		index = 1

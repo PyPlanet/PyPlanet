@@ -297,8 +297,20 @@ class Dedimania(AppConfig):
 			except (DedimaniaTransportException, DedimaniaFault) as e:
 				logger.error(e)
 				if 'session' not in str(e):
-					message = '$f00Error: Dedimania got an error, didn\'t send records :( (Error: {})'.format(str(e))
-					await self.instance.chat(message)
+					await self.instance.gbx.multicall(
+						self.instance.chat(
+							'$f00Error: Dedimania got an error, didn\'t send records. '
+							'There might be an issue with the map or the dedimania server!'
+						),
+						self.instance.chat(
+							'$f00Error Details: {}'.format(str(e))
+						)
+					)
+				else:
+					await self.instance.chat(
+						'$f00Error: Dedimania got an error, didn\'t send records. '
+						'There might be an issue with the map or the dedimania server!'
+					)
 
 	async def cleanup(self):
 		"""
@@ -564,8 +576,8 @@ class Dedimania(AppConfig):
 		records_amount = len(self.current_records)
 		if records_amount > 0:
 			first_record = self.current_records[0]
-			message = '$0b3Current Dedimania Record: $fff\uf017 {}$z$s$0b3 by $fff{}$z$s$0b3 ($fff{}$0b3 records)'.format(
-				times.format_time(first_record.score), first_record.nickname, records_amount
+			message = '$0b3Current Dedimania Record: $fff\uf017 {}$z$s$0b3 by $fff{}$z$s$0b3 ($l[http://dedimania.net/tm2stats/?do=stat&UId={}&Show=RECORDS]$fff{}$0b3 records$l)'.format(
+				times.format_time(first_record.score), first_record.nickname, self.instance.map_manager.current_map.uid, records_amount
 			)
 			calls = list()
 			calls.append(self.instance.chat(message))
