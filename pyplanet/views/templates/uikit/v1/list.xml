@@ -19,9 +19,9 @@
       {% endif %}
       {% for button in buttons %}
           {% if button.require_confirm %}
-            {{ ui.button_confirm(button.title, id+"__list_buttons_"+loop.index0.__str__(), button.right-15, -1.5, button.width, 5) }}
+            {{ ui.button_confirm(button.title, id+"__list_buttons_"+loop.index0.__str__(), button.right-(button.width/2), -1.5, button.width, 5) }}
           {% else %}
-            {{ ui.button_outline(button.title, id+"__list_buttons_"+loop.index0.__str__(), button.right-15, -1.5, button.width, 5) }}
+            {{ ui.button_outline(button.title, id+"__list_buttons_"+loop.index0.__str__(), button.right-(button.width/2), -1.5, button.width, 5) }}
           {% endif %}
       {% endfor %}
     </frame>
@@ -33,7 +33,6 @@
   {% else %}
       <frame pos="10 -15">
   {% endif %}
-
       <frame pos="0 0" id="list_header">
           <quad pos="0 0.2" size="218 5.2" z-index="-20" style="Bgs1InRace" substyle="BgCardList"/>
           <frame pos="0.1 -0 0">
@@ -64,7 +63,7 @@
 
             {% for field in fields %}
                 {% if field.type =='checkbox' %}
-                    {{ ui.checkbox("", "checkbox_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__(), field.left, 0, 0, field.disabled) }}
+                    {{ ui.checkbox("", "checkbox_"+outer_loop.index0.__str__()+"_"+loop.index0.__str__(), field.left, 0, 0, field_renderer(row, field)) }}
                 {% elif field.manialink %}
                     {{ field.manialink|safe }}
                 {% else %}

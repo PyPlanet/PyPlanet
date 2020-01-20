@@ -105,6 +105,7 @@ class MapListView(ManualListView):
 			map_dict['local_record_diff'] = None
 			map_dict['local_record_diff_direction'] = None
 			map_dict['karma'] = None
+			map_dict['disabled'] = 0
 
 			# Skip if in performance mode or advanced is not enabled.
 			if self.app.instance.performance_mode or not self.advanced:
@@ -165,7 +166,8 @@ class MapListView(ManualListView):
 			fields.insert(0, {
 				'name': '#',
 				'type': 'checkbox',
-				'width': 6
+				'width': 6,
+				'index': 'disabled'
 			})
 
 		def render_optional_time(row, field):
@@ -253,7 +255,7 @@ class MapListView(ManualListView):
 			buttons.append({
 				'title': ' Selected',
 				'width': 24,
-				'action': self.action_delete_selected,
+				'action': self.action_remove_selected,
 				'require_confirm': True
 			})
 
@@ -276,7 +278,7 @@ class MapListView(ManualListView):
 	async def action_jukebox(self, player, values, map_info, **kwargs):
 		await self.app.add_to_jukebox(player, await self.app.instance.map_manager.get_map(map_info['uid']))
 
-	async def action_delete_selected(self, player, values, **kwargs):
+	async def action_remove_selected(self, player, values, **kwargs):
 		for key, value in values.items():
 			if key.startswith('checkbox_') and value == '1':
 				match = re.search('^checkbox_([0-9]+)_([0-9]+)$', key)
@@ -284,7 +286,6 @@ class MapListView(ManualListView):
 					return
 
 				row = int(match.group(1))
-				print(self.objects[row])
 				await self.app.instance.command_manager.execute(player, '//remove {}'.format(self.objects[row]['id']))
 		self.cache = list()
 		await self.display(player=self.player)

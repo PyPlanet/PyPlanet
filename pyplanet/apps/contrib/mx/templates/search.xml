@@ -1,9 +1,9 @@
 {% extends 'core.views/uikit/v1/list.xml' %}
 
 {% block toolbar_search %}
-  {{ ui.input(search_map|default('Search Map...', True), "map", 2, -4.25, 40) }}
-  {{ ui.input(search_author|default('Search Author...', True), "author", 43, -4.25, 40) }}
-  {{ ui.dropdown(mode,"mode", mode_index, 84, -2, 40) }}
-  {{ ui.dropdown(styles,"style", style_index, 125, -2, 40) }}
-  {{ ui.button("🔍 search", id+"__mx_search", 167, -2, 26, 5) }}
+  {{ ui.input(search_map|default('Search Map...', True), "map", 2, -4.5, 40) }}
+  {{ ui.input(search_author|default('Search Author...', True), "author", 43, -4.5, 40) }}
+  {{ ui.dropdown(mode,"mode", mode_index, 84, -2, 35) }}
+  {{ ui.dropdown(styles,"style", style_index, 120, -2, 35) }}
+  {{ ui.button("🔍 search", id+"__mx_search", 157, -2, 24, 5) }}
 {% endblock %}

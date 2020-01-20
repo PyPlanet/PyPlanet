@@ -25,7 +25,7 @@ class BrowserView(ManualListView):
 
 		self.fields = self.create_fields()
 
-		self.sort_field = self.fields[0]
+		self.sort_field = self.fields[2]
 
 	async def set_dir(self, directory):
 		self.objects_raw = list()
@@ -35,24 +35,30 @@ class BrowserView(ManualListView):
 		full_dir = os.path.join('UserData', 'Maps', self.current_dir)
 		files = await self.app.instance.storage.driver.listdir(path=full_dir)
 
-		self.objects_raw.append({'icon': '$ff0D', 'file_name': '..'})
+		self.objects_raw.append({'icon': '', 'file_name': '..', 'disabled': 1})
 
 		# Add the files to the directory list.
 		for file in files:
 			is_file = await self.app.instance.storage.driver.is_file(os.path.join(full_dir, file))
 			if is_file and not file.lower().endswith('map.gbx'):
 				continue
-			self.objects_raw.append({'icon': 'F' if is_file else '$ff0D', 'file_name': file})
+			self.objects_raw.append({'icon': '' if is_file else '', 'disabled': 0 if is_file else 1, 'file_name': file})
 		await self.display(player=self.player.login)
 
 	def create_fields(self):
 		return [
 			{
-				'name': 'T',
+				'name': '#',
+				'index': 'disabled',
+				'type': 'checkbox',
+				'width': 6,
+				'sorting': False,
+			},
+			{
+				'name': ' ',
 				'index': 'icon',
-				'sorting': True,
-				'searching': False,
-				'width': 10,
+				'sorting': False,
+				'width': 6,
 				'type': 'label'
 			},
 			{
@@ -70,7 +76,7 @@ class BrowserView(ManualListView):
 		return self.fields
 
 	async def action_file(self, player, values, instance, **kwargs):
-		isdir = instance['icon'] == '$ff0D'
+		isdir = instance['icon'] == ''
 		filename = instance['file_name']
 		if isdir:
 			if filename == '..':

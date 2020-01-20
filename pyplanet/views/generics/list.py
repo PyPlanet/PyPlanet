@@ -345,7 +345,7 @@ class ListView(TemplateView):
 		right = 215.5
 		for button in buttons:
 			button['right'] = (right - button['width'] / 2)
-			right -= button['width'] + 6
+			right -= button['width'] + 2
 
 		# Add facts.
 		context.update({

@@ -3,6 +3,7 @@ Mode Settings Views.
 """
 import asyncio
 import logging
+import re
 
 from pyplanet.views.generics import ManualListView
 from pyplanet.apps.contrib.mx.exceptions import MXMapNotFound, MXInvalidResponse
@@ -39,6 +40,13 @@ class MxSearchListView(ManualListView):
 		self.provide_search = True
 
 		self.fields = [
+			{
+				'name': "#",
+				'type': "checkbox",
+				'width': 6,
+				'sorting': False,
+				'index': 'disabled'
+			},
 			{
 				'name': 'ID',
 				'index': 'mxid',
@@ -103,6 +111,17 @@ class MxSearchListView(ManualListView):
 		self.sort_field = None
 		self.child = None
 		self.subscribe("mx_search", self.action_search)
+
+	async def get_buttons(self):
+		buttons = [
+			{
+				'title': ' Selected',
+				'width': 20,
+				'action': self.action_install_selected,
+				'require_confirm': True
+			}
+		]
+		return buttons
 
 	async def get_data(self):
 		if not self.has_data:
@@ -240,6 +259,16 @@ class MxSearchListView(ManualListView):
 			}
 		]
 
+	async def action_install_selected(self, player, values, **kwargs):
+		for key, value in values.items():
+			if key.startswith('checkbox_') and value == '1':
+				match = re.search('^checkbox_([0-9]+)_([0-9]+)$', key)
+				if len(match.groups()) != 2:
+					return
+
+				row = int(match.group(1))
+				await self.app.instance.command_manager.execute(player, '//mx add {}'.format(self.objects[row]['mxid']))
+
 	async def action_install(self, user, values, map, *args, **kwargs):
 		await self.app.instance.command_manager.execute(user, '//mx add', str(map['mxid']))
 
@@ -299,7 +328,8 @@ class MxSearchListView(ManualListView):
 				length=_map['LengthName'],
 				difficulty=_map['DifficultyName'],
 				maptype=_map['MapType'],
-				style=_map['StyleName']
+				style=_map['StyleName'],
+				disabled = 0
 			) for _map in infos]
 		else:
 			self.cache = [dict(
@@ -311,7 +341,8 @@ class MxSearchListView(ManualListView):
 				awards='$fff🏆 {}'.format(_map['AwardCount']) if _map['AwardCount'] > 0 else "",
 				difficulty=_map['DifficultyName'],
 				maptype=_map['MapType'],
-				style=_map['StyleName']
+				style=_map['StyleName'],
+				disabled=0
 			) for _map in infos]
 
 		if refresh:

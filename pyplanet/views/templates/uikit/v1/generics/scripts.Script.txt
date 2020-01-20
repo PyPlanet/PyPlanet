@@ -109,29 +109,42 @@ Void TriggerConfirmButtonClick(Text ControlId) {
 
 Void uiRenderCheckbox(CMlFrame frame) {
     declare uiControl = frame.Controls[2];
-	if (frame.DataAttributeGet("checked") == "1") {
+    declare CMlLabel boxFrame = (frame.Controls[3] as CMlLabel);
+    if (frame.DataAttributeGet("disabled") == "1") {
+        boxFrame.TextColor = <0.4,0.4,0.4>;     
+    } else {
+        boxFrame.TextColor = <1.,1.,1.>;
+    }
+
+    if (frame.DataAttributeGet("checked") == "1") {
        AnimMgr.Add(uiControl, "<frame scale=\"1.\" />", 250, CAnimManager::EAnimManagerEasing::BackOut);
     } else {
        AnimMgr.Add(uiControl, "<frame scale=\"0.\" />", 100, CAnimManager::EAnimManagerEasing::BackIn);
-	  }
-      declare CMlEntry entry = (frame.Controls[0] as CMlEntry);
-	    entry.Value = frame.DataAttributeGet("checked") ;
+	}
+    declare CMlEntry entry = (frame.Controls[0] as CMlEntry);
+	entry.Value = frame.DataAttributeGet("checked") ;
 }
 
 Void uiToggleCheckbox(CMlFrame frame) {
-	if  (frame.DataAttributeGet("checked") == "1") {
-		frame.DataAttributeSet("checked", "0");
+    if (frame.DataAttributeGet("disabled") == "1") {
+        return;
+    }
+    if  (frame.DataAttributeGet("checked") == "1") {
+		 frame.DataAttributeSet("checked", "0");
 	} else {
 		frame.DataAttributeSet("checked", "1");
-	}
+    }
 	uiRenderCheckbox(frame);
 }
 
 Void uiSetCheckbox(CMlFrame frame, Boolean status) {
+    if (frame.DataAttributeGet("disabled") == "1") {
+        return;
+    }
 	if (status) {
-	  frame.DataAttributeSet("checked", "1");
+	    frame.DataAttributeSet("checked", "1");
 	} else {
-		frame.DataAttributeSet("checked", "0");
+	    frame.DataAttributeSet("checked", "0");
 	}
 	uiRenderCheckbox(frame);
 }
