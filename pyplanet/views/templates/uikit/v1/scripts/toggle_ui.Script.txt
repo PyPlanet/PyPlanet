@@ -73,7 +73,6 @@ if (Net_DistractionFreeMode == True) {
 ***
       if (Prev_DistractionFreeMode != Net_DistractionFreeMode) {
           Prev_DistractionFreeMode = Net_DistractionFreeMode;
-          log("change: "^Net_DistractionFreeMode);
           if (Net_DistractionFreeMode == True) {
                HideWindow(True, WindowOrigin);
           } else {

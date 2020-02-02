@@ -15,7 +15,7 @@ class Admin(AppConfig):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		self.toolbar = ToolbarAdmin(self)
+		# self.toolbar = ToolbarAdmin(self)
 		self.player = PlayerAdmin(self)
 		self.map = MapAdmin(self)
 		self.server = ServerAdmin(self)
@@ -24,7 +24,7 @@ class Admin(AppConfig):
 		self.mapbrowser = MapBrowser(self)
 
 	async def on_start(self):
-		await self.toolbar.on_start()
+		# await self.toolbar.on_start()
 		await self.player.on_start()
 		await self.map.on_start()
 		await self.server.on_start()

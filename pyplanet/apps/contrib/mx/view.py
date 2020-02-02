@@ -331,7 +331,7 @@ class MxSearchListView(ManualListView):
 				difficulty=_map['DifficultyName'],
 				maptype=_map['MapType'],
 				style=_map['StyleName'],
-				disabled = 0
+				disabled=0
 			) for _map in infos]
 		else:
 			self.cache = [dict(
@@ -497,23 +497,22 @@ class MxPacksListView(ManualListView):
 			return None
 
 		self.cache = [dict(
-				mxid=_map['ID'],
-				name=_map['Name'],
-				author=_map['Username'],
-				mapcount=_map['TrackCount'],
-				typename=_map['TypeName'],
-				style=_map['StyleName'],
-				videourl="$l[{video}]Video$l".format(video=_map['VideoURL']) if len(_map['VideoURL']) > 0 else "",
-				unreleased='{}'.format(_map['Unreleased']),
-				request='{}'.format(_map['Request'])
-			) for _map in infos]
+			mxid=_map['ID'],
+			name=_map['Name'],
+			author=_map['Username'],
+			mapcount=_map['TrackCount'],
+			typename=_map['TypeName'],
+			style=_map['StyleName'],
+			videourl="$l[{video}]Video$l".format(video=_map['VideoURL']) if len(_map['VideoURL']) > 0 else "",
+			unreleased='{}'.format(_map['Unreleased']),
+			request='{}'.format(_map['Request'])
+		) for _map in infos]
 
 		if refresh:
 			await self.refresh(self.player)
 
 
 class MxStatusListView(ManualListView):
-	
 	title = 'Server maps status on Mania-Exchange'
 	icon_style = 'Icons128x128_1'
 	icon_substyle = 'Browse'
@@ -572,7 +571,7 @@ class MxStatusListView(ManualListView):
 				'type': 'label'
 			},
 		]
-		
+
 		# Can only update the map via MX if it's possible to remove the current version.
 		if 'admin' in self.app.instance.apps.apps:
 			fields.append({
@@ -591,9 +590,10 @@ class MxStatusListView(ManualListView):
 		# Check if the map could be updated.
 		if instance['action_update'] is True:
 			# Ask for confirmation.
-			cancel = bool(await ask_confirmation(player, 'Are you sure you want to update map \'{}\'$z$s to the version from MX?'.format(
-				instance['map_name']
-			), size='sm'))
+			cancel = bool(await ask_confirmation(player,
+												 'Are you sure you want to update map \'{}\'$z$s to the version from MX?'.format(
+													 instance['map_name']
+												 ), size='sm'))
 			if cancel is True:
 				return
 
@@ -604,7 +604,7 @@ class MxStatusListView(ManualListView):
 			# Add the new version from MX.
 			mock_add = namedtuple("data", ["maps"])
 			await self.app.add_mx_map(player, mock_add(maps=[instance['index']]))
-			
+
 			# Update the current view.
 			await self.refresh(player=player)
 
@@ -629,7 +629,8 @@ class MxStatusListView(ManualListView):
 				version_match = 'Not on MX'
 				version_match_order = 1
 			else:
-				mx_version_date = datetime.strptime(mx_map[1]['UpdatedAt'], '%Y-%m-%dT%H:%M:%S.%f').strftime("%Y-%m-%d %H:%M:%S")
+				mx_version_date = datetime.strptime(mx_map[1]['UpdatedAt'], '%Y-%m-%dT%H:%M:%S.%f').strftime(
+					"%Y-%m-%d %H:%M:%S")
 
 				if mx_map[1]['TrackUID'] == item.uid:
 					version_match = '$0a0Up-to-date'
@@ -640,8 +641,10 @@ class MxStatusListView(ManualListView):
 					action_update = True
 
 			action_update_content = '🔁 Update' if action_update else '          -'
-			items.append({'map_id': item.id, 'index': item.mx_id, 'map_name': item.name, 'version_match': version_match, 'version_match_order': version_match_order,
-				'updated_on_server': item.updated_at, 'mx_version': mx_version_date, 'action_update': action_update, 'action_update_content': action_update_content})
+			items.append({'map_id': item.id, 'index': item.mx_id, 'map_name': item.name, 'version_match': version_match,
+						  'version_match_order': version_match_order,
+						  'updated_on_server': item.updated_at, 'mx_version': mx_version_date,
+						  'action_update': action_update, 'action_update_content': action_update_content})
 
 		# Initially sort the maps based on the 'version_match_order': New version -> Not on MX -> Up-to-date.
 		items.sort(key=lambda x: x['version_match_order'])

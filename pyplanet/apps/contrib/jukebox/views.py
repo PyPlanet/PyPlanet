@@ -115,7 +115,8 @@ class MapListView(ManualListView):
 			if local_app_installed:
 				# Get personal local record of the user.
 				map_locals = await self.app.instance.apps.apps['local_records'].get_map_record(m)
-				rank, record = await self.app.instance.apps.apps['local_records'].get_player_record_and_rank_for_map(m, self.player)
+				rank, record = await self.app.instance.apps.apps['local_records'].get_player_record_and_rank_for_map(m,
+																													 self.player)
 
 				if isinstance(rank, int) and rank >= 1:
 					map_dict['local_record_rank'] = int(rank)
@@ -384,10 +385,13 @@ class FolderMapListView(MapListView):
 		items = []
 		for item in self.map_list:
 			dict_item = model_to_dict(item)
+			dict_item['disabled'] = 0
 			if length:
-				dict_item['local_record'] = times.format_time((item.local['first_record'].score if hasattr(item, 'local') and item.local['first_record'] else 0))
+				dict_item['local_record'] = times.format_time(
+					(item.local['first_record'].score if hasattr(item, 'local') and item.local['first_record'] else 0))
 			if karma and 'karma' in self.app.instance.apps.apps:
 				dict_item['karma'] = (await self.app.instance.apps.apps['karma'].get_map_karma(item))['map_karma']
+
 			items.append(dict_item)
 
 		self.cache = items
@@ -395,22 +399,24 @@ class FolderMapListView(MapListView):
 
 	async def remove_from_folder(self, player, values, map_dictionary, view, **kwargs):
 		# Check permission on folder.
-		if (self.folder_instance.public and player.level < player.LEVEL_ADMIN)\
+		if (self.folder_instance.public and player.level < player.LEVEL_ADMIN) \
 			or (not self.folder_instance.public and self.folder_instance.player_id != player.id):
 			await show_alert(player, 'You are not allowed to remove the map from the folder!', size='sm')
 			return
 
 		# Ask for confirmation.
-		cancel = bool(await ask_confirmation(player, 'Are you sure you want to remove the map \'{}\'$z$s from the folder?'.format(
-			map_dictionary['name']
-		), size='sm'))
+		cancel = bool(
+			await ask_confirmation(player, 'Are you sure you want to remove the map \'{}\'$z$s from the folder?'.format(
+				map_dictionary['name']
+			), size='sm'))
 		if cancel is True:
 			return
 
 		# Remove from folder.
 		await MapInFolder.execute(
 			MapInFolder.delete()
-				.where((MapInFolder.map_id == map_dictionary['id']) & (MapInFolder.folder_id == self.folder_instance.id))
+				.where(
+				(MapInFolder.map_id == map_dictionary['id']) & (MapInFolder.folder_id == self.folder_instance.id))
 		)
 
 		# Refresh list.
@@ -531,7 +537,7 @@ class FolderListView(ManualListView):
 				'searching': False,
 				'width': 30,
 				'renderer': lambda row, field:
-					row[field['index']].capitalize(),
+				row[field['index']].capitalize(),
 				'type': 'label'
 			},
 			{
@@ -700,7 +706,9 @@ class CreateFolderView(TemplateView):
 		if len(folder_name) < 3:
 			self.response_future.set_result(None)
 			self.response_future.done()
-			return await show_alert(player, 'The name you gave is not valid. Please provide a name with at least 3 characters.', 'sm')
+			return await show_alert(player,
+									'The name you gave is not valid. Please provide a name with at least 3 characters.',
+									'sm')
 
 		# Create folder.
 		await self.folder_manager.create_folder(name=folder_name, player=player, public=folder_privacy == 'public')

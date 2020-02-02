@@ -5,10 +5,8 @@ while(True) {
     if (Event.Type == CMlScriptEvent::Type::KeyPress && Event.KeyCode == 45) {
       if (Net_DistractionFreeMode == True) {
         Net_DistractionFreeMode = False;
-        log("false");
       } else {
         Net_DistractionFreeMode = True;
-        log("true");
       }
     }
   }

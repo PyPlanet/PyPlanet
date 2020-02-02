@@ -1,0 +1,139 @@
+/** @context CMlScriptIngame */
+
+#Include "TextLib" as TextLib
+
+#Struct MenuStruct {
+	Text	icon;
+	Text category;
+	Text[][] submenu;
+}
+
+#Const C_delay 50
+#Const C_speed 750
+#Const C_submenuCount 7
+
+#Const menuJson """ {{ json|safe }}"""
+declare Text activeMenu;
+
+Void showMenu(CMlFrame menuFrame, Boolean needWait) {
+  UI.OverlayHideChrono = True;
+  ClientUI.OverlayHideChrono = True;
+  Playground.UI.OverlayHideChrono = True;
+	declare id = TextLib::ToInteger(menuFrame.DataAttributeGet("menuId"));
+	declare CMlLabel label;
+	declare CMlFrame mainFrame <=> (Page.GetFirstChild("mainMenu") as CMlFrame);
+	foreach(i => label in mainFrame.Controls) {
+		if (i == id) {
+		(label as CMlLabel).TextSizeReal = 3.;
+		}
+	}
+	declare time = Now;
+    if (needWait) {
+		declare Integer items = TextLib::ToInteger(menuFrame.DataAttributeGet("items"));
+        time = Now + (items*C_delay) + C_speed/2;
+    }
+
+    foreach(index => frame in menuFrame.Controls) {
+		frame.RelativeScale = 0.;
+        AnimMgr.Flush(frame);
+        AnimMgr.Add(frame, """<elem scale="1" />""", time + (index-1)*C_delay, C_speed, CAnimManager::EAnimManagerEasing::ElasticOut);
+    }
+}
+
+Void hideMenu(CMlFrame menuFrame) {
+  Playground.UI.OverlayHideChrono = False;
+	activeMenu = "";
+	declare id = TextLib::ToInteger(menuFrame.DataAttributeGet("menuId"));
+	declare CMlFrame mainFrame <=> (Page.GetFirstChild("mainMenu") as CMlFrame);
+	foreach(i => label in mainFrame.Controls) {
+		(label as CMlLabel).TextSizeReal = 1.;
+	}
+
+	declare Integer items = TextLib::ToInteger(menuFrame.DataAttributeGet("items"));
+    foreach(index => frame in menuFrame.Controls) {
+        declare time = Now;
+        AnimMgr.Flush(frame);
+        AnimMgr.Add(frame, """<elem scale="0" />""", Now - C_speed/2 + (items-1 - index)*C_delay, C_speed, CAnimManager::EAnimManagerEasing::ElasticIn);
+    }
+}
+
+Void hideMenu(Text menuFrame) {
+    hideMenu((Page.GetFirstChild(menuFrame) as CMlFrame));
+}
+
+main() {
+  activeMenu = "";
+	declare MenuStruct[] mainMenu;
+	mainMenu.fromjson(menuJson);
+
+	// initial hide
+	for (x, 0, C_submenuCount-1) {
+	    declare CMlFrame menuFrame <=> (Page.GetFirstChild("submenu_"^x) as CMlFrame);
+		declare CMlFrame mainFrame <=> (Page.GetFirstChild("mainMenu") as CMlFrame);
+		declare label <=> (mainFrame.Controls[x] as CMlLabel);
+		if (label != Null) {
+			if (mainMenu.existskey(x)) {
+				label.Value = mainMenu[x].icon;
+				label.TextSizeReal = 1.;
+				menuFrame.DataAttributeSet("menuId", ""^x);
+				menuFrame.Show();
+				foreach(j => frame in menuFrame.Controls) {
+					frame.RelativeScale = 0.;
+					menuFrame.DataAttributeSet("items", ""^mainMenu[x].submenu.count);
+					if (menuFrame.Controls.existskey(j) ) {
+						declare subFrame <=> (menuFrame.Controls[j] as CMlFrame);
+						if (mainMenu[x].submenu.existskey(j) ) {
+							declare menuItem = mainMenu[x].submenu[j];
+ 							(subFrame.Controls[0] as CMlLabel).Value = menuItem[0];
+							(subFrame.Controls[1] as CMlLabel).Value = menuItem[1];
+							 subFrame.DataAttributeSet("action", menuItem[2]);
+
+						} else {
+						subFrame.Hide();
+						}
+					}
+				}
+			} else {
+				menuFrame.Hide();
+				label.Hide();
+			}
+		}
+	}
+
+      while (True) {
+          yield;
+
+          foreach (Event in PendingEvents) {
+              if (Event.Type == CMlScriptEvent::Type::MouseClick && Event.Control.HasClass("menuItem")) {
+                  declare Text currentMenu = Event.Control.DataAttributeGet("menu");
+                  declare CMlFrame menuFrame <=> (Page.GetFirstChild(currentMenu) as CMlFrame);
+              if (activeMenu == "") {
+                          showMenu(menuFrame, False);
+
+                activeMenu = currentMenu;
+                      }  else {
+                if (activeMenu == currentMenu) {
+                        hideMenu(currentMenu);
+                 } else {
+                            hideMenu(activeMenu);
+                  activeMenu = currentMenu;
+                            showMenu(menuFrame, True);
+                        }
+              }
+                  }
+
+            if (Event.Type == CMlScriptEvent::Type::MouseOver && Event.Control.HasClass("submenuItem")) {
+                      Event.Control.Parent.Controls[1].RelativeScale = 1.1;
+            }
+
+            if (Event.Type == CMlScriptEvent::Type::MouseOut && Event.Control.HasClass("submenuItem")) {
+                      Event.Control.Parent.Controls[1].RelativeScale = 1.;
+                  }
+            if (Event.Type == CMlScriptEvent::Type::MouseClick && Event.Control.HasClass("submenuItem")) {
+              // log(Event.Control.Parent.DataAttributeGet("action"));
+              TriggerPageAction("{{id}}__"^Event.Control.Parent.DataAttributeGet("action"));   //enable when ready!
+              hideMenu(Event.Control.Parent.Parent);
+            }
+          }
+      }
+}

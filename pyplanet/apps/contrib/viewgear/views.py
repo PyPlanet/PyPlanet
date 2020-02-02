@@ -1,6 +1,7 @@
 from pyplanet.views.generics.widget import TemplateView
 
 
+
 class GearView(TemplateView):
 	template_name = 'viewgear/gear.xml'
 
