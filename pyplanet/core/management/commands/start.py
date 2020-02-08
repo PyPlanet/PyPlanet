@@ -42,6 +42,9 @@ class Command(BaseCommand):  # pragma: no cover
 		if 'detach' in options and options['detach']:
 			self.detach(pid_file=options['pid_file'] if 'pid_file' in options and options['pid_file'] else 'pyplanet.pid')
 
+		# Reload settings with error messages.
+		settings._setup()
+
 		# Initiate the logger.
 		threading.current_thread().setName('Main')
 		initiate_logger()

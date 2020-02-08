@@ -8,6 +8,7 @@ from pyplanet.core.exceptions import ImproperlyConfigured
 class FileConfigBackend(ConfigBackend):
 	name = None
 	files = None
+	required_files = None
 
 	def __init__(self, **options):
 		super().__init__(**options)
@@ -35,6 +36,16 @@ class FileConfigBackend(ConfigBackend):
 				'Settings directory does not exist or is not a directory! Please define the right PYPLANET_SETTINGS_DIRECTORY '
 				'in your environment or start script (manage.py).'
 			)
+
+		# Check for the two required files.
+		if self.required_files:
+			for req_file in self.required_files:
+				file_path = os.path.join(self.directory, req_file)
+				if not os.path.exists(file_path) or not os.path.isfile(file_path):
+					raise ImproperlyConfigured(
+						'One of the configuration files doesn\'t exist in the directory: '
+						'file: {}'.format(req_file)
+					)
 
 		# Add the module itself to the configuration.
 		self.settings['SETTINGS_DIRECTORY'] = self.directory

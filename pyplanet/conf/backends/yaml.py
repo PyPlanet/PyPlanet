@@ -8,6 +8,7 @@ from pyplanet.core.exceptions import ImproperlyConfigured
 class YamlConfigBackend(FileConfigBackend):
 	name = 'yaml'
 	files = ['base.yaml', 'apps.yaml']
+	required_files = ['base.yaml', 'apps.yaml']
 
 	def load(self):
 		# Prepare + load directory.

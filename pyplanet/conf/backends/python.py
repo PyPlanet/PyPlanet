@@ -29,8 +29,24 @@ class PythonConfigBackend(ConfigBackend):
 		self.settings['SETTINGS_MODULE'] = self.module
 
 		# Load the module, put the settings into the local context.
-		module = importlib.import_module(self.module)
+		try:
+			module = importlib.import_module(self.module)
+		except ModuleNotFoundError as e:
+			raise ImproperlyConfigured(
+				'The settings module doesn\'t contain any submodules or files to load! Please make sure '
+				'your settings module exist or contains the files base.py and apps.py. Your module: {}'.format(self.module)
+			) from e
 
+		# Load from the modules.
+		processed = 0
 		for setting in dir(module):
 			if setting.isupper():
 				self.settings[setting] = getattr(module, setting)
+				processed += 1
+
+		# Check for empty results.
+		if processed < 1:
+			raise ImproperlyConfigured(
+				'The settings module doesn\'t contain any submodules or files to load! Please make sure '
+				'your settings module exist or contains the files base.py and apps.py. Your module: {}'.format(self.module)
+			)
