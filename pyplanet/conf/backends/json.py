@@ -8,6 +8,7 @@ from pyplanet.core.exceptions import ImproperlyConfigured
 class JsonConfigBackend(FileConfigBackend):
 	name = 'json'
 	files = ['base.json', 'apps.json']
+	required_files = ['base.json', 'apps.json']
 
 	def load(self):
 		# Prepare + load directory.
