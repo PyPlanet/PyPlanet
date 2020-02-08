@@ -1,14 +1,15 @@
 Changelog
 =========
 
-0.7.2 (xx January 2020) (UNRELEASED)
-------------------------------------
+0.7.2 (xx February 2020) (UNRELEASED)
+-------------------------------------
 
 Core
 ~~~~
 
 * Improvement: Python 3.8.x support!
 * Improvement: Update libraries used.
+* Improvement: Better error handling for loading configuration/settings files.
 * Bugfix: Make sure the MX-id is properly extracted and inserted into the database.
 
 Apps
