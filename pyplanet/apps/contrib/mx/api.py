@@ -1,8 +1,8 @@
 """
 The MX API client class.
 """
+import asyncio
 import logging
-
 import aiohttp
 
 from pyplanet import __version__ as pyplanet_version
@@ -18,7 +18,7 @@ class MXApi:
 		self.session = None
 		self.site = None
 		self.key = None
-		self.map_info_page_size = 50
+		self.map_info_page_size = 1
 
 	async def create_session(self):
 		self.session = await aiohttp.ClientSession(
@@ -100,16 +100,19 @@ class MXApi:
 		return maps
 
 	async def map_info(self, *ids):
-		if isinstance(ids[0], str) or isinstance(ids[0], int):
+		if not len(ids):
+			return list()
+		if isinstance(ids, str) or isinstance(ids, int):
 			# In case just one value is being passed, put it into an array.
 			ids = [ids]
 
 		# Split the map identifiers into groups, as the ManiaExchange API only accepts a limited amount of maps in one request.
-		map_ids = ids[0]
-		split_map_ids = [map_ids[i * self.map_info_page_size:(i + 1) * self.map_info_page_size] for i in range((len(map_ids) + self.map_info_page_size - 1) // self.map_info_page_size)]
-		split_results = []
+		split_map_ids = [ids[i * self.map_info_page_size:(i + 1) * self.map_info_page_size] for i in range((len(ids) + self.map_info_page_size - 1) // self.map_info_page_size)]
+		split_results = list()
+		coros = list()
 		for split_ids in split_map_ids:
-			split_results.append(await self.map_info_page(split_ids))
+			coros.append(self.map_info_page(split_ids))
+		split_results = await asyncio.gather(*coros)
 
 		# Join the multiple result lists back into one list.
 		return [map for map_list in split_results for map in map_list]

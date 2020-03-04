@@ -367,7 +367,6 @@ class MxPacksListView(ManualListView):
 
 
 class MxStatusListView(ManualListView):
-	
 	title = 'Server maps status on Mania-Exchange'
 	icon_style = 'Icons128x128_1'
 	icon_substyle = 'Browse'
@@ -380,6 +379,7 @@ class MxStatusListView(ManualListView):
 		"""
 		super().__init__()
 		self.manager = app.context.ui
+		self.cache = None
 		self.app = app
 		self.api = api
 
@@ -426,7 +426,7 @@ class MxStatusListView(ManualListView):
 				'type': 'label'
 			},
 		]
-		
+
 		# Can only update the map via MX if it's possible to remove the current version.
 		if 'admin' in self.app.instance.apps.apps:
 			fields.append({
@@ -458,14 +458,18 @@ class MxStatusListView(ManualListView):
 			# Add the new version from MX.
 			mock_add = namedtuple("data", ["maps"])
 			await self.app.add_mx_map(player, mock_add(maps=[instance['index']]))
-			
+
 			# Update the current view.
 			await self.refresh(player=player)
 
 	async def get_data(self):
+		if self.cache:
+			print('cached')
+			return self.cache
+
 		# Determine which maps on the server could be found on MX (filter those with an ID attached).
 		mx_maps_on_server = [map for map in self.app.instance.map_manager.maps if map.mx_id is not None]
-		mx_maps_info = await self.api.map_info([map.mx_id for map in mx_maps_on_server])
+		mx_maps_info = await self.api.map_info(*[map.mx_id for map in mx_maps_on_server])
 
 		# Loop through the MX-compatible maps on the server.
 		items = []
@@ -483,7 +487,10 @@ class MxStatusListView(ManualListView):
 				version_match = 'Not on MX'
 				version_match_order = 1
 			else:
-				mx_version_date = datetime.strptime(mx_map[1]['UpdatedAt'], '%Y-%m-%dT%H:%M:%S.%f').strftime("%Y-%m-%d %H:%M:%S")
+				date_format = '%Y-%m-%dT%H:%M:%S'
+				if '.' in mx_map[1]['UpdatedAt']:
+					date_format = '%Y-%m-%dT%H:%M:%S.%f'
+				mx_version_date = datetime.strptime(mx_map[1]['UpdatedAt'], date_format).strftime("%Y-%m-%d %H:%M:%S")
 
 				if mx_map[1]['TrackUID'] == item.uid:
 					version_match = '$0a0Up-to-date'
@@ -499,4 +506,13 @@ class MxStatusListView(ManualListView):
 
 		# Initially sort the maps based on the 'version_match_order': New version -> Not on MX -> Up-to-date.
 		items.sort(key=lambda x: x['version_match_order'])
-		return items
+		self.cache = items
+		return self.cache
+
+	async def destroy(self):
+		self.cache = None
+		return await super().destroy()
+
+	def destroy_sync(self):
+		self.cache = None
+		return super().destroy_sync()
