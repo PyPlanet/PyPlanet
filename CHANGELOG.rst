@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.7.4 (04 March 2020)
+---------------------
+
+Core
+~~~~
+
+* Bugfix: Make sure the libraries also work for older Python versions (3.5.x).
+
+
 0.7.3 (02 March 2020)
 ---------------------
 
