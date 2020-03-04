@@ -4,10 +4,10 @@ Changelog
 0.7.4 (04 March 2020)
 ---------------------
 
-Core
+Apps
 ~~~~
 
-* Bugfix: Make sure the libraries also work for older Python versions (3.5.x).
+* Bugfix: Fixing issue with the MX update dialog and it's internal logic.
 
 
 0.7.3 (02 March 2020)
