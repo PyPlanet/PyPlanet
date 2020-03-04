@@ -104,6 +104,7 @@ class MX(AppConfig):  # pragma: no cover
 		await window.display()
 
 	async def status_mx_maps(self, player, data, **kwargs):
+		await self.instance.chat('$ff0MX: Please wait, checking for updated maps... This can take a while.', player)
 		self.api.key = await self.setting_mx_key.get_value()
 		window = MxStatusListView(self, self.api)
 		await window.display(player=player)
