@@ -28,7 +28,7 @@ class BrawlMatch(AppConfig):
 			('WUrcV1ziafkmDOEUQJslceNghs2', 72),  # Nos Astra
 			('DPl6mjmUhXhlXqhpva_INcwvx5e', 55),  # Maru
 			('3Pg4di6kaDyM04oHYm5AkC3r2ch', 46),  # Aliens Exist
-			('ML4VsiZKZSiWNkwpEdSA11SH7mg', 51),  # L v g v s
+			('ML4VsiZKZSiWNkwpEdSA11SH7mg', 61),  # L v g v s
 			('GuIyeKb7lF6fsebOZ589d47Pqnk', 64)   # Only a wooden leg remained
 		]
 		self.match_maps = self.brawl_maps.copy()
@@ -38,6 +38,7 @@ class BrawlMatch(AppConfig):
 		self.match_tasks = []
 		self.backup_script_name = None
 		self.backup_settings = None
+		self.maps_played = 0
 
 	async def on_init(self):
 		await super().on_init()
@@ -92,6 +93,8 @@ class BrawlMatch(AppConfig):
 		await self.instance.map_manager.set_next_map(await Map.get_by_uid(self.match_maps[0][0]))
 
 		await self.instance.gbx('NextMap')
+		while await self.instance.mode_manager.get_current_full_script() != 'Cup.Script.txt':
+			await asyncio.sleep(1)
 		await self.set_settings()
 
 
@@ -106,8 +109,9 @@ class BrawlMatch(AppConfig):
 		settings['S_PointsRepartition'] = '10,6,4,3'
 		settings['S_RoundsPerMap'] = 3
 		settings['S_WarmUpNb'] = 1
+		settings['S_WarmUpDuration'] = -1
 
-		await self.instance.mode_manager.update_next_settings(settings)
+		await self.instance.mode_manager.update_settings(settings)
 
 	async def choose_players(self, player):
 		player_view = BrawlPlayerListView(self)
@@ -171,13 +175,15 @@ class BrawlMatch(AppConfig):
 		self.context.signals.listen(mp_signals.map.map_begin, self.set_settings_next_map)
 
 		random.shuffle(self.match_maps)
+		await self.display_map_order()
 
+		await self.set_match_settings()
+
+	async def display_map_order(self):
 		await self.brawl_chat(f'Map order: ')
 		for index, (uid, _) in enumerate(self.match_maps, start=1):
 			map_name = (await Map.get_by_uid(uid)).name
 			await self.brawl_chat(f'[{index}/{len(self.match_maps)}] {map_name}')
-
-		await self.set_match_settings()
 
 	async def await_match_start(self):
 		await asyncio.sleep(self.TIME_UNTIL_NEXT_WALL)
@@ -200,7 +206,7 @@ class BrawlMatch(AppConfig):
 		self.match_tasks = []
 		await self.brawl_chat(f'Admin {player.nickname}$z$fff stopped match!')
 		for signal, target in self.context.signals.listeners:
-			if target == self.set_settings_next_map or target == self.set_settings:
+			if target == self.set_settings_next_map:
 				signal.unregister(target)
 		self.match_maps = self.brawl_maps.copy()
 		self.match_players = []
@@ -220,18 +226,24 @@ class BrawlMatch(AppConfig):
 		await self.instance.mode_manager.update_settings(settings)
 
 	async def set_settings_next_map(self, map):
-		settings = await self.instance.mode_manager.get_settings()
+		if self.maps_played > 2:
+			await self.remove_wu()
 		for index, (uid, timeout) in enumerate(self.match_maps):
 			if uid == map.uid:
-				if index == len(self.match_maps) - 1 and settings['S_WarmUpNb'] == 1:
-					settings['S_WarmUpNb'] = 0
-					await self.instance.mode_manager.update_settings(settings)
 				await self.update_finish_timeout(timeout)
 				await self.instance.map_manager.set_next_map(
 					await Map.get_by_uid(
 						self.match_maps[(index + 1) % len(self.match_maps)][0]
 					)
 				)
+		await self.display_map_order()
+		self.maps_played += 1
+
+
+	async def remove_wu(self):
+		settings = await self.instance.mode_manager.get_settings()
+		settings['S_WarmUpNb'] = 0
+		await self.instance.mode_manager.update_settings(settings)
 
 	async def brawl_chat(self, message, player=None):
 		if player:
