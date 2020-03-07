@@ -74,8 +74,13 @@ class BrawlMatch(AppConfig):
 	async def start_match_command(self, player, *args, **kwargs):
 		if self.match_tasks:
 			await self.brawl_chat(f'A match is currently in progress!', player)
+		elif not await self.check_maps_on_server():
+			await self.brawl_chat(f'Not all maps for the match are on the server', player)
 		else:
 			await self.register_match_task(self.start_match, player)
+
+	async def check_maps_on_server(self):
+		return all(map(lambda t: self.instance.map_manager.playlist_has_map(t[0]), self.brawl_maps))
 
 	async def start_match(self, player):
 		message = f'You started a brawl match. Pick the participants from worst to best seed.'
