@@ -175,7 +175,6 @@ class BrawlMatch(AppConfig):
 		self.context.signals.listen(mp_signals.map.map_begin, self.set_settings_next_map)
 
 		random.shuffle(self.match_maps)
-		await self.display_map_order()
 
 		await self.set_match_settings()
 
