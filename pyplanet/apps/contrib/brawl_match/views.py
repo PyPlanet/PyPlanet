@@ -65,6 +65,10 @@ class BrawlMapListView(ManualListView):
 		return items
 
 
+	def __del__(self):
+		self.app.views_open.pop(self)
+		super().__del__()
+
 
 	async def action_ban(self, player, values, map_info, **kwargs):
 		await self.app.register_match_task(self.app.remove_map_from_match, map_info)
@@ -131,6 +135,10 @@ class BrawlPlayerListView(ManualListView):
 				)
 
 			]
+
+	def __del__(self):
+		self.app.views_open.pop(self)
+		super().__del__()
 
 	async def action_add(self, player, values, player_info, **kwargs):
 		if len(self.app.match_players) < 3:

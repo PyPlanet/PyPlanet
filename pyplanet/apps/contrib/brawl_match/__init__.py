@@ -39,6 +39,7 @@ class BrawlMatch(AppConfig):
 		self.backup_script_name = None
 		self.backup_settings = None
 		self.maps_played = 0
+		self.views_open = []
 
 	async def on_init(self):
 		await super().on_init()
@@ -115,6 +116,7 @@ class BrawlMatch(AppConfig):
 
 	async def choose_players(self, player):
 		player_view = BrawlPlayerListView(self)
+		self.views_open.append(player_view)
 		await player_view.display(player=player)
 
 	async def add_player_to_match(self, admin, player_info):
@@ -165,6 +167,7 @@ class BrawlMatch(AppConfig):
 	async def ban_map(self, player):
 		maps = [map[0] for map in self.match_maps]
 		ban_view = BrawlMapListView(self, maps)
+		self.views_open.append(ban_view)
 		await ban_view.display(player=player)
 
 	async def remove_map_from_match(self, map_info):
@@ -199,14 +202,20 @@ class BrawlMatch(AppConfig):
 		if not self.match_tasks:
 			await self.brawl_chat(f'No match is currently in progress!', player)
 			return
+
+		await self.brawl_chat(f'Admin {player.nickname}$z$fff stopped match!')
 		for task in self.match_tasks:
 			if not task.done():
 				task.cancel()
 		self.match_tasks = []
-		await self.brawl_chat(f'Admin {player.nickname}$z$fff stopped match!')
+
+		for view in self.views_open:
+			await view.destroy()
+
 		for signal, target in self.context.signals.listeners:
 			if target == self.set_settings_next_map:
 				signal.unregister(target)
+
 		self.match_maps = self.brawl_maps.copy()
 		self.match_players = []
 
