@@ -66,7 +66,7 @@ class BrawlMapListView(ManualListView):
 
 
 	def __del__(self):
-		self.app.views_open.pop(self)
+		self.app.views_open.remove(self)
 		super().__del__()
 
 
@@ -137,7 +137,7 @@ class BrawlPlayerListView(ManualListView):
 			]
 
 	def __del__(self):
-		self.app.views_open.pop(self)
+		self.app.views_open.remove(self)
 		super().__del__()
 
 	async def action_add(self, player, values, player_info, **kwargs):

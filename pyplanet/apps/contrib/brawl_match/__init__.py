@@ -214,8 +214,7 @@ class BrawlMatch(AppConfig):
 				task.cancel()
 		self.match_tasks = []
 
-		for view in self.views_open:
-			await view.destroy()
+		map(lambda v: await v.destroy, self.views_open)
 
 		for signal, target in self.context.signals.listeners:
 			if target == self.set_settings_next_map:
