@@ -41,13 +41,6 @@ class BrawlMapListView(ManualListView):
 				'renderer': lambda row, field:
 				row['author_login'],
 				'width': 45,
-			},
-			{
-				'name': 'uid',
-				'index': 'uid',
-				'sorting': False,
-				'searching': True,
-				'width': 45,
 			}
 		]
 
@@ -68,7 +61,6 @@ class BrawlMapListView(ManualListView):
 				'index': map_index,
 				'name': map_name,
 				'author_login': map_author,
-				'uid': map_uid
 			})
 		return items
 

@@ -174,6 +174,7 @@ class BrawlMatch(AppConfig):
 			message = f'[{self.match_players.index(player_to_ban)+1}/{len(self.match_players)}] {player_nick}$z$fff is now banning.'
 			await self.brawl_chat(message)
 			await self.ban_map(player_to_ban)
+			self.ban_queue.task_done()
 		else:
 			maps_string = '$z$fff  -  '.join([(await Map.get_by_uid(map)).name for map in self.match_maps])
 			await self.brawl_chat(f'Banning phase over! Maps for this match are:')
@@ -186,7 +187,7 @@ class BrawlMatch(AppConfig):
 		await ban_view.display(player=player)
 
 	async def remove_map_from_match(self, map_info):
-		self.match_maps.remove(map_info['uid'])
+		del self.match_maps[map_info['index']-1]
 
 	async def init_match(self):
 		await self.await_match_start()
@@ -235,6 +236,10 @@ class BrawlMatch(AppConfig):
 
 		self.match_maps = collections.deque(self.brawl_maps)
 		self.match_players = []
+
+		while not self.ban_queue.empty():
+			await self.ban_queue.get()
+			self.ban_queue.task_done()
 
 		await self.reset_backup()
 
