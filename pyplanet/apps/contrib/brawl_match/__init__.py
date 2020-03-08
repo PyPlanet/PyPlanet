@@ -129,6 +129,14 @@ class BrawlMatch(AppConfig):
 		message = f'Player {player_info["nickname"]}$z$fff is added to the match.'
 		await self.brawl_chat(message, admin)
 
+	async def force_player_and_spectator(self):
+		for player in self.instance.player_manager.online_logins:
+			if player in self.match_players:
+				await self.instance.gbx('ForceSpectator', player, 2)
+			else:
+				await self.instance.gbx('ForceSpectator', player, 1)
+
+
 	async def start_ban_phase(self):
 		event_loop = asyncio.get_running_loop()
 		for player in self.match_players:
