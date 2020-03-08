@@ -191,6 +191,13 @@ class BrawlMatch(AppConfig):
 		for index, (uid, _) in enumerate(self.match_maps, start=1):
 			map_name = (await Map.get_by_uid(uid)).name
 			await self.brawl_chat(f'[{index}/{len(self.match_maps)}] {map_name}')
+		await self.check_for_wu_messages()
+
+	async def check_for_wu_messages(self):
+		if self.maps_played == len(self.match_maps) - 1:
+			await self.brawl_chat('$oNo more warmup in future!')
+		elif self.maps_played == len(self.match_maps):
+			await self.brawl_chat('$oWarmup is disabled!')
 
 	async def await_match_start(self):
 		await asyncio.sleep(self.TIME_UNTIL_NEXT_WALL)
