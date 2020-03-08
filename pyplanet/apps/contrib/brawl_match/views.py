@@ -60,7 +60,7 @@ class BrawlMapListView(ManualListView):
 			items.append({
 				'index': map_index,
 				'name': map_name,
-				'author_login': map_author
+				'author_login': map_author,
 			})
 		return items
 

@@ -1,5 +1,6 @@
 import asyncio
 import random
+import collections
 
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.brawl_match.views import (BrawlMapListView,
@@ -23,15 +24,25 @@ class BrawlMatch(AppConfig):
 		self.ban_queue = asyncio.Queue()
 
 		self.brawl_maps = [
-			('26yU1ouud7IqURhbmlEzX3jxJM1', 49),  # On the Run
-			('I5y9YjoVaw9updRFOecqmN0V6sh', 73),  # Moon Base
-			('WUrcV1ziafkmDOEUQJslceNghs2', 72),  # Nos Astra
-			('DPl6mjmUhXhlXqhpva_INcwvx5e', 55),  # Maru
-			('3Pg4di6kaDyM04oHYm5AkC3r2ch', 46),  # Aliens Exist
-			('ML4VsiZKZSiWNkwpEdSA11SH7mg', 61),  # L v g v s
-			('GuIyeKb7lF6fsebOZ589d47Pqnk', 64)   # Only a wooden leg remained
+			'26yU1ouud7IqURhbmlEzX3jxJM1',  # On the Run
+			'I5y9YjoVaw9updRFOecqmN0V6sh',  # Moon Base
+			'WUrcV1ziafkmDOEUQJslceNghs2',  # Nos Astra
+			'DPl6mjmUhXhlXqhpva_INcwvx5e',  # Maru
+			'3Pg4di6kaDyM04oHYm5AkC3r2ch',  # Aliens Exist
+			'ML4VsiZKZSiWNkwpEdSA11SH7mg',  # L v g v s
+			'GuIyeKb7lF6fsebOZ589d47Pqnk'   # Only a wooden leg remained
 		]
-		self.match_maps = self.brawl_maps.copy()
+		self.timeouts = {
+			'26yU1ouud7IqURhbmlEzX3jxJM1': 49,  # On the Run
+			'I5y9YjoVaw9updRFOecqmN0V6sh': 73,  # Moon Base
+			'WUrcV1ziafkmDOEUQJslceNghs2': 72,  # Nos Astra
+			'DPl6mjmUhXhlXqhpva_INcwvx5e': 55,  # Maru
+			'3Pg4di6kaDyM04oHYm5AkC3r2ch': 46,  # Aliens Exist
+			'ML4VsiZKZSiWNkwpEdSA11SH7mg': 61,  # L v g v s
+			'GuIyeKb7lF6fsebOZ589d47Pqnk': 64   # Only a wooden leg remained
+		}
+
+		self.match_maps = collections.deque(self.brawl_maps)
 		self.match_players = []
 		self.chat_prefix = '$i$000.$903Brawl$fff - $z$fff'
 
@@ -80,7 +91,7 @@ class BrawlMatch(AppConfig):
 			await self.register_match_task(self.start_match, player)
 
 	async def check_maps_on_server(self):
-		return all([self.instance.map_manager.playlist_has_map(map) for (map, timeout) in self.brawl_maps])
+		return all([self.instance.map_manager.playlist_has_map(map) for map in self.brawl_maps])
 
 	async def start_match(self, player):
 		message = f'You started a brawl match. Pick the participants from worst to best seed.'
@@ -96,7 +107,7 @@ class BrawlMatch(AppConfig):
 
 	async def set_match_settings(self):
 		await self.instance.mode_manager.set_next_script('Cup.Script.txt')
-		await self.instance.map_manager.set_next_map(await Map.get_by_uid(self.match_maps[0][0]))
+		await self.instance.map_manager.set_next_map(await Map.get_by_uid(self.match_maps[0]))
 
 		await self.instance.gbx('NextMap')
 		while await self.instance.mode_manager.get_current_full_script() != 'Cup.Script.txt':
@@ -171,20 +182,20 @@ class BrawlMatch(AppConfig):
 			message = f'[{self.match_players.index(player_to_ban)+1}/{len(self.match_players)}] {player_nick}$z$fff is now banning.'
 			await self.brawl_chat(message)
 			await self.ban_map(player_to_ban)
+			self.ban_queue.task_done()
 		else:
-			maps_string = '$z$fff  -  '.join([(await Map.get_by_uid(map[0])).name for map in self.match_maps])
+			maps_string = '$z$fff  -  '.join([(await Map.get_by_uid(map)).name for map in self.match_maps])
 			await self.brawl_chat(f'Banning phase over! Maps for this match are:')
 			await self.brawl_chat(f'{maps_string}')
 			await self.init_match()
 
 	async def ban_map(self, player):
-		maps = [map[0] for map in self.match_maps]
-		ban_view = BrawlMapListView(self, maps)
+		ban_view = BrawlMapListView(self, self.match_maps)
 		self.open_views.append(ban_view)
 		await ban_view.display(player=player)
 
 	async def remove_map_from_match(self, map_info):
-		self.match_maps.pop(map_info['index']-1)
+		del self.match_maps[map_info['index']-1]
 
 	async def init_match(self):
 		await self.await_match_start()
@@ -196,7 +207,7 @@ class BrawlMatch(AppConfig):
 
 	async def display_map_order(self):
 		await self.brawl_chat(f'Map order: ')
-		for index, (uid, _) in enumerate(self.match_maps, start=1):
+		for index, uid in enumerate(self.match_maps, start=1):
 			map_name = (await Map.get_by_uid(uid)).name
 			await self.brawl_chat(f'[{index}/{len(self.match_maps)}] {map_name}')
 
@@ -231,8 +242,12 @@ class BrawlMatch(AppConfig):
 
 		self.maps_played = 0
 
-		self.match_maps = self.brawl_maps.copy()
+		self.match_maps = collections.deque(self.brawl_maps)
 		self.match_players = []
+
+		while not self.ban_queue.empty():
+			await self.ban_queue.get()
+			self.ban_queue.task_done()
 
 		await self.reset_backup()
 
@@ -251,17 +266,17 @@ class BrawlMatch(AppConfig):
 	async def set_settings_next_map(self, map):
 		if self.maps_played == len(self.match_maps):
 			await self.remove_wu()
-		for index, (uid, timeout) in enumerate(self.match_maps):
-			if uid == map.uid:
-				await self.update_finish_timeout(timeout)
-				await self.instance.map_manager.set_next_map(
-					await Map.get_by_uid(
-						self.match_maps[(index + 1) % len(self.match_maps)][0]
-					)
-				)
-		await self.display_map_order()
 		self.maps_played += 1
 
+		await self.update_finish_timeout(self.timeouts[self.match_maps[0]])
+		await self.instance.map_manager.set_next_map(
+			await Map.get_by_uid(
+				self.match_maps[1]
+			)
+		)
+
+		await self.display_map_order()
+		self.match_maps.rotate(-1)
 
 	async def remove_wu(self):
 		settings = await self.instance.mode_manager.get_settings()
