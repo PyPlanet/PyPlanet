@@ -198,6 +198,7 @@ class BrawlMatch(AppConfig):
 		if self.maps_played == len(self.match_maps) - 1:
 			await self.brawl_chat('$oNo more warmup in future!')
 		elif self.maps_played == len(self.match_maps):
+			await self.remove_wu()
 			await self.brawl_chat('$oWarmup is disabled!')
 
 	async def await_match_start(self):
@@ -249,8 +250,6 @@ class BrawlMatch(AppConfig):
 		await self.instance.mode_manager.update_settings(settings)
 
 	async def set_settings_next_map(self, map):
-		if self.maps_played == len(self.match_maps):
-			await self.remove_wu()
 		for index, (uid, timeout) in enumerate(self.match_maps):
 			if uid == map.uid:
 				await self.update_finish_timeout(timeout)
