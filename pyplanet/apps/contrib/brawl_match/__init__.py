@@ -181,6 +181,7 @@ class BrawlMatch(AppConfig):
 	async def init_match(self):
 		await self.await_match_start()
 		self.context.signals.listen(mp_signals.map.map_begin, self.set_settings_next_map)
+		self.context.signals.listen(mp_signals.flow.round_start, self.display_current_round)
 
 		random.shuffle(self.match_maps)
 
@@ -261,6 +262,9 @@ class BrawlMatch(AppConfig):
 		await self.display_map_order()
 		self.maps_played += 1
 
+	async def display_current_round(self, count, time):
+		rounds_per_map = (await self.instance.mode_manager.get_settings())['S_RoundsPerMap']
+		await self.brawl_chat(f'Round {count}/{rounds_per_map}')
 
 	async def remove_wu(self):
 		settings = await self.instance.mode_manager.get_settings()
