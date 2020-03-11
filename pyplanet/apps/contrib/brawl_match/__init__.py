@@ -182,6 +182,7 @@ class BrawlMatch(AppConfig):
 		await self.await_match_start()
 		self.context.signals.listen(mp_signals.map.map_begin, self.set_settings_next_map)
 		self.context.signals.listen(mp_signals.flow.round_start, self.display_current_round)
+		self.context.signals.listen(mp_signals.flow.match_end__end, self.reset_server)
 
 		random.shuffle(self.match_maps)
 
@@ -218,6 +219,9 @@ class BrawlMatch(AppConfig):
 			return
 
 		await self.brawl_chat(f'Admin {player.nickname}$z$fff stopped match!')
+		await self.reset_server()
+
+	async def reset_server(self, count=0, time=0):
 		for task in self.match_tasks:
 			if not task.done():
 				task.cancel()
@@ -227,7 +231,7 @@ class BrawlMatch(AppConfig):
 			await view.destroy()
 
 		for signal, target in self.context.signals.listeners:
-			if target == self.set_settings_next_map:
+			if target in [self.set_settings_next_map, self.display_current_round, self.reset_server]:
 				signal.unregister(target)
 
 		self.maps_played = 0
@@ -240,9 +244,11 @@ class BrawlMatch(AppConfig):
 	async def reset_backup(self):
 		if not (self.backup_script_name and self.backup_settings):
 			return
+
+		await asyncio.sleep(5)
 		await self.instance.mode_manager.set_next_script(self.backup_script_name)
-		await self.instance.gbx('RestartMap')
 		await self.instance.mode_manager.update_next_settings(self.backup_settings)
+		await self.instance.gbx('RestartMap')
 
 	async def update_finish_timeout(self, timeout):
 		settings = await self.instance.mode_manager.get_settings()
