@@ -39,6 +39,7 @@ class BrawlMatch(AppConfig):
 		self.backup_script_name = None
 		self.backup_settings = None
 		self.maps_played = 0
+		self.rounds_played = 0
 		self.open_views = []
 
 	async def on_init(self):
@@ -182,6 +183,7 @@ class BrawlMatch(AppConfig):
 		await self.await_match_start()
 		self.context.signals.listen(mp_signals.map.map_begin, self.set_settings_next_map)
 		self.context.signals.listen(mp_signals.flow.round_start, self.display_current_round)
+		self.context.signals.listen(mp_signals.flow.round_end, self.incr_round_counter)
 		self.context.signals.listen(mp_signals.flow.match_end__end, self.reset_server)
 
 		random.shuffle(self.match_maps)
@@ -266,10 +268,19 @@ class BrawlMatch(AppConfig):
 				)
 		await self.display_map_order()
 		self.maps_played += 1
+		self.rounds_played = 0
+
+	async def incr_round_counter(self, count, time):
+		if await self.finishers():
+			self.rounds_played += 1
+
+	async def finishers(self):
+		players = (await self.instance.gbx('Trackmania.GetScores'))['players']
+		return any([player['prevracetime'] != -1 for player in players])
 
 	async def display_current_round(self, count, time):
 		rounds_per_map = (await self.instance.mode_manager.get_settings())['S_RoundsPerMap']
-		await self.brawl_chat(f'Round {count}/{rounds_per_map}')
+		await self.brawl_chat(f'Round {self.rounds_played+1}/{rounds_per_map}')
 
 	async def remove_wu(self):
 		settings = await self.instance.mode_manager.get_settings()
