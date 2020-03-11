@@ -147,5 +147,5 @@ class BrawlPlayerListView(ManualListView):
 			await self.app.register_match_task(self.app.add_player_to_match, player, player_info)
 			# Maybe not an ideal solution, but works for now
 			await self.hide([player.login])
-			await self.app.register_match_task(self.app.start_ban_phase)
+			await self.app.register_match_task(self.app.start_ready_phase)
 			await self.destroy()

@@ -33,9 +33,11 @@ class BrawlMatch(AppConfig):
 		]
 		self.match_maps = self.brawl_maps.copy()
 		self.match_players = []
+		self.ready_players = []
 		self.chat_prefix = '$i$000.$903Brawl$fff - $z$fff'
 
 		self.match_tasks = []
+		self.match_active = False
 		self.backup_script_name = None
 		self.backup_settings = None
 		self.maps_played = 0
@@ -69,6 +71,12 @@ class BrawlMatch(AppConfig):
 				target=self.stop_match,
 				perms='brawl_match:match_control',
 				admin=True
+			),
+			Command(
+				'ready',
+				aliases=['r'],
+				namespace='match',
+				target=self.player_ready,
 			)
 		)
 
@@ -104,7 +112,6 @@ class BrawlMatch(AppConfig):
 			await asyncio.sleep(1)
 		await self.set_settings()
 
-
 	async def set_settings(self):
 		settings = await self.instance.mode_manager.get_settings()
 
@@ -126,19 +133,23 @@ class BrawlMatch(AppConfig):
 		await player_view.display(player=player)
 
 	async def add_player_to_match(self, admin, player_info):
-		self.match_players.append(player_info['login'])
+		self.match_players.append(await Player.get_by_login(player_info['login']))
 		message = f'Player {player_info["nickname"]}$z$fff is added to the match.'
 		await self.brawl_chat(message, admin)
+
+	async def start_ready_phase(self):
+		nicks = [player.nickname for player in self.match_players]
+		nicks_string = '$z$fff vs '.join(nicks)
+		await self.brawl_chat(f'New match has been created: {nicks_string}$z$fff.')
+		self.match_active = True
+		await self.brawl_chat('To start the match, type /match r')
 
 	async def start_ban_phase(self):
 		event_loop = asyncio.get_running_loop()
 		for player in self.match_players:
 			event_loop.call_soon_threadsafe(self.ban_queue.put_nowait, player)
 
-		nicks = [(await Player.get_by_login(player)).nickname for player in self.match_players]
-		nicks_string = '$z$fff vs '.join(nicks)
-		await self.brawl_chat(f'New match has been created: {nicks_string}$z$fff.')
-
+		nicks = [player.nickname for player in self.match_players]
 		await asyncio.sleep(self.TIME_UNTIL_NEXT_WALL)
 		await self.brawl_chat(f'Banning order:')
 		for index, nick in enumerate(nicks, start=1):
@@ -160,7 +171,7 @@ class BrawlMatch(AppConfig):
 	async def next_ban(self):
 		if len(self.match_maps) > 3:
 			player_to_ban = await self.ban_queue.get()
-			player_nick = (await Player.get_by_login(player_to_ban)).nickname
+			player_nick = player_to_ban.nickname
 			message = f'[{self.match_players.index(player_to_ban)+1}/{len(self.match_players)}] {player_nick}$z$fff is now banning.'
 			await self.brawl_chat(message)
 			await self.ban_map(player_to_ban)
@@ -219,7 +230,7 @@ class BrawlMatch(AppConfig):
 		if not self.match_tasks:
 			await self.brawl_chat(f'No match is currently in progress!', player)
 			return
-
+		self.match_active = False
 		await self.brawl_chat(f'Admin {player.nickname}$z$fff stopped match!')
 		await self.reset_server()
 
@@ -227,7 +238,7 @@ class BrawlMatch(AppConfig):
 		for task in self.match_tasks:
 			if not task.done():
 				task.cancel()
-		self.match_tasks = []
+		self.match_tasks.clear()
 
 		for view in self.open_views:
 			await view.destroy()
@@ -239,7 +250,8 @@ class BrawlMatch(AppConfig):
 		self.maps_played = 0
 
 		self.match_maps = self.brawl_maps.copy()
-		self.match_players = []
+		self.match_players.clear()
+		self.ready_players.clear()
 
 		await self.reset_backup()
 
@@ -286,6 +298,21 @@ class BrawlMatch(AppConfig):
 		settings = await self.instance.mode_manager.get_settings()
 		settings['S_WarmUpNb'] = 0
 		await self.instance.mode_manager.update_settings(settings)
+
+	async def player_ready(self, player, data, *args, **kwargs):
+		if not self.match_active:
+			await self.brawl_chat('There is no match in progress.', player)
+		elif player not in self.match_players:
+			await self.brawl_chat('You are not a participant in the ongoing match.', player)
+		elif player in self.ready_players:
+			await self.brawl_chat(f'You are ready.')
+		else:
+			self.ready_players.append(player)
+			await self.brawl_chat(f'Player {player.nickname}$z$fff is ready!')
+			if set(self.match_players) == set(self.ready_players):
+				await self.start_ban_phase()
+
+
 
 	async def brawl_chat(self, message, player=None):
 		if player:
