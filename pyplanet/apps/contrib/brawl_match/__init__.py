@@ -34,6 +34,7 @@ class BrawlMatch(AppConfig):
 		self.match_maps = self.brawl_maps.copy()
 		self.match_players = []
 		self.ready_players = []
+		self.endwu_voted_players = []
 		self.chat_prefix = '$i$000.$903Brawl$fff - $z$fff'
 
 		self.match_tasks = []
@@ -76,7 +77,12 @@ class BrawlMatch(AppConfig):
 				'ready',
 				aliases=['r'],
 				namespace='match',
-				target=self.player_ready,
+				target=self.player_ready
+			),
+			Command(
+				'endwu',
+				namespace='match',
+				target=self.vote_endwu
 			)
 		)
 
@@ -244,7 +250,8 @@ class BrawlMatch(AppConfig):
 			await view.destroy()
 
 		for signal, target in self.context.signals.listeners:
-			if target in [self.set_settings_next_map, self.display_current_round, self.reset_server]:
+			if target in [self.set_settings_next_map, self.display_current_round,
+						self.incr_round_counter, self.reset_server]:
 				signal.unregister(target)
 
 		self.maps_played = 0
@@ -252,6 +259,7 @@ class BrawlMatch(AppConfig):
 		self.match_maps = self.brawl_maps.copy()
 		self.match_players.clear()
 		self.ready_players.clear()
+		self.endwu_voted_players.clear()
 
 		await self.reset_backup()
 
@@ -281,6 +289,8 @@ class BrawlMatch(AppConfig):
 		await self.display_map_order()
 		self.maps_played += 1
 		self.rounds_played = 0
+		self.endwu_voted_players.clear()
+		await self.brawl_chat(f"It's possible to vote to end the warmup by using /match endwu")
 
 	async def incr_round_counter(self, count, time):
 		if await self.finishers():
@@ -310,9 +320,21 @@ class BrawlMatch(AppConfig):
 			self.ready_players.append(player)
 			await self.brawl_chat(f'Player {player.nickname}$z$fff is ready!')
 			if set(self.match_players) == set(self.ready_players):
+				await self.brawl_chat('Everyone is ready. Match is starting.')
 				await self.start_ban_phase()
 
-
+	async def vote_endwu(self, player, data, *args, **kwargs):
+		if not self.match_active:
+			await self.brawl_chat('There is no match in progress.', player)
+		elif player not in self.match_players:
+			await self.brawl_chat('You are not a participant in the ongoing match.', player)
+		elif player in self.endwu_voted_players:
+			await self.brawl_chat('You have already voted to skip the warmup.', player)
+		else:
+			self.endwu_voted_players.append(player)
+			await self.brawl_chat(f'Player {player.nickname}$z$fff has voted to end the warmup!')
+			if set(self.match_players) == set(self.endwu_voted_players):
+				await self.instance.gbx('Trackmania.WarmUp.ForceStop', encode_json=False, response_id=False)
 
 	async def brawl_chat(self, message, player=None):
 		if player:
