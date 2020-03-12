@@ -49,6 +49,7 @@ class BrawlMatch(AppConfig):
 		self.ready_players = []
 		self.endwu_voted_players = []
 		self.requested_break_players = []
+		self.break_queued = False
 		self.chat_prefix = '$i$000.$903Brawl$fff - $z$fff'
 
 		self.match_tasks = []
@@ -348,6 +349,7 @@ class BrawlMatch(AppConfig):
 			self.rounds_played += 1
 
 	async def finishers(self):
+		print(await self.instance.gbx('Trackmania.GetScores'))
 		players = (await self.instance.gbx('Trackmania.GetScores'))['players']
 		return any([player['prevracetime'] != -1 for player in players])
 
@@ -394,15 +396,19 @@ class BrawlMatch(AppConfig):
 			await self.brawl_chat('You are not a participant in the ongoing match.', player)
 		elif player in self.requested_break_players:
 			await self.brawl_chat('You have already requested your break.', player)
+		elif self.break_queued:
+			await self.brawl_chat('There is already a break planned. You can request a break again during that break.', player)
 		else:
+			self.break_queued = True
 			self.requested_break_players.append(player)
 			await self.brawl_chat(f'Player {player.nickname}$z$fff has requested their break!')
-			self.context.signals.listen(mp_signals.flow.round_end, self.init_break)
+			self.context.signals.listen(mp_signals.flow.round_start, self.init_break)
 
 	async def init_break(self, count, time):
 		for signal, target in self.context.signals.listeners:
 			if target == self.init_break:
 				signal.unregister(target)
+		self.break_queued = False
 
 		await self.register_match_task(self.await_break)
 
