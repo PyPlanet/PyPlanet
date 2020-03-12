@@ -1,6 +1,5 @@
 import asyncio
 import random
-import math
 import collections
 
 from pyplanet.apps.config import AppConfig
@@ -159,30 +158,29 @@ class BrawlMatch(AppConfig):
 		await player_view.display(player=player)
 
 	async def add_player_to_match(self, admin, player_info):
-		self.match_players.append(player_info['login'])
+		self.match_players.append(await Player.get_by_login(player_info['login']))
 		message = f'Player {player_info["nickname"]}$z$fff is added to the match.'
 		await self.brawl_chat(message, admin)
 
 	async def force_player_and_spectator(self):
-		for player in self.instance.player_manager.online_logins:
+		for player in self.instance.player_manager.online:
 			if player in self.match_players:
-				await self.instance.gbx('ForceSpectator', player, 2)
+				await self.instance.gbx('ForceSpectator', player.login, 2)
 			else:
-				await self.instance.gbx('ForceSpectator', player, 1)
+				await self.instance.gbx('ForceSpectator', player.login, 1)
 
+	async def start_ready_phase(self):
+		nicks = [player.nickname for player in self.match_players]
+		nicks_string = '$z$fff vs '.join(nicks)
+		await self.brawl_chat(f'New match has been created: {nicks_string}$z$fff.')
+		self.match_active = True
+		await self.brawl_chat('Some general information:')
+		await self.brawl_chat('First rotation will have warmups, after that warmup is disabled')
+		await self.brawl_chat('You can vote to skip the warmup using /match endwu')
+		await self.brawl_chat('You are allowed 1 break, request it by using /match break')
+		await self.brawl_chat('To start the match, type /match r')
 
-async def start_ready_phase(self):
-nicks = [player.nickname for player in self.match_players]
-nicks_string = '$z$fff vs '.join(nicks)
-await self.brawl_chat(f'New match has been created: {nicks_string}$z$fff.')
-self.match_active = True
-await self.brawl_chat('Some general information:')
-await self.brawl_chat('First rotation will have warmups, after that warmup is disabled')
-await self.brawl_chat('You can vote to skip the warmup using /match endwu')
-await self.brawl_chat('You are allowed 1 break, request it by using /match break')
-await self.brawl_chat('To start the match, type /match r')
-
-async def start_ban_phase(self):
+	async def start_ban_phase(self):
 		event_loop = asyncio.get_running_loop()
 		for player in self.match_players:
 			event_loop.call_soon_threadsafe(self.ban_queue.put_nowait, player)
@@ -200,6 +198,7 @@ async def start_ban_phase(self):
 
 	async def await_ban_phase(self):
 		ban_start_timer = TimerView(self)
+		self.open_views.append(ban_start_timer)
 		ban_start_timer.title = f'Banning starts in {await self.format_time(self.TIME_UNTIL_BAN_PHASE)}'
 		for player in self.instance.player_manager.online:
 			await ban_start_timer.display(player)
@@ -246,7 +245,7 @@ async def start_ban_phase(self):
 		await self.set_match_settings()
 
 	async def display_map_order(self):
-		await self.brawl_chat(f'Map order: ')
+		await self.brawl_chat(f'Upcoming maps: ')
 		for index, uid in enumerate(self.match_maps, start=1):
 			map_name = (await Map.get_by_uid(uid)).name
 			await self.brawl_chat(f'[{index}/{len(self.match_maps)}] {map_name}')
@@ -261,6 +260,7 @@ async def start_ban_phase(self):
 
 	async def await_match_start(self):
 		match_start_timer = TimerView(self)
+		self.open_views.append(match_start_timer)
 		match_start_timer.title = f'Match starts in {await self.format_time(self.TIME_UNTIL_MATCH_PHASE)}'
 		for player in self.instance.player_manager.online:
 			await match_start_timer.display(player)
@@ -327,7 +327,6 @@ async def start_ban_phase(self):
 	async def set_settings_next_map(self, map):
 		if self.maps_played == len(self.match_maps):
 			await self.remove_wu()
-		self.maps_played += 1
 
 		await self.update_finish_timeout(self.timeouts[self.match_maps[0]])
 		await self.instance.map_manager.set_next_map(
@@ -405,12 +404,16 @@ async def start_ban_phase(self):
 			if target == self.init_break:
 				signal.unregister(target)
 
+		await self.register_match_task(self.await_break)
+
+	async def await_break(self):
 		break_timer = TimerView(self)
+		self.open_views.append(break_timer)
 		break_timer.title = f'Break ends in {await self.format_time(self.TIME_BREAK)}'
 		for player in self.instance.player_manager.online:
 			await break_timer.display(player)
 
-		for i in range(0,self.TIME_BREAK):
+		for i in range(0, self.TIME_BREAK):
 			break_timer.title = f'Break ends in {await self.format_time(self.TIME_BREAK - i)}'
 			for player in self.instance.player_manager.online:
 				await break_timer.display(player)
@@ -420,7 +423,7 @@ async def start_ban_phase(self):
 		await self.instance.gbx('Trackmania.ForceEndRound', encode_json=False, response_id=False)
 
 	async def format_time(self, seconds):
-		return f'{math.floor(seconds/60)}:{seconds % 60:02d}'
+		return f'{seconds // 60}:{seconds % 60:02d}'
 
 	async def brawl_chat(self, message, player=None):
 		if player:
