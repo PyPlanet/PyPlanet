@@ -351,7 +351,7 @@ class BrawlMatch(AppConfig):
 	async def finishers(self):
 		print(await self.instance.gbx('Trackmania.GetScores'))
 		players = (await self.instance.gbx('Trackmania.GetScores'))['players']
-		return any([player['prevracetime'] != -1 for player in players])
+		return any([player['roundpoints'] != 0 for player in players])
 
 	async def display_current_round(self, count, time):
 		rounds_per_map = (await self.instance.mode_manager.get_settings())['S_RoundsPerMap']
