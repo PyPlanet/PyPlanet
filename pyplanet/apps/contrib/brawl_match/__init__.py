@@ -1,9 +1,11 @@
 import asyncio
 import random
+import math
 
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.brawl_match.views import (BrawlMapListView,
-                                                     BrawlPlayerListView)
+													 BrawlPlayerListView,
+													 TimerView)
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 from pyplanet.apps.core.maniaplanet.models import Map, Player
 from pyplanet.contrib.command import Command
@@ -367,13 +369,22 @@ class BrawlMatch(AppConfig):
 			if target == self.init_break:
 				signal.unregister(target)
 
-		await self.brawl_chat(f'Match will continue in {self.TIME_BREAK} seconds!')
-		await asyncio.sleep(self.TIME_BREAK / 2)
-		await self.brawl_chat(f'Match will continue in {int(self.TIME_BREAK/2)} seconds!')
-		await asyncio.sleep(self.TIME_BREAK / 2)
-		await self.brawl_chat(f'Match will continue now!')
-		await asyncio.sleep(self.TIME_UNTIL_NEXT_WALL)
-		await self.instance.gbx('Trackmania.ForceEndRound', encode_json=False, response_id=False),
+		break_view = TimerView(self)
+		break_view.title = f'Break ends in {await self.format_time(self.TIME_BREAK)}'
+		for player in self.instance.player_manager.online:
+			await break_view.display(player)
+
+		for i in range(0,self.TIME_BREAK):
+			break_view.title = f'Break ends in {await self.format_time(self.TIME_BREAK - i)}'
+			for player in self.instance.player_manager.online:
+				await break_view.display(player)
+			await asyncio.sleep(1)
+
+		await break_view.destroy()
+		await self.instance.gbx('Trackmania.ForceEndRound', encode_json=False, response_id=False)
+
+	async def format_time(self, seconds):
+		return f'{math.floor(seconds/60)}:{seconds % 60:02d}'
 
 	async def brawl_chat(self, message, player=None):
 		if player:

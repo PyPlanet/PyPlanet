@@ -2,6 +2,7 @@ import asyncio
 
 from pyplanet.apps.core.maniaplanet.models import Map, Player
 from pyplanet.views.generics.list import ManualListView
+from pyplanet.views.generics.widget import WidgetView
 
 
 class BrawlMapListView(ManualListView):
@@ -149,3 +150,15 @@ class BrawlPlayerListView(ManualListView):
 			await self.hide([player.login])
 			await self.app.register_match_task(self.app.start_ready_phase)
 			await self.destroy()
+
+class TimerView(WidgetView):
+	widget_x = 0
+	widget_y = 0
+	size_x = 0
+	size_y = 0
+	template_name = 'brawl_match/timer.xml'
+
+	def __init__(self, app):
+		super().__init__()
+		self.app = app
+		self.manager = app.context.ui
