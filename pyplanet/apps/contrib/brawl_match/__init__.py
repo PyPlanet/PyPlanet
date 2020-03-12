@@ -50,7 +50,8 @@ class BrawlMatch(AppConfig):
 		self.endwu_voted_players = []
 		self.requested_break_players = []
 		self.break_queued = False
-		self.chat_prefix = '$i$000.$903Brawl$fff - $z$fff'
+		self.chat_reset = '$z$fff$s'
+		self.chat_prefix = f'$i$000.$903Brawl$fff - {self.chat_reset}'
 
 		self.match_tasks = []
 		self.match_active = False
@@ -160,7 +161,7 @@ class BrawlMatch(AppConfig):
 
 	async def add_player_to_match(self, admin, player_info):
 		self.match_players.append(await Player.get_by_login(player_info['login']))
-		message = f'Player {player_info["nickname"]}$z$fff is added to the match.'
+		message = f'Player {player_info["nickname"]}{self.chat_reset} is added to the match.'
 		await self.brawl_chat(message, admin)
 
 	async def force_player_and_spectator(self):
@@ -172,8 +173,8 @@ class BrawlMatch(AppConfig):
 
 	async def start_ready_phase(self):
 		nicks = [player.nickname for player in self.match_players]
-		nicks_string = '$z$fff vs '.join(nicks)
-		await self.brawl_chat(f'New match has been created: {nicks_string}$z$fff.')
+		nicks_string = f'{self.chat_reset} vs '.join(nicks)
+		await self.brawl_chat(f'New match has been created: {nicks_string}{self.chat_reset}.')
 		self.match_active = True
 		await self.brawl_chat('Some general information:')
 		await self.brawl_chat('First rotation will have warmups, after that warmup is disabled')
@@ -216,12 +217,12 @@ class BrawlMatch(AppConfig):
 		if len(self.match_maps) > 3:
 			player_to_ban = await self.ban_queue.get()
 			player_nick = player_to_ban.nickname
-			message = f'[{self.match_players.index(player_to_ban)+1}/{len(self.match_players)}] {player_nick}$z$fff is now banning.'
+			message = f'[{self.match_players.index(player_to_ban)+1}/{len(self.match_players)}] {player_nick}{self.chat_reset} is now banning.'
 			await self.brawl_chat(message)
 			await self.ban_map(player_to_ban)
 			self.ban_queue.task_done()
 		else:
-			maps_string = '$z$fff  -  '.join([(await Map.get_by_uid(map)).name for map in self.match_maps])
+			maps_string = f'{self.chat_reset}  -  '.join([(await Map.get_by_uid(map)).name for map in self.match_maps])
 			await self.brawl_chat(f'Banning phase over! Maps for this match are:')
 			await self.brawl_chat(f'{maps_string}')
 			await self.init_match()
@@ -231,7 +232,10 @@ class BrawlMatch(AppConfig):
 		self.open_views.append(ban_view)
 		await ban_view.display(player=player)
 
-	async def remove_map_from_match(self, map_info):
+	async def remove_map_from_match(self, player, map_info):
+		await self.brawl_chat(f'Player '
+								  f'{player.nickname}{self.chat_reset} has just banned '
+								  f'{map_info["name"]}')
 		del self.match_maps[map_info['index']-1]
 
 	async def init_match(self):
@@ -279,7 +283,7 @@ class BrawlMatch(AppConfig):
 			await self.brawl_chat(f'No match is currently in progress!', player)
 			return
 		self.match_active = False
-		await self.brawl_chat(f'Admin {player.nickname}$z$fff stopped match!')
+		await self.brawl_chat(f'Admin {player.nickname}{self.chat_reset} stopped match!')
 		await self.reset_server()
 
 	async def reset_server(self, count=0, time=0):
@@ -370,7 +374,7 @@ class BrawlMatch(AppConfig):
 			await self.brawl_chat(f'You are ready.')
 		else:
 			self.ready_players.append(player)
-			await self.brawl_chat(f'Player {player.nickname}$z$fff is ready!')
+			await self.brawl_chat(f'Player {player.nickname}{self.chat_reset} is ready!')
 			if set(self.match_players) == set(self.ready_players):
 				await self.brawl_chat('Everyone is ready. Match is starting.')
 				await self.start_ban_phase()
@@ -386,7 +390,7 @@ class BrawlMatch(AppConfig):
 			await self.brawl_chat('You have already voted to skip the warmup.', player)
 		else:
 			self.endwu_voted_players.append(player)
-			await self.brawl_chat(f'Player {player.nickname}$z$fff has voted to end the warmup!')
+			await self.brawl_chat(f'Player {player.nickname}{self.chat_reset} has voted to end the warmup!')
 			if set(self.match_players) == set(self.endwu_voted_players):
 				await self.instance.gbx('Trackmania.WarmUp.ForceStop', encode_json=False, response_id=False)
 
@@ -402,7 +406,7 @@ class BrawlMatch(AppConfig):
 		else:
 			self.break_queued = True
 			self.requested_break_players.append(player)
-			await self.brawl_chat(f'Player {player.nickname}$z$fff has requested their break!')
+			await self.brawl_chat(f'Player {player.nickname}{self.chat_reset} has requested their break!')
 			self.context.signals.listen(mp_signals.flow.round_start, self.init_break)
 
 	async def init_break(self, count, time):

@@ -72,10 +72,7 @@ class BrawlMapListView(ManualListView):
 
 
 	async def action_ban(self, player, values, map_info, **kwargs):
-		await self.app.register_match_task(self.app.remove_map_from_match, map_info)
-		await self.app.brawl_chat(f'Player '
-								f'{player.nickname}$z$fff has just banned '
-								f'{map_info["name"]}')
+		await self.app.register_match_task(self.app.remove_map_from_match, player, map_info)
 		# Maybe not an ideal solution, but works for now
 		await self.hide([player.login])
 		await self.app.register_match_task(self.app.next_ban)
