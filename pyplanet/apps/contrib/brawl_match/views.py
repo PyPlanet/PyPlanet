@@ -2,6 +2,7 @@ import asyncio
 
 from pyplanet.apps.core.maniaplanet.models import Map, Player
 from pyplanet.views.generics.list import ManualListView
+from pyplanet.views.generics.widget import WidgetView
 
 
 class BrawlMapListView(ManualListView):
@@ -60,7 +61,7 @@ class BrawlMapListView(ManualListView):
 			items.append({
 				'index': map_index,
 				'name': map_name,
-				'author_login': map_author,
+				'author_login': map_author
 			})
 		return items
 
@@ -71,10 +72,7 @@ class BrawlMapListView(ManualListView):
 
 
 	async def action_ban(self, player, values, map_info, **kwargs):
-		await self.app.register_match_task(self.app.remove_map_from_match, map_info)
-		await self.app.brawl_chat(f'Player '
-								f'{player.nickname}$z$fff has just banned '
-								f'{map_info["name"]}')
+		await self.app.register_match_task(self.app.remove_map_from_match, player, map_info)
 		# Maybe not an ideal solution, but works for now
 		await self.hide([player.login])
 		await self.app.register_match_task(self.app.next_ban)
@@ -148,5 +146,17 @@ class BrawlPlayerListView(ManualListView):
 			# Maybe not an ideal solution, but works for now
 			await self.hide([player.login])
 			await self.app.register_match_task(self.app.force_player_and_spectator)
-			await self.app.register_match_task(self.app.start_ban_phase)
+			await self.app.register_match_task(self.app.start_ready_phase)
 			await self.destroy()
+
+class TimerView(WidgetView):
+	widget_x = 0
+	widget_y = 0
+	size_x = 0
+	size_y = 0
+	template_name = 'brawl_match/timer.xml'
+
+	def __init__(self, app):
+		super().__init__()
+		self.app = app
+		self.manager = app.context.ui
