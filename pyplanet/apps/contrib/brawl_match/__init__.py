@@ -26,13 +26,13 @@ class BrawlMatch(AppConfig):
 		self.ban_queue = asyncio.Queue()
 
 		self.brawl_maps = [
-			('26yU1ouud7IqURhbmlEzX3jxJM1', 49),  # On the Run
-			('I5y9YjoVaw9updRFOecqmN0V6sh', 73),  # Moon Base
-			('WUrcV1ziafkmDOEUQJslceNghs2', 72),  # Nos Astra
-			('DPl6mjmUhXhlXqhpva_INcwvx5e', 55),  # Maru
-			('3Pg4di6kaDyM04oHYm5AkC3r2ch', 46),  # Aliens Exist
-			('ML4VsiZKZSiWNkwpEdSA11SH7mg', 61),  # L v g v s
-			('GuIyeKb7lF6fsebOZ589d47Pqnk', 64)   # Only a wooden leg remained
+			('lOx2Ol2Rx_LSlT3fawKYcAtpjU5', 49),  # On the Run
+			('oxzX6uA_qzX7qpRh78lgeUWgwi5', 73),  # Moon Base
+			('BWJ9rBTSIfTw0RSczoUgdDPvxaj', 72),  # Nos Astra
+			('KKE51sgIsoMIJV8U1Kbjbj41MPj', 55),  # Maru
+			('A9tLsjT1NSpzdnYPAaK8KYsnati', 46),  # Aliens Exist
+			('MlKSOzuVbsj7uOo59woioETWJhd', 61),  # L v g v s
+			('FtuT0RKqEKTAE36G40Ij6YhAcS1', 64)   # Only a wooden leg remained
 		]
 		self.match_maps = self.brawl_maps.copy()
 		self.match_players = []
@@ -179,13 +179,18 @@ class BrawlMatch(AppConfig):
 		await self.next_ban()
 
 	async def await_ban_phase(self):
-		await asyncio.sleep(self.TIME_UNTIL_NEXT_WALL)
-		await self.brawl_chat(f'Banning will start in {self.TIME_UNTIL_BAN_PHASE} seconds!')
-		await asyncio.sleep(self.TIME_UNTIL_BAN_PHASE / 2)
-		await self.brawl_chat(f'Banning will start in {int(self.TIME_UNTIL_BAN_PHASE/2)} seconds!')
-		await asyncio.sleep(self.TIME_UNTIL_BAN_PHASE / 2)
-		await self.brawl_chat(f'Banning will start now!')
-		await asyncio.sleep(self.TIME_UNTIL_NEXT_WALL)
+		ban_start_timer = TimerView(self)
+		ban_start_timer.title = f'Banning starts in {await self.format_time(self.TIME_UNTIL_BAN_PHASE)}'
+		for player in self.instance.player_manager.online:
+			await ban_start_timer.display(player)
+
+		for i in range(0, self.TIME_UNTIL_BAN_PHASE):
+			ban_start_timer.title = f'Banning starts in {await self.format_time(self.TIME_UNTIL_BAN_PHASE - i)}'
+			for player in self.instance.player_manager.online:
+				await ban_start_timer.display(player)
+			await asyncio.sleep(1)
+
+		await ban_start_timer.destroy()
 
 	async def next_ban(self):
 		if len(self.match_maps) > 3:
@@ -235,15 +240,18 @@ class BrawlMatch(AppConfig):
 			await self.brawl_chat('$oWarmup is disabled!')
 
 	async def await_match_start(self):
-		await asyncio.sleep(self.TIME_UNTIL_NEXT_WALL)
-		await self.brawl_chat(f'Match will start in {self.TIME_UNTIL_MATCH_PHASE} seconds!')
-		await asyncio.sleep(self.TIME_UNTIL_BAN_PHASE / 2)
-		await self.brawl_chat(f'Match will start in {int(self.TIME_UNTIL_MATCH_PHASE/2)} seconds!')
-		await asyncio.sleep(self.TIME_UNTIL_BAN_PHASE / 4)
-		await self.brawl_chat(f'Match will start in {int(self.TIME_UNTIL_MATCH_PHASE/4)} seconds!')
-		await asyncio.sleep(self.TIME_UNTIL_BAN_PHASE / 4)
-		await self.brawl_chat(f'Match will start now!')
-		await asyncio.sleep(self.TIME_UNTIL_NEXT_WALL)
+		match_start_timer = TimerView(self)
+		match_start_timer.title = f'Match starts in {await self.format_time(self.TIME_UNTIL_MATCH_PHASE)}'
+		for player in self.instance.player_manager.online:
+			await match_start_timer.display(player)
+
+		for i in range(0, self.TIME_UNTIL_MATCH_PHASE):
+			match_start_timer.title = f'Match starts in {await self.format_time(self.TIME_UNTIL_MATCH_PHASE - i)}'
+			for player in self.instance.player_manager.online:
+				await match_start_timer.display(player)
+			await asyncio.sleep(1)
+
+		await match_start_timer.destroy()
 
 	async def stop_match(self, player, *args, **kwargs):
 		if not self.match_tasks:
@@ -369,18 +377,18 @@ class BrawlMatch(AppConfig):
 			if target == self.init_break:
 				signal.unregister(target)
 
-		break_view = TimerView(self)
-		break_view.title = f'Break ends in {await self.format_time(self.TIME_BREAK)}'
+		break_timer = TimerView(self)
+		break_timer.title = f'Break ends in {await self.format_time(self.TIME_BREAK)}'
 		for player in self.instance.player_manager.online:
-			await break_view.display(player)
+			await break_timer.display(player)
 
 		for i in range(0,self.TIME_BREAK):
-			break_view.title = f'Break ends in {await self.format_time(self.TIME_BREAK - i)}'
+			break_timer.title = f'Break ends in {await self.format_time(self.TIME_BREAK - i)}'
 			for player in self.instance.player_manager.online:
-				await break_view.display(player)
+				await break_timer.display(player)
 			await asyncio.sleep(1)
 
-		await break_view.destroy()
+		await break_timer.destroy()
 		await self.instance.gbx('Trackmania.ForceEndRound', encode_json=False, response_id=False)
 
 	async def format_time(self, seconds):
