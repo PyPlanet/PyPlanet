@@ -16,6 +16,7 @@ class BrawlMatch(AppConfig):
 	TIME_UNTIL_BAN_PHASE = 30
 	TIME_UNTIL_MATCH_PHASE = 60
 	TIME_UNTIL_NEXT_WALL = 3
+	TIME_BREAK = 120
 
 
 	def __init__(self, *args, **kwargs):
@@ -35,6 +36,7 @@ class BrawlMatch(AppConfig):
 		self.match_players = []
 		self.ready_players = []
 		self.endwu_voted_players = []
+		self.requested_break_players = []
 		self.chat_prefix = '$i$000.$903Brawl$fff - $z$fff'
 
 		self.match_tasks = []
@@ -83,6 +85,11 @@ class BrawlMatch(AppConfig):
 				'endwu',
 				namespace='match',
 				target=self.vote_endwu
+			),
+			Command(
+				'break',
+				namespace='match',
+				target=self.request_break
 			)
 		)
 
@@ -148,6 +155,10 @@ class BrawlMatch(AppConfig):
 		nicks_string = '$z$fff vs '.join(nicks)
 		await self.brawl_chat(f'New match has been created: {nicks_string}$z$fff.')
 		self.match_active = True
+		await self.brawl_chat('Some general information:')
+		await self.brawl_chat('First rotation will have warmups, after that warmup is disabled')
+		await self.brawl_chat('You can vote to skip the warmup using /match endwu')
+		await self.brawl_chat('You are allowed 1 break, request it by using /match break')
 		await self.brawl_chat('To start the match, type /match r')
 
 	async def start_ban_phase(self):
@@ -251,7 +262,8 @@ class BrawlMatch(AppConfig):
 
 		for signal, target in self.context.signals.listeners:
 			if target in [self.set_settings_next_map, self.display_current_round,
-						self.incr_round_counter, self.reset_server]:
+						self.incr_round_counter, self.reset_server,
+						  self.init_break]:
 				signal.unregister(target)
 
 		self.maps_played = 0
@@ -260,6 +272,7 @@ class BrawlMatch(AppConfig):
 		self.match_players.clear()
 		self.ready_players.clear()
 		self.endwu_voted_players.clear()
+		self.requested_break_players.clear()
 
 		await self.reset_backup()
 
@@ -290,7 +303,8 @@ class BrawlMatch(AppConfig):
 		self.maps_played += 1
 		self.rounds_played = 0
 		self.endwu_voted_players.clear()
-		await self.brawl_chat(f"It's possible to vote to end the warmup by using /match endwu")
+		if (await self.instance.mode_manager.get_settings())['S_WarmUpNb'] > 0:
+			await self.brawl_chat(f"It's possible to vote to end the warmup by using /match endwu")
 
 	async def incr_round_counter(self, count, time):
 		if await self.finishers():
@@ -335,6 +349,31 @@ class BrawlMatch(AppConfig):
 			await self.brawl_chat(f'Player {player.nickname}$z$fff has voted to end the warmup!')
 			if set(self.match_players) == set(self.endwu_voted_players):
 				await self.instance.gbx('Trackmania.WarmUp.ForceStop', encode_json=False, response_id=False)
+
+	async def request_break(self, player, data, *args, **kwargs):
+		if not self.match_active:
+			await self.brawl_chat('There is no match in progress.', player)
+		elif player not in self.match_players:
+			await self.brawl_chat('You are not a participant in the ongoing match.', player)
+		elif player in self.requested_break_players:
+			await self.brawl_chat('You have already requested your break.', player)
+		else:
+			self.requested_break_players.append(player)
+			await self.brawl_chat(f'Player {player.nickname}$z$fff has requested their break!')
+			self.context.signals.listen(mp_signals.flow.round_end, self.init_break)
+
+	async def init_break(self, count, time):
+		for signal, target in self.context.signals.listeners:
+			if target == self.init_break:
+				signal.unregister(target)
+
+		await self.brawl_chat(f'Match will continue in {self.TIME_BREAK} seconds!')
+		await asyncio.sleep(self.TIME_BREAK / 2)
+		await self.brawl_chat(f'Match will continue in {int(self.TIME_BREAK/2)} seconds!')
+		await asyncio.sleep(self.TIME_BREAK / 2)
+		await self.brawl_chat(f'Match will continue now!')
+		await asyncio.sleep(self.TIME_UNTIL_NEXT_WALL)
+		await self.instance.gbx('Trackmania.ForceEndRound', encode_json=False, response_id=False),
 
 	async def brawl_chat(self, message, player=None):
 		if player:
