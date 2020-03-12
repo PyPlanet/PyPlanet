@@ -349,7 +349,6 @@ class BrawlMatch(AppConfig):
 			self.rounds_played += 1
 
 	async def finishers(self):
-		print(await self.instance.gbx('Trackmania.GetScores'))
 		players = (await self.instance.gbx('Trackmania.GetScores'))['players']
 		return any([player['roundpoints'] != 0 for player in players])
 
@@ -381,6 +380,8 @@ class BrawlMatch(AppConfig):
 			await self.brawl_chat('There is no match in progress.', player)
 		elif player not in self.match_players:
 			await self.brawl_chat('You are not a participant in the ongoing match.', player)
+		elif not (await self.instance.gbx('Trackmania.WarmUp.GetStatus'))['active']:
+			await self.brawl_chat('No warmup in progress.', player)
 		elif player in self.endwu_voted_players:
 			await self.brawl_chat('You have already voted to skip the warmup.', player)
 		else:
