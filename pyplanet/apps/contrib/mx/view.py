@@ -491,8 +491,9 @@ class MxStatusListView(ManualListView):
 				if '.' in mx_map[1]['UpdatedAt']:
 					date_format = '%Y-%m-%dT%H:%M:%S.%f'
 				mx_version_date = datetime.strptime(mx_map[1]['UpdatedAt'], date_format).strftime("%Y-%m-%d %H:%M:%S")
-
-				if mx_map[1]['TrackUID'] == item.uid:
+				mx_map_uid = mx_map[1]['TrackUID'] if 'TrackUID' in mx_map[1] else mx_map[1]['MapUID']
+				
+				if mx_map_uid == item.uid:
 					version_match = '$0a0Up-to-date'
 					version_match_order = 2
 				else:
