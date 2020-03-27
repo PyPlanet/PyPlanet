@@ -47,23 +47,35 @@ class MapAdmin:
 		await self.app.context.setting.register(self.setting_juke_after_adding)
 
 		await self.instance.command_manager.register(
-			Command(command='next', target=self.next_map, perms='admin:next', admin=True),
-			Command(command='skip', target=self.next_map, perms='admin:next', admin=True),
-			Command(command='previous', aliases=['prev'], target=self.prev_map, perms='admin:previous', admin=True),
-			Command(command='restart', aliases=['res', 'rs'], target=self.restart_map, perms='admin:restart', admin=True),
-			Command(command='replay', target=self.replay_map, perms='admin:replay', admin=True),
-			Command(command='local', namespace='add', target=self.add_local_map, perms='admin:add_local_map', admin=True)
+			Command(command='next', target=self.next_map, perms='admin:next', admin=True,
+					description='Skip this map immediately.'),
+			Command(command='skip', target=self.next_map, perms='admin:next', admin=True,
+					description='Skip this map immediately.'),
+			Command(command='previous', aliases=['prev'], target=self.prev_map, perms='admin:previous', admin=True,
+					description='Switch the previously played map.'),
+			Command(command='restart', aliases=['res', 'rs'], target=self.restart_map, perms='admin:restart', admin=True,
+					description='Restart the current map immediately.'),
+			Command(command='replay', target=self.replay_map, perms='admin:replay', admin=True,
+					description='Replay the current map, adds it to the end of the jukebox.'),
+			Command(command='local', namespace='add', target=self.add_local_map, perms='admin:add_local_map', admin=True,
+					description='Add provided map file from local disk to the maplist.')
 				.add_param('map', nargs=1, type=str, required=True, help='Map filename (relative to Maps directory).'),
-			Command(command='remove', target=self.remove_map, perms='admin:remove_map', admin=True, description='Remove map from maplist.')
+			Command(command='remove', target=self.remove_map, perms='admin:remove_map', admin=True,
+					description='Remove map from maplist.')
 				.add_param('nr', required=False, type=int, help='The number from a list window or the unique identifier.'),
-			Command(command='erase', target=self.erase_map, perms='admin:remove_map', admin=True, description='Remove and delete map from maplist and disk.')
+			Command(command='erase', target=self.erase_map, perms='admin:remove_map', admin=True,
+					description='Remove and delete map from maplist and disk.')
 				.add_param('nr', required=False, type=int, help='The number from a list window or the unique identifier.'),
-			Command(command='writemaplist', aliases=['wml'], target=self.write_map_list, perms='admin:write_map_list', admin=True)
+			Command(command='writemaplist', aliases=['wml'], target=self.write_map_list, perms='admin:write_map_list', admin=True,
+					description='Write the current maplist to the file on disk.')
 				.add_param('file', required=False, type=str, help='Give custom match settings file to save to.'),
-			Command(command='readmaplist', aliases=['rml'], target=self.read_map_list, perms='admin:read_map_list', admin=True)
+			Command(command='readmaplist', aliases=['rml'], target=self.read_map_list, perms='admin:read_map_list', admin=True,
+					description='Read the maplist from the file on disk.')
 				.add_param('file', required=True, type=str, help='Give custom match settings file to load from.'),
-			Command(command='shuffle', target=self.shuffle, perms='admin:shuffle', admin=True),
-			Command(command='extend', target=self.extend, perms='admin:extend', admin=True)
+			Command(command='shuffle', target=self.shuffle, perms='admin:shuffle', admin=True,
+					description='Shuffle the maplist.'),
+			Command(command='extend', target=self.extend, perms='admin:extend', admin=True,
+					description='Extend the playing time on the current map.')
 				.add_param('seconds', required=False, type=int, help='Extend the TA limit with given seconds.'),
 		)
 

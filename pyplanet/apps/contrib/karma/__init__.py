@@ -45,7 +45,8 @@ class Karma(AppConfig):
 
 	async def on_start(self):
 		# Register commands.
-		await self.instance.command_manager.register(Command(command='whokarma', target=self.show_map_list))
+		await self.instance.command_manager.register(Command(command='whokarma', target=self.show_map_list,
+															 description='Displays who voted what on the current map.'))
 
 		# Register signals.
 		self.context.signals.listen(mp_signals.map.map_begin, self.map_begin)

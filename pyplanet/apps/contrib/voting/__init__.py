@@ -18,7 +18,7 @@ class Voting(AppConfig):
 	"""
 	Chat-based voting plugin.
 	"""
-		
+
 	name = 'pyplanet.apps.contrib.voting'
 	game_dependencies = ['trackmania', 'shootmania']
 	app_dependencies = ['core.maniaplanet']
@@ -113,14 +113,16 @@ class Voting(AppConfig):
 		await self.instance.permission_manager.register('pass', 'Pass the current vote', app=self, min_level=1)
 
 		await self.instance.command_manager.register(
-			Command(command='cancel', target=self.cancel_vote, perms='voting:cancel', admin=True),
-			Command(command='pass', target=self.pass_vote, perms='voting:pass', admin=True),
-			Command(command='y', aliases=['yes'], target=self.vote_yes),
-			Command(command='n', aliases=['no'], target=self.vote_no),
-			Command(command='replay', target=self.vote_replay),
-			Command(command='restart', aliases=['res'], target=self.vote_restart),
-			Command(command='skip', target=self.vote_skip),
-			Command(command='extend', target=self.vote_extend),
+			Command(command='cancel', target=self.cancel_vote, perms='voting:cancel', admin=True,
+					description='Cancels the current chat-based vote.'),
+			Command(command='pass', target=self.pass_vote, perms='voting:pass', admin=True,
+					description='Passes the current chat-based vote.'),
+			Command(command='y', aliases=['yes'], target=self.vote_yes, description='Votes yes on the current chat-based vote.'),
+			Command(command='n', aliases=['no'], target=self.vote_no, description='Votes no on the current chat-based vote.'),
+			Command(command='replay', target=self.vote_replay, description='Starts a chat-based vote to replay the current map.'),
+			Command(command='restart', aliases=['res'], target=self.vote_restart, description='Starts a chat-based vote to restart the current map.'),
+			Command(command='skip', target=self.vote_skip, description='Starts a chat-based vote to skip the current map.'),
+			Command(command='extend', target=self.vote_extend, description='Starts a chat-based vote to extend the playing time on the current map.'),
 		)
 
 		self.widget = VoteWidget(self)
@@ -579,7 +581,7 @@ class Voting(AppConfig):
 		"""
 
 		message = '$0cfVote to $fff{}$0cf has passed.'.format(vote.action)
-		
+
 		# Hide the voting widget and reset the current vote
 		await self.reset_vote()
 

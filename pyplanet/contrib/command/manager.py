@@ -1,5 +1,6 @@
 import textwrap
 
+from pyplanet.contrib.command.views import CommandsListView
 from pyplanet.contrib import CoreContrib
 from pyplanet.contrib.command.command import Command
 from pyplanet.utils.functional import batch
@@ -49,8 +50,12 @@ class CommandManager(CoreContrib):
 
 		# Register /help and //help
 		await self.register(
-			Command('help', target=self._help).add_param('command', nargs='*', required=False),
-			Command('help', target=self._help, admin=True).add_param('command', nargs='*', required=False),
+			Command('help', target=self._help, description='Shows a chat-based list with all available commands.')
+				.add_param('command', nargs='*', required=False),
+			Command('help', target=self._help, admin=True, description='Shows a chat-based list with all available admin commands.')
+				.add_param('command', nargs='*', required=False),
+			Command('helpall', target=self._helpall, description='Shows all available commands in a list window.'),
+			Command('helpall', target=self._helpall, admin=True, description='Shows all available admin commands in a list window.')
 		)
 
 	async def register(self, *commands):
@@ -162,3 +167,10 @@ class CommandManager(CoreContrib):
 			),
 			*calls
 		)
+
+	async def _helpall(self, player, data, raw, command):
+		filter_admin = bool(command.admin)
+
+		window = CommandsListView(self, filter_admin)
+		await window.display(player=player)
+		return

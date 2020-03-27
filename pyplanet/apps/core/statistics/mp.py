@@ -21,8 +21,10 @@ class ManiaplanetComponent:
 	async def on_start(self):
 		# Register commands.
 		await self.app.instance.command_manager.register(
-			Command('topactive', target=self.top_active),
-			Command('topdons', target=self.top_donators),
+			Command('topactive', target=self.top_active,
+					description='Displays the most active players on this server.'),
+			Command('topdons', target=self.top_donators,
+					description='Displays the players who donated the most planets to this server.'),
 		)
 
 	async def top_active(self, player, *args, **kwargs):

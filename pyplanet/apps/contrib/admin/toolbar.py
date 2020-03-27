@@ -37,7 +37,7 @@ class ToolbarAdmin:
 
 		# Register commands.
 		await self.instance.command_manager.register(
-			Command(command='toolbar', target=self.toggle_toolbar, admin=True, description='Toggle the admin toolbar')
+			Command(command='toolbar', target=self.toggle_toolbar, admin=True, description='Toggles the admin toolbar.')
 		)
 
 		# Display to all current online admins.

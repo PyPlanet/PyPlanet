@@ -17,7 +17,7 @@ class PyPlanetAdmin:
 		await self.instance.permission_manager.register('reboot', 'Reboot PyPlanet pool instance', app=self.app, min_level=3)
 
 		await self.instance.command_manager.register(
-			Command(command='reboot', target=self.reboot_pool, perms='admin:reboot', admin=True),
+			Command(command='reboot', target=self.reboot_pool, perms='admin:reboot', admin=True, description='Reboots PyPlanet.'),
 		)
 
 	async def reboot_pool(self, player, data, **kwargs):

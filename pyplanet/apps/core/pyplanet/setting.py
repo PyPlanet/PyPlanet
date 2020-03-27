@@ -25,7 +25,8 @@ class SettingComponent:
 
 		await self.app.instance.command_manager.register(
 			# Command('settings', self.player_settings, admin=False),
-			Command('settings', self.admin_settings, perms='core.pyplanet:edit_server_settings', admin=True),
+			Command('settings', self.admin_settings, perms='core.pyplanet:edit_server_settings', admin=True,
+					description='Displays and allows editing PyPlanet/plugin settings.'),
 		)
 
 	async def player_settings(self, player, *args, **kwargs):

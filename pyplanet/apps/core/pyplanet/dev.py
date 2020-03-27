@@ -25,7 +25,8 @@ class DevComponent:
 		)
 
 		await self.app.instance.command_manager.register(
-			Command('call', self.admin_call, perms='core.pyplanet:execute_calls', admin=True)
+			Command('call', self.admin_call, perms='core.pyplanet:execute_calls', admin=True,
+					description='Allows execution of API calls on the dedicated server.')
 				.add_param('method', type=str)
 				.add_param('args', type=str, nargs='*', required=False),
 		)

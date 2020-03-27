@@ -53,7 +53,8 @@ class PyPlanetConfig(AppConfig):
 		# Listeners.
 		self.context.signals.listen('maniaplanet:player_connect', self.on_connect)
 		await self.instance.command_manager.register(
-			Command('version', self.chat_version),
+			Command('version', self.chat_version,
+					description='Displays the current server and PyPlanet versions and the active PyPlanet plugins.'),
 			Command('upgrade', self.chat_upgrade, admin=True, description='Upgrade PyPlanet installation (Experimental)')
 				.add_param('to_version', type=str, default=None, required=False, help='Upgrade to specific version')
 		)
