@@ -152,17 +152,12 @@ class Command:
 		:type player: pyplanet.apps.core.maniaplanet.models.player.Player
 		"""
 		# Check permissions.
-		if self.perms and len(self.perms) > 0:
-			# All the given perms need to be matching!
-			is_allowed = await asyncio.gather(*[
-				instance.permission_manager.has_permission(player, perm) for perm in self.perms
-			])
-			if not all(allowed is True for allowed in is_allowed):
-				await instance.chat(
-					'$z$sYou are not authorized to use this command!',
-					player.login
-				)
-				return
+		if not await self.has_permission(instance, player):
+			await instance.chat(
+				'$z$sYou are not authorized to use this command!',
+				player.login
+			)
+			return
 
 		# Strip off the namespace and command.
 		paramv = self.get_params(argv)
@@ -180,6 +175,26 @@ class Command:
 		if iscoroutinefunction(self.target):
 			return await self.target(player=player, data=self.parser.data, raw=argv, command=self)
 		return self.target(player=player, data=self.parser.data, raw=argv, command=self)
+
+	async def has_permission(self, instance, player):
+		"""
+		Checks whether the provided player has the permission to execute this command.
+		:param instance: Controller Instance
+		:type instance: pyplanet.core.instance.Instance
+		:param player: Player requesting execution of this command.
+		:type player: pyplanet.apps.core.maniaplanet.models.player.Player
+		:return: Whether provided player has permission to execute this command.
+		"""
+		player_has_permission = True
+		if self.perms and len(self.perms) > 0:
+			# All the given perms need to be matching!
+			is_allowed = await asyncio.gather(*[
+				instance.permission_manager.has_permission(player, perm) for perm in self.perms
+			])
+			if not all(allowed is True for allowed in is_allowed):
+				player_has_permission = False
+
+		return player_has_permission
 
 	@property
 	def usage_text(self):

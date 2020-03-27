@@ -150,6 +150,9 @@ class CommandManager(CoreContrib):
 
 		# All commands.
 		commands = [c for c in self._commands if c.admin is filter_admin]
+		if filter_admin:
+			commands = [c for c in commands if await c.has_permission(self._instance, player)]
+
 		calls = list()
 		for cmds in batch(commands, 7):
 			help_texts = [str(c) for c in cmds]
@@ -171,6 +174,6 @@ class CommandManager(CoreContrib):
 	async def _helpall(self, player, data, raw, command):
 		filter_admin = bool(command.admin)
 
-		window = CommandsListView(self, filter_admin)
+		window = CommandsListView(self, player, filter_admin)
 		await window.display(player=player)
 		return

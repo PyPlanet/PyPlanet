@@ -15,10 +15,11 @@ class CommandsListView(ManualListView):
 
 	data = []
 
-	def __init__(self, command_manager, is_admin_view):
+	def __init__(self, command_manager, player, is_admin_view):
 		super().__init__(self)
 		self.command_manager = command_manager
 		self.manager = self.command_manager._instance.ui_manager
+		self.player = player
 		self.is_admin_view = is_admin_view
 
 	async def get_fields(self):
@@ -46,11 +47,13 @@ class CommandsListView(ManualListView):
 		self.title = 'Available admin chat commands' if self.is_admin_view else 'Available chat commands'
 
 		for command in [c for c in self.command_manager._commands if c.admin is self.is_admin_view]:
-			command_text = ''
-			if command.namespace:
-				command_text += command.namespace + ' '
-			command_text += command.command
-			data.append({'command': command_text, 'description': command.description})
+			if not self.is_admin_view or await command.has_permission(self.command_manager._instance, self.player):
+				command_text = ''
+				if command.namespace:
+					command_text += '|'.join(command.namespace) if isinstance(command.namespace, (list, tuple)) else command.namespace
+					command_text += ' '
+				command_text += command.command
+				data.append({'command': command_text, 'description': command.description})
 
 		data.sort(key=lambda c: c['command'])
 		return data
