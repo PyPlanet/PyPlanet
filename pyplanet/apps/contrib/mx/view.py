@@ -180,7 +180,7 @@ class MxSearchListView(ManualListView):
 			self.cache = [dict(
 				mxid=_map['TrackID'],
 				name=_map['Name'],
-				gbxname=_map['GbxMapName'],
+				gbxname=_map['GbxMapName'] if _map['GbxMapName'] is not '?' else _map['Name'],
 				author=_map['Username'],
 				envir=_map['EnvironmentName'],
 				awards='$fff🏆 {}'.format(_map['AwardCount']) if _map['AwardCount'] > 0 else "",
@@ -193,7 +193,7 @@ class MxSearchListView(ManualListView):
 			self.cache = [dict(
 				mxid=_map['TrackID'],
 				name=_map['Name'],
-				gbxname=_map['GbxMapName'],
+				gbxname=_map['GbxMapName'] if _map['GbxMapName'] is not '?' else _map['Name'],
 				author=_map['Username'],
 				envir=_map['EnvironmentName'],
 				awards='$fff🏆 {}'.format(_map['AwardCount']) if _map['AwardCount'] > 0 else "",
