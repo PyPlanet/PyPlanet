@@ -206,6 +206,7 @@ class Command:
 			self.namespace if self.namespace else '',
 			self.command
 		)
+
 		for param in self.parser.params:
 			text += ' {}{}:{}{}'.format(
 				'[' if not param['required'] else '',
@@ -213,6 +214,43 @@ class Command:
 				getattr(param['type'], '__name__', 'any'),
 				']' if not param['required'] else '',
 			)
+
+		return text
+
+	@property
+	def params_text(self):
+		text = ''
+
+		param_index = 0
+		for param in self.parser.params:
+			if param_index > 0:
+				text += '\n'
+
+			text += '{}{}:{}{}{}'.format(
+				'[' if not param['required'] else '',
+				param['name'],
+				getattr(param['type'], '__name__', 'any'),
+				']' if not param['required'] else '',
+				' = {}'.format(param['help']) if param['help'] else ''
+			)
+
+			param_index += 1
+
+		return text
+
+	@property
+	def perms_text(self):
+		text = ''
+
+		if self.perms and len(self.perms) > 0:
+			perm_index = 0
+			for permission in self.perms:
+				if perm_index > 0:
+					text += '\n'
+
+				text += '{}'.format(permission)
+
+				perm_index += 1
 
 		return text
 
