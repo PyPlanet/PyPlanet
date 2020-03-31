@@ -4,10 +4,9 @@ dist: xenial
 sudo: required
 
 python:
-  - 3.5
   - 3.6
   - 3.7
-#  - 3.8
+  - 3.8
 
 cache:
   directories:
@@ -22,32 +21,21 @@ env:
     - secure: nzhTQtPHI2pgoFhyW943aEsw2qOmljMhKDIaGiHiEWuV0QwM2RQDqq4p/WDc1i1Ce3XRsjApqwIIoT0M+h9PHPJnk6s8EGsdac5hzR40F9WWx679sMMB+O15PSp4TXGIOdfEOnAsYKefWSKLjjfkcj5rhvYJS098k5x/Ft3ufyzCOQ7iRaGDKC3tPEefgOf/hsCHP8jLpReyPSf8269OFVWdmKVVIwk81MnUr45iCGM9SJCRS+SCZ3pYwH3/KXnTEbV40Vzgl5GxL8Gz2AMi7KUKKoRN8TxT36+u7J66QcCnV3DQ0o8psu8Qh9cttt/EpRGCBFps0ShJA4AKs+wfDXrZuURBRKTJyDTcaXp7+xP0bbN2z/4TS893JNoCPGR76Uvu9K19qwLISI2SvjyEXPI3kEpbUN8I7ljptK33+MgP1Yjuu+CYoOWSnnr0KbwBG/uedxEVnlAISTnuhTHYSOyQg85o2nN5jOyBY1bz6WL2Cc5CVAePhASKXBmvfQDzm8gdi0gAOQuArCoA3+f6ubjkN2nTvALqdqcmW71dKOC1trjMgbAf4O3recnxisW5vho4L2K/wyTjHFJlZBAfG+5blXwbkdDtBDVqeo6MuMWkKNN/NKSQ1hequ7vMUyYulfgdR8KvT4NeTCxd0H7jk86hUKf9QvTNazHvgICe1Us=
   matrix:
     # Unit tests.
-    - TOXENV=py35-unit-mysql
-    - TOXENV=py35-unit-postgresql
     - TOXENV=py36-unit-mysql
     - TOXENV=py36-unit-postgresql
     - TOXENV=py37-unit-mysql
     - TOXENV=py37-unit-postgresql
-#    - TOXENV=py38-unit-mysql
-#    - TOXENV=py38-unit-postgresql
+    - TOXENV=py38-unit-mysql
+    - TOXENV=py38-unit-postgresql
 
     # Integration tests.
-    - TOXENV=py35-integration-mysql
     - TOXENV=py36-integration-mysql
     - TOXENV=py37-integration-mysql
-#    - TOXENV=py38-integration-mysql
+    - TOXENV=py38-integration-mysql
 
 matrix:
   exclude:
     - python: 3.6
-      env: TOXENV=py35-unit-mysql
-    - python: 3.6
-      env: TOXENV=py35-unit-postgresql
-    - python: 3.6
-      env: TOXENV=py35-integration-mysql
-    - python: 3.6
-      env: TOXENV=py35-integration-postgresql
-    - python: 3.6
       env: TOXENV=py37-unit-mysql
     - python: 3.6
       env: TOXENV=py37-unit-postgresql
@@ -55,48 +43,15 @@ matrix:
       env: TOXENV=py37-integration-mysql
     - python: 3.6
       env: TOXENV=py37-integration-postgresql
-#    - python: 3.6
-#      env: TOXENV=py38-unit-mysql
-#    - python: 3.6
-#      env: TOXENV=py38-unit-postgresql
-#    - python: 3.6
-#      env: TOXENV=py38-integration-mysql
-#    - python: 3.6
-#      env: TOXENV=py38-integration-postgresql
+    - python: 3.6
+      env: TOXENV=py38-unit-mysql
+    - python: 3.6
+      env: TOXENV=py38-unit-postgresql
+    - python: 3.6
+      env: TOXENV=py38-integration-mysql
+    - python: 3.6
+      env: TOXENV=py38-integration-postgresql
 
-    - python: 3.5
-      env: TOXENV=py36-unit-mysql
-    - python: 3.5
-      env: TOXENV=py36-unit-postgresql
-    - python: 3.5
-      env: TOXENV=py36-integration-mysql
-    - python: 3.5
-      env: TOXENV=py36-integration-postgresql
-    - python: 3.5
-      env: TOXENV=py37-unit-mysql
-    - python: 3.5
-      env: TOXENV=py37-unit-postgresql
-    - python: 3.5
-      env: TOXENV=py37-integration-mysql
-    - python: 3.5
-      env: TOXENV=py37-integration-postgresql
-#    - python: 3.5
-#      env: TOXENV=py38-unit-mysql
-#    - python: 3.5
-#      env: TOXENV=py38-unit-postgresql
-#    - python: 3.5
-#      env: TOXENV=py38-integration-mysql
-#    - python: 3.5
-#      env: TOXENV=py38-integration-postgresql
-
-    - python: 3.7
-      env: TOXENV=py35-unit-mysql
-    - python: 3.7
-      env: TOXENV=py35-unit-postgresql
-    - python: 3.7
-      env: TOXENV=py35-integration-mysql
-    - python: 3.7
-      env: TOXENV=py35-integration-postgresql
     - python: 3.7
       env: TOXENV=py36-unit-mysql
     - python: 3.7
@@ -105,43 +60,33 @@ matrix:
       env: TOXENV=py36-integration-mysql
     - python: 3.7
       env: TOXENV=py36-integration-postgresql
-#    - python: 3.7
-#      env: TOXENV=py38-unit-mysql
-#    - python: 3.7
-#      env: TOXENV=py38-unit-postgresql
-#    - python: 3.7
-#      env: TOXENV=py38-integration-mysql
-#    - python: 3.7
-#      env: TOXENV=py38-integration-postgresql
-#
-#    - python: 3.8
-#      env: TOXENV=py35-unit-mysql
-#    - python: 3.8
-#      env: TOXENV=py35-unit-postgresql
-#    - python: 3.8
-#      env: TOXENV=py35-integration-mysql
-#    - python: 3.8
-#      env: TOXENV=py35-integration-postgresql
-#    - python: 3.8
-#      env: TOXENV=py36-unit-mysql
-#    - python: 3.8
-#      env: TOXENV=py36-unit-postgresql
-#    - python: 3.8
-#      env: TOXENV=py36-integration-mysql
-#    - python: 3.8
-#      env: TOXENV=py36-integration-postgresql
-#    - python: 3.8
-#      env: TOXENV=py37-unit-mysql
-#    - python: 3.8
-#      env: TOXENV=py37-unit-postgresql
-#    - python: 3.8
-#      env: TOXENV=py37-integration-mysql
-#    - python: 3.8
-#      env: TOXENV=py37-integration-postgresql
+    - python: 3.7
+      env: TOXENV=py38-unit-mysql
+    - python: 3.7
+      env: TOXENV=py38-unit-postgresql
+    - python: 3.7
+      env: TOXENV=py38-integration-mysql
+    - python: 3.7
+      env: TOXENV=py38-integration-postgresql
+
+    - python: 3.8
+      env: TOXENV=py36-unit-mysql
+    - python: 3.8
+      env: TOXENV=py36-unit-postgresql
+    - python: 3.8
+      env: TOXENV=py36-integration-mysql
+    - python: 3.8
+      env: TOXENV=py36-integration-postgresql
+    - python: 3.8
+      env: TOXENV=py37-unit-mysql
+    - python: 3.8
+      env: TOXENV=py37-unit-postgresql
+    - python: 3.8
+      env: TOXENV=py37-integration-mysql
+    - python: 3.8
+      env: TOXENV=py37-integration-postgresql
 
 #  include:
-#    - python: 3.5
-#      if: branch = master
 #    - python: 3.6
 #      if: branch = master
 #    - python: 3.7
