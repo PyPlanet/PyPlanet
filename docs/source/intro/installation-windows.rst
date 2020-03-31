@@ -8,7 +8,7 @@ Installation on Windows
 1. Installing Python
 ~~~~~~~~~~~~~~~~~~~~
 
-If you have not yet installed Python 3.5 or later on your Windows machine, do it now by going to the following link:
+If you have not yet installed Python 3.6 or later on your Windows machine, do it now by going to the following link:
 
 https://www.python.org/downloads/release/python-370/
 
