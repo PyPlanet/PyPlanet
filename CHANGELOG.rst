@@ -8,6 +8,8 @@ Core
 ~~~~
 
 * Improvement: Dropping Python 3.5 support!
+* Improvement: Add //helpall and /helpall for a detailed list of commands!
+* Improvement: Only commands that you have permission for will be listed in //help
 
 Apps
 ~~~~
