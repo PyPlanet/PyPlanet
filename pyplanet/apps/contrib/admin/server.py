@@ -29,15 +29,22 @@ class ServerAdmin:
 		await self.instance.permission_manager.register('chat_toggle', 'Turn the public chat on or off', app=self.app, min_level=2)
 
 		await self.instance.command_manager.register(
-			Command(command='cancelcallvote', aliases=['cancelcall'], target=self.cancel_callvote, perms='admin:callvoting', admin=True),
-			Command(command='setpassword', aliases=['srvpass'], target=self.set_password, perms='admin:password', admin=True).add_param(name='password', required=False),
-			Command(command='setspecpassword', aliases=['spectpass'], target=self.set_spec_password, perms='admin:password', admin=True).add_param(name='password', required=False),
-			Command(command='servername', target=self.set_servername, perms='admin:servername', admin=True).add_param(name='server_name', required=True, nargs='*'),
-			Command(command='mode', target=self.set_mode, perms='admin:mode', admin=True).add_param(name='mode', required=True, nargs='*'),
-			Command(command='modesettings', target=self.mode_settings, perms='admin:mode', admin=True)
+			Command(command='cancelcallvote', aliases=['cancelcall'], target=self.cancel_callvote, perms='admin:callvoting',
+					admin=True, description='Cancels the current callvote (server vote).'),
+			Command(command='setpassword', aliases=['srvpass'], target=self.set_password, perms='admin:password', admin=True,
+					description='Sets the player password of the server.').add_param(name='password', required=False),
+			Command(command='setspecpassword', aliases=['spectpass'], target=self.set_spec_password, perms='admin:password',
+					admin=True, description='Sets the spectator password of the server.').add_param(name='password', required=False),
+			Command(command='servername', target=self.set_servername, perms='admin:servername', admin=True,
+					description='Changes the name of the server.').add_param(name='server_name', required=True, nargs='*'),
+			Command(command='mode', target=self.set_mode, perms='admin:mode', admin=True,
+					description='Changes the gamemode of the server.').add_param(name='mode', required=True, nargs='*'),
+			Command(command='modesettings', target=self.mode_settings, perms='admin:mode', admin=True,
+					description='Displays and allows for updating of the gamemode settings.')
 				.add_param(name='setting', required=False)
 				.add_param(name='content', required=False),
-			Command(command='chat', target=self.chat_toggle, perms='admin:chat_toggle', admin=True)
+			Command(command='chat', target=self.chat_toggle, perms='admin:chat_toggle', admin=True,
+					description='Enables/disables the chat.')
 				.add_param(name='enable', required=False),
 		)
 

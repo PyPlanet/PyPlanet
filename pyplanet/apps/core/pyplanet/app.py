@@ -5,12 +5,14 @@ import platform
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.core.pyplanet.dev import DevComponent
 from pyplanet.apps.core.pyplanet.setting import SettingComponent
+from pyplanet.apps.core.pyplanet.views.command import CommandsListView
 from pyplanet.apps.core.pyplanet.views.controller import ControllerView
 from pyplanet.conf import settings
 from pyplanet.contrib.command import Command
 
 from pyplanet import __version__ as version
 from pyplanet.utils import semver
+from pyplanet.utils.functional import batch
 from pyplanet.utils.pip import Pip
 from pyplanet.utils.releases import UpdateChecker
 from pyplanet.views.generics import ask_confirmation
@@ -53,9 +55,17 @@ class PyPlanetConfig(AppConfig):
 		# Listeners.
 		self.context.signals.listen('maniaplanet:player_connect', self.on_connect)
 		await self.instance.command_manager.register(
-			Command('version', self.chat_version),
+			Command('version', self.chat_version,
+					description='Displays the current server and PyPlanet versions and the active PyPlanet plugins.'),
 			Command('upgrade', self.chat_upgrade, admin=True, description='Upgrade PyPlanet installation (Experimental)')
-				.add_param('to_version', type=str, default=None, required=False, help='Upgrade to specific version')
+				.add_param('to_version', type=str, default=None, required=False, help='Upgrade to specific version'),
+
+			Command('help', target=self.chat_help, description='Shows a chat-based list with all available commands.')
+				.add_param('command', nargs='*', required=False),
+			Command('help', target=self.chat_help, admin=True, description='Shows a chat-based list with all available admin commands.')
+				.add_param('command', nargs='*', required=False),
+			Command('helpall', target=self.chat_helpall, description='Shows all available commands in a list window.'),
+			Command('helpall', target=self.chat_helpall, admin=True, description='Shows all available admin commands in a list window.')
 		)
 
 	async def on_connect(self, player, **kwargs):
@@ -168,3 +178,53 @@ class PyPlanetConfig(AppConfig):
 				raw=True
 			)
 			await asyncio.sleep(0.05)
+
+	async def chat_helpall(self, player, data, raw, command):
+		return
+
+	async def chat_help(self, player, data, raw, command):
+		# Show usage of a single command, given as second or more params.
+		if data.command:
+			is_admin = bool(command.admin)
+			cmd_args = data.command
+
+			# HACK: Add / before an admin command to match the right command.
+			if is_admin and cmd_args:
+				cmd_args[0] = '/{}'.format(cmd_args[0])
+
+			cmd = await self.instance.command_manager.get_command_by_command_text(cmd_args)
+			if cmd:
+				await self.instance.chat(
+					'$z$s{}'.format(cmd.usage_text),
+					player
+				)
+			else:
+				await self.instance.chat('Command help not found', player)
+			return
+
+		# All commands.
+		commands = await self.instance.command_manager.help_entries(player, command.admin)
+
+		# Prepare and send the calls.
+		calls = list()
+		for cmds in batch(commands, 7):
+			help_texts = [str(c) for c in cmds]
+			calls.append(
+				self.instance.chat(
+					'$z$s{}'.format(' | '.join(help_texts)),
+					player.login
+				)
+			)
+
+		await self.instance.gbx.multicall(
+			self.instance.chat(
+				'$z$sCommand list. Help per command: /{}help [command]'.format('/' if command.admin else ''),
+				player.login
+			),
+			*calls
+		)
+
+	async def chat_helpall(self, player, data, raw, command):
+		window = CommandsListView(self, player, command.admin)
+		await window.display(player=player)
+		return

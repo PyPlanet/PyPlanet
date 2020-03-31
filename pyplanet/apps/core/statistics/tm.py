@@ -29,8 +29,9 @@ class TrackmaniaComponent:
 		# Register commands.
 		await self.app.instance.command_manager.register(
 			# Command('stats', target=self.open_stats),
-			Command('topsums', target=self.topsums),
-			Command(command='scoreprogression', aliases=['progression'], target=self.open_score_progression),
+			Command('topsums', target=self.topsums, description='Displays a list of top record players.'),
+			Command(command='scoreprogression', aliases=['progression'], target=self.open_score_progression,
+					description='Displays your time/score progression on the current map.'),
 		)
 
 	async def on_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):

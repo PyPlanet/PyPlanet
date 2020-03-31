@@ -38,31 +38,39 @@ class PlayerAdmin:
 		await self.instance.permission_manager.register('read_blacklist', 'Read blacklist file', app=self.app, min_level=3)
 
 		await self.instance.command_manager.register(
-			Command(command='players', target=self.player_list, perms='admin:list_players', admin=True),
-			Command(command='mute', aliases=['ignore'], target=self.ignore_player, perms='admin:ignore', admin=True).add_param(name='login', required=True),
-			Command(command='unmute', aliases=['unignore'], target=self.unignore_player, perms='admin:unignore', admin=True).add_param(name='login', required=True),
-			Command(command='kick', target=self.kick_player, perms='admin:kick', admin=True).add_param(name='login', required=True),
-			Command(command='ban', target=self.ban_player, perms='admin:ban', admin=True).add_param(name='login', required=True),
-			Command(command='unban', target=self.unban_player, perms='admin:unban', admin=True).add_param(name='login', required=True),
-			Command(command='blacklist', aliases=['black'], target=self.blacklist_player, perms='admin:blacklist', admin=True).add_param(name='login', required=True),
-			Command(command='unblacklist', aliases=['unblack'], target=self.unblacklist_player, perms='admin:unblacklist', admin=True).add_param(name='login', required=True),
-			Command(command='level', target=self.change_level, perms='admin:manage_admins', description='Change admin level for player.', admin=True)
+			Command(command='players', target=self.player_list, perms='admin:list_players', admin=True,
+					description='Displays the list of players currently online.'),
+			Command(command='mute', aliases=['ignore'], target=self.ignore_player, perms='admin:ignore', admin=True,
+					description='Mutes the provided player (sent chat messages will not be visible).').add_param(name='login', required=True),
+			Command(command='unmute', aliases=['unignore'], target=self.unignore_player, perms='admin:unignore', admin=True,
+					description='Unmutes the provided players (sent chat messages will be visible again).').add_param(name='login', required=True),
+			Command(command='kick', target=self.kick_player, perms='admin:kick', admin=True,
+					description='Kicks the provided player from the server.').add_param(name='login', required=True),
+			Command(command='ban', target=self.ban_player, perms='admin:ban', admin=True,
+					description='Bans the provided player from the server (until server restart).').add_param(name='login', required=True),
+			Command(command='unban', target=self.unban_player, perms='admin:unban', admin=True,
+					description='Unbans the provided player on the server (until server restart).').add_param(name='login', required=True),
+			Command(command='blacklist', aliases=['black'], target=self.blacklist_player, perms='admin:blacklist', admin=True,
+					description='Blacklists the provided player from the server (permanent ban).').add_param(name='login', required=True),
+			Command(command='unblacklist', aliases=['unblack'], target=self.unblacklist_player, perms='admin:unblacklist', admin=True,
+					description='Unblacklists the provided player on the server.').add_param(name='login', required=True),
+			Command(command='level', target=self.change_level, perms='admin:manage_admins', description='Changes admin level for the providedplayer.', admin=True)
 				.add_param(name='login', required=True)
 				.add_param(name='level', required=False, help='Level, 0 = player, 1 = operator, 2 = admin, 3 = master admin.', type=int, default=0),
-			Command(command='forcespec', target=self.force_spec, perms='admin:force_spec', description='Force player into spectate', admin=True)
+			Command(command='forcespec', target=self.force_spec, perms='admin:force_spec', description='Forces player into spectator mode.', admin=True)
 				.add_param(name='login', required=True),
-			Command(command='forceplay', target=self.force_play, perms='admin:force_play', description='Force player into player slot', admin=True)
+			Command(command='forceplay', target=self.force_play, perms='admin:force_play', description='Forces player into player slot.', admin=True)
 				.add_param(name='login', required=True),
-			Command(command='forceteam', target=self.force_team, perms='admin:force_team', description='Force player into a team', admin=True)
+			Command(command='forceteam', target=self.force_team, perms='admin:force_team', description='Forces player into a team.', admin=True)
 				.add_param(name='login', required=True, type=str)
 				.add_param(name='team', required=True, help='Team, blue/0 = left, red/1 = right'),
-			Command(command='switchteam', target=self.switch_team, perms='admin:switch_team', description='Force player into the other team', admin=True)
+			Command(command='switchteam', target=self.switch_team, perms='admin:switch_team', description='Forces player into the other team.', admin=True)
 				.add_param(name='login', required=True),
-			Command(command='warn', aliases=['warning'], target=self.warn_player, perms='admin:warn', description='Warn a player', admin=True)
+			Command(command='warn', aliases=['warning'], target=self.warn_player, perms='admin:warn', description='Warns the provided player.', admin=True)
 				.add_param(name='login', required=True),
-			Command(command='writeblacklist', aliases=['wbl'], target=self.write_blacklist, perms='admin:write_blacklist', description='Write blacklist file', admin=True)
+			Command(command='writeblacklist', aliases=['wbl'], target=self.write_blacklist, perms='admin:write_blacklist', description='Writes the blacklist file to disk.', admin=True)
 				.add_param('file', required=False, type=str, help='Give custom blacklist file to save to.'),
-			Command(command='readblacklist', aliases=['rbl'], target=self.read_blacklist, perms='admin:read_blacklist', description='Read blacklist file', admin=True)
+			Command(command='readblacklist', aliases=['rbl'], target=self.read_blacklist, perms='admin:read_blacklist', description='Reads the blacklist file from disk.', admin=True)
 				.add_param('file', required=False, type=str, help='Give custom blacklist file to load from.'),
 		)
 

@@ -40,22 +40,27 @@ class MX(AppConfig):  # pragma: no cover
 		)
 
 		await self.instance.command_manager.register(
-			Command(command='info', namespace='mx', target=self.mx_info),
+			Command(command='info', namespace='mx', target=self.mx_info,
+					description='Display ManiaExchange information for current map.'),
 			# support backwards
-			Command(command='mx', namespace='add', target=self.add_mx_map, perms='mx:add_remote', admin=True).add_param(
+			Command(command='mx', namespace='add', target=self.add_mx_map, perms='mx:add_remote', admin=True,
+					description='Add map from ManiaExchange to the maplist.').add_param(
 				'maps', nargs='*', type=str, required=True, help='MX ID(s) of maps to add.'),
 
 			# new mx namespace
 			Command(command='search', aliases=['list'], namespace='mx', target=self.search_mx_map, perms='mx:add_remote',
-					admin=True),
-			Command(command='add', namespace='mx', target=self.add_mx_map, perms='mx:add_remote', admin=True).add_param(
+					admin=True, description='Search for maps on ManiaExchange.'),
+			Command(command='add', namespace='mx', target=self.add_mx_map, perms='mx:add_remote', admin=True,
+					description='Add map from ManiaExchange to the maplist.').add_param(
 				'maps', nargs='*', type=str, required=True, help='MX ID(s) of maps to add.'),
-			Command(command='status', namespace='mx', target=self.status_mx_maps, perms='mx:add_remote', admin=True),
+			Command(command='status', namespace='mx', target=self.status_mx_maps, perms='mx:add_remote', admin=True,
+					description='View the map statuses compared to ManiaExchange.'),
 
 			# new mxpack namespace
 			Command(command='search', aliases=['list'], namespace='mxpack', target=self.search_mx_pack,
-					perms='mx:add_remote', admin=True),
-			Command(command='add', namespace='mxpack', target=self.add_mx_pack, perms='mx:add_remote', admin=True)
+					perms='mx:add_remote', admin=True, description='Search for mappacks on ManiaExchange.'),
+			Command(command='add', namespace='mxpack', target=self.add_mx_pack, perms='mx:add_remote', admin=True,
+					description='Add mappack from ManiaExchange to the maplist.')
 				.add_param('pack', nargs='*', type=str, required=True, help='MX ID(s) of mappacks to add.'),
 		)
 

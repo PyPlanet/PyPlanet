@@ -41,9 +41,10 @@ class LocalRecords(AppConfig):
 	async def on_start(self):
 		# Register commands
 		await self.instance.command_manager.register(
-			Command(command='records', target=self.show_records_list),
+			Command(command='records', target=self.show_records_list,
+					description='Displays the complete list of local records on the current map.'),
 			Command(
-				'localcps', target=self.command_localcps, description='Compare your local record checkpoints with another record.'
+				'localcps', target=self.command_localcps, description='Compares your local record checkpoints with another record.'
 			).add_param('record', required=False, type=int, help='Custom record rank to compare with. Defaults to 1.', default=1)
 		)
 
