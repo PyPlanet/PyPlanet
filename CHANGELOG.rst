@@ -1,6 +1,19 @@
 Changelog
 =========
 
+0.8.0 (x)
+---------
+
+Core
+~~~~
+
+* Improvement: Dropping Python 3.5 support!
+
+Apps
+~~~~
+
+
+
 0.7.4 (04 March 2020)
 ---------------------
 

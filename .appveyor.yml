@@ -18,18 +18,6 @@ environment:
     IS_WINDOWS: 1
 
   matrix:
-    - TOXENV: 'py35-unit-mysql'
-      TOXPYTHON: C:\Python35\python.exe
-      PYTHON_HOME: C:\Python35
-      PYTHON_VERSION: '3.5'
-      PYTHON_ARCH: '32'
-
-    - TOXENV: 'py35-unit-mysql'
-      TOXPYTHON: C:\Python35-x64\python.exe
-      PYTHON_HOME: C:\Python35-x64
-      PYTHON_VERSION: '3.5'
-      PYTHON_ARCH: '64'
-
     - TOXENV: 'py36-unit-mysql'
       TOXPYTHON: C:\Python36\python.exe
       PYTHON_HOME: C:\Python36
@@ -54,17 +42,17 @@ environment:
       PYTHON_VERSION: '3.7'
       PYTHON_ARCH: '64'
 
-#    - TOXENV: 'py38-unit-mysql'
-#      TOXPYTHON: C:\Python38\python.exe
-#      PYTHON_HOME: C:\Python38
-#      PYTHON_VERSION: '3.8'
-#      PYTHON_ARCH: '32'
-#
-#    - TOXENV: 'py38-unit-mysql'
-#      TOXPYTHON: C:\Python38-x64\python.exe
-#      PYTHON_HOME: C:\Python38-x64
-#      PYTHON_VERSION: '3.8'
-#      PYTHON_ARCH: '64'
+    - TOXENV: 'py38-unit-mysql'
+      TOXPYTHON: C:\Python38\python.exe
+      PYTHON_HOME: C:\Python38
+      PYTHON_VERSION: '3.8'
+      PYTHON_ARCH: '32'
+
+    - TOXENV: 'py38-unit-mysql'
+      TOXPYTHON: C:\Python38-x64\python.exe
+      PYTHON_HOME: C:\Python38-x64
+      PYTHON_VERSION: '3.8'
+      PYTHON_ARCH: '64'
 
 init:
   - ps: echo $env:TOXENV
