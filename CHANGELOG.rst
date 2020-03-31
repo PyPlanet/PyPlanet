@@ -14,7 +14,7 @@ Core
 Apps
 ~~~~
 
-
+* Bugfix: Using the map name from MX if the Gbx map name is not provided by MX.
 
 0.7.4 (04 March 2020)
 ---------------------
