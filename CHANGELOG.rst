@@ -15,6 +15,7 @@ Apps
 ~~~~
 
 * Bugfix: Using the map name from MX if the Gbx map name is not provided by MX.
+* Bugfix: Fixing issue with MX update check on Shootmania.
 
 0.7.4 (04 March 2020)
 ---------------------
