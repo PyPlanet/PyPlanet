@@ -1,13 +1,10 @@
 import asyncio
-import math
 
 from pyplanet.views import TemplateView
 from pyplanet.views.generics.list import ManualListView
 
 
 class CommandsListView(ManualListView):
-	command_manager = None
-
 	title = 'Available chat commands'
 	icon_style = 'Icons128x128_1'
 	icon_substyle = 'Puzzle'
@@ -16,10 +13,11 @@ class CommandsListView(ManualListView):
 
 	data = []
 
-	def __init__(self, command_manager, player, is_admin_view):
+	def __init__(self, app, player, is_admin_view):
 		super().__init__(self)
-		self.command_manager = command_manager
-		self.manager = self.command_manager._instance.ui_manager
+		self.app = app
+		self.instance = app.instance
+		self.manager = app.context.ui
 		self.player = player
 		self.is_admin_view = is_admin_view
 
@@ -50,8 +48,8 @@ class CommandsListView(ManualListView):
 
 		self.title = 'Available admin chat commands' if self.is_admin_view else 'Available chat commands'
 
-		for command in [c for c in self.command_manager._commands if c.admin is self.is_admin_view]:
-			if not self.is_admin_view or await command.has_permission(self.command_manager._instance, self.player):
+		for command in [c for c in self.instance.command_manager._commands if c.admin is self.is_admin_view]:
+			if not self.is_admin_view or await command.has_permission(self.instance, self.player):
 				command_text = ''
 				if command.namespace:
 					command_text += '|'.join(command.namespace) if isinstance(command.namespace, (list, tuple)) else command.namespace
