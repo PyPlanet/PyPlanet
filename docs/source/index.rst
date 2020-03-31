@@ -5,7 +5,7 @@ Welcome to PyPlanet's documentation!
     :scale: 30%
     :align: right
 
-PyPlanet is a Maniaplanet Dedicated Server Controller that works on Python 3.5 and later.
+PyPlanet is a Maniaplanet Dedicated Server Controller that works on Python 3.6 and later.
 Because Maniaplanet is using a system that can be event based we use AsyncIO to provide
 an event loop and have simultaneously processing of received events from the dedicated server.
 

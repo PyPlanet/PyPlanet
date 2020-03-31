@@ -14,7 +14,7 @@ Please include a documentation update and update or add tests for your changes.
 - Fork the PyPlanet repository.
 - Create a separate branch from master.
 - Develop fixes, features, apps, tests, update documentation, etc
-- Run the test suite on at least Python 3.5 or higher.
+- Run the test suite on at least Python 3.6 or higher.
 - Create a pull request, after creating the test suites will start from Travis CI. We can only merge once they are complete and succeeded!
 
 ### Guidelines

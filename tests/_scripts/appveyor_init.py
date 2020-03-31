@@ -19,14 +19,14 @@ GET_PIP_URL = "https://bootstrap.pypa.io/get-pip.py"
 GET_PIP_PATH = "C:\get-pip.py"
 URLS = {
 	# NOTE: no .msi installer for 3.3.6
-	("3.3", "64"): BASE_URL + "3.3.3/python-3.3.5.amd64.msi",
-	("3.3", "32"): BASE_URL + "3.3.3/python-3.3.5.msi",
-	("3.4", "64"): BASE_URL + "3.4.3/python-3.4.6.amd64.msi",
-	("3.4", "32"): BASE_URL + "3.4.3/python-3.4.6.msi",
-	("3.5", "64"): BASE_URL + "3.5.0/python-3.5.3-amd64.exe",
-	("3.5", "32"): BASE_URL + "3.5.0/python-3.5.3.exe",
-	("3.6", "64"): BASE_URL + "3.6.0/python-3.6.0-amd64.exe",
-	("3.6", "32"): BASE_URL + "3.6.0/python-3.6.0.exe",
+	("3.5", "64"): BASE_URL + "3.5.4/python-3.5.4-amd64.exe",
+	("3.5", "32"): BASE_URL + "3.5.4/python-3.5.4.exe",
+	("3.6", "64"): BASE_URL + "3.6.8/python-3.6.8-amd64.exe",
+	("3.6", "32"): BASE_URL + "3.6.8/python-3.6.8.exe",
+	("3.7", "64"): BASE_URL + "3.7.7/python-3.7.7-amd64.exe",
+	("3.7", "32"): BASE_URL + "3.7.7/python-3.7.7.exe",
+	("3.8", "64"): BASE_URL + "3.8.2/python-3.8.2-amd64.exe",
+	("3.8", "32"): BASE_URL + "3.8.2/python-3.8.2.exe",
 }
 INSTALL_CMD = {
 	# Commands are allowed to fail only if they are not the last command.  Eg: uninstall (/x) allowed to fail.
@@ -40,6 +40,8 @@ INSTALL_CMD = {
 			["msiexec.exe", "/L*+!", "install.log", "/qn", "/i", "{path}", "TARGETDIR={home}"]],
 	"3.5": [["{path}", "/quiet", "TargetDir={home}"]],
 	"3.6": [["{path}", "/quiet", "TargetDir={home}"]],
+	"3.7": [["{path}", "/quiet", "TargetDir={home}"]],
+	"3.8": [["{path}", "/quiet", "TargetDir={home}"]],
 }
 
 
