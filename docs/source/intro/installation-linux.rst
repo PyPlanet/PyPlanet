@@ -8,7 +8,7 @@ Installation on Linux
 1. Operating System needs
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PyPlanet requires Python 3.5 and later. We also require to have some operating system libraries and build tools installed.
+PyPlanet requires Python 3.6 and later. We also require to have some operating system libraries and build tools installed.
 We will guide you through the steps that are required to install those requirements in this subtopic.
 
 Debian / Ubuntu
