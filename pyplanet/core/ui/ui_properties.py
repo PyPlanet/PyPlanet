@@ -71,7 +71,7 @@ class UIProperties:  # pragma: no cover
 		else:
 			method = 'Shootmania.UI.GetProperties'
 		try:
-			self._raw = await self._instance.gbx(method)
+			self._raw = await self._instance.gbx(method, timeout=2)
 			self._properties = xd.parse(self._raw['raw_1'])
 		except Exception as e:
 			self._properties = dict()
