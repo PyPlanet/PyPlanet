@@ -16,7 +16,7 @@ from .models import Karma as KarmaModel
 
 class Karma(AppConfig):
 	name = 'pyplanet.apps.contrib.karma'
-	game_dependencies = []
+	game_dependencies = ['trackmania', 'trackmania_next', 'shootmania']
 	app_dependencies = ['core.maniaplanet']
 
 	def __init__(self, *args, **kwargs):

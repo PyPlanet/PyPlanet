@@ -9,7 +9,7 @@ from pyplanet.contrib.setting import Setting
 
 class Players(AppConfig):
 	name = 'pyplanet.apps.contrib.players'
-	game_dependencies = ['trackmania', 'shootmania']
+	game_dependencies = ['trackmania', 'trackmania_next', 'shootmania']
 	app_dependencies = ['core.maniaplanet']
 
 	def __init__(self, *args, **kwargs):

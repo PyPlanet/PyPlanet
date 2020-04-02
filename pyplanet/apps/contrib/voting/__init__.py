@@ -1,7 +1,6 @@
 import asyncio
 import datetime
 import logging
-import math
 
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
@@ -20,7 +19,7 @@ class Voting(AppConfig):
 	"""
 
 	name = 'pyplanet.apps.contrib.voting'
-	game_dependencies = ['trackmania', 'shootmania']
+	game_dependencies = ['trackmania', 'trackmania_next', 'shootmania']
 	app_dependencies = ['core.maniaplanet']
 
 	def __init__(self, *args, **kwargs):

@@ -13,7 +13,7 @@ from pyplanet.views.generics.alert import show_alert
 
 class Jukebox(AppConfig):
 	name = 'pyplanet.apps.contrib.jukebox'
-	game_dependencies = ['trackmania', 'shootmania']
+	game_dependencies = ['trackmania', 'trackmania_next', 'shootmania']
 	app_dependencies = ['core.maniaplanet']
 
 	def __init__(self, *args, **kwargs):
