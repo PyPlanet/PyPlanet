@@ -218,6 +218,7 @@ give_up = Callback(
 :type flow: pyplanet.apps.core.maniaplanet.models.player.PlayerFlow
 """
 
+
 respawn = Callback(
 	call='Script.Trackmania.Event.Respawn',
 	namespace='trackmania',
@@ -243,6 +244,32 @@ respawn = Callback(
 :type player: pyplanet.apps.core.maniaplanet.models.player.Player
 :type flow: pyplanet.apps.core.maniaplanet.models.player.PlayerFlow
 """
+
+
+request_respawn = Callback(
+	call='Script.Trackmania.Event.OnPlayerRequestRespawn',
+	namespace='trackmania',
+	code='request_respawn',
+	target=handle_generic,
+)
+"""
+:Signal:
+	Request respawn by player.
+:Code:
+	``trackmania:request_respawn``
+:Description:
+	Callback sent when a player requests a respawns.
+:Original Callback:
+	`Script` Trackmania.Event.OnPlayerRequestRespawn
+
+:param login: Player login
+:param player: Player instance
+:param time: Time of event
+:type login: str
+:type player: pyplanet.apps.core.maniaplanet.models.player.Player
+:type time: int
+"""
+
 
 stunt = Callback(
 	call='Script.Trackmania.Event.Stunt',
@@ -275,6 +302,7 @@ stunt = Callback(
 :type player: pyplanet.apps.core.maniaplanet.models.player.Player
 """
 
+
 warmup_start = Callback(
 	call='Script.Trackmania.WarmUp.Start',
 	namespace='trackmania',
@@ -291,6 +319,7 @@ warmup_start = Callback(
 :Original Callback:
 	`Script` Trackmania.WarmUp.Start
 """
+
 
 warmup_end = Callback(
 	call='Script.Trackmania.WarmUp.End',
