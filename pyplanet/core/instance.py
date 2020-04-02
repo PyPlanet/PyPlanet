@@ -235,7 +235,9 @@ class Instance:
 			await self.chat('$f00$nDon\'t use Dedimania during the Alpha (NDA violation)')
 
 		try:
-			asyncio.ensure_future(releases.UpdateChecker.init_checker(self))
+			# TURN OF DURING ALPHA
+			pass
+			# asyncio.ensure_future(releases.UpdateChecker.init_checker(self))
 		except:
 			pass  # Completely ignore errors while checking for the latest version.
 
