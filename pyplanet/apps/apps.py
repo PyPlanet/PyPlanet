@@ -97,59 +97,61 @@ class Apps:
 				else:
 					raise Exception('One of the apps depends on a non existing app: {}'.format(label))
 
-	async def check(self):
+	async def check(self, on_start=False):
 		"""
 		Check and remove unsupported apps based on the current game and script mode. Also loads unloaded apps and try
 		if the mode and game does support it again.
 		"""
 		# Check if disabled apps can be loaded again.
-		# TODO: ACTIVATE THIS AFTER SIGNAL MANAGER DEPRECATION IS REMOVED!
-		# for app_label, app_module in self.unloaded_apps.items():
-		# 	try:
-		# 		# Load the module and initiate by creating the app class instance.
-		# 		self.populate([app_module], in_order=True)
-		# 		if app_label not in self.apps:
-		# 			raise Exception()  # Flow control, stop executing restart of app.
-		#
-		# 		# Init + start the app again.
-		# 		await self.apps[app_label].on_init()
-		# 		await self.apps[app_label].on_start()
-		#
-		# 		# Clear the label from the unloaded list.
-		# 		del self.unloaded_apps[app_label]
-		#
-		# 		logging.info('(Re)loaded app {} as it seems that it supports this game/mode again.'.format(app_label))
-		# 	except Exception as e:
-		# 		logging.debug('Can\'t start app {}, Got exception with error: {}'.format(app_label, str(e)))
-		# 		# logging.exception(e)
-		# 		# Some apps can't be reloaded.
-		# 		pass
+		for app_label, app_module in self.unloaded_apps.items():
+			try:
+				# Load the module and initiate by creating the app class instance.
+				self.populate([app_module], in_order=True)
+				if app_label not in self.apps:
+					raise Exception()  # Flow control, stop executing restart of app.
+
+				# Init + start the app again.
+				await self.apps[app_label].on_init()
+				await self.apps[app_label].on_start()
+
+				# Clear the label from the unloaded list.
+				del self.unloaded_apps[app_label]
+
+				logging.info('(Re)loaded app {} as it seems that it supports this game/mode again.'.format(app_label))
+			except Exception as e:
+				logging.debug('Can\'t start app {}, Got exception with error: {}'.format(app_label, str(e)))
+				# logging.exception(e)
+				# Some apps can't be reloaded.
+				pass
 
 		# Check enabled apps, and replace the apps dictionary with the up-to-date apps.
-		# TODO: Same for this line, activate after life cycle has been fully implemented.
-		# script_name = await self.instance.mode_manager.get_current_script(refresh=True)
-		# apps_dict = OrderedDict()
-		# for label, app in self.apps.items():
-		# 	if not app.is_game_supported('trackmania' if self.instance.game.game == 'tm' else 'shootmania'):
-		# 		logging.info('Unloading app {}. Doesn\'t support the current game!'.format(label))
-		# 		await app.on_stop()
-		# 		await app.on_destroy()
-		#
-		# 		self.unloaded_apps[label] = app.module.__name__
-		# 		del app
-		#
-		# 	elif not app.is_mode_supported(script_name):
-		# 		logging.info('Unloading app {}. Doesn\'t support the current script mode!'.format(label))
-		# 		await app.on_stop()
-		# 		await app.on_destroy()
-		#
-		# 		self.unloaded_apps[label] = app.module.__name__
-		# 		del app
-		#
-		# 	else:
-		# 		apps_dict[label] = app
-		#
-		# self.apps = apps_dict
+		script_name = await self.instance.mode_manager.get_current_script(refresh=True)
+		apps_dict = OrderedDict()
+		for label, app in self.apps.items():
+			if not app.is_game_supported(self.instance.game.game_full):
+				logging.warning('Unloading app {}. Doesn\'t support the current game \'{}\'!'.format(
+					label, self.instance.game.game_full
+				))
+				if not on_start:
+					await app.on_stop()
+				await app.on_destroy()
+
+				self.unloaded_apps[label] = app.module.__name__
+				del app
+
+			elif not app.is_mode_supported(script_name):
+				logging.warning('Unloading app {}. Doesn\'t support the current script mode!'.format(label))
+				if not on_start:
+					await app.on_stop()
+				await app.on_destroy()
+
+				self.unloaded_apps[label] = app.module.__name__
+				del app
+
+			else:
+				apps_dict[label] = app
+
+		self.apps = apps_dict
 
 	async def discover(self):
 		"""
