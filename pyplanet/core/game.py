@@ -37,11 +37,20 @@ class _Game:
 	ladder_max = None
 
 	game = None  # tm / sm
-	#  game_long = None  # trackmania / shootmania
 
-	def game_from_environment(self, environment):
+	def game_from_environment(self, environment, game_name=None, title_id=None):
+		if game_name == 'Trackmania' and title_id == 'Trackmania':
+			return 'tmnext'
 		if environment in ['Canyon', 'Stadium', 'Valley', 'Lagoon']:
 			return 'tm'
 		return 'sm'
+
+	@property
+	def game_full(self):
+		if self.game == 'tm':
+			return 'trackmania'
+		elif self.game == 'tmnext':
+			return 'trackmania_next'
+		return 'shootmania'
 
 Game = _Game()
