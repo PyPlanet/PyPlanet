@@ -11,6 +11,8 @@ from pyplanet import __version__ as pyplanet_version
 
 
 class Ads(AppConfig):
+	game_dependencies = ['trackmania', 'trackmania_next', 'shootmania']
+
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
