@@ -10,7 +10,7 @@ Name:
 Depends on:
   ``core.maniaplanet``
 Game:
-  TrackMania, ShootMania
+  Trackmania, Shootmania
 
 Features
 --------
