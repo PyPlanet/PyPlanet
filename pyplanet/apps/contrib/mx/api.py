@@ -20,8 +20,23 @@ class MXApi:
 		self.key = None
 		self.map_info_page_size = 1
 
+	def base_url(self, api=False):
+		if self.site in ['tm', 'sm']:
+			if api:
+				return 'https://api.mania-exchange.com/{site}'.format(site=self.site)
+			return 'https://{site}.mania-exchange.com'.format(site=self.site)
+
+		# TODO: Replace by real addresses on release of TMNextExchange
+		if api:
+			# TODO: Will not work yet! API Not available!
+			return 'https://api.mania-exchange.com/{site}'.format(site=self.site)
+		return 'https://test.trackmania.exchange'
+
 	async def create_session(self):
 		self.session = await aiohttp.ClientSession(
+			# TODO: Remove when TMNext Exchange is live
+			auth=aiohttp.BasicAuth('alphatester', 'mX!tR4ckbu1lDinG'),
+
 			cookie_jar=self.cookie_jar,
 			headers={
 				'User-Agent': 'PyPlanet/{}'.format(pyplanet_version),
@@ -49,9 +64,7 @@ class MXApi:
 		if self.key:
 			options['key'] = self.key
 
-		url = 'https://{site}.mania-exchange.com/tracksearch2/search'.format(
-			site=self.site
-		)
+		url = '{}/tracksearch2/search'.format(self.base_url())
 		response = await self.session.get(url, params=options)
 
 		if response.status == 404:
@@ -78,9 +91,7 @@ class MXApi:
 
 		options['api'] = 'on'
 
-		url = 'https://{site}.mania-exchange.com/mappacksearch/search'.format(
-			site=self.site
-		)
+		url = '{}/mappacksearch/search'.format(self.base_url())
 		response = await self.session.get(url, params=options)
 
 		if response.status == 404:
@@ -118,9 +129,9 @@ class MXApi:
 		return [map for map_list in split_results for map in map_list]
 
 	async def map_info_page(self, *ids):
-		url = 'https://api.mania-exchange.com/{site}/maps/{ids}'.format(
-			site=self.site,
-			ids=','.join(str(id) for id in ids[0])
+		url = '{base}/maps/{ids}'.format(
+			base=self.base_url(True),
+			ids=','.join(str(i) for i in ids[0])
 		)
 		params = {'key': self.key} if self.key else {}
 		response = await self.session.get(url, params=params)
@@ -140,8 +151,8 @@ class MXApi:
 		return maps
 
 	async def pack_info(self, id, token):
-		url = 'https://{site}.mania-exchange.com/api/mappack/get_info/{id}?token={token}'.format(
-			site=self.site,
+		url = '{base}/api/mappack/get_info/{id}?token={token}'.format(
+			base=self.base_url(),
 			id=id,
 			token=token
 		)
@@ -157,8 +168,8 @@ class MXApi:
 		return response.json()
 
 	async def get_pack_ids(self, pack_id, token):
-		url = 'https://{site}.mania-exchange.com/api/mappack/get_tracks/{id}?token={token}'.format(
-			site=self.site,
+		url = '{base}/api/mappack/get_tracks/{id}?token={token}'.format(
+			base=self.base_url(),
 			id=pack_id,
 			token=token
 		)
@@ -180,8 +191,8 @@ class MXApi:
 			raise MXMapNotFound("Mx returned with empty response.")
 
 	async def download(self, mx_id):
-		url = 'https://{site}.mania-exchange.com/tracks/download/{id}'.format(
-			site=self.site,
+		url = '{base}/tracks/download/{id}'.format(
+			base=self.base_url(),
 			id=mx_id,
 		)
 		params = {'key': self.key} if self.key else {}
