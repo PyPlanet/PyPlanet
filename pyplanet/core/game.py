@@ -41,7 +41,7 @@ class _Game:
 	ladder_min = None
 	ladder_max = None
 
-	game = None  # tm / sm
+	game = None  # tm / sm / tmnext
 
 	def game_from_environment(self, environment, game_name=None, title_id=None):
 		if game_name == 'Trackmania' and title_id == 'Trackmania':
