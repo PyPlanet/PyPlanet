@@ -14,6 +14,8 @@ Core
 Apps
 ~~~~
 
+* New App: Added Fun Commands app with /gg, /nt, /n1, /ragequit, etc. Add ``pyplanet.apps.contrib.funcmd`` to your apps config.
+
 * Bugfix: Using the map name from MX if the Gbx map name is not provided by MX.
 * Bugfix: Fixing issue with MX update check on Shootmania.
 
