@@ -81,7 +81,10 @@ class UasecoConverter(BaseConverter):
 				except:
 					# Not found, create it:
 					map_instance = await Map.create(
-						uid=s_map['Uid'], name=s_map['Name'], file=s_map['Filename'], author_login=s_map['Author'],
+						uid=s_map['Uid'], name=s_map['Name'],
+						# HACK: When the database was converted from XAseco to UAseco earlier, the filename could be Null.
+						file=s_map['Filename'] if s_map['Filename'] is not None else '',
+						author_login=s_map['Author'],
 						environment=s_map['Environment'], map_type=s_map['Type'], map_style=s_map['Style'],
 						num_laps=s_map['NbLaps'] if s_map['MultiLap'] == 'true' else None,
 						num_checkpoints=s_map['NbCheckpoints'], price=s_map['Cost'],
