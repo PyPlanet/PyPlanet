@@ -21,6 +21,7 @@ Apps
 ~~~~
 
 * New App: Added Fun Commands app with /gg, /nt, /n1, /ragequit, etc. Add ``pyplanet.apps.contrib.funcmd`` to your apps config.
+* Feature: Implemented Emoji Chat toolbar into the fun commands app. Disable with //settings.
 
 * Feature: Add donation widget to the transactions app. On by default, only showing at podium. Change to always with //settings.
 
