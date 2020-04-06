@@ -12,6 +12,7 @@ Core
 * Improvement: Dropping Python 3.5 support!
 * Improvement: Add //helpall and /helpall for a detailed list of commands!
 * Improvement: Only commands that you have permission for will be listed in //help
+* Improvement: Remove the deprecated ``instance.signal_manager``.
 * Improvement: Add deprecated warning for ``get_player_data`` method.
 
 * Bugfix: Fixing issue with an empty command input (/ without any text) resulting in executing the last registered command.

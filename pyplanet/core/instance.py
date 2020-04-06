@@ -96,25 +96,6 @@ class Instance:
 				'declare the apps per pool! ({})'.format(str(e))
 			)
 
-	@property
-	def signal_manager(self):
-		"""
-		Deprecated!
-
-		.. deprecated:: 0.5.0
-			Use :func:`self.context.signals` instead in your apps.
-
-		:return: Signal manager (global).
-		:rtype: pyplanet.core.events.manager._SignalManager
-		"""
-		logger.warning(DeprecationWarning(
-			'DEPRECATED: The usage of \'self.instance.signal_manager\' in apps is deprecated, '
-			'use \'self.context.signals\' instead!'
-		))
-		logger.warning('\n'.join(traceback.format_stack(limit=7)))
-
-		return self.signals
-
 	def start(self, run_forever=True):  # pragma: no cover
 		"""
 		Start wrapper.
