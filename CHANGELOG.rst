@@ -11,6 +11,8 @@ Core
 * Improvement: Add //helpall and /helpall for a detailed list of commands!
 * Improvement: Only commands that you have permission for will be listed in //help
 
+* Bugfix: Fixing issue with an empty command input (/ without any text) resulting in executing the last registered command.
+
 Apps
 ~~~~
 
