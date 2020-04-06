@@ -73,7 +73,7 @@ class AppConfig:
 	You can provide a list of gamemodes that are required to activate the app. Gamemodes needs to be declared as
 	script names.
 	You can override this behaviour by defining the following method in your config class
-	
+
 	.. code-block :: python
 
 		def is_mode_supported(self, mode):
@@ -90,7 +90,7 @@ class AppConfig:
 		game_dependencies = ['trackmania']
 
 	You can override this behaviour by defining the following method in your config class
-	
+
 	.. code-block :: python
 
 		def is_game_supported(self, game):
@@ -252,6 +252,11 @@ class AppConfig:
 						break
 
 			module = getattr(module, cls_name)
+		except TypeError as e:
+			raise ImproperlyConfigured(
+				'Can\'t load the app {}. Can\'t find the app config! '
+				'Check your apps.py and if your app is installed correctly'.format(entry)
+			) from e
 		except ImportError:
 			raise ImproperlyConfigured(
 				'Can\'t load the app {}. Can\'t find the app config!'.format(entry)
