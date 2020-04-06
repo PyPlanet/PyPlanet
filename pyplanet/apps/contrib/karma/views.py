@@ -38,8 +38,8 @@ class KarmaWidget(WidgetView):
 
 		return context
 
-	async def get_player_data(self):
-		data = await super().get_player_data()
+	async def get_all_player_data(self, logins):
+		data = await super().get_all_player_data(logins)
 		votes = dict()
 
 		for player in self.app.instance.player_manager.online:
