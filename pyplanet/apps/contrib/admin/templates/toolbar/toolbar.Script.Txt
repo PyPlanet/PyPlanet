@@ -22,12 +22,12 @@ main() {
 
   while(True) {
     foreach (Event in PendingEvents) {
-      if (Event.Type == CMlEvent::Type::MouseOver && TL::Find("admin_toolbar_bar_button", Event.ControlId, True, True)) {
+      if (Event.Type == CMlScriptEvent::Type::MouseOver && TL::Find("admin_toolbar_bar_button", Event.ControlId, True, True)) {
         Toolbar_Tooltip_Label.SetText(Tooltips[Event.ControlId]);
         Toolbar_Tooltip_Label.Show();
         Toolbar_Tooltip_Quad.Show();
       }
-      if (Event.Type == CMlEvent::Type::MouseOut && TL::Find("admin_toolbar_bar_button", Event.ControlId, True, True)) {
+      if (Event.Type == CMlScriptEvent::Type::MouseOut && TL::Find("admin_toolbar_bar_button", Event.ControlId, True, True)) {
         Toolbar_Tooltip_Label.Hide();
         Toolbar_Tooltip_Quad.Hide();
       }

@@ -93,6 +93,7 @@ Information about development of apps and the core is also available under:
     apps/contrib/voting
     apps/contrib/funcmd
     apps/core/statistics
+    apps/core/pyplanet
 
 
 .. _dev-docs:
