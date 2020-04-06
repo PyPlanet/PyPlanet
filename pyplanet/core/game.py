@@ -44,4 +44,10 @@ class _Game:
 			return 'tm'
 		return 'sm'
 
+	@property
+	def game_full(self):
+		if self.game == 'tm':
+			return 'trackmania'
+		return 'shootmania'
+
 Game = _Game()
