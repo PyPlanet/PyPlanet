@@ -1,5 +1,9 @@
 from pyplanet.apps.config import AppConfig
+from pyplanet.apps.contrib.funcmd.view import EmojiToolbarView
 from pyplanet.contrib.command import Command
+
+from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
+from pyplanet.contrib.setting import Setting
 
 
 class FunCmd(AppConfig):
@@ -8,7 +12,19 @@ class FunCmd(AppConfig):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
+		self.setting_emoji_toolbar = Setting(
+			'emoji_toolbar', 'Display Emoji Toolbar', Setting.CAT_DESIGN, type=bool, default=True,
+			description='Display the Emoji Toolbar to users.',
+			change_target=self.reload_settings
+		)
+
+		self.emoji_toolbar = EmojiToolbarView(self)
+
 	async def on_start(self):
+		await self.context.setting.register(
+			self.setting_emoji_toolbar
+		)
+
 		await self.instance.command_manager.register(
 			Command(command='afk', target=self.command_afk, admin=False, description='Set yourself as AFK'),
 			Command(command='bootme', target=self.command_bootme, admin=False, description='Boot yourself from the server'),
@@ -18,6 +34,21 @@ class FunCmd(AppConfig):
 			Command(command='ns', target=self.command_ns, admin=False, description='Send Nice Shot to everyone'),
 			Command(command='nt', target=self.command_nt, admin=False, description='Send Nice Try/Nice Time to everyone'),
 		)
+
+		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
+
+		if await self.setting_emoji_toolbar.get_value():
+			await self.emoji_toolbar.display()
+
+	async def reload_settings(self, *args, **kwargs):
+		if await self.setting_emoji_toolbar.get_value():
+			await self.emoji_toolbar.display()
+		else:
+			await self.emoji_toolbar.hide()
+
+	async def player_connect(self, player, *args, **kwargs):
+		if await self.setting_emoji_toolbar.get_value():
+			await self.emoji_toolbar.display(player_logins=[player.login])
 
 	async def command_afk(self, player, data, **kwargs):
 		await self.instance.gbx.multicall(

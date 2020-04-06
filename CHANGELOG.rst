@@ -21,6 +21,7 @@ Apps
 ~~~~
 
 * New App: Added Fun Commands app with /gg, /nt, /n1, /ragequit, etc. Add ``pyplanet.apps.contrib.funcmd`` to your apps config.
+* Feature: Implemented Emoji Chat toolbar into the fun commands app. Disable with //settings.
 
 * Improvement: Make sure all contrib apps don't use ``get_player_data`` anymore.
 
