@@ -11,6 +11,7 @@ Core
 * Improvement: Add //helpall and /helpall for a detailed list of commands!
 * Improvement: Only commands that you have permission for will be listed in //help
 * Improvement: Remove the deprecated ``instance.signal_manager``.
+* Improvement: Add deprecated warning for ``get_player_data`` method.
 
 * Bugfix: Fixing issue with an empty command input (/ without any text) resulting in executing the last registered command.
 
@@ -18,6 +19,8 @@ Apps
 ~~~~
 
 * New App: Added Fun Commands app with /gg, /nt, /n1, /ragequit, etc. Add ``pyplanet.apps.contrib.funcmd`` to your apps config.
+
+* Improvement: Make sure all contrib apps don't use ``get_player_data`` anymore.
 
 * Bugfix: Using the map name from MX if the Gbx map name is not provided by MX.
 * Bugfix: Fixing issue with MX update check on Shootmania.
