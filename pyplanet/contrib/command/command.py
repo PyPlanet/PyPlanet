@@ -68,7 +68,7 @@ class Command:
 		"""
 		input = raw[:]
 
-		if len(input) == 0:
+		if len(input) == 0 or (len(input) == 1 and input[0] == ''):
 			return False
 
 		if self.admin:
