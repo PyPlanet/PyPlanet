@@ -23,8 +23,8 @@ class LocalRecordsWidget(TimesWidgetView):
 		self.action = self.action_recordlist
 		self.record_amount = 15
 
-	async def get_player_data(self):
-		data = await super().get_player_data()
+	async def get_all_player_data(self, logins):
+		data = await super().get_all_player_data(logins)
 		if self.app.instance.performance_mode:
 			return data
 
@@ -51,7 +51,7 @@ class LocalRecordsWidget(TimesWidgetView):
 				records_start = (len(current_records) - self.record_amount + self.top_entries)
 				# If start of current slice is in the top entries, add more records below
 				if records_start < self.top_entries:
-					records_start = (self.top_entries)
+					records_start = self.top_entries
 
 				records += list(current_records[records_start:])
 				custom_start_index = (records_start + 1)
