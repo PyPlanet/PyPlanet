@@ -7,9 +7,14 @@ Changelog
 Core
 ~~~~
 
+* Feature: Activated Apps lifecycle, enabling and disabling apps on the fly depending on it's requirements.
+* Feature: Add player toolbox/toolbar. You can disable this with a setting in //settings in-game.
+
 * Improvement: Dropping Python 3.5 support!
 * Improvement: Add //helpall and /helpall for a detailed list of commands!
 * Improvement: Only commands that you have permission for will be listed in //help
+* Improvement: Remove the deprecated ``instance.signal_manager``.
+* Improvement: Add deprecated warning for ``get_player_data`` method.
 
 * Bugfix: Fixing issue with an empty command input (/ without any text) resulting in executing the last registered command.
 
@@ -17,6 +22,11 @@ Apps
 ~~~~
 
 * New App: Added Fun Commands app with /gg, /nt, /n1, /ragequit, etc. Add ``pyplanet.apps.contrib.funcmd`` to your apps config.
+* Feature: Implemented Emoji Chat toolbar into the fun commands app. Disable with //settings.
+
+* Feature: Add donation widget to the transactions app. On by default, only showing at podium. Change to always with //settings.
+
+* Improvement: Make sure all contrib apps don't use ``get_player_data`` anymore.
 
 * Bugfix: Using the map name from MX if the Gbx map name is not provided by MX.
 * Bugfix: Fixing issue with MX update check on Shootmania.

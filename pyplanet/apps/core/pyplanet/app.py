@@ -5,6 +5,7 @@ import platform
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.core.pyplanet.dev import DevComponent
 from pyplanet.apps.core.pyplanet.setting import SettingComponent
+from pyplanet.apps.core.pyplanet.toolbar import ToolbarComponent
 from pyplanet.apps.core.pyplanet.views.command import CommandsListView
 from pyplanet.apps.core.pyplanet.views.controller import ControllerView
 from pyplanet.conf import settings
@@ -27,6 +28,7 @@ class PyPlanetConfig(AppConfig):
 		# Initiate components.
 		self.setting = SettingComponent(self)
 		self.dev = DevComponent(self)
+		self.toolbar = ToolbarComponent(self)
 
 		# Initiate app (global) view.
 		self.controller_view = ControllerView(manager=self.context.ui)
@@ -38,11 +40,13 @@ class PyPlanetConfig(AppConfig):
 		# Call components.
 		await self.setting.on_init()
 		await self.dev.on_init()
+		await self.toolbar.on_init()
 
 	async def on_start(self):
 		# Call components.
 		await self.setting.on_start()
 		await self.dev.on_start()
+		await self.toolbar.on_start()
 
 		# Change some ui elements positions and visibility.
 		self.instance.ui_manager.properties.set_visibility('live_info', False)

@@ -13,6 +13,7 @@ Game:
 Features
 --------
 This app enables some commands for fun interactive chatting with the players.
+By default, also the Emoji Toolbar is enabled, you can disable this in //settings.
 
 Commands
 --------

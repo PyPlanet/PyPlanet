@@ -15,6 +15,7 @@ Game:
 Features
 --------
 Donate, show planets on server and payout players.
+Also shows a widget, change when and if you want to display this with settings in //settings.
 
 Commands
 --------
