@@ -22,6 +22,8 @@ Apps
 
 * New App: Added Fun Commands app with /gg, /nt, /n1, /ragequit, etc. Add ``pyplanet.apps.contrib.funcmd`` to your apps config.
 
+* Feature: Add donation widget to the transactions app. On by default, only showing at podium. Change to always with //settings.
+
 * Improvement: Make sure all contrib apps don't use ``get_player_data`` anymore.
 
 * Bugfix: Using the map name from MX if the Gbx map name is not provided by MX.
