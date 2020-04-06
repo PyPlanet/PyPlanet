@@ -91,6 +91,7 @@ Information about development of apps and the core is also available under:
     apps/contrib/sector_times
     apps/contrib/transactions
     apps/contrib/voting
+    apps/contrib/funcmd
     apps/core/statistics
 
 
