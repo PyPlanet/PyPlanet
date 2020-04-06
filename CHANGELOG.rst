@@ -7,6 +7,8 @@ Changelog
 Core
 ~~~~
 
+* Feature: Activated Apps lifecycle, enabling and disabling apps on the fly depending on it's requirements.
+
 * Improvement: Dropping Python 3.5 support!
 * Improvement: Add //helpall and /helpall for a detailed list of commands!
 * Improvement: Only commands that you have permission for will be listed in //help
