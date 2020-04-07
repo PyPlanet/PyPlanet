@@ -25,11 +25,12 @@ Apps
 ~~~~
 
 * New App: Added Fun Commands app with /gg, /nt, /n1, /ragequit, etc. Add ``pyplanet.apps.contrib.funcmd`` to your apps config.
-* Feature: Implemented Emoji Chat toolbar into the fun commands app. Disable with //settings.
 
+* Feature: Implemented Emoji Chat toolbar into the fun commands app. Disable with //settings.
 * Feature: Add donation widget to the transactions app. On by default, only showing at podium. Change to always with //settings.
 
 * Improvement: Make sure all contrib apps don't use ``get_player_data`` anymore.
+* Improvement: Decrease size of the AD buttons (Discord and PayPal buttons).
 
 * Bugfix: Using the map name from MX if the Gbx map name is not provided by MX.
 * Bugfix: Fixing issue with MX update check on Shootmania.
