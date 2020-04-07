@@ -23,22 +23,22 @@ def find_commands(management_dir):
 def get_commands():
 	"""
 	Return a dictionary mapping command names to their callback applications.
-	
+
 	Look for a management.commands package in pyplanet.core, and in each
 	installed application -- if a commands package exists, register all
 	commands in that package.
-	
+
 	Core commands are always included. If a settings module has been
 	specified, also include user-defined commands.
-	
+
 	The dictionary is in the format {command_name: app_name}. Key-value
 	pairs from this dictionary can then be used in calls to
 	load_command_class(app_name, command_name).
-	
+
 	If a specific version of a command must be loaded (e.g., with the
 	startapp command), the instantiated module can be placed in the
 	dictionary in place of the application name.
-	
+
 	The dictionary is cached on the first call and reused on subsequent
 	calls.
 	"""
@@ -79,7 +79,7 @@ class ManagementUtility:
 
 	def fetch_command(self, subcommand):
 		"""
-		Try to fetch the given subcommand, printing a message with the 
+		Try to fetch the given subcommand, printing a message with the
 		appropriate command called from the command line (usually "pyplanet" or "manage.py") if it can't be found.
 		"""
 		# Get commands outside of try block to prevent swallowing exceptions
@@ -111,6 +111,16 @@ class ManagementUtility:
 			subcommand = self.argv[1]
 		except:
 			subcommand = 'help'
+
+		# Check for platform requirements. (Python version)
+		if sys.version_info[0] < 3 or sys.version_info[1] <= 5:
+			print('WARNING')
+			print('WARNING: Your Python version is not officially supported by PyPlanet, please upgrade your Python!')
+			print('WARNING')
+		if sys.version_info[0] > 3 or sys.version_info[1] > 8:
+			print('WARNING')
+			print('WARNING: Your Python version is untested with PyPlanet!')
+			print('WARNING')
 
 		# Root parser.
 		parser = CommandParser(None, usage='%(prog)s subcommand [options] [args]', add_help=False)
@@ -190,20 +200,20 @@ class ManagementUtility:
 	def autocomplete(self):
 		"""
 		Output completion suggestions for BASH.
-		
+
 		The output of this function is passed to BASH's `COMREPLY` variable and
 		treated as completion suggestions. `COMREPLY` expects a space
 		separated string as the result.
-		
+
 		The `COMP_WORDS` and `COMP_CWORD` BASH environment variables are used
 		to get information about the cli input. Please refer to the BASH
 		man-page for more information about this variables.
-		
+
 		Subcommand options are saved as pairs. A pair consists of
 		the long option string (e.g. '--exclude') and a boolean
 		value indicating if the option requires arguments. When printing to
 		stdout, an equal sign is appended to options which require arguments.
-		
+
 		Note: If debugging this function, it is recommended to write the debug
 		output in a separate file. Otherwise the debug output will be treated
 		and formatted as potential completion suggestions.
