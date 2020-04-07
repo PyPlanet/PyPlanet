@@ -16,6 +16,7 @@ Core
 * Improvement: Remove the deprecated ``instance.signal_manager``.
 * Improvement: Add deprecated warning for ``get_player_data`` method.
 * Improvement: Improve error reporting when an app failed loading.
+* Improvement: Check for platform versions, check if Python is compatible with the PyPlanet installation.
 
 * Bugfix: Fixing issue with an empty command input (/ without any text) resulting in executing the last registered command.
 * Bugfix: Fixing issue with converting from UAseco when the filename is empty (from a previous XAseco installation).
