@@ -50,9 +50,7 @@ class GlobalSettingManager(_BaseSettingManager, CoreContrib):
 
 	async def on_start(self):
 		# Register core global settings.
-		from .setting import Setting
-		test_setting = Setting('test_list', 'Test List', Setting.CAT_OTHER, type=list)
-		await self.register(performance_mode, test_setting)
+		await self.register(performance_mode)
 
 	def create_app_manager(self, app_config):
 		"""
