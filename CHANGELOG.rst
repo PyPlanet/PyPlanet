@@ -29,6 +29,7 @@ Apps
 
 * Feature: Implemented Emoji Chat toolbar into the fun commands app. Disable with //settings.
 * Feature: Add donation widget to the transactions app. On by default, only showing at podium. Change to always with //settings.
+* Feature: Add random messages to the Ads app. Add messages and change the interval with //settings.
 
 * Improvement: Make sure all contrib apps don't use ``get_player_data`` anymore.
 * Improvement: Decrease size of the AD buttons (Discord and PayPal buttons).

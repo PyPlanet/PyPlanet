@@ -1,3 +1,5 @@
+import random
+
 import aiohttp
 import logging
 import asyncio
@@ -21,6 +23,8 @@ class Ads(AppConfig):
 		self.paypal_donation_url = None
 		self.discord_join_url = None
 		self.discord_server_id = None
+
+		self.random_future = None
 
 		# Initiate settings.
 		self.setting_enable_paypal = Setting(
@@ -49,6 +53,18 @@ class Ads(AppConfig):
 			default='158349559959912448', change_target=self.reload_settings
 		)
 
+		self.setting_random_messages = Setting(
+			'random_messages', 'Random Messages', Setting.CAT_BEHAVIOUR, type=list,
+			description='Show random messages at random moments in the chat. '
+						'The messages will be displayed every time the interval passes (another setting).',
+			default=None, change_target=self.reload_settings
+		)
+		self.setting_random_messages_interval = Setting(
+			'random_messages_interval', 'Random Messages Interval', Setting.CAT_BEHAVIOUR, type=int,
+			description='The interval of the random messages in seconds. Default 2 minutes (120 seconds)',
+			default=120, change_target=self.reload_settings
+		)
+
 	async def on_start(self):
 		# Register signals.
 		self.context.signals.listen(mp_signals.player.player_connect, self.on_connect)
@@ -69,6 +85,9 @@ class Ads(AppConfig):
 			self.setting_paypal_url,
 			self.setting_discord_join_url,
 			self.setting_discord_server_id,
+
+			self.setting_random_messages,
+			self.setting_random_messages_interval,
 		)
 
 		# Force reload of settings.
@@ -132,6 +151,37 @@ class Ads(AppConfig):
 		# Hide & display widgets.
 		await self.hide_all()
 		await self.display()
+
+		# Random Messages Loop.
+		if await self.setting_random_messages.get_value():
+			if self.random_future:
+				self.random_future.done()
+
+			self.random_future = asyncio.ensure_future(self.random_messages_loop())
+		else:
+			if self.random_future:
+				self.random_future.done()
+
+	async def random_messages_loop(self):
+		while True:
+			sleep_interval = abs(await self.setting_random_messages_interval.get_value())
+			logging.getLogger(__name__).debug('Random Messages, sleeping for {} seconds'.format(sleep_interval))
+			await asyncio.sleep(sleep_interval)
+
+			try:
+				await self.send_random_message()
+			except Exception as e:
+				logging.getLogger(__name__).error('Error sending random message: ', str(e))
+
+	async def send_random_message(self):
+		messages = await self.setting_random_messages.get_value()
+		if not messages:
+			return
+
+		message = random.choice(messages)
+		if not message.startswith('$'):
+			message = '$06f' + message
+		await self.instance.chat(message)
 
 	async def chat_paypal(self, player, *args, **kwargs):
 		if await self.setting_enable_paypal.get_value():
