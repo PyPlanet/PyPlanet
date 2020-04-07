@@ -247,6 +247,20 @@ class Dedimania(AppConfig):
 		# Cleanup ghosts from previous maps.
 		await self.cleanup()
 
+		# Test map size.
+		try:
+			map_stat = await self.instance.storage.driver.stat('{}/{}'.format(
+				self.instance.storage.MAP_FOLDER,
+				map.file
+			))
+			if map_stat and map_stat.st_size and map_stat.st_size > 2750000:  # > 2.75Mb
+				await self.instance.chat(
+					'$f90Dedimania: The current map is large in size and might introduce problems with submitting records'
+				)
+		except:
+			pass
+
+
 	async def podium_start(self, force=False, **kwargs):
 		# Get replays of the players.
 		self.v_replay = None
