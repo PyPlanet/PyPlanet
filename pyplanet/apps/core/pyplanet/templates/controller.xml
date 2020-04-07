@@ -18,10 +18,4 @@
 </frame>
 
 
-<!-- Hidden F8 and F9 -->
-<label pos="0 0" z-index="0" size="0 0" textsize="0.0" hide="1" text="" action="{{ id }}__f8"
-       actionkey="4" scriptevents="4" halign="center" valign="center2" />
-<label pos="0 0" z-index="0" size="0 0" textsize="0.0" hide="1" text="" action="{{ id }}__f9"
-       actionkey="5" scriptevents="4" halign="center" valign="center2" />
-
 <script><!-- {% include 'core.pyplanet/controller.Script.Txt' %} --></script>
