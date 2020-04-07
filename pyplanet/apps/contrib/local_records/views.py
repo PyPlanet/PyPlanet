@@ -11,6 +11,7 @@ from pyplanet.utils import times
 class LocalRecordsWidget(TimesWidgetView):
 	widget_x = 125
 	widget_y = 56.5
+	z_index = 30
 	top_entries = 5
 	title = 'Local Records'
 

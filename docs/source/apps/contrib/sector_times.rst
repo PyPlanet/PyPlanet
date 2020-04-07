@@ -15,6 +15,8 @@ Features
 This app enables comparing the sector times against your best time driven ever (local or dedi record, or the current session best record).
 This widget is instant updating and using ManiaScript.
 
+This app also provides a gear indicator for Stadium based titles. This is enabled by default, you can disable this with //settings.
+
 Signal handlers
 ---------------
 

@@ -17,6 +17,7 @@ The app has the following features:
 - Show Discord join button.
 - Show how many users online in Discord.
 - Show PayPal donate button.
+- Random messages at specific times.
 
 **Setup Discord:**
 
@@ -31,6 +32,12 @@ The app has the following features:
 1. Create the PayPal donation link for you server account
 2. Start PyPlanet with this app enabled.
 3. Type //settings and fill the PayPal related field (Donation URL)
+
+**Random Message:**
+
+1. Enter the random messages by editing //settings (find the random messages entry).
+   Every line represents one message, you can use any formatting in the messages!
+2. Optionally edit the random messages interval
 
 Commands
 --------

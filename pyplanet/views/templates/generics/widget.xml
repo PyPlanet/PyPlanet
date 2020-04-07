@@ -1,5 +1,8 @@
 {% block before %}{% endblock %}
-<frame pos="{{ widget_x }} {{ widget_y }}" class="{% if distraction_hide %}distraction-hide{% else %}{% endif %}">
+<frame pos="{{ widget_x }} {{ widget_y }}"
+       class="{% if distraction_hide %}distraction-hide{% else %}{% endif %}"
+       {% if z_index %}z-index="{{ z_index }}"{% endif %}
+>
   {% block title %}
     {% if title %}
       <quad pos="0 0" z-index="0" size="35 6" bgcolor="00000099"/>

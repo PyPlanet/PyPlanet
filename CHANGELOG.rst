@@ -17,6 +17,8 @@ Core
 * Improvement: Add deprecated warning for ``get_player_data`` method.
 * Improvement: Improve error reporting when an app failed loading.
 * Improvement: Check for platform versions, check if Python is compatible with the PyPlanet installation.
+* Improvement: Add support for list/set typed settings.
+* Improvement: Add a z-index to different widgets so it will be correctly visible on the podium stage.
 
 * Bugfix: Fixing issue with an empty command input (/ without any text) resulting in executing the last registered command.
 * Bugfix: Fixing issue with converting from UAseco when the filename is empty (from a previous XAseco installation).
@@ -25,14 +27,19 @@ Apps
 ~~~~
 
 * New App: Added Fun Commands app with /gg, /nt, /n1, /ragequit, etc. Add ``pyplanet.apps.contrib.funcmd`` to your apps config.
-* Feature: Implemented Emoji Chat toolbar into the fun commands app. Disable with //settings.
 
+* Feature: Implemented Emoji Chat toolbar into the fun commands app. Disable with //settings.
 * Feature: Add donation widget to the transactions app. On by default, only showing at podium. Change to always with //settings.
+* Feature: Add random messages to the Ads app. Add messages and change the interval with //settings.
+* Feature: Add gear indicator to the sector_times app, only works in Stadium based games. Enabled by default, disable with //settings.
 
 * Improvement: Make sure all contrib apps don't use ``get_player_data`` anymore.
+* Improvement: Decrease size of the AD buttons (Discord and PayPal buttons).
+* Improvement: Move the checkpoint difference widgets a bit higher so it doesn't block the view so much (sector_times app).
 
 * Bugfix: Using the map name from MX if the Gbx map name is not provided by MX.
 * Bugfix: Fixing issue with MX update check on Shootmania.
+* Bugfix: Show a warning when a map might fail with dedimania due to the size of the embedded blocks.
 
 0.7.4 (04 March 2020)
 ---------------------

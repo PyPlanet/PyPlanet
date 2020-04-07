@@ -1,0 +1,51 @@
+
+#Const up ""
+#Const down ""
+
+main() {
+  declare oldGear = 1;
+  declare oldState = CTmMlPlayer::ERaceState::Eliminated;
+
+  declare label_indicator <=> (Page.GetFirstChild("indicator") as CMlLabel);
+  declare label_gear <=> (Page.GetFirstChild("gear") as CMlLabel);
+
+  while(True) {
+    yield;
+    if (GUIPlayer == Null || GUIPlayer.RaceState == CTmMlPlayer::ERaceState:: Finished) continue;
+
+    if (GUIPlayer.RaceState != oldState) {
+      oldState = GUIPlayer.RaceState;
+      if (GUIPlayer.RaceState == CTmMlPlayer::ERaceState::BeforeStart) {
+        oldGear = 1;
+      }
+    }
+
+    // render
+    if (GUIPlayer.EngineCurGear != oldGear)
+    {
+
+      label_gear.Opacity = 0.7;
+      label_indicator.Opacity = 0.7;
+      if (GUIPlayer.EngineCurGear > oldGear) {
+        label_indicator.Value = up;
+        label_indicator.RelativePosition_V3 = <6.0, -4.5>;
+        AnimMgr.Add(label_indicator, """<label opacity="0" pos="6 9"/>""", 500, CAnimManager::EAnimManagerEasing::SineInOut);
+      } else {
+        label_indicator.Value = down;
+        label_indicator.RelativePosition_V3 = <6.0, 4.5>;
+        AnimMgr.Add(label_indicator, """<label opacity="0" pos="6 -9"/>""", 500, CAnimManager::EAnimManagerEasing::SineInOut);
+      }
+
+      if (GUIPlayer.EngineCurGear == 0) {
+        label_gear.Value = "R";
+      } else {
+        label_gear.Value = "" ^ GUIPlayer.EngineCurGear;
+      }
+
+      AnimMgr.Add(label_gear, """<label opacity="0"/>""", 500, CAnimManager::EAnimManagerEasing::SineInOut);
+      oldGear = GUIPlayer.EngineCurGear;
+    }
+
+
+  }
+}

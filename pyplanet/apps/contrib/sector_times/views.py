@@ -1,3 +1,4 @@
+from pyplanet.views import TemplateView
 from pyplanet.views.generics.widget import WidgetView
 
 
@@ -127,3 +128,13 @@ class CheckpointDiffWidget(WidgetView):
 		context['record_source'] = fastest_source
 
 		return context
+
+
+class GearIndicatorView(TemplateView):
+	template_name = 'sector_times/gear_indicator.xml'
+
+	def __init__(self, app, *args, **kwargs):
+		super().__init__(app.context.ui, *args, **kwargs)
+		self.app = app
+		self.manager = app.context.ui
+		self.id = 'sector_times_gear'
