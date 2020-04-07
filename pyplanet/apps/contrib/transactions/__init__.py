@@ -61,6 +61,7 @@ class Transactions(AppConfig):
 		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
 		self.context.signals.listen(mp_signals.flow.podium_start, self.podium_start)
 		self.context.signals.listen(mp_signals.flow.podium_end, self.podium_end)
+		self.context.signals.listen(mp_signals.map.map_start, self.map_start)
 
 		# Show widget.
 		if await self.setting_display_widget.get_value() and not await self.setting_display_widget_podium_only.get_value():
@@ -92,6 +93,10 @@ class Transactions(AppConfig):
 			and await self.setting_display_widget_podium_only.get_value():
 			await self.widget.hide()
 
+	async def map_start(self, *args, **kwargs):
+		if await self.setting_display_widget.get_value() \
+			and await self.setting_display_widget_podium_only.get_value():
+			await self.widget.hide()
 
 	async def display_planets(self, player, data, **kwargs):
 		planets = await self.instance.gbx('GetServerPlanets')
