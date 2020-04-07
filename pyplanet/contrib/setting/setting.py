@@ -124,6 +124,10 @@ class Setting:
 		if value is None:
 			return value
 
+		# Empty value, set the default.
+		if value == '':
+			return self.default
+
 		if self.choices and value not in self.choices:
 			raise SerializationException('Value given is not in the predefined choices!')
 
