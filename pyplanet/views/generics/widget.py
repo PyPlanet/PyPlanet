@@ -15,6 +15,7 @@ class WidgetView(TemplateView):
 	size_y = None
 	title = None
 	action = None
+	z_index = None
 	distraction_hide = True
 
 	template_name = 'core.views/generics/widget.xml'
@@ -84,6 +85,7 @@ class WidgetView(TemplateView):
 		context.update({
 			'widget_x': self.widget_x,
 			'widget_y': self.widget_y,
+			'z_index': self.z_index,
 			'distraction_hide': self.distraction_hide,
 			'size_x': self.size_x,
 			'size_y': self.size_y,
@@ -92,7 +94,7 @@ class WidgetView(TemplateView):
 			'title': await self.get_title(),
 			'open_action': self.action is not None,
 			'content_pos_x': 2,
-			'content_pos_y': -5
+			'content_pos_y': -5,
 		})
 
 		return context
