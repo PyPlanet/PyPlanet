@@ -199,8 +199,18 @@ class SettingEditView(TemplateView):
 	async def save(self, player, action, values, *args, **kwargs):
 		raw_value = values['setting_value_field']
 
+		# Convert list.
+		raw_list = None
+		if self.setting.type == list or self.setting.type == set:
+			raw_list = str(raw_value).splitlines()
+			if self.setting.type == set:
+				raw_list = set(raw_list)
+
 		try:
-			await self.setting.set_value(raw_value)
+			if self.setting.type == list or self.setting.type == set:
+				await self.setting.set_value(raw_list if len(raw_list) > 0 else None)
+			else:
+				await self.setting.set_value(raw_value)
 		except SerializationException as e:
 			await self.parent.app.instance.chat(
 				'$fa0Error with saving setting: {}'.format(str(e)),

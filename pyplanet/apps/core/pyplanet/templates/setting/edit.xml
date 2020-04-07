@@ -45,8 +45,11 @@
         </frame>
       {% elif setting.type == types.set or setting.type == types.list %}
         <frame id="setting_value_list">
-          <entry hidden="1" id="setting_value_field" name="setting_value_field" default="{{ setting_value }}" />
-          <label pos="0 0" size="100 5" text="$fff$oTodo: List/set entries. ManiaScript!" textsize="1.2" valign="top" />
+          <textedit pos="10 -10" size="90 40" name="setting_value_field" id="setting_value_field"
+                    textsize="1.2" scriptevents="1"
+                    default="{% if setting_value %}{{ setting_value|join('\n') }}{% else %}{% endif %}"
+                    focusareacolor1="0003" focusareacolor2="FFF2" showlinenumbers="1" />
+          <label pos="0 -3" size="100 5" text="$fff$oEvery line represents one entry:" textsize="1.2" valign="top" />
         </frame>
       {% endif %}
     </frame>
