@@ -6,22 +6,29 @@ declare CMlLabel HideChatLabel <=> (Page.GetFirstChild("player_hide_chat_toggle"
 
 while(True) {
   foreach (Event in PendingEvents) {
-    // Distration free mode. (F8)
+    // Distraction free mode. (F8)
     if (Event.Type == CMlScriptEvent::Type::KeyPress && Event.KeyCode == 45) {
-      if (Net_DistractionFreeMode == True) {
-        Net_DistractionFreeMode = False;
+      if (Net_DriveHideMode == True) {
+        // Do nothing
       } else {
-        Net_DistractionFreeMode = True;
+        if (Net_DistractionFreeMode == True) {
+          Net_DistractionFreeMode = False;
+        } else {
+          Net_DistractionFreeMode = True;
+        }
       }
     }
 
     // Driving widget hiding
     if (Event.Type == CMlScriptEvent::Type::KeyPress && Event.KeyCode == 46) {
-      // TODO: Add the driving widget hiding
-      if (Net_DriveHideMode == True) {
-        Net_DriveHideMode = False;
+      if (Net_DistractionFreeMode == True) {
+        // Do nothing.
       } else {
-        Net_DriveHideMode = True;
+        if (Net_DriveHideMode == True) {
+          Net_DriveHideMode = False;
+        } else {
+          Net_DriveHideMode = True;
+        }
       }
     }
 
