@@ -20,6 +20,7 @@ class LiveRankings(AppConfig):
 	async def on_start(self):
 		# Register signals
 		self.context.signals.listen(mp_signals.map.map_start, self.map_start)
+		self.context.signals.listen(mp_signals.flow.round_start, self.round_start)
 		self.context.signals.listen(tm_signals.finish, self.player_finish)
 		self.context.signals.listen(tm_signals.waypoint, self.player_waypoint)
 		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
@@ -81,11 +82,11 @@ class LiveRankings(AppConfig):
 			for player in players:
 				if 'map_points' in player:
 					if player['map_points'] != -1:
-						new_ranking = dict(login=player['player'].login, nickname=player['player'].nickname, score=player['map_points'])
+						new_ranking = dict(login=player['player'].login, nickname=player['player'].nickname, score=player['map_points'], points_added=0)
 						self.current_rankings.append(new_ranking)
 				elif 'mappoints' in player:
 					if player['mappoints'] != -1:
-						new_ranking = dict(login=player['login'], nickname=player['name'], score=player['mappoints'])
+						new_ranking = dict(login=player['login'], nickname=player['name'], score=player['mappoints'], points_added=0)
 						self.current_rankings.append(new_ranking)
 
 			self.current_rankings.sort(key=lambda x: x['score'])
@@ -96,6 +97,9 @@ class LiveRankings(AppConfig):
 		self.current_finishes = []
 		await self.get_points_repartition()
 		await self.widget.display()
+
+	async def round_start(self, count, time):
+		await self.get_points_repartition()
 
 	async def player_connect(self, player, is_spectator, source, signal):
 		await self.widget.display(player=player)
@@ -161,9 +165,8 @@ class LiveRankings(AppConfig):
 		if 'rounds' in current_script or 'team' in current_script or 'cup' in current_script:
 			new_finish = dict(login=player.login, nickname=player.nickname, score=race_time)
 			self.current_finishes.append(new_finish)
-			self.current_finishes.sort(key=lambda x: -x['score'])
 
-			new_finish_rank = self.current_finishes.index(new_finish)
+			new_finish_rank = len(self.current_finishes) - 1
 			new_finish['points_added'] = self.points_repartition[new_finish_rank] \
 				if len(self.points_repartition) > new_finish_rank \
 				else self.points_repartition[(len(self.points_repartition) - 1)]
