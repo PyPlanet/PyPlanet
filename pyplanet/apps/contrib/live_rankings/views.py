@@ -113,6 +113,12 @@ class LiveRankingsWidget(TimesWidgetView):
 				elif record['giveup']:
 					list_record['score'] = '$iDNF'
 
+			# Points added on finishing in Rounds, Team or Cup modes.
+			if 'points_added' in record:
+				list_record['points_added'] = record['points_added']
+			else:
+				list_record['points_added'] = 0
+
 			if index == self.top_entries:
 				index = custom_start_index
 			else:

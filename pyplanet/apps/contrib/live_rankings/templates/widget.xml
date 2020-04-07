@@ -13,6 +13,9 @@
         {% if time.cp_difference != None and time.cp_difference != 0 %}
           <quad pos="35.25 0" z-index="0" size="7 3" bgcolor="00000070"/>
           <label pos="38.75 -1.5" size="7 3" z-index="1" textsize="0.2" halign="center" valign="center2" text="$fff+{{ time.cp_difference }} cp" textfont="RajdhaniMono"  textemboss="1"/>
+        {% elif time.points_added != None and time.points_added != 0 %}
+          <quad pos="35.25 0" z-index="0" size="7 3" bgcolor="00000070"/>
+          <label pos="38.75 -1.5" size="7 3" z-index="1" textsize="0.2" halign="center" valign="center2" text="$0f3+{{ time.points_added }}" textfont="RajdhaniMono"  textemboss="1"/>
         {% endif %}
       </frame>
     {% endfor %}
