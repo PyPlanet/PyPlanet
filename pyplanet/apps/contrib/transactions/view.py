@@ -2,11 +2,15 @@
 Donation Toolbar View.
 """
 
-from pyplanet.views import TemplateView
+from pyplanet.views.generics.widget import WidgetView
 
 
-class DonationToolbarWidget(TemplateView):
+class DonationToolbarWidget(WidgetView):
 	template_name = 'transactions/donation_toolbar.xml'
+
+	widget_x = -109.5
+	widget_y = 61
+	z_index = 30
 
 	def __init__(self, app):
 		"""

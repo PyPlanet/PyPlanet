@@ -6,6 +6,7 @@ from pyplanet.views.generics.widget import TimesWidgetView
 class BestCpTimesWidget(TimesWidgetView):
 	widget_x = -124.75
 	widget_y = 90
+	z_index = 30
 	size_x = 250
 	size_y = 18
 	title = 'Best CPs'
