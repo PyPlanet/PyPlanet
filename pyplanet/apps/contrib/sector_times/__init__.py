@@ -41,6 +41,9 @@ class SectorTimes(AppConfig):
 		self.gear_view_possible = \
 			self.instance.map_manager.current_map.environment == 'Stadium' and self.instance.game.game == 'tm'
 
+		# Set the MP CP diff widget position.
+		self.instance.ui_manager.properties.set_attribute('checkpoint_time', 'pos', '0. 8. -10.')
+
 	async def on_after_start(self, *args, **kwargs):
 		await asyncio.sleep(1)
 		asyncio.ensure_future(asyncio.gather(*[

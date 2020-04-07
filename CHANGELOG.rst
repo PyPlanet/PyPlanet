@@ -34,6 +34,7 @@ Apps
 
 * Improvement: Make sure all contrib apps don't use ``get_player_data`` anymore.
 * Improvement: Decrease size of the AD buttons (Discord and PayPal buttons).
+* Improvement: Move the checkpoint difference widgets a bit higher so it doesn't block the view so much (sector_times app).
 
 * Bugfix: Using the map name from MX if the Gbx map name is not provided by MX.
 * Bugfix: Fixing issue with MX update check on Shootmania.
