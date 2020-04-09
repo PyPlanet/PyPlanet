@@ -148,8 +148,16 @@ class MapManager(CoreContrib):
 			rows = list()
 			for details in diff:
 				mx_id = self._extract_mx_id(details['FileName'])
+
+				# HACK: Due to a limited map name length of 150 chars, we want to strip it to the maximum possible.
+				# This is a temporary fix and should be better handled in the future.
+				name = details['Name']
+				if len(name) > 150:
+					name = name[:150]
+					logging.getLogger(__name__).warning('Map name is very long, truncating to 150 chars.')
+
 				rows.append(dict(
-					uid=details['UId'], file=details['FileName'], name=details['Name'], author_login=details['Author'],
+					uid=details['UId'], file=details['FileName'], name=name, author_login=details['Author'],
 					environment=details['Environnement'], time_gold=details['GoldTime'], price=details['CopperPrice'],
 					map_type=details['MapType'], map_style=details['MapStyle'], mx_id=mx_id
 				))

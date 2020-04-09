@@ -34,6 +34,11 @@ class BestCpTimes(AppConfig):
 	async def player_cp(self, player, raw, *args, **kwargs):
 		cpnm = int(raw['checkpointinlap'])
 		laptime = int(raw['laptime'])
+
+		# Ignore invalid times (cp time will be 0)
+		if laptime == 0:
+			return
+
 		pcp = PlayerCP(player, cpnm + 1, laptime)
 		if not self.best_cp_times:
 			self.best_cp_times.append(pcp)

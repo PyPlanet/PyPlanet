@@ -22,6 +22,8 @@ Core
 
 * Bugfix: Fixing issue with an empty command input (/ without any text) resulting in executing the last registered command.
 * Bugfix: Fixing issue with converting from UAseco when the filename is empty (from a previous XAseco installation).
+* Bugfix: Crash with very long map names. Now truncating map names to the maximum allowed length in the database.
+
 
 Apps
 ~~~~
@@ -32,6 +34,7 @@ Apps
 * Feature: Add donation widget to the transactions app. On by default, only showing at podium. Change to always with //settings.
 * Feature: Add random messages to the Ads app. Add messages and change the interval with //settings.
 * Feature: Add gear indicator to the sector_times app, only works in Stadium based games. Enabled by default, disable with //settings.
+* Feature: Add points retrieved to the live rankings widget, replacing the build-in finish widget, only works in rounds-based modes.
 
 * Improvement: Make sure all contrib apps don't use ``get_player_data`` anymore.
 * Improvement: Decrease size of the AD buttons (Discord and PayPal buttons).
@@ -40,6 +43,8 @@ Apps
 * Bugfix: Using the map name from MX if the Gbx map name is not provided by MX.
 * Bugfix: Fixing issue with MX update check on Shootmania.
 * Bugfix: Show a warning when a map might fail with dedimania due to the size of the embedded blocks.
+* Bugfix: Ignore invalid checkpoint times in the best cps widget.
+
 
 0.7.4 (04 March 2020)
 ---------------------
