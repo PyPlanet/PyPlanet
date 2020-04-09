@@ -12,6 +12,11 @@ class ControllerView(TemplateView):
 		from pyplanet.core import Controller
 		context = await super().get_context_data()
 		context['game'] = Controller.instance.game.game
+
+		context['chat_pos'] = '-160.25 -63.75'
+		if context['game'] != 'tm':
+			context['chat_pos'] = '-160.25 -84.'
+
 		return context
 
 	async def display(self, **kwargs):
