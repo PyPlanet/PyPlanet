@@ -20,6 +20,7 @@ Core
 * Improvement: Add support for list/set typed settings.
 * Improvement: Add a z-index to different widgets so it will be correctly visible on the podium stage.
 * Improvement: Improve list visibility on Shootmania based games.
+* Improvement: Add new version of //call with Graphical Interfaces.
 
 * Bugfix: Fixing issue with an empty command input (/ without any text) resulting in executing the last registered command.
 * Bugfix: Fixing issue with converting from UAseco when the filename is empty (from a previous XAseco installation).
