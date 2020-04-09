@@ -32,6 +32,7 @@ Apps
 * Feature: Add donation widget to the transactions app. On by default, only showing at podium. Change to always with //settings.
 * Feature: Add random messages to the Ads app. Add messages and change the interval with //settings.
 * Feature: Add gear indicator to the sector_times app, only works in Stadium based games. Enabled by default, disable with //settings.
+* Feature: Add points retrieved to the live rankings widget, replacing the build-in finish widget, only works in rounds-based modes.
 
 * Improvement: Make sure all contrib apps don't use ``get_player_data`` anymore.
 * Improvement: Decrease size of the AD buttons (Discord and PayPal buttons).
