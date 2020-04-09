@@ -22,6 +22,8 @@ Core
 
 * Bugfix: Fixing issue with an empty command input (/ without any text) resulting in executing the last registered command.
 * Bugfix: Fixing issue with converting from UAseco when the filename is empty (from a previous XAseco installation).
+* Bugfix: Crash with very long map names. Now truncating map names to the maximum allowed length in the database.
+
 
 Apps
 ~~~~
@@ -41,6 +43,7 @@ Apps
 * Bugfix: Using the map name from MX if the Gbx map name is not provided by MX.
 * Bugfix: Fixing issue with MX update check on Shootmania.
 * Bugfix: Show a warning when a map might fail with dedimania due to the size of the embedded blocks.
+
 
 0.7.4 (04 March 2020)
 ---------------------

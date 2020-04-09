@@ -1,6 +1,8 @@
 """
 Maniaplanet Core Models. This models are used in several apps and should be considered as very stable.
 """
+import logging
+
 from peewee import *
 from pyplanet.core.db import TimedModel
 
@@ -128,6 +130,13 @@ class Map(TimedModel):
 		:return: Map instance.
 		"""
 		needs_save = False
+
+		# HACK: Due to a limited map name length of 150 chars, we want to strip it to the maximum possible.
+		# This is a temporary fix and should be better handled in the future.
+		if len(name) > 150:
+			name = name[:150]
+			logging.getLogger(__name__).warning('Map name is very long, truncating to 150 chars.')
+
 		try:
 			map = await cls.get_by_uid(uid)
 			if map.file != file or map.name != name:
