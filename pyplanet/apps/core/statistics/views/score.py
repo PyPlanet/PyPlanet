@@ -284,7 +284,7 @@ class CheckpointComparisonView(ManualListView):
 				'index': 'difference_to_local',
 				'sorting': False,
 				'searching': False,
-				'width': 27,
+				'width': 26,
 				'type': 'label'
 			},
 			{
@@ -308,7 +308,7 @@ class CheckpointComparisonView(ManualListView):
 				'index': 'difference_to_ideal',
 				'sorting': False,
 				'searching': False,
-				'width': 27,
+				'width': 26,
 				'type': 'label'
 			}
 		]
