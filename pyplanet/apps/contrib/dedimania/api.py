@@ -85,28 +85,31 @@ class DedimaniaAPI:
 				self.retries = 0
 				return data[0]
 			raise DedimaniaTransportException('Invalid response from dedimania!')
-		except (ConnectionError, ReadTimeout, ConnectionRefusedError, requests.exceptions.ConnectionError) as e:
-			raise DedimaniaTransportException(e) from e
-		except ConnectTimeout as e:
-			raise DedimaniaTransportException(e) from e
-		except DedimaniaTransportException:
+		except (
+			ConnectionError, ReadTimeout, ConnectionRefusedError, requests.exceptions.ConnectionError, ConnectTimeout,
+			DedimaniaTransportException
+		) as e:
 			# Try to setup new session.
 			self.retries += 1
-			if self.retries > 5:
-				raise DedimaniaTransportException('Dedimania didn\'t gave the right answer after few retries!')
+			if self.retries > 2:
+				self.retries = 0
+				raise DedimaniaTransportException(
+					'Dedimania didn\'t gave the right answer after few retries! Max retries reached.'
+				) from e
 			self.client = requests.session()
+			logger.warning('Dedimania timeout, doing a retry (retry {} of {})'.format(self.retries, 3))
 			try:
 				await self.authenticate()
 				return await self.execute(method, *args)
-			except Exception as e:
-				logger.error('XML-RPC Fault retrieved from Dedimania: {}'.format(str(e)))
+			except Exception as e2:
+				logger.error('XML-RPC Fault retrieved from Dedimania: {}'.format(str(e2)))
 				handle_exception(e, __name__, 'execute')
-				raise DedimaniaTransportException('Could not retrieve data from dedimania!')
+				raise DedimaniaTransportException('Could not retrieve data from dedimania!') from e2
 		except DedimaniaFault as e:
 			if 'Bad SessionId' in e.faultString or ('SessionId' in e.faultString and 'not found' in e.faultString):
 				try:
 					self.retries += 1
-					if self.retries > 5:
+					if self.retries > 2:
 						raise DedimaniaTransportException('Max retries reached for reauthenticating with dedimania!')
 
 					# Save original session ID.
