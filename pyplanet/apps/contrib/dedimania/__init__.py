@@ -371,10 +371,10 @@ class Dedimania(AppConfig):
 		except DedimaniaTransportException as e:
 			self.ready = False
 
-			if 'Max retries exceeded' in str(e):
-				message = '$f00Error: Dedimania seems down?'
+			if 'Max retries exceeded' in str(e) or 'Max retries reached' in str(e):
+				message = '$f00Error: Dedimania seems down? We retried to connect but after several retries it kept failing.'
 			else:
-				message = '$f00Error: Dedimania error occured!'
+				message = '$f00Error: Dedimania error occured! ({})'.format(str(e))
 				logger.exception(e)
 			await self.instance.chat(message)
 			return
