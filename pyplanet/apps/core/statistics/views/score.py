@@ -194,7 +194,7 @@ class CheckpointComparisonView(ManualListView):
 		scores_list = list(score_list)
 		for score in scores_list:
 			score_checkpoints = score.checkpoints.split(',')
-			score.checkpoints = [int(y) - int(x) for x, y in zip(score_checkpoints, score_checkpoints[1:])]
+			score.checkpoints = [int(y) - int(x) for x, y in zip(score_checkpoints, score_checkpoints[1:])]  # TODO: Improve performance of this code block.
 			score.checkpoints.insert(0, int(score_checkpoints[0]))
 
 		personal_list = [s for s in scores_list if s.player.id == self.player.get_id()]
