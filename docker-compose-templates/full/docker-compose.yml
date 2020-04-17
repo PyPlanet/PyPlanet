@@ -1,0 +1,84 @@
+#Maintained by Célian "celianvdb" VAN DER BIEST <me@celianvdb.fr>
+version: '3'
+services:
+  controller:
+    image: pyplanet/controller
+    restart: always
+    depends_on:
+      - dedicated
+      - db
+    volumes:
+      - pyplanet:/app/server/
+      - maniaplanet:/app/dedicated/
+    networks:
+      - back
+
+  dedicated:
+    image: pyplanet/maniaplanet-dedicated
+    restart: always
+    env_file: ./dedicated_vars.env
+    volumes:
+      - maniaplanet:/app/dedicated
+      - maniaplanet_configs:/app/dedicated-configs
+    networks:
+      - back
+      - front
+    expose:
+      - "5000"
+    ports:
+      - "2350:2350"
+      - "2350:2350/udp"
+      - "3450:3450"
+      - "3450:3450/udp"
+
+  db:
+    image: mariadb:latest
+    restart: always
+    env_file: ./dedicated_vars.env
+    environment:
+      MYSQL_INITDB_SKIP_TZINFO: 1
+    volumes:
+      - database:/var/lib/mysql/
+    networks:
+      - back
+    expose:
+      - "3306"
+
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+  pma:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    depends_on:
+      - db
+    env_file: ./dedicated_vars.env   
+    networks:
+      - front
+      - back
+    ports:
+      - "8080:80"
+      
+  sftp:
+    image: atmoz/sftp
+    restart: always
+    env_file: ./dedicated_vars.env
+    volumes:
+      - maniaplanet:/home/maniaplanet/dedicated
+      - pyplanet:/home/maniaplanet/pyplanet
+    networks:
+      - front
+    ports:
+      - "8022:22"
+
+    command: ["sh", "-c", "./entrypoint maniaplanet:$${SFTP_PASSWORD}:1000"]
+    
+volumes: 
+  maniaplanet:
+  maniaplanet_configs:
+  pyplanet:
+  database:
+
+networks: 
+  frontend:
+  backend:
+
