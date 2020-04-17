@@ -79,6 +79,6 @@ volumes:
   database:
 
 networks: 
-  frontend:
-  backend:
+  front:
+  back:
 
