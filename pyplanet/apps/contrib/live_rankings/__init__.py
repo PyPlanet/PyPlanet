@@ -44,7 +44,7 @@ class LiveRankings(AppConfig):
 		self.instance.ui_manager.properties.set_visibility('round_scores', False)
 		self.instance.ui_manager.properties.set_attribute('multilap_info', 'pos', '107., 88., 5.')
 
-		self.dedimania_enabled = ('dedimania' in self.instance.apps.apps)
+		self.dedimania_enabled = ('dedimania' in self.instance.apps.apps and 'dedimania' not in self.instance.apps.unloaded_apps)
 
 		self.widget = LiveRankingsWidget(self)
 		await self.widget.display()
@@ -109,7 +109,7 @@ class LiveRankings(AppConfig):
 	async def map_start(self, map, restarted, **kwargs):
 		self.current_rankings = []
 		self.current_finishes = []
-		self.dedimania_enabled = ('dedimania' in self.instance.apps.apps)
+		self.dedimania_enabled = ('dedimania' in self.instance.apps.apps and 'dedimania' not in self.instance.apps.unloaded_apps)
 		await self.get_points_repartition()
 		await self.widget.display()
 
