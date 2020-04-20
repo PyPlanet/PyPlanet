@@ -1,7 +1,7 @@
-<frame pos="0 0 70" z-index="50">
+<frame pos="0 0 70" z-index="900">
   <quad pos="0 0 -1" size="320 180" halign="center" valign="center" style="Bgs1" substyle="BgDialogBlur" z-index="50" scriptevents="1" />
 </frame>
-<frame pos="0 17 0" z-index="60">
+<frame pos="0 17 0" z-index="910">
   <quad pos="0 62.5" size="120 127" z-index="60" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
   <quad pos="0 62.5" size="120 127" z-index="61" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
   <quad pos="0 61.5" size="118 11" z-index="62" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>

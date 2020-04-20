@@ -181,7 +181,7 @@ class MX(AppConfig):  # pragma: no cover
 		juke_maps = await juke_after_adding.get_value()
 		if 'jukebox' not in self.instance.apps.apps:
 			juke_maps = False
-		juke_list = list()
+		added_map_uids = list()
 
 		for mx_id, mx_info in infos:
 			if 'Name' not in mx_info:
@@ -205,9 +205,7 @@ class MX(AppConfig):  # pragma: no cover
 				result = await self.instance.map_manager.add_map(map_filename, save_matchsettings=False)
 
 				if result:
-					# Juke if setting has been provided.
-					if juke_maps:
-						juke_list.append(mx_info['MapUID'])
+					added_map_uids.append(mx_info['MapUID'])
 
 					message = '$ff0Admin $fff{}$z$s$ff0 has added{} the map $fff{}$z$s$ff0 by $fff{}$z$s$ff0 from {}..'.format(
 						player.nickname, ' and juked' if juke_maps else '', mx_info['Name'], mx_info['Username'], self.site_short_name
@@ -233,9 +231,11 @@ class MX(AppConfig):  # pragma: no cover
 			pass
 
 		# Jukebox all the maps requested, in order.
-		if juke_maps and len(juke_list) > 0:
+		if juke_maps and len(added_map_uids) > 0:
 			# Fetch map objects.
-			for juke_uid in juke_list:
+			for juke_uid in added_map_uids:
 				map_instance = await self.instance.map_manager.get_map(uid=juke_uid)
 				if map_instance:
 					self.instance.apps.apps['jukebox'].insert_map(player, map_instance)
+
+		return [await self.instance.map_manager.get_map(uid=added_uid) for added_uid in added_map_uids]

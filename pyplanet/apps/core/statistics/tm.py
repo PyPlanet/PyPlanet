@@ -4,7 +4,7 @@ Trackmania app component.
 from pyplanet.apps.core.statistics.models import Score
 from pyplanet.apps.core.statistics.views.dashboard import StatsDashboardView
 from pyplanet.apps.core.statistics.views.records import TopSumsView
-from pyplanet.apps.core.statistics.views.score import StatsScoresListView
+from pyplanet.apps.core.statistics.views.score import StatsScoresListView, CheckpointComparisonView
 from pyplanet.apps.core.trackmania.callbacks import finish
 from pyplanet.contrib.command import Command
 
@@ -32,6 +32,8 @@ class TrackmaniaComponent:
 			Command('topsums', target=self.topsums, description='Displays a list of top record players.'),
 			Command(command='scoreprogression', aliases=['progression'], target=self.open_score_progression,
 					description='Displays your time/score progression on the current map.'),
+			Command(command='cpcomparison', aliases=['cp'], target=self.open_cp_comparison,
+					description='Compares your checkpoints times with the local record and the ideal checkpoints.'),
 		)
 
 	async def on_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
@@ -49,6 +51,10 @@ class TrackmaniaComponent:
 
 	async def open_score_progression(self, player, **kwargs):
 		view = StatsScoresListView(self.app, player)
+		await view.display(player)
+
+	async def open_cp_comparison(self, player, **kwargs):
+		view = CheckpointComparisonView(self.app, player)
 		await view.display(player)
 
 	async def topsums(self, player, *args, **kwargs):

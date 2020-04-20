@@ -9,6 +9,7 @@ Core
 
 * Feature: Activated Apps lifecycle, enabling and disabling apps on the fly depending on it's requirements.
 * Feature: Add player toolbox/toolbar. You can disable this with a setting in //settings in-game.
+* Feature: Add CP Comparison to find the best checkpoints by using the best checkpoint times of all local records (/cpcomparison).
 
 * Improvement: Dropping Python 3.5 support!
 * Improvement: Add //helpall and /helpall for a detailed list of commands!
@@ -19,6 +20,8 @@ Core
 * Improvement: Check for platform versions, check if Python is compatible with the PyPlanet installation.
 * Improvement: Add support for list/set typed settings.
 * Improvement: Add a z-index to different widgets so it will be correctly visible on the podium stage.
+* Improvement: Improve list visibility on Shootmania based games.
+* Improvement: Add new version of //call with Graphical Interfaces.
 
 * Bugfix: Fixing issue with an empty command input (/ without any text) resulting in executing the last registered command.
 * Bugfix: Fixing issue with converting from UAseco when the filename is empty (from a previous XAseco installation).
@@ -39,6 +42,8 @@ Apps
 * Improvement: Make sure all contrib apps don't use ``get_player_data`` anymore.
 * Improvement: Decrease size of the AD buttons (Discord and PayPal buttons).
 * Improvement: Move the checkpoint difference widgets a bit higher so it doesn't block the view so much (sector_times app).
+* Improvement: Improve the retry mechanism of Dedimania during connection issues.
+* Improvement: Make sure that updated maps with MX will reappear in the map folders.
 
 * Bugfix: Using the map name from MX if the Gbx map name is not provided by MX.
 * Bugfix: Fixing issue with MX update check on Shootmania.

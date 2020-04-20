@@ -17,6 +17,17 @@ This app keeps track of the general statistics across the games.
 Commands
 --------
 
+Display Ideal Checkpoints
+~~~~~~~~~~~~~~~~~~~~~~~~~
+Command:
+  ``/cpcomparison``
+Parameters:
+  None.
+Functionality:
+  Find out the best route by comparing checkpoint times with all local records (to potentially find the ideal route/lines)
+Required permission:
+  None.
+
 Display Top Donators
 ~~~~~~~~~~~~~~~~~~~~
 Command:
