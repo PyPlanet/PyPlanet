@@ -5,7 +5,7 @@ class TimerView(WidgetView):
 	widget_y = 0
 	size_x = 0
 	size_y = 0
-	template_name = 'brawl_match/timer.xml'
+	template_name = 'nightcup/timer.xml'
 
 	def __init__(self, app):
 		super().__init__()
