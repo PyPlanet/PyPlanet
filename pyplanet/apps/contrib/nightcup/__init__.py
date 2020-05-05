@@ -189,9 +189,15 @@ class NightCup(AppConfig):
 					await self.instance.gbx('ForceSpectator', p, 2)
 				else:
 					await self.nc_chat('Unlucky, you did not qualify for the KO phase!', p)
-					await self.instance.gbx('ForceSpectator', p, 1)
+					if self.instance.player_manager.count_spectators < self.instance.player_manager.max_spectators:
+						await self.instance.gbx('ForceSpectator', p, 1)
+					else:
+						await self.instance.gbx('Kick', p)
 			else:
-				await self.instance.gbx('ForceSpectator', p, 1)
+				if self.instance.player_manager.count_spectators < self.instance.player_manager.max_spectators:
+					await self.instance.gbx('ForceSpectator', p, 1)
+				else:
+					await self.instance.gbx('Kick', p)
 
 
 	async def knockout_players(self, count, time):
@@ -216,10 +222,16 @@ class NightCup(AppConfig):
 		qualified = round_logins[:len(self.ko_qualified)-nr_kos]
 		for i,p in enumerate(kos, start=1):
 			await self.nc_chat(f'You have been eliminated from this KO: position {len(qualified) + i}/{len(self.ko_qualified)}', p)
-			await self.instance.gbx('ForceSpectator', p, 1)
+			if self.instance.player_manager.count_spectators < self.instance.player_manager.max_spectators:
+				await self.instance.gbx('ForceSpectator', p, 1)
+			else:
+				await self.instance.gbx('Kick', p)
 		for p in dnfs:
 			await self.nc_chat(f'You have been eliminated from this KO: position DNF/{len(self.ko_qualified)}', p)
-			await self.instance.gbx('ForceSpectator', p, 1)
+			if self.instance.player_manager.count_spectators < self.instance.player_manager.max_spectators:
+				await self.instance.gbx('ForceSpectator', p, 1)
+			else:
+				await self.instance.gbx('Kick', p)
 		for i,p in enumerate(qualified, start=1):
 			await self.nc_chat(f'You are still in! position {i}/{len(self.ko_qualified)}', p)
 			await self.instance.gbx('ForceSpectator', p, 2)
