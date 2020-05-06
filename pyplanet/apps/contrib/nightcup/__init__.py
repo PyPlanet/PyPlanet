@@ -12,11 +12,11 @@ class NightCup(AppConfig):
 	app_dependencies = ['core.maniaplanet', 'core.trackmania']
 
 	TIME_UNTIL_TA_PHASE = int(1 * 60)
-	TIME_UNTIL_KO_PHASE = int(3 * 60)
+	TIME_UNTIL_KO_PHASE = int(10 * 60)
 	TIME_AFTER_KO_PHASE = int(5 * 60)
 	TIME_UNTIL_NEXT_WALL = 5
-	TIME_TA = int(2 * 60)
-	WU_DURATION = 60
+	TIME_TA = int(45 * 60)
+	WU_DURATION = int(1 * 60)
 
 
 	def __init__(self, *args, **kwargs):
