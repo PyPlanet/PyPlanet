@@ -27,28 +27,28 @@ class NightCup(AppConfig):
 				'type': int,
 				'name': 'nc_time_until_ta',
 				'description': 'Time before TA phase starts',
-				'value': 60
+				'value': 6
 			},
 			{
 				'default': '2700',
 				'type': int,
 				'name': 'nc_ta_length',
 				'description': 'Length of TA phase',
-				'value': 2700
+				'value': 40
 			},
 			{
 				'default': '600',
 				'type': int,
 				'name': 'nc_time_until_ko',
 				'description': 'Time between TA phase and KO phase',
-				'value': 600
+				'value': 6
 			},
 			{
 				'default': '60',
 				'type': int,
 				'name': 'nc_wu_duration',
 				'description': 'Length of warmups for players to load the map',
-				'value': 60
+				'value': 6
 			}
 		]
 
@@ -97,6 +97,32 @@ class NightCup(AppConfig):
 				target=self.nc_settings,
 				perms='nightcup:nc_control',
 				admin=True
+			),
+			Command(
+				'addqualified',
+				namespace='nc',
+				aliases=['aq'],
+				target=self.add_qualified,
+				perms='nightcup:nc_control',
+				admin=True
+			).add_param(
+				'player',
+				nargs='*',
+				type=str,
+				required=True
+			),
+			Command(
+				'removequalified',
+				namespace='nc',
+				aliases=['rq'],
+				target=self.remove_qualified,
+				perms='nightcup:nc_control',
+				admin=True
+			).add_param(
+				'player',
+				nargs='*',
+				type=str,
+				required=True
 			)
 		)
 
@@ -109,7 +135,7 @@ class NightCup(AppConfig):
 			self.nc_active = True
 			await self.backup_mode_settings()
 			await asyncio.sleep(self.TIME_UNTIL_NEXT_WALL)
-			await self.await_match_start()
+			await self.wait_for_ta_start()
 
 
 	async def backup_mode_settings(self):
@@ -137,29 +163,33 @@ class NightCup(AppConfig):
 		await self.nc_chat(f"Warmup of {await self.format_time(self.settings['nc_wu_duration'])} for people to load the map.")
 
 
-	async def await_match_start(self):
-		match_start_timer = TimerView(self)
-		self.open_views.append(match_start_timer)
-		match_start_timer.title = f"TA phase starts in {await self.format_time(self.settings['nc_time_until_ta'])}"
+	async def wait_for_ta_start(self):
+		ta_start_timer = TimerView(self)
+		self.open_views.append(ta_start_timer)
+		ta_start_timer.title = f"TA phase starts in {await self.format_time(self.settings['nc_time_until_ta'])}"
 		for player in self.instance.player_manager.online:
-			await match_start_timer.display(player)
+			await ta_start_timer.display(player)
 
-		for i in range(0, self.settings['nc_time_until_ta']):
-			match_start_timer.title = f"TA phase starts in {await self.format_time(self.settings['nc_time_until_ta'] - i)}"
+		secs = 0
+		while self.settings['nc_time_until_ta'] - secs > 0 and ta_start_timer:
+			ta_start_timer.title = f"TA phase starts in {await self.format_time(self.settings['nc_time_until_ta'] - secs)}"
 			for player in self.instance.player_manager.online:
-				if match_start_timer:
-					await match_start_timer.display(player)
+				print(ta_start_timer)
+				print(ta_start_timer is None)
+				if not ta_start_timer is None:
+					await ta_start_timer.display(player)
 			await asyncio.sleep(1)
+			secs += 1
 
-		await match_start_timer.destroy()
+		await ta_start_timer.destroy()
 		await self.instance.gbx('RestartMap')
 
 		await self.set_ta_settings()
 		self.context.signals.listen(mp_signals.flow.round_end, self.get_qualified)
-		self.context.signals.listen(mp_signals.flow.round_end, self.await_ko_start)
+		self.context.signals.listen(mp_signals.flow.round_end, self.wait_for_ko_start)
 
 
-	async def await_ko_start(self, count, time):
+	async def wait_for_ko_start(self, count, time):
 		settings = await self.instance.mode_manager.get_settings()
 		settings['S_TimeLimit'] = -1
 		settings['S_WarmUpDuration'] = 0
@@ -167,7 +197,7 @@ class NightCup(AppConfig):
 		await self.instance.mode_manager.update_settings(settings)
 
 		for signal, target in self.context.signals.listeners:
-			if target == self.await_ko_start:
+			if target == self.wait_for_ko_start:
 				signal.unregister(target)
 
 		await self.instance.gbx('RestartMap')
@@ -175,19 +205,22 @@ class NightCup(AppConfig):
 		self.context.signals.listen(mp_signals.map.map_begin, self.set_ko_settings)
 		ko_start_timer = TimerView(self)
 		self.open_views.append(ko_start_timer)
-		ko_start_timer.title = f"KO phase starts in {await self.format_time(settings['nc_time_until_ko'])}"
+		ko_start_timer.title = f"KO phase starts in {await self.format_time(self.settings['nc_time_until_ko'])}"
 		for player in self.instance.player_manager.online:
 			await ko_start_timer.display(player)
 
-		for i in range(0, settings['nc_time_until_ko']):
-			ko_start_timer.title = f"KO phase starts in {await self.format_time(settings['nc_time_until_ko'])}"
+		secs = 0
+		while self.settings['nc_time_until_ko'] - secs > 0 and ko_start_timer:
+			ko_start_timer.title = f"KO phase starts in {await self.format_time(self.settings['nc_time_until_ko'] - secs)}"
 			for player in self.instance.player_manager.online:
 				if ko_start_timer:
 					await ko_start_timer.display(player)
 			await asyncio.sleep(1)
+			secs += 1
 
 		await ko_start_timer.destroy()
-		await self.instance.gbx('RestartMap')
+		await self.instance.map_manager.set_next_map(self.instance.map_manager.current_map)
+		await self.instance.gbx('NextMap')
 
 
 	async def format_time(self, seconds):
@@ -205,6 +238,9 @@ class NightCup(AppConfig):
 	async def reset_server(self):
 		for view in self.open_views:
 			await view.destroy()
+			print(view)
+			del view
+			print(view)
 		self.open_views.clear()
 
 		for signal, target in self.context.signals.listeners:
@@ -230,7 +266,6 @@ class NightCup(AppConfig):
 		for signal, target in self.context.signals.listeners:
 			if target == self.set_ko_settings:
 				signal.unregister(target)
-
 		await self.instance.mode_manager.set_next_script('Rounds.Script.txt')
 
 		await self.instance.gbx('RestartMap')
@@ -248,7 +283,7 @@ class NightCup(AppConfig):
 		settings['S_PointsLimit'] = -1
 		settings['S_RoundsPerMap'] = -1
 		settings['S_WarmUpNb'] = 1
-		settings['S_WarmUpDuration'] = settings['wu_duration']
+		settings['S_WarmUpDuration'] = self.settings['nc_wu_duration']
 		settings['S_PointsRepartition'] = ','.join(str(x) for x in range(len(self.ko_qualified), 0, -1))
 		settings['S_FinishTimeout'] = self.timeout
 
@@ -281,8 +316,10 @@ class NightCup(AppConfig):
 
 
 	async def knockout_players(self, count, time):
-		nr_kos = await self.get_nr_kos(len(self.ko_qualified))
 		round_scores = (await self.instance.gbx('Trackmania.GetScores'))['players']
+		if not any([player['roundpoints'] != 0 for player in round_scores]):
+			return
+		nr_kos = await self.get_nr_kos(len(self.ko_qualified))
 		round_scores = [(record['login'], record['prevracetime']) for record in round_scores if record['login'] in self.ko_qualified]
 
 		round_scores.sort(key=itemgetter(1))
@@ -355,3 +392,31 @@ class NightCup(AppConfig):
 			for setting_long in self.settings_long:
 				if setting_long['name'] == key:
 					setting_long['value'] = new_settings[key]
+
+
+	async def add_qualified(self, player, data, **kwargs):
+		if not self.nc_active:
+			await self.nc_chat('$i$f00No nightcup is currently active', player)
+			return
+		players_to_add = data.player
+		for player_to_add in players_to_add:
+			if not player_to_add in self.instance.player_manager.online_logins:
+				await self.nc_chat('$i$f00Player is currently not on the server', player)
+				continue
+			self.ko_qualified.append(player_to_add)
+			await self.nc_chat(f'Player {(await Player.get_by_login(player_to_add)).nickname} '
+							   f'has been added to the qualified list')
+
+
+	async def remove_qualified(self, player, data, **kwargs):
+		if not self.nc_active:
+			await self.nc_chat('$i$f00No nightcup is currently active', player)
+			return
+		players_to_remove = data.player
+		for player_to_remove in players_to_remove:
+			if not player_to_remove in self.ko_qualified:
+				await self.nc_chat('$i$f00Player is currently not in the qualified list', player)
+				continue
+			self.ko_qualified.remove(player_to_remove)
+			await self.nc_chat(f'Player {(await Player.get_by_login(player_to_remove)).nickname} '
+							   f'has been removed from the qualified list')

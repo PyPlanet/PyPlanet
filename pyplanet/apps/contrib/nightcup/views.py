@@ -46,7 +46,7 @@ class SettingsListView(ManualListView):
 			return
 
 		# Show edit view.
-		self.child = ModeSettingEditView(self, self.player, row)
+		self.child = NcSettingEditView(self, self.player, row)
 		await self.child.display()
 		await self.child.wait_for_response()
 		await self.child.destroy()
@@ -112,7 +112,7 @@ class SettingsListView(ManualListView):
 		]
 
 
-class ModeSettingEditView(TemplateView):
+class NcSettingEditView(TemplateView):
 	template_name = 'admin/setting/edit.xml'
 
 	def __init__(self, parent, player, setting):
