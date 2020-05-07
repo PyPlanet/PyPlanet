@@ -39,7 +39,7 @@ class SettingsListView(ManualListView):
 		self.child = None
 
 	async def get_data(self):
-		return await self.app.get_settings()
+		return await self.app.get_long_settings()
 
 	async def open_edit_setting(self, player, values, row, **kwargs):
 		if self.child:
@@ -54,8 +54,8 @@ class SettingsListView(ManualListView):
 		self.child = None
 
 	async def display(self, **kwargs):
-		kwargs['player'] = self.player
-		return await super().display(**kwargs)
+		# kwargs['player'] = self.player
+		return await super().display(self.player)
 
 	def value_renderer(self, row, field, **kwargs):
 		value_type = type(row[field['index']])
@@ -162,13 +162,18 @@ class ModeSettingEditView(TemplateView):
 		value = values['setting_value_field']
 
 		try:
-			settings = self.parent.get_data()
-			settings[self.setting['name']] = value
+			settings_long = (await self.parent.get_data())
+			settings = {setting['name']: setting['value'] for setting in settings_long}
+			settings[self.setting['name']] = int(value)
 			await self.parent.app.update_settings(settings)
+		except ValueError:
+			message = '$i$f00You have entered a value with a wrong type.'
+			await self.parent.app.instance.chat(message, player)
+			return
 		finally:
 			await asyncio.gather(
 				self.parent.app.instance.chat(
-					'$ff0Changed mode setting "$fff{}$ff0" to "$fff{}$ff0" (was: "$fff{}$ff0").'.format(
+					'$ff0Changed nightcup setting "$fff{}$ff0" to "$fff{}$ff0" (was: "$fff{}$ff0").'.format(
 						self.setting['name'], value, self.setting['value']
 					),
 					player

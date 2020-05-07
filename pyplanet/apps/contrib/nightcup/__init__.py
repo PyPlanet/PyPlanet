@@ -53,7 +53,6 @@ class NightCup(AppConfig):
 		]
 
 		self.settings = {setting['name']: setting['value'] for setting in self.settings_long}
-		print(self.settings)
 		self.chat_reset = '$z$fff$s'
 		self.chat_prefix = f'$fffRPG $036NIGHTCUP $fff- {self.chat_reset}'
 
@@ -131,11 +130,11 @@ class NightCup(AppConfig):
 		settings = await self.instance.mode_manager.get_settings()
 
 		settings['S_TimeLimit'] = self.settings['nc_ta_length']
-		settings['S_WarmUpDuration'] = self.settings['wu_duration']
+		settings['S_WarmUpDuration'] = self.settings['nc_wu_duration']
 		settings['S_WarmUpNb'] = 1
 		await self.instance.mode_manager.update_settings(settings)
 
-		await self.nc_chat(f"Warmup of {await self.format_time(settings['wu_duration'])} for people to load the map.")
+		await self.nc_chat(f"Warmup of {await self.format_time(self.settings['nc_wu_duration'])} for people to load the map.")
 
 
 	async def await_match_start(self):
@@ -293,7 +292,7 @@ class NightCup(AppConfig):
 
 		round_logins = [p[0] for p in round_scores]
 
-		if len(self.ko_qualified) == 2:
+		if len(self.ko_qualified) <= 2:
 			await self.nc_chat(f'Player {(await Player.get_by_login(round_scores[0][0])).nickname}{self.chat_reset} wins this RPG NightCup, well played!')
 			await self.reset_server()
 			return
@@ -346,10 +345,13 @@ class NightCup(AppConfig):
 		await settings_view.display(player=player)
 
 
-	async def get_settings(self):
+	async def get_long_settings(self):
 		return self.settings_long
 
 
-	async def update_settings(self, settings):
-		self.settings_long = settings
-		self.settings = {setting['name']: setting['value'] for setting in self.settings_long}
+	async def update_settings(self, new_settings):
+		self.settings = new_settings
+		for key in new_settings:
+			for setting_long in self.settings_long:
+				if setting_long['name'] == key:
+					setting_long['value'] = new_settings[key]
