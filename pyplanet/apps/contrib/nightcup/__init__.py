@@ -2,7 +2,7 @@ import asyncio
 from operator import itemgetter
 
 from pyplanet.apps.config import AppConfig
-from pyplanet.apps.contrib.nightcup.views import TimerView
+from pyplanet.apps.contrib.nightcup.views import TimerView, SettingsListView
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.contrib.command import Command
@@ -11,13 +11,7 @@ class NightCup(AppConfig):
 	game_dependencies = ['trackmania']
 	app_dependencies = ['core.maniaplanet', 'core.trackmania']
 
-	TIME_UNTIL_TA_PHASE = int(1 * 60)
-	TIME_UNTIL_KO_PHASE = int(10 * 60)
-	TIME_AFTER_KO_PHASE = int(5 * 60)
-	TIME_UNTIL_NEXT_WALL = 5
-	TIME_TA = int(45 * 60)
-	WU_DURATION = int(1 * 60)
-
+	TIME_UNTIL_NEXT_WALL = 3
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -26,6 +20,39 @@ class NightCup(AppConfig):
 
 		self.ta_finishers = []
 		self.ko_qualified = []
+
+		self.settings_long = [
+			{
+				'default': '60',
+				'type': int,
+				'name': 'nc_time_until_ta',
+				'description': 'Time before TA phase starts',
+				'value': 60
+			},
+			{
+				'default': '2700',
+				'type': int,
+				'name': 'nc_ta_length',
+				'description': 'Length of TA phase',
+				'value': 2700
+			},
+			{
+				'default': '600',
+				'type': int,
+				'name': 'nc_time_until_ko',
+				'description': 'Time between TA phase and KO phase',
+				'value': 600
+			},
+			{
+				'default': '60',
+				'type': int,
+				'name': 'nc_wu_duration',
+				'description': 'Length of warmups for players to load the map',
+				'value': 60
+			}
+		]
+
+		self.settings = {setting['name']: setting['value'] for setting in self.settings_long}
 
 		self.chat_reset = '$z$fff$s'
 		self.chat_prefix = f'$fffRPG $036NIGHTCUP $fff- {self.chat_reset}'
@@ -64,6 +91,13 @@ class NightCup(AppConfig):
 				target=self.stop_nc,
 				perms='nightcup:nc_control',
 				admin=True
+			),
+			Command(
+				'settings',
+				namespace='nc',
+				target=self.nc_settings,
+				perms='nightcup:nc_control',
+				admin=True
 			)
 		)
 
@@ -96,23 +130,23 @@ class NightCup(AppConfig):
 	async def set_ta_modesettings(self):
 		settings = await self.instance.mode_manager.get_settings()
 
-		settings['S_TimeLimit'] = self.TIME_TA
-		settings['S_WarmUpDuration'] = self.WU_DURATION
+		settings['S_TimeLimit'] = settings['nc_ta_length']
+		settings['S_WarmUpDuration'] = settings['wu_duration']
 		settings['S_WarmUpNb'] = 1
 		await self.instance.mode_manager.update_settings(settings)
 
-		await self.nc_chat(f'Warmup of {await self.format_time(self.WU_DURATION)} for people to load the map.')
+		await self.nc_chat(f"Warmup of {await self.format_time(settings['wu_duration'])} for people to load the map.")
 
 
 	async def await_match_start(self):
 		match_start_timer = TimerView(self)
 		self.open_views.append(match_start_timer)
-		match_start_timer.title = f'TA phase starts in {await self.format_time(self.TIME_UNTIL_TA_PHASE)}'
+		match_start_timer.title = f"TA phase starts in {await self.format_time(self.settings['nc_time_until_ta'])}"
 		for player in self.instance.player_manager.online:
 			await match_start_timer.display(player)
 
-		for i in range(0, self.TIME_UNTIL_TA_PHASE):
-			match_start_timer.title = f'TA phase starts in {await self.format_time(self.TIME_UNTIL_TA_PHASE - i)}'
+		for i in range(0, self.settings['nc_time_until_ta']):
+			match_start_timer.title = f"TA phase starts in {await self.format_time(self.settings['nc_time_until_ta'] - i)}"
 			for player in self.instance.player_manager.online:
 				if match_start_timer:
 					await match_start_timer.display(player)
@@ -142,12 +176,12 @@ class NightCup(AppConfig):
 		self.context.signals.listen(mp_signals.map.map_begin, self.set_ko_settings)
 		ko_start_timer = TimerView(self)
 		self.open_views.append(ko_start_timer)
-		ko_start_timer.title = f'KO phase starts in {await self.format_time(self.TIME_UNTIL_KO_PHASE)}'
+		ko_start_timer.title = f"KO phase starts in {await self.format_time(settings['nc_time_until_ko'])}"
 		for player in self.instance.player_manager.online:
 			await ko_start_timer.display(player)
 
-		for i in range(0, self.TIME_UNTIL_KO_PHASE):
-			ko_start_timer.title = f'KO phase starts in {await self.format_time(self.TIME_UNTIL_KO_PHASE - i)}'
+		for i in range(0, settings['nc_time_until_ko']):
+			ko_start_timer.title = f"KO phase starts in {await self.format_time(settings['nc_time_until_ko'])}"
 			for player in self.instance.player_manager.online:
 				if ko_start_timer:
 					await ko_start_timer.display(player)
@@ -155,7 +189,6 @@ class NightCup(AppConfig):
 
 		await ko_start_timer.destroy()
 		await self.instance.gbx('RestartMap')
-
 
 
 	async def format_time(self, seconds):
@@ -216,7 +249,7 @@ class NightCup(AppConfig):
 		settings['S_PointsLimit'] = -1
 		settings['S_RoundsPerMap'] = -1
 		settings['S_WarmUpNb'] = 1
-		settings['S_WarmUpDuration'] = self.WU_DURATION
+		settings['S_WarmUpDuration'] = settings['wu_duration']
 		settings['S_PointsRepartition'] = ','.join(str(x) for x in range(len(self.ko_qualified), 0, -1))
 		settings['S_FinishTimeout'] = self.timeout
 
@@ -306,3 +339,17 @@ class NightCup(AppConfig):
 			await self.instance.chat(f'{self.chat_prefix}{message}', player)
 		else:
 			await self.instance.chat(f'{self.chat_prefix}{message}')
+
+
+	async def nc_settings(self, player, *args, **kwargs):
+		settings_view = SettingsListView(self)
+		await settings_view.display(player=player)
+
+
+	async def get_settings(self):
+		return self.settings_long
+
+
+	async def update_settings(self, settings):
+		self.settings_long = settings
+		self.settings = {setting['name']: setting['value'] for setting in self.settings_long}

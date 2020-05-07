@@ -63,6 +63,7 @@ class ModeSettingMenuView(ManualListView):
 				settings[name]['type'] = type(value)
 		return list(settings.values())
 
+
 	async def open_edit_setting(self, player, values, row, **kwargs):
 		if self.child:
 			return
