@@ -1,5 +1,9 @@
+import asyncio
+from xmlrpc.client import Fault
+
 from pyplanet.views.generics.widget import WidgetView
-from pyplanet.views.generics.list import ManualListView
+from pyplanet.views import TemplateView
+from pyplanet.views.generics import ManualListView
 
 class TimerView(WidgetView):
 	widget_x = 0
@@ -109,3 +113,67 @@ class SettingsListView(ManualListView):
 
 
 class ModeSettingEditView(TemplateView):
+	template_name = 'admin/setting/edit.xml'
+
+	def __init__(self, parent, player, setting):
+		super().__init__(parent.manager)
+		self.parent = parent
+		self.player = player
+		self.setting = setting
+
+		self.response_future = asyncio.Future()
+
+		self.subscribe('button_close', self.close)
+		self.subscribe('button_save', self.save)
+		self.subscribe('button_cancel', self.close)
+
+	async def display(self, **kwargs):
+		await super().display(player_logins=[self.player.login])
+
+	async def get_context_data(self):
+		context = await super().get_context_data()
+		context['title'] = 'Edit \'{}\''.format(self.setting['name'])
+		context['icon_style'] = 'Icons128x128_1'
+		context['icon_substyle'] = 'ProfileAdvanced'
+
+		context['setting'] = self.setting
+		context['setting_value'] = self.setting['value']
+		context['types'] = dict(int=int, str=str, float=float, set=set, dict=dict, list=list, bool=bool)
+
+		return context
+
+	async def close(self, player, *args, **kwargs):
+		"""
+		Close the link for a specific player. Will hide manialink and destroy data for player specific to save memory.
+
+		:param player: Player model instance.
+		:type player: pyplanet.apps.core.maniaplanet.models.Player
+		"""
+		if self.player_data and player.login in self.player_data:
+			del self.player_data[player.login]
+		await self.hide(player_logins=[player.login])
+		self.response_future.set_result(None)
+		self.response_future.done()
+
+	async def wait_for_response(self):
+		return await self.response_future
+
+	async def save(self, player, action, values, *args, **kwargs):
+		value = values['setting_value_field']
+
+		try:
+			settings = self.parent.get_data()
+			settings[self.setting['name']] = value
+			await self.parent.app.update_settings(settings)
+		finally:
+			await asyncio.gather(
+				self.parent.app.instance.chat(
+					'$ff0Changed mode setting "$fff{}$ff0" to "$fff{}$ff0" (was: "$fff{}$ff0").'.format(
+						self.setting['name'], value, self.setting['value']
+					),
+					player
+				),
+				self.hide([player.login])
+			)
+			self.response_future.set_result(self.setting)
+			self.response_future.done()

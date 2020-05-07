@@ -53,7 +53,7 @@ class NightCup(AppConfig):
 		]
 
 		self.settings = {setting['name']: setting['value'] for setting in self.settings_long}
-
+		print(self.settings)
 		self.chat_reset = '$z$fff$s'
 		self.chat_prefix = f'$fffRPG $036NIGHTCUP $fff- {self.chat_reset}'
 
@@ -130,8 +130,8 @@ class NightCup(AppConfig):
 	async def set_ta_modesettings(self):
 		settings = await self.instance.mode_manager.get_settings()
 
-		settings['S_TimeLimit'] = settings['nc_ta_length']
-		settings['S_WarmUpDuration'] = settings['wu_duration']
+		settings['S_TimeLimit'] = self.settings['nc_ta_length']
+		settings['S_WarmUpDuration'] = self.settings['wu_duration']
 		settings['S_WarmUpNb'] = 1
 		await self.instance.mode_manager.update_settings(settings)
 
@@ -342,7 +342,7 @@ class NightCup(AppConfig):
 
 
 	async def nc_settings(self, player, *args, **kwargs):
-		settings_view = SettingsListView(self)
+		settings_view = SettingsListView(self, player)
 		await settings_view.display(player=player)
 
 
