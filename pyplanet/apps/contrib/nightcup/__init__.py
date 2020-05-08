@@ -60,6 +60,7 @@ class NightCup(AppConfig):
 
 		self.backup_script_name = None
 		self.backup_settings = None
+		self.backup_dedi_ui_params = {}
 
 		self.open_views = []
 
@@ -132,10 +133,52 @@ class NightCup(AppConfig):
 			await self.nc_chat(f'A nightcup is currently in progress!', player)
 		else:
 			await self.nc_chat(f'Nightcup is starting now!')
-			self.nc_active = True
-			await self.backup_mode_settings()
-			await asyncio.sleep(self.TIME_UNTIL_NEXT_WALL)
-			await self.wait_for_ta_start()
+			await self.set_ui_elements()
+			# await self.reset_ui_elements()
+
+
+			# self.nc_active = True
+			# await self.backup_mode_settings()
+			# await asyncio.sleep(self.TIME_UNTIL_NEXT_WALL)
+			# await self.wait_for_ta_start()
+
+
+	async def set_ui_elements(self):
+		await self.move_dedi_ui()
+
+
+	async def move_dedi_ui(self):
+		for app in self.instance.ui_manager.app_managers.values():
+			dedi_view = app.manialinks.get('pyplanet__widgets_dedimaniarecords')
+			if dedi_view:
+				self.backup_dedi_ui_params = {
+					'top_entries': dedi_view.top_entries,
+					'record_amount': dedi_view.record_amount,
+					'widget_x': dedi_view.widget_x,
+					'widget_y': dedi_view.widget_y
+				}
+				dedi_view.top_entries = 1
+				dedi_view.record_amount = 5
+				dedi_view.widget_x = 125
+				dedi_view.widget_y = 0
+
+				await dedi_view.display()
+
+
+	async def reset_ui_elements(self):
+		await self.reset_dedi_ui()
+
+
+	async def reset_dedi_ui(self):
+		for app in self.instance.ui_manager.app_managers.values():
+			dedi_view = app.manialinks.get('pyplanet__widgets_dedimaniarecords')
+			if dedi_view:
+				dedi_view.top_entries = self.backup_dedi_ui_params['top_entries']
+				dedi_view.record_amount = self.backup_dedi_ui_params['record_amount']
+				dedi_view.widget_x = self.backup_dedi_ui_params['widget_x']
+				dedi_view.widget_y = self.backup_dedi_ui_params['widget_y']
+
+				await dedi_view.display()
 
 
 	async def backup_mode_settings(self):
