@@ -4,6 +4,8 @@ from pyplanet.apps.contrib.live_rankings.views import LiveRankingsWidget
 from pyplanet.apps.core.trackmania import callbacks as tm_signals
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 
+from pyplanet.contrib.setting import Setting
+
 
 class LiveRankings(AppConfig):
 	game_dependencies = ['trackmania']
@@ -16,8 +18,18 @@ class LiveRankings(AppConfig):
 		self.points_repartition = []
 		self.current_finishes = []
 		self.widget = None
+		self.dedimania_enabled = False
+
+		self.setting_rankings_amount = Setting(
+			'rankings_amount', 'Amount of rankings to display', Setting.CAT_BEHAVIOUR, type=int,
+			description='Amount of live rankings to display (minimum: 15).',
+			default=15
+		)
 
 	async def on_start(self):
+		# Init settings.
+		await self.context.setting.register(self.setting_rankings_amount)
+
 		# Register signals
 		self.context.signals.listen(mp_signals.map.map_start, self.map_start)
 		self.context.signals.listen(mp_signals.flow.round_start, self.round_start)
@@ -31,6 +43,8 @@ class LiveRankings(AppConfig):
 		self.instance.ui_manager.properties.set_visibility('checkpoint_ranking', False)
 		self.instance.ui_manager.properties.set_visibility('round_scores', False)
 		self.instance.ui_manager.properties.set_attribute('multilap_info', 'pos', '107., 88., 5.')
+
+		self.dedimania_enabled = ('dedimania' in self.instance.apps.apps and 'dedimania' not in self.instance.apps.unloaded_apps)
 
 		self.widget = LiveRankingsWidget(self)
 		await self.widget.display()
@@ -95,6 +109,7 @@ class LiveRankings(AppConfig):
 	async def map_start(self, map, restarted, **kwargs):
 		self.current_rankings = []
 		self.current_finishes = []
+		self.dedimania_enabled = ('dedimania' in self.instance.apps.apps and 'dedimania' not in self.instance.apps.unloaded_apps)
 		await self.get_points_repartition()
 		await self.widget.display()
 

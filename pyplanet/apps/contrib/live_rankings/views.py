@@ -129,6 +129,13 @@ class LiveRankingsWidget(TimesWidgetView):
 		return list_records
 
 	async def get_context_data(self):
+		# Determine the Y of the widget. It should be placed under the dedimania widget if it's enabled.
+		# Otherwise, take the space below the server information on the top left.
+		self.widget_y = 12.5 if self.app.dedimania_enabled else 70.5
+		self.record_amount = await self.app.setting_rankings_amount.get_value()
+		if self.record_amount < 15:
+			self.record_amount = 15
+
 		current_script = await self.app.instance.mode_manager.get_current_script()
 		if 'TimeAttack' in current_script:
 			self.format_times = True
