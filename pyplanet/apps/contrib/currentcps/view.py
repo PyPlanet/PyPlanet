@@ -70,6 +70,10 @@ class CPWidgetView(TimesWidgetView):
 
 		return data
 
+	async def get_context_data(self):
+		self.widget_y = 12.5 if self.app.dedimania_enabled else 70.5
+		return await super().get_context_data()
+
 	async def handle_catch_all(self, player, action, values, **kwargs):
 		logging.debug("CatchAll: " + player.login + ": " + action)
 		if str(action).startswith('spec_'):
