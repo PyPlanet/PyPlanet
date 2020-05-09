@@ -44,6 +44,7 @@ Apps
 * Improvement: Move the checkpoint difference widgets a bit higher so it doesn't block the view so much (sector_times app).
 * Improvement: Improve the retry mechanism of Dedimania during connection issues.
 * Improvement: Make sure that updated maps with MX will reappear in the map folders.
+* Improvement: Switch the dedimania widget with liveranking and currentcps widgets if dedimania widget is not visible.
 
 * Bugfix: Using the map name from MX if the Gbx map name is not provided by MX.
 * Bugfix: Fixing issue with MX update check on Shootmania.
