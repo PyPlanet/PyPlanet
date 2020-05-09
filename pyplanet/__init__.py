@@ -6,7 +6,7 @@ try:
 	import subprocess
 	__version__ = '{}'.format(subprocess.check_output(["git", "describe", "--always"]).strip().decode())
 except Exception as e:
-	__version__ = '1.0.0-dev'
+	__version__ = '0.8.0-rc1'
 	pass
 
 # __version__ = '1.0.0-dev'
