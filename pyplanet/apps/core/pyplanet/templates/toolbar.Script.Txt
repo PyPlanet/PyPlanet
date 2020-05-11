@@ -17,14 +17,14 @@ main() {
     "player_toolbar_bar_button_list" => "View list of Server Maps",
     "player_toolbar_bar_button_mf" => "View list of Map Folders",
     "player_toolbar_bar_button_jb" => "View the Juke Box List",
-    "player_toolbar_bar_button_skip" => "Vote for a skip map",
     "player_toolbar_bar_button_extend" => "Vote for extending the Time Limit",
+    "player_toolbar_bar_button_skip" => "Vote for a skip map",
 
-    "player_toolbar_bar_button_players" => "View list of Players",
 	  "player_toolbar_bar_button_topdons" => "View list of top Donators",
 	  "player_toolbar_bar_button_topsums" => "View Server Rank List",
-	  "player_toolbar_bar_button_mxinfo" => "CHAT: info about curent map",
-	  "player_toolbar_bar_button_help" => "CHAT: list of avaliable commands"
+	  "player_toolbar_bar_button_mxinfo" => "Info about current map",
+    "player_toolbar_bar_button_players" => "View list of Players",
+	  "player_toolbar_bar_button_help" => "List of available commands"
   ];
 
   while(True) {
