@@ -1,8 +1,6 @@
 import asyncio
-import math
-from pyplanet.utils import times
 
-from pyplanet.views.generics.widget import WidgetView, TimesWidgetView
+from pyplanet.views.generics.widget import WidgetView
 from pyplanet.views import TemplateView
 from pyplanet.views.generics import ManualListView
 
@@ -182,81 +180,3 @@ class NcSettingEditView(TemplateView):
 			)
 			self.response_future.set_result(self.setting)
 			self.response_future.done()
-
-class NcStandingsWidget(TimesWidgetView):
-	widget_x = -160
-	widget_y = 70
-	top_entries = 5
-	z_index = 30
-	size_x = 38
-	size_y = 55.5
-	title = 'KO Phase'
-
-	template_name = 'nightcup/ncstandings.xml'
-
-	def __init__(self, app):
-		super().__init__(self)
-		self.app = app
-		self.manager = app.context.ui
-		self.id = 'pyplanet__widgets_nightcupstandings'
-
-		self.record_amount = 30
-
-	async def get_all_player_data(self, logins):
-		data = await super().get_all_player_data(logins)
-
-		max_n = math.floor((self.size_y - 5.5) / 3.3)
-
-		cps = {}
-		random_bool = True
-
-		for idx, player in enumerate(self.app.instance.player_manager.online):
-			last_fin = 0
-			list_times = []
-			n = 1
-			for pcp in self.app.player_cps:
-				# Make sure to only display a certain number of entries
-				if float(n) >= max_n:
-					break
-
-				# Set time color to green for your own CP time
-				list_time = {'index': n, 'color': "$0f3" if player.login == pcp.player.login else "$bbb"}
-
-				if pcp.player.login in self.app.ko_qualified:
-					if (n-1) < len(self.app.ko_qualified) - await self.app.get_nr_kos(len(self.app.ko_qualified)):
-						list_time['virt_qualified'] = True
-						list_time['virt_eliminated'] = False
-					else:
-						list_time['virt_qualified'] = False
-						list_time['virt_eliminated'] = True
-
-				list_time['nr_qualified'] = len(self.app.ko_qualified) - await self.app.get_nr_kos(len(self.app.ko_qualified))
-
-				# Display 'fin' when the player crossed the finish line else display the CP number
-				if pcp.cp == -1 or (pcp.cp == 0 and pcp.time != 0):
-					list_time['cp'] = 'fin'
-					last_fin += 1
-				else:
-					list_time['cp'] = str(pcp.cp)
-
-				list_time['cptime'] = times.format_time(pcp.time)
-				list_time['nickname'] = pcp.player.nickname
-				list_time['login'] = pcp.player.login
-
-				# Only show top 5 fins but always show the current player
-				if (pcp.cp == -1 or (pcp.cp == 0 and pcp.time != 0)) and last_fin > 5:
-					if player.login != pcp.player.login:
-						continue
-					list_times[4] = list_time
-					continue
-
-				list_times.append(list_time)
-				n += 1
-			cps[player.login] = {'cps': list_times}
-		data.update(cps)
-		return data
-
-	async def handle_catch_all(self, player, action, values, **kwargs):
-		if str(action).startswith('spec_'):
-			target = action[5:]
-			await self.app.spec_player(player=player, target_login=target)

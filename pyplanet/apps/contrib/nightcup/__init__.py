@@ -2,9 +2,9 @@ import asyncio
 from operator import itemgetter
 
 from pyplanet.apps.config import AppConfig
-from pyplanet.apps.contrib.nightcup.views import TimerView, SettingsListView, NcStandingsWidget
+from pyplanet.apps.contrib.nightcup.views import TimerView, SettingsListView
+from pyplanet.apps.contrib.nightcup.standings import StandingsLogicManager
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
-from pyplanet.apps.core.trackmania import callbacks as tm_signals
 from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.contrib.command import Command
 
@@ -58,6 +58,8 @@ class NightCup(AppConfig):
 		self.chat_prefix = f'$fffRPG $036NIGHTCUP $fff- {self.chat_reset}'
 
 		self.nc_active = False
+		self.ta_active = False
+		self.ko_active = False
 
 		self.backup_script_name = None
 		self.backup_settings = None
@@ -65,10 +67,7 @@ class NightCup(AppConfig):
 
 		self.open_views = []
 
-		# KO standings stuff:
-		self.current_cps = {}
-		self.standings_widget = None
-		self.player_cps = []
+		self.standings_logic_manager = StandingsLogicManager(self)
 
 
 	async def on_init(self):
@@ -133,22 +132,6 @@ class NightCup(AppConfig):
 			)
 		)
 
-		# KO standings stuff:
-
-		self.context.signals.listen(tm_signals.waypoint, self.player_cp)
-		self.context.signals.listen(tm_signals.start_line, self.player_start)
-		self.context.signals.listen(tm_signals.finish, self.player_finish)
-		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
-		self.context.signals.listen(mp_signals.player.player_disconnect, self.player_disconnect)
-		self.context.signals.listen(mp_signals.map.map_start__end, self.map_end)
-		self.context.signals.listen(mp_signals.player.player_enter_spectator_slot, self.player_enter_spec)
-
-		# Make sure we move the rounds_scores and other gui elements.
-		self.instance.ui_manager.properties.set_attribute('round_scores', 'pos', '-126.5 87. 150.')
-		self.instance.ui_manager.properties.set_attribute('multilap_info', 'pos', '107., 88., 5.')
-
-		self.standings_widget = NcStandingsWidget(self)
-
 
 	async def start_nc(self, player, *args, **kwargs):
 		if self.nc_active:
@@ -156,7 +139,6 @@ class NightCup(AppConfig):
 		else:
 			await self.nc_chat(f'Nightcup is starting now!')
 			await self.set_ui_elements()
-			# await self.reset_ui_elements()
 
 
 			self.nc_active = True
@@ -165,7 +147,6 @@ class NightCup(AppConfig):
 
 
 			self.ko_qualified = self.instance.player_manager.online_logins
-			await self.wait_for_ko_start(count=0, time=0)
 
 
 	async def backup_mode_settings(self):
@@ -213,11 +194,15 @@ class NightCup(AppConfig):
 		await self.instance.gbx('RestartMap')
 
 		await self.set_ta_settings()
+		self.ta_active = True
+		self.standings_logic_manager.set_standings_widget_title('TA Phase')
 		self.context.signals.listen(mp_signals.flow.round_end, self.get_qualified)
 		self.context.signals.listen(mp_signals.flow.round_end, self.wait_for_ko_start)
 
 
 	async def wait_for_ko_start(self, count, time):
+		self.ta_active = False
+		self.standings_logic_manager.set_standings_widget_title('Current CPs')
 		settings = await self.instance.mode_manager.get_settings()
 		settings['S_TimeLimit'] = -1
 		settings['S_WarmUpDuration'] = 0
@@ -248,6 +233,8 @@ class NightCup(AppConfig):
 
 		await ko_start_timer.destroy()
 		await self.instance.map_manager.set_next_map(self.instance.map_manager.current_map)
+		self.ko_active = True
+		self.standings_logic_manager.set_standings_widget_title('KO phase')
 		await self.instance.gbx('NextMap')
 
 
@@ -264,6 +251,9 @@ class NightCup(AppConfig):
 
 
 	async def reset_server(self):
+		self.ko_active = False
+		self.standings_logic_manager.set_standings_widget_title('Current CPs')
+
 		for view in self.open_views:
 			await view.destroy()
 		self.open_views.clear()
@@ -272,7 +262,11 @@ class NightCup(AppConfig):
 			if target in [self.set_ko_settings, self.get_qualified, self.knockout_players, self.display_nr_of_kos]:
 				signal.unregister(target)
 
+		self.ta_finishers.clear()
+		self.ko_qualified.clear()
+
 		await self.reset_backup()
+		await self.reset_ui_elements()
 
 
 	async def reset_backup(self):
@@ -447,12 +441,16 @@ class NightCup(AppConfig):
 							   f'has been removed from the qualified list')
 
 
-	# KO standings stuff:
-
-
 	async def set_ui_elements(self):
 		await self.move_dedi_ui()
-		await self.update_standings_widget()
+
+	# for app in self.instance.ui_manager.app_managers.values():
+	# 	live_rankings = app.manialinks.get('pyplanet__widgets_liverankings')
+	# 	current_cps = app.manialinks.get('pyplanet__widgets_currentcps')
+	# 	if live_rankings:
+	# 		await live_rankings.hide()
+	# 	if current_cps:
+	# 		await current_cps.hide()
 
 
 	async def move_dedi_ui(self):
@@ -472,10 +470,16 @@ class NightCup(AppConfig):
 
 				await dedi_view.display()
 
-
 	async def reset_ui_elements(self):
 		await self.reset_dedi_ui()
 
+	# for app in self.instance.ui_manager.app_managers.values():
+	# 	live_rankings = app.manialinks.get('pyplanet__widgets_liverankings')
+	# 	current_cps = app.manialinks.get('pyplanet__widgets_currentcps')
+	# 	if live_rankings:
+	# 		await live_rankings.display()
+	# 	if current_cps:
+	# 		await current_cps.display()
 
 	async def reset_dedi_ui(self):
 		for app in self.instance.ui_manager.app_managers.values():
@@ -487,94 +491,3 @@ class NightCup(AppConfig):
 				dedi_view.widget_y = self.backup_dedi_ui_params['widget_y']
 
 				await dedi_view.display()
-
-	# When a player passes a CP
-	async def player_cp(self, player, race_time, raw, *args, **kwargs):
-		cp = int(raw['checkpointinrace'])  # Have to use raw to get the current CP
-		# Create new PlayerCP object if there is no PlayerCP object for that player yet
-		if player.login not in self.current_cps:
-			self.current_cps[player.login] = PlayerCP(player)
-		self.current_cps[player.login].cp = cp + 1  # +1 because checkpointinrace starts at 0
-		self.current_cps[player.login].time = race_time
-		await self.update_standings_widget()
-
-	# When a player starts the race
-	async def player_start(self, player, *args, **kwargs):
-		if player.login not in self.current_cps:
-			self.current_cps[player.login] = PlayerCP(player)
-		await self.update_standings_widget()
-
-	# When a player passes the finish line
-	async def player_finish(self, player, race_time, race_cps, is_end_race, raw, *args, **kwargs):
-		# Create new PlayerCP object if there is no PlayerCP object for that player yet
-		if player.login not in self.current_cps:
-			self.current_cps[player.login] = PlayerCP(player)
-
-		# Set the current CP to -1 (signals finished) when a player finishes the race
-		if is_end_race:
-			self.current_cps[player.login].cp = -1
-		else:
-			self.current_cps[player.login].cp = int(
-				raw['checkpointinrace']) + 1  # Otherwise just update the current cp
-		# logging.debug(raw)
-		self.current_cps[player.login].time = race_time
-		await self.update_standings_widget()
-
-	# When a player connects
-	async def player_connect(self, player, *args, **kwargs):
-		await self.update_standings_widget()
-
-	# When a player disconnects
-	async def player_disconnect(self, player, *args, **kwargs):
-		# Remove the current CP from the widget when a player leaves the server
-		self.current_cps.pop(player.login, None)
-		await self.update_standings_widget()
-
-	# When a player enters spectator mode
-	async def player_enter_spec(self, player, *args, **kwargs):
-		# Remove the current CP from the widget when a player starts to spectate
-		self.current_cps.pop(player.login, None)
-		await self.update_standings_widget()
-
-	# When the map ends
-	async def map_end(self, *args, **kwargs):
-		self.current_cps.clear()  # Clear the current CPs when the map ends
-		await self.update_standings_widget()
-
-	# Update the view for all players
-	async def update_standings_widget(self):
-		# Used for sorting the PlayerCP objects by the 1. CP and 2. the time (Finished players are always on top)
-		def keyfunc(key):
-			lpcp = self.current_cps[key]
-			return 1 if lpcp.cp == -1 else 2, -lpcp.cp, lpcp.time
-
-		self.player_cps.clear()
-
-		# Sort the PlayerCP objects by using the key function above and copy them into the player_cps-list
-		for login in sorted(self.current_cps, key=lambda x: keyfunc(x)):
-			pcp = self.current_cps[login]
-			cp = pcp.cp
-			cpstr = str(cp)
-			if cp == -1:
-				cpstr = "fin"
-			self.player_cps.append(pcp)
-		await self.standings_widget.display()  # Update the widget for all players
-
-	async def spec_player(self, player, target_login):
-		await self.instance.gbx.multicall(
-			self.instance.gbx('ForceSpectator', player.login, 3),
-			self.instance.gbx('ForceSpectatorTarget', player.login, target_login, -1)
-		)
-
-class PlayerCP:
-	def __init__(self, player, cp=0, time=0):
-		self.player = player
-		self.cp = cp
-		self.time = time
-		self.virt_qualified = False
-		self.virt_eliminated = False
-
-class VirtualPlayer:
-	def __init__(self, nickname, login):
-		self.nickname = nickname
-		self.login = login
