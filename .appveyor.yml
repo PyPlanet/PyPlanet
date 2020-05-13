@@ -1,7 +1,7 @@
 version: '{branch}-{build}'
 build: off
 cache:
-  - "%LOCALAPPDATA%\\pip\\Cache"
+#  - "%LOCALAPPDATA%\\pip\\Cache"
 services:
   - mysql
 
