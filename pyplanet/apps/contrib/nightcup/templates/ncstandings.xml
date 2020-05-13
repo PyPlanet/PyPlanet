@@ -1,27 +1,27 @@
 {% extends 'core.views/generics/widget.xml' %}
 
 {% block content %}
-  {% if cps != None %}
-    {% for time in cps %}
+  {% if scores != None %}
+    {% for score in scores %}
       <frame pos="0 -{{ (loop.index0 * 3.25) }}">
         <quad pos="0 0" z-index="0" size="4 3" bgcolor=
-        {% if time.virt_qualified %} "32CD3260"
-        {% elif time.virt_eliminated %} "DC143C60"
+        {% if score.virt_qualified %} "32CD3260"
+        {% elif score.virt_eliminated %} "DC143C60"
         {% else %} "00000070" {%endif %}/>
-        <label pos="2 -1.5" z-index="1" size="4 3" text="{{ time.col0 }}" textsize="0.3" textfont="RajdhaniMono"
+        <label pos="2 -1.5" z-index="1" size="4 3" text="{{ score.col0 }}" textsize="0.3" textfont="RajdhaniMono"
                textemboss="1" halign="center" valign="center2"/>
         <quad pos="4.25 0" z-index="0" size="20.5 3" bgcolor=
-        {% if time.virt_qualified %} "32CD3260"
-        {% elif time.virt_eliminated %} "DC143C60"
+        {% if score.virt_qualified %} "32CD3260"
+        {% elif score.virt_eliminated %} "DC143C60"
         {% else %} "00000070" {%endif %}/>
-        <label pos="4.5 -1.5" z-index="1" size="20 3" text="{{ time.nickname }}" textsize="0.2" textfont="RajdhaniMono"
+        <label pos="4.5 -1.5" z-index="1" size="20 3" text="{{ score.nickname }}" textsize="0.2" textfont="RajdhaniMono"
                textemboss="1" halign="left" valign="center2" style="TextCardSmall"
-               action="pyplanet__widgets_nightcupstandings__spec_{{ time.login }}"/>
+               action="pyplanet__widgets_nightcupstandings__spec_{{ score.login }}"/>
         <quad pos="25 0" z-index="0" size="10 3" bgcolor=
-        {% if time.virt_qualified %} "32CD3260"
-        {% elif time.virt_eliminated %} "DC143C60"
+        {% if score.virt_qualified %} "32CD3260"
+        {% elif score.virt_eliminated %} "DC143C60"
         {% else %} "00000070" {%endif %}/>
-        <label pos="30 -1.5" z-index="1" size="10 3" text="{{ time.color }}{{ time.col2 }}" textsize="0.2"
+        <label pos="30 -1.5" z-index="1" size="10 3" text="{{ score.color }}{{ score.col2 }}" textsize="0.2"
                textfont="RajdhaniMono" textemboss="1" halign="center" valign="center2"/>
       </frame>
     {% endfor %}

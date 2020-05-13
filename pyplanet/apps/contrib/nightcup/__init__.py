@@ -1,4 +1,5 @@
 import asyncio
+import math
 from operator import itemgetter
 
 from pyplanet.apps.config import AppConfig
@@ -131,6 +132,7 @@ class NightCup(AppConfig):
 				required=True
 			)
 		)
+		await self.standings_logic_manager.start()
 
 
 	async def start_nc(self, player, *args, **kwargs):
@@ -145,8 +147,7 @@ class NightCup(AppConfig):
 			await self.backup_mode_settings()
 			await asyncio.sleep(self.TIME_UNTIL_NEXT_WALL)
 
-
-			self.ko_qualified = self.instance.player_manager.online_logins
+			await self.wait_for_ta_start()
 
 
 	async def backup_mode_settings(self):
@@ -195,23 +196,23 @@ class NightCup(AppConfig):
 
 		await self.set_ta_settings()
 		self.ta_active = True
-		self.standings_logic_manager.set_standings_widget_title('TA Phase')
+		await self.standings_logic_manager.set_standings_widget_title('TA Phase')
+		await self.standings_logic_manager.set_liverankings_listeners()
 		self.context.signals.listen(mp_signals.flow.round_end, self.get_qualified)
 		self.context.signals.listen(mp_signals.flow.round_end, self.wait_for_ko_start)
 
 
 	async def wait_for_ko_start(self, count, time):
 		self.ta_active = False
-		self.standings_logic_manager.set_standings_widget_title('Current CPs')
+		await self.standings_logic_manager.set_standings_widget_title('Current CPs')
+		await self.standings_logic_manager.set_currentcps_listeners()
 		settings = await self.instance.mode_manager.get_settings()
 		settings['S_TimeLimit'] = -1
 		settings['S_WarmUpDuration'] = 0
 		settings['S_WarmUpNb'] = -1
 		await self.instance.mode_manager.update_settings(settings)
 
-		for signal, target in self.context.signals.listeners:
-			if target == self.wait_for_ko_start:
-				signal.unregister(target)
+		await self.unregister_signals([self.wait_for_ko_start])
 
 		await self.instance.gbx('RestartMap')
 
@@ -234,7 +235,7 @@ class NightCup(AppConfig):
 		await ko_start_timer.destroy()
 		await self.instance.map_manager.set_next_map(self.instance.map_manager.current_map)
 		self.ko_active = True
-		self.standings_logic_manager.set_standings_widget_title('KO phase')
+		await self.standings_logic_manager.set_standings_widget_title('KO phase')
 		await self.instance.gbx('NextMap')
 
 
@@ -252,15 +253,15 @@ class NightCup(AppConfig):
 
 	async def reset_server(self):
 		self.ko_active = False
-		self.standings_logic_manager.set_standings_widget_title('Current CPs')
+		await self.standings_logic_manager.set_standings_widget_title('Current CPs')
 
 		for view in self.open_views:
 			await view.destroy()
 		self.open_views.clear()
 
-		for signal, target in self.context.signals.listeners:
-			if target in [self.set_ko_settings, self.get_qualified, self.knockout_players, self.display_nr_of_kos]:
-				signal.unregister(target)
+		await self.unregister_signals(
+			[self.set_ko_settings, self.get_qualified, self.knockout_players, self.display_nr_of_kos]
+		)
 
 		self.ta_finishers.clear()
 		self.ko_qualified.clear()
@@ -282,9 +283,8 @@ class NightCup(AppConfig):
 
 
 	async def set_ko_settings(self, map):
-		for signal, target in self.context.signals.listeners:
-			if target == self.set_ko_settings:
-				signal.unregister(target)
+		await self.unregister_signals([self.set_ko_settings])
+
 		await self.instance.mode_manager.set_next_script('Rounds.Script.txt')
 
 		await self.instance.gbx('RestartMap')
@@ -310,9 +310,7 @@ class NightCup(AppConfig):
 
 
 	async def get_qualified(self, count, time):
-		for signal, target in self.context.signals.listeners:
-			if target == self.get_qualified:
-				signal.unregister(target)
+		await self.unregister_signals([self.get_qualified])
 
 		ta_results = (await self.instance.gbx('Trackmania.GetScores'))['players']
 		self.ta_finishers = [record['login'] for record in ta_results if record['bestracetime'] != -1]
@@ -376,7 +374,7 @@ class NightCup(AppConfig):
 
 	async def force_spec_or_kick(self, p):
 		if self.instance.player_manager.count_spectators < self.instance.player_manager.max_spectators:
-			await self.instance.gbx('ForceSpectator', p, 1)
+			await self.instance.gbx('ForceSpectator', p, 3)
 		else:
 			await self.instance.gbx('Kick', p)
 
@@ -491,3 +489,22 @@ class NightCup(AppConfig):
 				dedi_view.widget_y = self.backup_dedi_ui_params['widget_y']
 
 				await dedi_view.display()
+
+	async def unregister_signals(self, targets):
+		for signal, target in self.context.signals.listeners:
+			if target in targets:
+				signal.unregister(target)
+
+	async def get_nr_qualified(self):
+		if self.ta_active:
+			print(self.ta_finishers)
+			return math.ceil(len(self.ta_finishers) / 2)
+		if self.ko_active:
+			return len(self.ko_qualified) - await self.get_nr_kos(len(self.ko_qualified))
+		return -1
+
+	async def spec_player(self, player, target_login):
+		await self.instance.gbx.multicall(
+			self.instance.gbx('ForceSpectator', player.login, 3),
+			self.instance.gbx('ForceSpectatorTarget', player.login, target_login, -1)
+		)
