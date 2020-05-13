@@ -17,11 +17,14 @@ while(True) {
 
     // Driving widget hiding
     if (Event.Type == CMlScriptEvent::Type::KeyPress && Event.KeyCode == 46) {
-      // TODO: Add the driving widget hiding
-      if (Net_DriveHideMode == True) {
-        Net_DriveHideMode = False;
+      if (Net_DistractionFreeMode == True) {
+        // Do nothing.
       } else {
-        Net_DriveHideMode = True;
+        if (Net_DriveHideMode == True) {
+          Net_DriveHideMode = False;
+        } else {
+          Net_DriveHideMode = True;
+        }
       }
     }
 

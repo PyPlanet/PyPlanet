@@ -1,13 +1,50 @@
 
-declare Boolean Prev_DistractionFreeMode = False;
-declare netwrite Boolean Net_DistractionFreeMode for UI;
+#Include "MathLib" as MathLib
 
-if (Net_DistractionFreeMode == True) {
+
+declare Boolean Prev_DistractionFreeMode = False;
+declare Boolean Prev_DriveHideMode = False;
+
+declare Boolean DriveHideMode_IsHidden = False;
+
+declare netwrite Boolean Net_DistractionFreeMode for UI;
+declare netwrite Boolean Net_DriveHideMode for UI;
+
+declare Boolean override_enable = False;
+declare Vec2 mousePosition = <MouseX, MouseY>;
+
+
+// F8
+if (Net_DistractionFreeMode == True && Net_DriveHideMode == False) {
   Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
   foreach (Control in Page.GetClassChildren_Result) {
     Control.Hide();
   }
 }
+
+
+// F9
+if (GUIPlayer != Null && Net_DriveHideMode == True && Net_DistractionFreeMode == False) {
+  if (InputPlayer.RaceState == CTmMlPlayer::ERaceState::Running && InputPlayer.Speed >= 15) {
+    if (DriveHideMode_IsHidden == False) {
+      Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+      foreach (Control in Page.GetClassChildren_Result) {
+        Control.Hide();
+      }
+      DriveHideMode_IsHidden = True;
+    }
+  }
+}
+
+if (Net_DistractionFreeMode == False && Net_DriveHideMode == False) {
+  Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+  foreach (Control in Page.GetClassChildren_Result) {
+    Control.Show();
+  }
+}
+
+Prev_DistractionFreeMode = Net_DistractionFreeMode;
+Prev_DriveHideMode = Net_DriveHideMode;
 
 while(True) {
   if (Prev_DistractionFreeMode != Net_DistractionFreeMode) {
@@ -25,5 +62,79 @@ while(True) {
       }
     }
   }
+
+  if (Prev_DriveHideMode != Net_DriveHideMode) {
+    Prev_DriveHideMode = Net_DriveHideMode;
+
+    if (Net_DriveHideMode == True) {
+      Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+      foreach (Control in Page.GetClassChildren_Result) {
+        Control.Hide();
+      }
+    } else {
+      Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+      foreach (Control in Page.GetClassChildren_Result) {
+        Control.Show();
+      }
+      DriveHideMode_IsHidden = False;
+    }
+  }
+
+  // Distraction free, hide when driving (F9)
+  if ( ClientUI.UISequence == CUIConfig::EUISequence::Podium ) {
+    Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+    foreach (Control in Page.GetClassChildren_Result) {
+      Control.Show();
+    }
+    DriveHideMode_IsHidden = False;
+  }
+
+  if (GUIPlayer != Null && Net_DriveHideMode == True && Net_DistractionFreeMode == False) {
+    if (GUIPlayer.RaceState == CTmMlPlayer::ERaceState::BeforeStart || GUIPlayer.RaceState == CTmMlPlayer::ERaceState::Finished) {
+      Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+      override_enable = False;
+      mousePosition = <MouseX, MouseY>;
+      foreach (Control in Page.GetClassChildren_Result) {
+        Control.Show();
+      }
+      DriveHideMode_IsHidden = False;
+    }
+    if (override_enable) {
+      Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+      foreach (Control in Page.GetClassChildren_Result) {
+        Control.Show();
+      }
+      if (InputPlayer.RaceState == CTmMlPlayer::ERaceState::Running && InputPlayer.Speed < 15) {
+        override_enable = False;
+      }
+    } else {
+      if (InputPlayer.RaceState == CTmMlPlayer::ERaceState::Running && InputPlayer.Speed >= 15) {
+        if (DriveHideMode_IsHidden == False) {
+          Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+          foreach (Control in Page.GetClassChildren_Result) {
+            Control.Hide();
+          }
+          DriveHideMode_IsHidden = True;
+        }
+      }
+      if (InputPlayer.RaceState == CTmMlPlayer::ERaceState::Running && InputPlayer.Speed < 15) {
+        if (DriveHideMode_IsHidden == True && override_enable == False) {
+          Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+          foreach (Control in Page.GetClassChildren_Result) {
+            Control.Show();
+          }
+          DriveHideMode_IsHidden = False;
+          override_enable = False;
+        }
+      }
+    }
+  }
+  if (MathLib::Distance(mousePosition, <MouseX, MouseY>) >= 20.) {
+    override_enable = True;
+  }
+  if (MouseLeftButton) {
+    override_enable = True;
+  }
+
   yield;
 }
