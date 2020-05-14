@@ -176,22 +176,24 @@ class NightCup(AppConfig):
 
 
 	async def wait_for_ta_start(self):
-		ta_start_timer = TimerView(self)
-		self.open_views.append(ta_start_timer)
-		ta_start_timer.title = f"TA phase starts in {await self.format_time(self.settings['nc_time_until_ta'])}"
-		for player in self.instance.player_manager.online:
-			await ta_start_timer.display(player)
-
-		secs = 0
-		while self.settings['nc_time_until_ta'] - secs > 0 and ta_start_timer:
-			ta_start_timer.title = f"TA phase starts in {await self.format_time(self.settings['nc_time_until_ta'] - secs)}"
+		if not (self.settings['nc_time_until_ta'] == -1 or self.settings['nc_time_until_ta'] == 0):
+			ta_start_timer = TimerView(self)
+			self.open_views.append(ta_start_timer)
+			ta_start_timer.title = f"TA phase starts in {await self.format_time(self.settings['nc_time_until_ta'])}"
 			for player in self.instance.player_manager.online:
-				if not ta_start_timer is None:
-					await ta_start_timer.display(player)
-			await asyncio.sleep(1)
-			secs += 1
+				await ta_start_timer.display(player)
 
-		await ta_start_timer.destroy()
+			secs = 0
+			while self.settings['nc_time_until_ta'] - secs > 0 and ta_start_timer:
+				ta_start_timer.title = f"TA phase starts in {await self.format_time(self.settings['nc_time_until_ta'] - secs)}"
+				for player in self.instance.player_manager.online:
+					if not ta_start_timer is None:
+						await ta_start_timer.display(player)
+				await asyncio.sleep(1)
+				secs += 1
+
+			await ta_start_timer.destroy()
+
 		await self.instance.gbx('RestartMap')
 
 		await self.set_ta_settings()
@@ -217,22 +219,24 @@ class NightCup(AppConfig):
 		await self.instance.gbx('RestartMap')
 
 		self.context.signals.listen(mp_signals.map.map_begin, self.set_ko_settings)
-		ko_start_timer = TimerView(self)
-		self.open_views.append(ko_start_timer)
-		ko_start_timer.title = f"KO phase starts in {await self.format_time(self.settings['nc_time_until_ko'])}"
-		for player in self.instance.player_manager.online:
-			await ko_start_timer.display(player)
-
-		secs = 0
-		while self.settings['nc_time_until_ko'] - secs > 0 and ko_start_timer:
-			ko_start_timer.title = f"KO phase starts in {await self.format_time(self.settings['nc_time_until_ko'] - secs)}"
+		if not (self.settings['nc_time_until_ko'] == -1 or self.settings['nc_time_until_ko'] == 0):
+			ko_start_timer = TimerView(self)
+			self.open_views.append(ko_start_timer)
+			ko_start_timer.title = f"KO phase starts in {await self.format_time(self.settings['nc_time_until_ko'])}"
 			for player in self.instance.player_manager.online:
-				if ko_start_timer:
-					await ko_start_timer.display(player)
-			await asyncio.sleep(1)
-			secs += 1
+				await ko_start_timer.display(player)
 
-		await ko_start_timer.destroy()
+			secs = 0
+			while self.settings['nc_time_until_ko'] - secs > 0 and ko_start_timer:
+				ko_start_timer.title = f"KO phase starts in {await self.format_time(self.settings['nc_time_until_ko'] - secs)}"
+				for player in self.instance.player_manager.online:
+					if ko_start_timer:
+						await ko_start_timer.display(player)
+				await asyncio.sleep(1)
+				secs += 1
+
+			await ko_start_timer.destroy()
+
 		await self.instance.map_manager.set_next_map(self.instance.map_manager.current_map)
 		self.ko_active = True
 		await self.standings_logic_manager.set_standings_widget_title('KO phase')

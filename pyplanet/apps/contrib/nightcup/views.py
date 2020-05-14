@@ -162,10 +162,15 @@ class NcSettingEditView(TemplateView):
 		value = values['setting_value_field']
 
 		try:
-			settings_long = (await self.parent.get_data())
-			settings = {setting['name']: setting['value'] for setting in settings_long}
-			settings[self.setting['name']] = int(value)
-			await self.parent.app.update_settings(settings)
+			if self.setting['name'] in ['nc_time_until_ta', 'nc_time_until_ko']:
+				if int(value) != -1 or int(value) != 0 or int(value) > 5:
+					settings_long = (await self.parent.get_data())
+					settings = {setting['name']: setting['value'] for setting in settings_long}
+					settings[self.setting['name']] = int(value)
+					await self.parent.app.update_settings(settings)
+				else:
+					message = '$i$f00Time can not be shorter than 5 seconds.'
+					await self.parent.app.instance.chat(message, player)
 		except ValueError:
 			message = '$i$f00You have entered a value with a wrong type.'
 			await self.parent.app.instance.chat(message, player)
