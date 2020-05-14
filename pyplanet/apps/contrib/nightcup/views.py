@@ -171,6 +171,10 @@ class NcSettingEditView(TemplateView):
 				else:
 					message = '$i$f00Time can not be shorter than 5 seconds.'
 					await self.parent.app.instance.chat(message, player)
+			if self.setting['name'] == 'nc_ta_length':
+				if int(value) < 0:
+					message = '$i$f00TA length cannot be negative.'
+					await self.parent.instance.chat(message, player)
 		except ValueError:
 			message = '$i$f00You have entered a value with a wrong type.'
 			await self.parent.app.instance.chat(message, player)

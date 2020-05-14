@@ -168,8 +168,12 @@ class NightCup(AppConfig):
 		settings = await self.instance.mode_manager.get_settings()
 
 		settings['S_TimeLimit'] = self.settings['nc_ta_length']
-		settings['S_WarmUpDuration'] = self.settings['nc_wu_duration']
-		settings['S_WarmUpNb'] = 1
+		if self.settings['nc_wu_duration'] == -1:
+			settings['S_WarmupNb'] = -1
+		else:
+			settings['S_WarmupNb'] = 1
+			settings['S_WarmUpDuration'] = self.settings['nc_wu_duration']
+
 		await self.instance.mode_manager.update_settings(settings)
 
 		await self.nc_chat(f"Warmup of {await self.format_time(self.settings['nc_wu_duration'])} for people to load the map.")
