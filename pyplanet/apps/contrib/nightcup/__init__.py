@@ -252,6 +252,7 @@ class NightCup(AppConfig):
 
 
 	async def reset_server(self):
+		self.ta_active = False
 		self.ko_active = False
 		await self.standings_logic_manager.set_standings_widget_title('Current CPs')
 
@@ -334,8 +335,6 @@ class NightCup(AppConfig):
 
 	async def knockout_players(self, count, time):
 		round_scores = (await self.instance.gbx('Trackmania.GetScores'))['players']
-		if not any([player['roundpoints'] != 0 for player in round_scores]):
-			return
 		nr_kos = await self.get_nr_kos(len(self.ko_qualified))
 		round_scores = [(record['login'], record['prevracetime']) for record in round_scores if record['login'] in self.ko_qualified]
 
@@ -346,7 +345,7 @@ class NightCup(AppConfig):
 
 		round_logins = [p[0] for p in round_scores]
 
-		if len(self.ko_qualified) <= 2:
+		if len(self.ko_qualified) <= 2 or len(round_scores) == 1:
 			await self.nc_chat(f'Player {(await Player.get_by_login(round_scores[0][0])).nickname}{self.chat_reset} wins this RPG NightCup, well played!')
 			await self.reset_server()
 			return
