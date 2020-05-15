@@ -320,22 +320,21 @@ class NightCup(AppConfig):
 	async def get_qualified(self, count, time):
 		await self.unregister_signals([self.get_qualified])
 
-		ta_results = (await self.instance.gbx('Trackmania.GetScores'))['players']
-		self.ta_finishers = [record['login'] for record in ta_results if record['bestracetime'] != -1]
+		# ta_results = (await self.instance.gbx('Trackmania.GetScores'))['players']
+		# self.ta_finishers = [record['login'] for record in ta_results if record['bestracetime'] != -1]
+        #
+		# if not self.ta_finishers:
+		# 	await self.reset_server()
+		# 	return
 
-		if not self.ta_finishers:
-			await self.reset_server()
-			return
-
-		self.ko_qualified = [p for (i,p) in enumerate(self.ta_finishers) if i < len(self.ta_finishers)/2]
+		self.ko_qualified = [(await Player.get_by_login(p['login'])) for (i,p) in enumerate(self.ta_finishers) if i < len(self.ta_finishers)/2]
 		for p in self.instance.player_manager.online_logins:
-			if p in self.ta_finishers:
-				if p in self.ko_qualified:
-					await self.nc_chat('Well done, you qualified for the KO phase!', p)
-					await self.instance.gbx('ForceSpectator', p, 2)
-				else:
-					await self.nc_chat('Unlucky, you did not qualify for the KO phase!', p)
-					await self.force_spec_or_kick(p)
+			if p in self.ko_qualified:
+				await self.nc_chat('Well done, you qualified for the KO phase!', p)
+				await self.instance.gbx('ForceSpectator', p, 2)
+			elif p in self.ta_finishers:
+				await self.nc_chat('Unlucky, you did not qualify for the KO phase!', p)
+				await self.force_spec_or_kick(p)
 			else:
 				await self.force_spec_or_kick(p)
 
@@ -503,8 +502,11 @@ class NightCup(AppConfig):
 
 	async def get_nr_qualified(self):
 		if self.ta_active:
+			print('ta active')
+			print(self.ta_finishers)
 			return math.ceil(len(self.ta_finishers) / 2)
 		if self.ko_active:
+			print('ko active')
 			return len(self.ko_qualified) - await self.get_nr_kos(len(self.ko_qualified))
 		return -1
 
