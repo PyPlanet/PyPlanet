@@ -221,7 +221,6 @@ class NightCup(AppConfig):
 		await self.unregister_signals([self.wait_for_ko_start])
 
 		await self.instance.gbx('RestartMap')
-
 		self.context.signals.listen(mp_signals.map.map_begin, self.set_ko_settings)
 		if not (self.settings['nc_time_until_ko'] == -1 or self.settings['nc_time_until_ko'] == 0):
 			ko_start_timer = TimerView(self)
@@ -269,7 +268,7 @@ class NightCup(AppConfig):
 		self.open_views.clear()
 
 		await self.unregister_signals(
-			[self.set_ko_settings, self.get_qualified, self.knockout_players, self.display_nr_of_kos]
+			[self.get_qualified, self.wait_for_ko_start, self.set_ko_settings, self.knockout_players, self.display_nr_of_kos]
 		)
 
 		self.ta_finishers.clear()

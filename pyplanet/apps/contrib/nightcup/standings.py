@@ -106,10 +106,8 @@ class StandingsLogicManager:
 
 	# When the map ends
 	async def empty_data(self, *args, **kwargs):
-		if self.app.ta_active:
-			self.current_rankings.clear()
-		else:
-			self.current_cps.clear()
+		self.current_rankings.clear()
+		self.current_cps.clear()
 		await self.update_standings_widget()
 
 	# Update the view for all players
