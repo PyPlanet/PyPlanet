@@ -161,20 +161,22 @@ class NcSettingEditView(TemplateView):
 	async def save(self, player, action, values, *args, **kwargs):
 		value = values['setting_value_field']
 
+
 		try:
 			if self.setting['name'] in ['nc_time_until_ta', 'nc_time_until_ko']:
-				if int(value) != -1 or int(value) != 0 or int(value) > 5:
-					settings_long = (await self.parent.get_data())
-					settings = {setting['name']: setting['value'] for setting in settings_long}
-					settings[self.setting['name']] = int(value)
-					await self.parent.app.update_settings(settings)
-				else:
+				if int(value) < 5 and int(value) != 0 and int(value) != -1:
 					message = '$i$f00Time can not be shorter than 5 seconds.'
 					await self.parent.app.instance.chat(message, player)
+					return
 			if self.setting['name'] == 'nc_ta_length':
 				if int(value) < 0:
 					message = '$i$f00TA length cannot be negative.'
 					await self.parent.instance.chat(message, player)
+					return
+			settings_long = (await self.parent.get_data())
+			settings = {setting['name']: setting['value'] for setting in settings_long}
+			settings[self.setting['name']] = type(settings[self.setting['name']])(value)
+			await self.parent.app.update_settings(settings)
 		except ValueError:
 			message = '$i$f00You have entered a value with a wrong type.'
 			await self.parent.app.instance.chat(message, player)
@@ -325,6 +327,7 @@ class NcStandingsWidget(TimesWidgetView):
 					list_record['virt_qualified'] = (index-1) < await self.app.get_nr_qualified()
 					list_record['virt_eliminated'] = not list_record['virt_qualified']
 
+
 					list_record['color'] = '$fff'
 					if index <= self.top_entries:
 						list_record['color'] = '$ff0'
@@ -340,9 +343,13 @@ class NcStandingsWidget(TimesWidgetView):
 					else:
 						index += 1
 
+					print('index: ' + str(index) + ', nick: ' + str(record['nickname'])
+						  + ', time: ' + str(list_record['col2'])
+						  + ', qualified: ' + str(list_record['virt_qualified'])
+						  + ', eliminated: ' + str(list_record['virt_eliminated']))
+
 					list_records.append(list_record)
 				data[player.login] = dict(scores=list_records)
-			print('TA: ' + str(data))
 			return data
 
 	async def handle_catch_all(self, player, action, values, **kwargs):

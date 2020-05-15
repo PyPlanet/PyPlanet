@@ -169,9 +169,9 @@ class NightCup(AppConfig):
 
 		settings['S_TimeLimit'] = self.settings['nc_ta_length']
 		if self.settings['nc_wu_duration'] == -1:
-			settings['S_WarmupNb'] = -1
+			settings['S_WarmUpNb'] = -1
 		else:
-			settings['S_WarmupNb'] = 1
+			settings['S_WarmUpNb'] = 1
 			settings['S_WarmUpDuration'] = self.settings['nc_wu_duration']
 
 		await self.instance.mode_manager.update_settings(settings)
@@ -504,7 +504,6 @@ class NightCup(AppConfig):
 
 	async def get_nr_qualified(self):
 		if self.ta_active:
-			print(self.ta_finishers)
 			return math.ceil(len(self.ta_finishers) / 2)
 		if self.ko_active:
 			return len(self.ko_qualified) - await self.get_nr_kos(len(self.ko_qualified))
