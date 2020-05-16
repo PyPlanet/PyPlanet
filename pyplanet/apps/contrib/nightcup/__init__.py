@@ -485,6 +485,21 @@ class NightCup(AppConfig):
 
 
 	async def set_ui_elements(self):
+		try:
+			await self.instance.ui_manager.app_managers['core.pyplanet'].manialinks['pyplanet__controller'].hide()
+			await self.instance.ui_manager.app_managers['clock'].manialinks['pyplanet__widgets_clock'].hide()
+		except:
+			print('Something went wrong while moving pyplanet core widgets.')
+
+		properties = ['countdown', 'personal_best_and_rank', 'position']
+		for p in properties:
+			pos = [float(c) for c in self.instance.ui_manager.properties.get_attribute(p, 'pos').split()]
+			pos[1] -= 20
+			pos = ' '.join([str(c) for c in pos])
+			self.instance.ui_manager.properties.set_attribute(p, 'pos', pos)
+		await self.instance.ui_manager.properties.send_properties()
+
+
 		await self.move_dedi_ui()
 
 	# for app in self.instance.ui_manager.app_managers.values():
