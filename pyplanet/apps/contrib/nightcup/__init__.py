@@ -6,6 +6,7 @@ from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.nightcup.views import TimerView, SettingsListView
 from pyplanet.apps.contrib.nightcup.standings import StandingsLogicManager
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
+from pyplanet.apps.core.trackmania import callbacks as tm_signals
 from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.contrib.command import Command
 
@@ -18,39 +19,53 @@ class NightCup(AppConfig):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-		self.timeout = 60
 
 		self.ta_finishers = []
 		self.ko_qualified = []
 
 		self.settings_long = [
 			{
-				'default': '60',
-				'type': int,
 				'name': 'nc_time_until_ta',
 				'description': 'Time before TA phase starts',
+				'type': int,
+				'default': '60',
 				'value': 6
+
 			},
 			{
-				'default': '2700',
-				'type': int,
 				'name': 'nc_ta_length',
 				'description': 'Length of TA phase',
+				'type': int,
+				'default': '2700',
 				'value': 40
 			},
 			{
-				'default': '600',
-				'type': int,
 				'name': 'nc_time_until_ko',
 				'description': 'Time between TA phase and KO phase',
+				'type': int,
+				'default': '600',
 				'value': 6
 			},
 			{
-				'default': '60',
+				'name': 'nc_ta_wu_duration',
+				'description': 'Length of warmups before TA for players to load the map',
 				'type': int,
-				'name': 'nc_wu_duration',
-				'description': 'Length of warmups for players to load the map',
+				'default': '60',
 				'value': 6
+			},
+			{
+				'name': 'nc_ko_wu_duration',
+				'description': 'Length of warmups before KO for players to load the map',
+				'type': int,
+				'default': '60',
+				'value': 6
+			},
+			{
+				'name': 'nc_finish_timeout',
+				'description': 'Timeout after first player finishes in KO phase',
+				'type': int,
+				'default': '90',
+				'value': 20
 			}
 		]
 
@@ -61,6 +76,7 @@ class NightCup(AppConfig):
 		self.nc_active = False
 		self.ta_active = False
 		self.ko_active = False
+		self.ko_wu_enabled = False
 
 		self.backup_script_name = None
 		self.backup_settings = None
@@ -168,15 +184,16 @@ class NightCup(AppConfig):
 		settings = await self.instance.mode_manager.get_settings()
 
 		settings['S_TimeLimit'] = self.settings['nc_ta_length']
-		if self.settings['nc_wu_duration'] == -1:
+		if self.settings['nc_ta_wu_duration'] == -1 or self.settings['nc_ta_wu_duration'] == 0:
 			settings['S_WarmUpNb'] = -1
+			await self.nc_chat(f'Live with TA now!')
 		else:
 			settings['S_WarmUpNb'] = 1
-			settings['S_WarmUpDuration'] = self.settings['nc_wu_duration']
-
+			settings['S_WarmUpDuration'] = self.settings['nc_ta_wu_duration']
+			await self.nc_chat(f"Warmup of {await self.format_time(self.settings['nc_ta_wu_duration'])} for people to load the map.")
+			await self.nc_chat(f'Live with TA after WarmUp!')
 		await self.instance.mode_manager.update_settings(settings)
 
-		await self.nc_chat(f"Warmup of {await self.format_time(self.settings['nc_wu_duration'])} for people to load the map.")
 
 
 	async def wait_for_ta_start(self):
@@ -268,7 +285,8 @@ class NightCup(AppConfig):
 		self.open_views.clear()
 
 		await self.unregister_signals(
-			[self.get_qualified, self.wait_for_ko_start, self.set_ko_settings, self.knockout_players, self.display_nr_of_kos]
+			[self.get_qualified, self.wait_for_ko_start, self.set_ko_settings,
+			 self.knockout_players, self.display_nr_of_kos, self.display_ko_wu_info]
 		)
 
 		self.ta_finishers.clear()
@@ -309,34 +327,51 @@ class NightCup(AppConfig):
 
 		settings['S_PointsLimit'] = -1
 		settings['S_RoundsPerMap'] = -1
-		settings['S_WarmUpNb'] = 1
-		settings['S_WarmUpDuration'] = self.settings['nc_wu_duration']
 		settings['S_PointsRepartition'] = ','.join(str(x) for x in range(len(self.ko_qualified), 0, -1))
-		settings['S_FinishTimeout'] = self.timeout
+		settings['S_FinishTimeout'] = self.settings['nc_finish_timeout']
+
+		self.ko_wu_enabled = not (self.settings['nc_ko_wu_duration'] == -1 or self.settings['nc_ko_wu_duration'] == 0)
+		if self.ko_wu_enabled:
+			settings['S_WarmUpNb'] = 1
+			settings['S_WarmUpDuration'] = self.settings['nc_ko_wu_duration']
+		else:
+			settings['S_WarmUpNb'] = -1
+
+		self.context.signals.listen(tm_signals.warmup_start, self.display_ko_wu_info)
+
 
 		await self.instance.mode_manager.update_settings(settings)
 
 
+	async def display_ko_wu_info(self):
+		await self.unregister_signals([self.display_ko_wu_info])
+		if self.ko_wu_enabled:
+			await self.nc_chat(
+				f"Warmup of {await self.format_time(self.settings['nc_ko_wu_duration'])} for people to load the map.")
+			await self.nc_chat(f'Live with KO after WarmUp!')
+		else:
+			await self.nc_chat(f'Live with KO now!')
+
 	async def get_qualified(self, count, time):
 		await self.unregister_signals([self.get_qualified])
 
-		# ta_results = (await self.instance.gbx('Trackmania.GetScores'))['players']
-		# self.ta_finishers = [record['login'] for record in ta_results if record['bestracetime'] != -1]
-        #
-		# if not self.ta_finishers:
-		# 	await self.reset_server()
-		# 	return
-
-		self.ko_qualified = [(await Player.get_by_login(p['login'])) for (i,p) in enumerate(self.ta_finishers) if i < len(self.ta_finishers)/2]
+		self.ko_qualified = [p['login'] for (i,p) in enumerate(self.ta_finishers) if i < len(self.ta_finishers)/2]
 		for p in self.instance.player_manager.online_logins:
 			if p in self.ko_qualified:
 				await self.nc_chat('Well done, you qualified for the KO phase!', p)
 				await self.instance.gbx('ForceSpectator', p, 2)
-			elif p in self.ta_finishers:
+			elif p in [p['login'] for p in self.ta_finishers]:
 				await self.nc_chat('Unlucky, you did not qualify for the KO phase!', p)
 				await self.force_spec_or_kick(p)
 			else:
 				await self.force_spec_or_kick(p)
+
+		if len(self.ko_qualified) == 0:
+			await self.nc_chat('Noone finished TA Phase, stopping NightCup')
+			await self.reset_server()
+		elif len(self.ko_qualified) == 1:
+			await self.finish_nightcup(self.ko_qualified[0])
+
 
 
 	async def knockout_players(self, count, time):
@@ -352,8 +387,7 @@ class NightCup(AppConfig):
 		round_logins = [p[0] for p in round_scores]
 
 		if len(self.ko_qualified) <= 2 or len(round_scores) == 1:
-			await self.nc_chat(f'Player {(await Player.get_by_login(round_scores[0][0])).nickname}{self.chat_reset} wins this RPG NightCup, well played!')
-			await self.reset_server()
+			await self.finish_nightcup(round_scores[0][0])
 			return
 
 		dnfs = [p for p in self.ko_qualified if p not in round_logins]
@@ -375,6 +409,12 @@ class NightCup(AppConfig):
 		await self.nc_chat(f'Players knocked out: {kos_string}')
 
 		self.ko_qualified = [p for p in self.ko_qualified if p in qualified]
+
+
+	async def finish_nightcup(self, winner):
+		await self.nc_chat(
+			f'Player {(await Player.get_by_login(winner)).nickname}{self.chat_reset} wins this RPG NightCup, well played!')
+		await self.reset_server()
 
 
 	async def force_spec_or_kick(self, p):
@@ -502,11 +542,8 @@ class NightCup(AppConfig):
 
 	async def get_nr_qualified(self):
 		if self.ta_active:
-			print('ta active')
-			print(self.ta_finishers)
 			return math.ceil(len(self.ta_finishers) / 2)
 		if self.ko_active:
-			print('ko active')
 			return len(self.ko_qualified) - await self.get_nr_kos(len(self.ko_qualified))
 		return -1
 

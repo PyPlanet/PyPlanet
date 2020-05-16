@@ -324,7 +324,6 @@ class NcStandingsWidget(TimesWidgetView):
 						best = record
 					list_record = dict()
 					list_record['col0'] = index
-					print(str(index-1) + '<' + str(await self.app.get_nr_qualified()))
 					list_record['virt_qualified'] = (index-1) < await self.app.get_nr_qualified()
 					list_record['virt_eliminated'] = not list_record['virt_qualified']
 
@@ -338,11 +337,6 @@ class NcStandingsWidget(TimesWidgetView):
 					list_record['nickname'] = record['nickname']
 
 					list_record['col2'] = times.format_time(int(record['score']))
-
-					print('index: ' + str(index) + ', nick: ' + str(record['nickname'])
-						  + ', time: ' + str(list_record['col2'])
-						  + ', qualified: ' + str(list_record['virt_qualified'])
-						  + ', eliminated: ' + str(list_record['virt_eliminated']))
 
 
 					if index == self.top_entries:
