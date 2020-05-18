@@ -190,6 +190,10 @@ class LiveRankings(AppConfig):
 			return
 
 		if 'rounds' in current_script or 'team' in current_script or 'cup' in current_script:
+			# TODO: Fix the live rankings for rounds based modes in 0.8.2 (@Max)
+			# For now, return and ignore this block
+			return
+
 			new_finish = dict(login=player.login, nickname=player.nickname, score=race_time)
 			self.current_finishes.append(new_finish)
 
