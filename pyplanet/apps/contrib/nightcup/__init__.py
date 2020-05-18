@@ -1,5 +1,6 @@
 import asyncio
 import math
+import logging
 from operator import itemgetter
 
 from pyplanet.apps.config import AppConfig
@@ -9,6 +10,8 @@ from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 from pyplanet.apps.core.trackmania import callbacks as tm_signals
 from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.contrib.command import Command
+from pyplanet.core.ui.exceptions import UIPropertyDoesNotExist
+
 
 class NightCup(AppConfig):
 	game_dependencies = ['trackmania']
@@ -81,6 +84,7 @@ class NightCup(AppConfig):
 		self.backup_script_name = None
 		self.backup_settings = None
 		self.backup_dedi_ui_params = {}
+		self.backup_standings_apps = []
 
 		self.open_views = []
 
@@ -148,7 +152,6 @@ class NightCup(AppConfig):
 				required=True
 			)
 		)
-		await self.standings_logic_manager.start()
 
 
 	async def start_nc(self, player, *args, **kwargs):
@@ -215,20 +218,22 @@ class NightCup(AppConfig):
 
 			await ta_start_timer.destroy()
 
-		await self.instance.gbx('RestartMap')
+		# await self.instance.gbx('RestartMap')
 
 		await self.set_ta_settings()
 		self.ta_active = True
+		await self.standings_logic_manager.start()
 		await self.standings_logic_manager.set_standings_widget_title('TA Phase')
-		await self.standings_logic_manager.set_liverankings_listeners()
+		await self.standings_logic_manager.set_ta_listeners()
 		self.context.signals.listen(mp_signals.flow.round_end, self.get_qualified)
 		self.context.signals.listen(mp_signals.flow.round_end, self.wait_for_ko_start)
 
 
 	async def wait_for_ko_start(self, count, time):
+
 		self.ta_active = False
 		await self.standings_logic_manager.set_standings_widget_title('Current CPs')
-		await self.standings_logic_manager.set_currentcps_listeners()
+		await self.standings_logic_manager.set_ko_listeners()
 		settings = await self.instance.mode_manager.get_settings()
 		settings['S_TimeLimit'] = -1
 		settings['S_WarmUpDuration'] = 0
@@ -238,7 +243,6 @@ class NightCup(AppConfig):
 		await self.unregister_signals([self.wait_for_ko_start])
 
 		await self.instance.gbx('RestartMap')
-		self.context.signals.listen(mp_signals.map.map_begin, self.set_ko_settings)
 		if not (self.settings['nc_time_until_ko'] == -1 or self.settings['nc_time_until_ko'] == 0):
 			ko_start_timer = TimerView(self)
 			self.open_views.append(ko_start_timer)
@@ -256,6 +260,8 @@ class NightCup(AppConfig):
 				secs += 1
 
 			await ko_start_timer.destroy()
+		if self.nc_active:
+			self.context.signals.listen(mp_signals.map.map_begin, self.set_ko_settings)
 
 		await self.instance.map_manager.set_next_map(self.instance.map_manager.current_map)
 		self.ko_active = True
@@ -276,18 +282,19 @@ class NightCup(AppConfig):
 
 
 	async def reset_server(self):
+		await self.unregister_signals(
+			[self.get_qualified, self.wait_for_ko_start, self.set_ko_settings,
+			 self.knockout_players, self.display_nr_of_kos, self.display_ko_wu_info]
+		)
 		self.ta_active = False
 		self.ko_active = False
-		await self.standings_logic_manager.set_standings_widget_title('Current CPs')
+		await self.standings_logic_manager.stop()
 
 		for view in self.open_views:
 			await view.destroy()
 		self.open_views.clear()
 
-		await self.unregister_signals(
-			[self.get_qualified, self.wait_for_ko_start, self.set_ko_settings,
-			 self.knockout_players, self.display_nr_of_kos, self.display_ko_wu_info]
-		)
+
 
 		self.ta_finishers.clear()
 		self.ko_qualified.clear()
@@ -488,8 +495,8 @@ class NightCup(AppConfig):
 		try:
 			await self.instance.ui_manager.app_managers['core.pyplanet'].manialinks['pyplanet__controller'].hide()
 			await self.instance.ui_manager.app_managers['clock'].manialinks['pyplanet__widgets_clock'].hide()
-		except:
-			print('Something went wrong while moving pyplanet core widgets.')
+		except UIPropertyDoesNotExist:
+			logging.error('Something went wrong while moving pyplanet core widgets.')
 
 		properties = ['countdown', 'personal_best_and_rank', 'position']
 		for p in properties:
@@ -500,15 +507,10 @@ class NightCup(AppConfig):
 		await self.instance.ui_manager.properties.send_properties()
 
 
-		await self.move_dedi_ui()
+		await self.disable_standings_uis()
 
-	# for app in self.instance.ui_manager.app_managers.values():
-	# 	live_rankings = app.manialinks.get('pyplanet__widgets_liverankings')
-	# 	current_cps = app.manialinks.get('pyplanet__widgets_currentcps')
-	# 	if live_rankings:
-	# 		await live_rankings.hide()
-	# 	if current_cps:
-	# 		await current_cps.hide()
+
+		await self.move_dedi_ui()
 
 
 	async def move_dedi_ui(self):
@@ -528,16 +530,22 @@ class NightCup(AppConfig):
 
 				await dedi_view.display()
 
+	async def disable_standings_uis(self):
+		self.backup_standings_apps = [app for app in ['live_rankings', 'currentcps'] if
+									  app in self.instance.apps.apps and
+									  app not in self.instance.apps.unloaded_apps]
+		for label in self.backup_standings_apps:
+			app = self.instance.apps.apps.pop(label)
+			await app.on_stop()
+			await app.on_destroy()
+			self.instance.apps.unloaded_apps[label] = app.module.__name__
+			del app
+
+
 	async def reset_ui_elements(self):
 		await self.reset_dedi_ui()
+		await self.reset_standings_uis()
 
-	# for app in self.instance.ui_manager.app_managers.values():
-	# 	live_rankings = app.manialinks.get('pyplanet__widgets_liverankings')
-	# 	current_cps = app.manialinks.get('pyplanet__widgets_currentcps')
-	# 	if live_rankings:
-	# 		await live_rankings.display()
-	# 	if current_cps:
-	# 		await current_cps.display()
 
 	async def reset_dedi_ui(self):
 		for app in self.instance.ui_manager.app_managers.values():
@@ -549,6 +557,22 @@ class NightCup(AppConfig):
 				dedi_view.widget_y = self.backup_dedi_ui_params['widget_y']
 
 				await dedi_view.display()
+
+	async def reset_standings_uis(self):
+		for label in self.backup_standings_apps:
+			if label in self.instance.apps.unloaded_apps:
+				try:
+					app = self.instance.apps.unloaded_apps[label]
+					self.instance.apps.populate([app], in_order=True)
+					if label not in self.instance.apps.apps:
+						raise Exception() # Flow control, stop executing restart of app.
+					await self.instance.apps.apps[label].on_init()
+					await self.instance.apps.apps[label].on_start()
+
+					del self.instance.apps.unloaded_apps[label]
+				except Exception as e:
+					logging.error('Can\'t start app {}, Got exception with error: {}'.format(label, str(e)))
+					pass
 
 	async def unregister_signals(self, targets):
 		for signal, target in self.context.signals.listeners:

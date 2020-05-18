@@ -3,6 +3,8 @@ import math
 from pyplanet.apps.contrib.nightcup.views import NcStandingsWidget
 from pyplanet.apps.core.trackmania import callbacks as tm_signals
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
+from pyplanet.core.ui.exceptions import UIPropertyDoesNotExist
+
 
 
 class StandingsLogicManager:
@@ -17,13 +19,15 @@ class StandingsLogicManager:
 		self.standings_widget = None
 		self.player_cps = []
 
+		self.backup_ui_attributes = None
+
 		self.listeners = {
 			mp_signals.map.map_start: self.empty_data,
 			tm_signals.finish: self.player_finish,
 			mp_signals.player.player_connect: self.player_connect,
 		}
 
-		self.current_cps_listeners = {
+		self.ko_listeners = {
 			tm_signals.waypoint: self.player_cp,
 			tm_signals.start_line: self.player_start,
 			mp_signals.player.player_disconnect: self.player_disconnect,
@@ -33,17 +37,34 @@ class StandingsLogicManager:
 	async def start(self):
 		for callback, listener in self.listeners.items():
 			self.app.context.signals.listen(callback, listener)
-		await self.set_currentcps_listeners()
+		await self.set_ko_listeners()
 
 		# Make sure we move the rounds_scores and other gui elements.
+		try:
+			self.backup_ui_attributes = {
+				'round_scores': self.app.instance.ui_manager.properties.get_attribute('round_scores', 'pos'),
+				'multilap_info': self.app.instance.ui_manager.properties.get_attribute('multilap_info', 'pos')
+			}
+		except UIPropertyDoesNotExist:
+			pass
 		self.app.instance.ui_manager.properties.set_attribute('round_scores', 'pos', '-126.5 87. 150.')
 		self.app.instance.ui_manager.properties.set_attribute('multilap_info', 'pos', '107., 88., 5.')
+
 
 		self.standings_widget = NcStandingsWidget(self.app, self)
 		await self.standings_widget.display()
 
+	async def stop(self):
+		await self.app.unregister_signals(list(self.listeners.values()) + list(self.ko_listeners.values()))
+		if self.backup_ui_attributes:
+			for att, value in self.backup_ui_attributes.items():
+				self.app.instance.ui_manager.properties.set_attribute(att, 'pos', value)
+		await self.standings_widget.destroy()
+		self.standings_widget = None
+
 	async def set_standings_widget_title(self, title):
-		self.standings_widget.title = title
+		if self.standings_widget:
+			self.standings_widget.title = title
 
 	# When a player passes a CP
 	async def player_cp(self, player, race_time, raw, *args, **kwargs):
@@ -112,7 +133,7 @@ class StandingsLogicManager:
 
 	# Update the view for all players
 	async def update_standings_widget(self):
-		if not self.app.ta_active:
+		if self.app.ko_active:
 			# Used for sorting the PlayerCP objects by the 1. CP and 2. the time (Finished players are always on top)
 			def keyfunc(key):
 				lpcp = self.current_cps[key]
@@ -129,8 +150,8 @@ class StandingsLogicManager:
 					cpstr = "fin"
 				self.player_cps.append(pcp)
 
-
-		await self.standings_widget.display()  # Update the widget for all players
+		if self.standings_widget:
+			await self.standings_widget.display()  # Update the widget for all players
 
 	async def spec_player(self, player, target_login):
 		await self.app.instance.gbx.multicall(
@@ -138,11 +159,11 @@ class StandingsLogicManager:
 			self.app.instance.gbx('ForceSpectatorTarget', player.login, target_login, -1)
 		)
 
-	async def set_liverankings_listeners(self):
-		await self.app.unregister_signals(self.current_cps_listeners)
+	async def set_ta_listeners(self):
+		await self.app.unregister_signals(self.ko_listeners)
 
-	async def set_currentcps_listeners(self):
-		for callback, listener in self.current_cps_listeners.items():
+	async def set_ko_listeners(self):
+		for callback, listener in self.ko_listeners.items():
 			self.app.context.signals.listen(callback, listener)
 
 class PlayerCP:

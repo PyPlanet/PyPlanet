@@ -201,7 +201,7 @@ class NcStandingsWidget(TimesWidgetView):
 	z_index = 30
 	size_x = 38
 	size_y = 55.5
-	title = 'Current CPs'
+	title = 'NightCup'
 
 	template_name = 'nightcup/ncstandings.xml'
 
@@ -220,7 +220,7 @@ class NcStandingsWidget(TimesWidgetView):
 		max_n = math.floor((self.size_y - 5.5) / 3.3)
 
 		scores = {}
-		if not self.app.ta_active:
+		if self.app.ko_active:
 			for player in self.app.instance.player_manager.online:
 				last_fin = 0
 				list_times = []
