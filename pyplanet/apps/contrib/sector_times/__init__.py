@@ -53,7 +53,7 @@ class SectorTimes(AppConfig):
 	async def player_connect(self, player, **kwargs):
 		await self.sector_widget.display(player)
 		await self.cp_widget.display(player)
-		if self.gear_view_possible:
+		if self.gear_view_possible and await self.setting_enable_gear_indicator.get_value():
 			await self.gear_view.display(player.login)
 
 	async def map_start(self, *args, **kwargs):

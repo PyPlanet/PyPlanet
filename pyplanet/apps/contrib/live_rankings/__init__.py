@@ -25,10 +25,17 @@ class LiveRankings(AppConfig):
 			description='Amount of live rankings to display (minimum: 15).',
 			default=15
 		)
+		self.setting_nadeo_live_ranking = Setting(
+			'nadeo_live_ranking', 'Show the Nadeo live rankings widget', Setting.CAT_BEHAVIOUR, type=bool,
+			description='Show the Nadeo live rankings widgets besides the live rankings widget.', default=True,
+			change_target=self.nadeo_widget_change
+		)
 
 	async def on_start(self):
 		# Init settings.
-		await self.context.setting.register(self.setting_rankings_amount)
+		await self.context.setting.register(
+			self.setting_rankings_amount, self.setting_nadeo_live_ranking
+		)
 
 		# Register signals
 		self.context.signals.listen(mp_signals.map.map_start, self.map_start)
@@ -41,7 +48,8 @@ class LiveRankings(AppConfig):
 
 		# Make sure we move the multilap_info and disable the checkpoint_ranking and round_scores elements.
 		self.instance.ui_manager.properties.set_visibility('checkpoint_ranking', False)
-		self.instance.ui_manager.properties.set_visibility('round_scores', False)
+		self.instance.ui_manager.properties.set_visibility('round_scores', await self.setting_nadeo_live_ranking.get_value())
+		self.instance.ui_manager.properties.set_attribute('round_scores', 'pos', '-126.5 80. 150.')
 		self.instance.ui_manager.properties.set_attribute('multilap_info', 'pos', '107., 88., 5.')
 
 		self.dedimania_enabled = ('dedimania' in self.instance.apps.apps and 'dedimania' not in self.instance.apps.unloaded_apps)
@@ -60,6 +68,10 @@ class LiveRankings(AppConfig):
 			await self.widget.display()
 
 		await self.get_points_repartition()
+
+	async def nadeo_widget_change(self, *args, **kwargs):
+		self.instance.ui_manager.properties.set_visibility('round_scores', await self.setting_nadeo_live_ranking.get_value())
+		await self.instance.ui_manager.properties.send_properties()
 
 	def is_mode_supported(self, mode):
 		mode = mode.lower()
@@ -178,6 +190,10 @@ class LiveRankings(AppConfig):
 			return
 
 		if 'rounds' in current_script or 'team' in current_script or 'cup' in current_script:
+			# TODO: Fix the live rankings for rounds based modes in 0.8.2 (@Max)
+			# For now, return and ignore this block
+			return
+
 			new_finish = dict(login=player.login, nickname=player.nickname, score=race_time)
 			self.current_finishes.append(new_finish)
 

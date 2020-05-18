@@ -11,6 +11,7 @@ class DonationToolbarWidget(WidgetView):
 	widget_x = -109.5
 	widget_y = 61
 	z_index = 30
+	game = None
 
 	def __init__(self, app):
 		"""
@@ -29,6 +30,14 @@ class DonationToolbarWidget(WidgetView):
 		self.subscribe('bar_button_1000P', self.action_donate(1000))
 		self.subscribe('bar_button_2000P', self.action_donate(2000))
 		self.subscribe('bar_button_5000P', self.action_donate(5000))
+
+	async def display(self, player=None, **kwargs):
+		if not self.game:
+			self.game = self.app.instance.game.game
+			if self.game == 'sm':
+				self.widget_x = -145
+
+		return await super().display(player, **kwargs)
 
 	async def get_context_data(self):
 		data = await super().get_context_data()

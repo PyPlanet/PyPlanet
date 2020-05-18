@@ -23,11 +23,11 @@ class EmojiToolbarView(TemplateView):
 			'',  # Smiley
 			'',  # Neutral Smiley
 			'',  # Unhappy Smiley
-			'$900$z',  # Thumbs-down
+			'$F30$z',  # Thumbs-down
 			'$393$z',  # Thumbs-up
 			'',  # Two fingers left
 			'',  # Two fingers right
-			'$F60$z',  # Heart <3
+			'$F30$z',  # Heart <3
 			'',  # Map/locator
 			'$cc0🏆$z',  # Cup
 		]
