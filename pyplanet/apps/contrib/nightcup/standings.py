@@ -59,8 +59,9 @@ class StandingsLogicManager:
 		if self.backup_ui_attributes:
 			for att, value in self.backup_ui_attributes.items():
 				self.app.instance.ui_manager.properties.set_attribute(att, 'pos', value)
-		await self.standings_widget.destroy()
-		self.standings_widget = None
+		if self.standings_widget:
+			await self.standings_widget.destroy()
+			self.standings_widget = None
 
 	async def set_standings_widget_title(self, title):
 		if self.standings_widget:
@@ -150,8 +151,12 @@ class StandingsLogicManager:
 					cpstr = "fin"
 				self.player_cps.append(pcp)
 
-		if self.standings_widget:
+		# If standings_widget got destroyed already, displaying it will raise an AttributeError.
+		# This problem usually occurs when nightcup is stopped while the widget is receiving updates
+		try:
 			await self.standings_widget.display()  # Update the widget for all players
+		except AttributeError:
+			pass
 
 	async def spec_player(self, player, target_login):
 		await self.app.instance.gbx.multicall(

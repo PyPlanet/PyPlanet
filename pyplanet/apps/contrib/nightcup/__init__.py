@@ -13,6 +13,24 @@ from pyplanet.contrib.command import Command
 from pyplanet.core.ui.exceptions import UIPropertyDoesNotExist
 
 
+async def format_time(seconds):
+	return f'{seconds // 60}:{seconds % 60:02d}'
+
+
+async def get_nr_kos(nr_players):
+	return int((nr_players + 4) / 10) + 1
+
+
+async def display(widget, player=None):
+	try:
+		if player:
+			await widget.display(player)
+		else:
+			await widget.display()
+	except AttributeError:
+		pass
+
+
 class NightCup(AppConfig):
 	game_dependencies = ['trackmania']
 	app_dependencies = ['core.maniaplanet', 'core.trackmania']
@@ -21,7 +39,6 @@ class NightCup(AppConfig):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-
 
 		self.ta_finishers = []
 		self.ko_qualified = []
@@ -90,10 +107,8 @@ class NightCup(AppConfig):
 
 		self.standings_logic_manager = StandingsLogicManager(self)
 
-
 	async def on_init(self):
 		await super().on_init()
-
 
 	async def on_start(self):
 		await self.instance.permission_manager.register(
@@ -153,7 +168,6 @@ class NightCup(AppConfig):
 			)
 		)
 
-
 	async def start_nc(self, player, *args, **kwargs):
 		if self.nc_active:
 			await self.nc_chat(f'A nightcup is currently in progress!', player)
@@ -161,18 +175,15 @@ class NightCup(AppConfig):
 			await self.nc_chat(f'Nightcup is starting now!')
 			await self.set_ui_elements()
 
-
 			self.nc_active = True
 			await self.backup_mode_settings()
 			await asyncio.sleep(self.TIME_UNTIL_NEXT_WALL)
 
 			await self.wait_for_ta_start()
 
-
 	async def backup_mode_settings(self):
 		self.backup_script_name = await self.instance.mode_manager.get_current_full_script()
 		self.backup_settings = await self.instance.mode_manager.get_settings()
-
 
 	async def set_ta_settings(self):
 		await self.instance.mode_manager.set_next_script('TimeAttack.Script.txt')
@@ -181,7 +192,6 @@ class NightCup(AppConfig):
 		while await self.instance.mode_manager.get_current_full_script() != 'TimeAttack.Script.txt':
 			await asyncio.sleep(1)
 		await self.set_ta_modesettings()
-
 
 	async def set_ta_modesettings(self):
 		settings = await self.instance.mode_manager.get_settings()
@@ -193,26 +203,24 @@ class NightCup(AppConfig):
 		else:
 			settings['S_WarmUpNb'] = 1
 			settings['S_WarmUpDuration'] = self.settings['nc_ta_wu_duration']
-			await self.nc_chat(f"Warmup of {await self.format_time(self.settings['nc_ta_wu_duration'])} for people to load the map.")
+			await self.nc_chat(
+				f"Warmup of {await format_time(self.settings['nc_ta_wu_duration'])} for people to load the map.")
 			await self.nc_chat(f'Live with TA after WarmUp!')
 		await self.instance.mode_manager.update_settings(settings)
-
-
 
 	async def wait_for_ta_start(self):
 		if not (self.settings['nc_time_until_ta'] == -1 or self.settings['nc_time_until_ta'] == 0):
 			ta_start_timer = TimerView(self)
 			self.open_views.append(ta_start_timer)
-			ta_start_timer.title = f"TA phase starts in {await self.format_time(self.settings['nc_time_until_ta'])}"
+			ta_start_timer.title = f"TA phase starts in {await format_time(self.settings['nc_time_until_ta'])}"
 			for player in self.instance.player_manager.online:
-				await ta_start_timer.display(player)
+				await display(ta_start_timer, player)
 
 			secs = 0
 			while self.settings['nc_time_until_ta'] - secs > 0 and ta_start_timer:
-				ta_start_timer.title = f"TA phase starts in {await self.format_time(self.settings['nc_time_until_ta'] - secs)}"
+				ta_start_timer.title = f"TA phase starts in {await format_time(self.settings['nc_time_until_ta'] - secs)}"
 				for player in self.instance.player_manager.online:
-					if not ta_start_timer is None:
-						await ta_start_timer.display(player)
+					await display(ta_start_timer, player)
 				await asyncio.sleep(1)
 				secs += 1
 
@@ -227,7 +235,6 @@ class NightCup(AppConfig):
 		await self.standings_logic_manager.set_ta_listeners()
 		self.context.signals.listen(mp_signals.flow.round_end, self.get_qualified)
 		self.context.signals.listen(mp_signals.flow.round_end, self.wait_for_ko_start)
-
 
 	async def wait_for_ko_start(self, count, time):
 
@@ -246,16 +253,15 @@ class NightCup(AppConfig):
 		if not (self.settings['nc_time_until_ko'] == -1 or self.settings['nc_time_until_ko'] == 0):
 			ko_start_timer = TimerView(self)
 			self.open_views.append(ko_start_timer)
-			ko_start_timer.title = f"KO phase starts in {await self.format_time(self.settings['nc_time_until_ko'])}"
+			ko_start_timer.title = f"KO phase starts in {await format_time(self.settings['nc_time_until_ko'])}"
 			for player in self.instance.player_manager.online:
-				await ko_start_timer.display(player)
+				await display(ko_start_timer, player)
 
 			secs = 0
 			while self.settings['nc_time_until_ko'] - secs > 0 and ko_start_timer:
-				ko_start_timer.title = f"KO phase starts in {await self.format_time(self.settings['nc_time_until_ko'] - secs)}"
+				ko_start_timer.title = f"KO phase starts in {await format_time(self.settings['nc_time_until_ko'] - secs)}"
 				for player in self.instance.player_manager.online:
-					if ko_start_timer:
-						await ko_start_timer.display(player)
+					await display(ko_start_timer, player)
 				await asyncio.sleep(1)
 				secs += 1
 
@@ -268,18 +274,12 @@ class NightCup(AppConfig):
 		await self.standings_logic_manager.set_standings_widget_title('KO phase')
 		await self.instance.gbx('NextMap')
 
-
-	async def format_time(self, seconds):
-		return f'{seconds // 60}:{seconds % 60:02d}'
-
-
 	async def stop_nc(self, player, *args, **kwargs):
 		if not self.nc_active:
 			await self.nc_chat(f'No nightcup is currently in progress!', player)
 			return
 		await self.nc_chat(f'Admin {player.nickname}{self.chat_reset} stopped nightcup!')
 		await self.reset_server()
-
 
 	async def reset_server(self):
 		await self.unregister_signals(
@@ -294,14 +294,11 @@ class NightCup(AppConfig):
 			await view.destroy()
 		self.open_views.clear()
 
-
-
 		self.ta_finishers.clear()
 		self.ko_qualified.clear()
 
 		await self.reset_backup()
 		await self.reset_ui_elements()
-
 
 	async def reset_backup(self):
 		if not (self.backup_script_name and self.backup_settings):
@@ -313,7 +310,6 @@ class NightCup(AppConfig):
 		await self.instance.gbx('RestartMap')
 
 		self.nc_active = False
-
 
 	async def set_ko_settings(self, map):
 		await self.unregister_signals([self.set_ko_settings])
@@ -327,7 +323,6 @@ class NightCup(AppConfig):
 
 		self.context.signals.listen(mp_signals.flow.round_end, self.knockout_players)
 		self.context.signals.listen(mp_signals.flow.round_start, self.display_nr_of_kos)
-
 
 	async def set_ko_modesettings(self):
 		settings = await self.instance.mode_manager.get_settings()
@@ -346,15 +341,13 @@ class NightCup(AppConfig):
 
 		self.context.signals.listen(tm_signals.warmup_start, self.display_ko_wu_info)
 
-
 		await self.instance.mode_manager.update_settings(settings)
-
 
 	async def display_ko_wu_info(self):
 		await self.unregister_signals([self.display_ko_wu_info])
 		if self.ko_wu_enabled:
 			await self.nc_chat(
-				f"Warmup of {await self.format_time(self.settings['nc_ko_wu_duration'])} for people to load the map.")
+				f"Warmup of {await format_time(self.settings['nc_ko_wu_duration'])} for people to load the map.")
 			await self.nc_chat(f'Live with KO after WarmUp!')
 		else:
 			await self.nc_chat(f'Live with KO now!')
@@ -362,7 +355,7 @@ class NightCup(AppConfig):
 	async def get_qualified(self, count, time):
 		await self.unregister_signals([self.get_qualified])
 
-		self.ko_qualified = [p['login'] for (i,p) in enumerate(self.ta_finishers) if i < len(self.ta_finishers)/2]
+		self.ko_qualified = [p['login'] for (i, p) in enumerate(self.ta_finishers) if i < len(self.ta_finishers) / 2]
 		for p in self.instance.player_manager.online_logins:
 			if p in self.ko_qualified:
 				await self.nc_chat('Well done, you qualified for the KO phase!', p)
@@ -379,12 +372,11 @@ class NightCup(AppConfig):
 		elif len(self.ko_qualified) == 1:
 			await self.finish_nightcup(self.ko_qualified[0])
 
-
-
 	async def knockout_players(self, count, time):
 		round_scores = (await self.instance.gbx('Trackmania.GetScores'))['players']
-		nr_kos = await self.get_nr_kos(len(self.ko_qualified))
-		round_scores = [(record['login'], record['prevracetime']) for record in round_scores if record['login'] in self.ko_qualified]
+		nr_kos = await get_nr_kos(len(self.ko_qualified))
+		round_scores = [(record['login'], record['prevracetime']) for record in round_scores if
+						record['login'] in self.ko_qualified]
 
 		round_scores.sort(key=itemgetter(1))
 		round_scores = [p for p in round_scores if p[1] != -1]
@@ -398,15 +390,16 @@ class NightCup(AppConfig):
 			return
 
 		dnfs = [p for p in self.ko_qualified if p not in round_logins]
-		kos = round_logins[len(self.ko_qualified)-nr_kos:]
-		qualified = round_logins[:len(self.ko_qualified)-nr_kos]
-		for i,p in enumerate(kos, start=1):
-			await self.nc_chat(f'You have been eliminated from this KO: position {len(qualified) + i}/{len(self.ko_qualified)}', p)
+		kos = round_logins[len(self.ko_qualified) - nr_kos:]
+		qualified = round_logins[:len(self.ko_qualified) - nr_kos]
+		for i, p in enumerate(kos, start=1):
+			await self.nc_chat(
+				f'You have been eliminated from this KO: position {len(qualified) + i}/{len(self.ko_qualified)}', p)
 			await self.force_spec_or_kick(p)
 		for p in dnfs:
 			await self.nc_chat(f'You have been eliminated from this KO: position DNF/{len(self.ko_qualified)}', p)
 			await self.force_spec_or_kick(p)
-		for i,p in enumerate(qualified, start=1):
+		for i, p in enumerate(qualified, start=1):
 			await self.nc_chat(f'You are still in! position {i}/{len(self.ko_qualified)}', p)
 			await self.instance.gbx('ForceSpectator', p, 2)
 
@@ -417,12 +410,10 @@ class NightCup(AppConfig):
 
 		self.ko_qualified = [p for p in self.ko_qualified if p in qualified]
 
-
 	async def finish_nightcup(self, winner):
 		await self.nc_chat(
 			f'Player {(await Player.get_by_login(winner)).nickname}{self.chat_reset} wins this RPG NightCup, well played!')
 		await self.reset_server()
-
 
 	async def force_spec_or_kick(self, p):
 		if self.instance.player_manager.count_spectators < self.instance.player_manager.max_spectators:
@@ -430,14 +421,9 @@ class NightCup(AppConfig):
 		else:
 			await self.instance.gbx('Kick', p)
 
-
 	async def display_nr_of_kos(self, count, time):
-		await self.nc_chat(f'{len(self.ko_qualified)} players left, number of KOs: {await self.get_nr_kos(len(self.ko_qualified))}')
-
-
-	async def get_nr_kos(self, nr_players):
-		return int((nr_players + 4) / 10) + 1
-
+		await self.nc_chat(
+			f'{len(self.ko_qualified)} players left, number of KOs: {await get_nr_kos(len(self.ko_qualified))}')
 
 	async def nc_chat(self, message, player=None):
 		if player:
@@ -445,15 +431,12 @@ class NightCup(AppConfig):
 		else:
 			await self.instance.chat(f'{self.chat_prefix}{message}')
 
-
 	async def nc_settings(self, player, *args, **kwargs):
 		settings_view = SettingsListView(self, player)
 		await settings_view.display(player=player)
 
-
 	async def get_long_settings(self):
 		return self.settings_long
-
 
 	async def update_settings(self, new_settings):
 		self.settings = new_settings
@@ -461,7 +444,6 @@ class NightCup(AppConfig):
 			for setting_long in self.settings_long:
 				if setting_long['name'] == key:
 					setting_long['value'] = new_settings[key]
-
 
 	async def add_qualified(self, player, data, **kwargs):
 		if not self.nc_active:
@@ -473,9 +455,8 @@ class NightCup(AppConfig):
 				await self.nc_chat('$i$f00Player is currently not on the server', player)
 				continue
 			self.ko_qualified.append(player_to_add)
-			await self.nc_chat(f'Player {(await Player.get_by_login(player_to_add)).nickname} '
-							   f'has been added to the qualified list')
-
+			await self.nc_chat(f'Player {(await Player.get_by_login(player_to_add)).nickname} has been added to the '
+							   f'qualified list')
 
 	async def remove_qualified(self, player, data, **kwargs):
 		if not self.nc_active:
@@ -489,7 +470,6 @@ class NightCup(AppConfig):
 			self.ko_qualified.remove(player_to_remove)
 			await self.nc_chat(f'Player {(await Player.get_by_login(player_to_remove)).nickname} '
 							   f'has been removed from the qualified list')
-
 
 	async def set_ui_elements(self):
 		try:
@@ -506,12 +486,9 @@ class NightCup(AppConfig):
 			self.instance.ui_manager.properties.set_attribute(p, 'pos', pos)
 		await self.instance.ui_manager.properties.send_properties()
 
-
 		await self.disable_standings_uis()
 
-
 		await self.move_dedi_ui()
-
 
 	async def move_dedi_ui(self):
 		for app in self.instance.ui_manager.app_managers.values():
@@ -541,11 +518,9 @@ class NightCup(AppConfig):
 			self.instance.apps.unloaded_apps[label] = app.module.__name__
 			del app
 
-
 	async def reset_ui_elements(self):
 		await self.reset_dedi_ui()
 		await self.reset_standings_uis()
-
 
 	async def reset_dedi_ui(self):
 		for app in self.instance.ui_manager.app_managers.values():
@@ -565,7 +540,7 @@ class NightCup(AppConfig):
 					app = self.instance.apps.unloaded_apps[label]
 					self.instance.apps.populate([app], in_order=True)
 					if label not in self.instance.apps.apps:
-						raise Exception() # Flow control, stop executing restart of app.
+						raise Exception()  # Flow control, stop executing restart of app.
 					await self.instance.apps.apps[label].on_init()
 					await self.instance.apps.apps[label].on_start()
 
@@ -583,7 +558,7 @@ class NightCup(AppConfig):
 		if self.ta_active:
 			return math.ceil(len(self.ta_finishers) / 2)
 		if self.ko_active:
-			return len(self.ko_qualified) - await self.get_nr_kos(len(self.ko_qualified))
+			return len(self.ko_qualified) - await get_nr_kos(len(self.ko_qualified))
 		return -1
 
 	async def spec_player(self, player, target_login):
@@ -591,3 +566,4 @@ class NightCup(AppConfig):
 			self.instance.gbx('ForceSpectator', player.login, 3),
 			self.instance.gbx('ForceSpectatorTarget', player.login, target_login, -1)
 		)
+
