@@ -263,9 +263,8 @@ class NcStandingsWidget(TimesWidgetView):
 			return data
 
 
-
 		# In case we are in TA phase
-		if self.app.ta_active:
+		elif self.app.ta_active:
 			for player in self.app.instance.player_manager.online:
 				list_records = list()
 
@@ -349,6 +348,8 @@ class NcStandingsWidget(TimesWidgetView):
 
 					list_records.append(list_record)
 				data[player.login] = dict(scores=list_records)
+			return data
+		else:
 			return data
 
 	async def handle_catch_all(self, player, action, values, **kwargs):
