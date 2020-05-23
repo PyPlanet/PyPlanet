@@ -25,8 +25,8 @@ class DedimaniaRecordsWidget(TimesWidgetView):
 		self.action = self.action_recordlist
 		self.record_amount = 15
 
-	async def get_all_player_data(self, logins):
-		data = await super().get_all_player_data(logins)
+	async def get_player_data(self):
+		data = await super().get_player_data()
 		if self.app.instance.performance_mode:
 			return data
 
