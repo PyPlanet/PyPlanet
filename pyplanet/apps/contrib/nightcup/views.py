@@ -6,6 +6,7 @@ from pyplanet.views.generics.widget import WidgetView, TimesWidgetView
 from pyplanet.views import TemplateView
 from pyplanet.views.generics import ManualListView
 
+
 class TimerView(WidgetView):
 	widget_x = 0
 	widget_y = 0
@@ -17,6 +18,7 @@ class TimerView(WidgetView):
 		super().__init__()
 		self.app = app
 		self.manager = app.context.ui
+
 
 class SettingsListView(ManualListView):
 	title = 'NightCup settings'
@@ -34,7 +36,7 @@ class SettingsListView(ManualListView):
 			'sorting': True,
 			'searching': True,
 			'width': 60,
-			'type':'label'
+			'type': 'label'
 		}
 
 		self.child = None
@@ -112,6 +114,7 @@ class SettingsListView(ManualListView):
 			},
 		]
 
+
 class NcSettingEditView(TemplateView):
 	template_name = 'admin/setting/edit.xml'
 
@@ -161,7 +164,6 @@ class NcSettingEditView(TemplateView):
 	async def save(self, player, action, values, *args, **kwargs):
 		value = values['setting_value_field']
 
-
 		try:
 			if self.setting['name'] in ['nc_time_until_ta', 'nc_time_until_ko']:
 				if int(value) < 5 and int(value) != 0 and int(value) != -1:
@@ -171,7 +173,7 @@ class NcSettingEditView(TemplateView):
 			if self.setting['name'] == 'nc_ta_length':
 				if int(value) < 0:
 					message = '$i$f00TA length cannot be negative.'
-					await self.parent.instance.chat(message, player)
+					await self.parent.app.instance.chat(message, player)
 					return
 			settings_long = (await self.parent.get_data())
 			settings = {setting['name']: setting['value'] for setting in settings_long}
@@ -193,6 +195,7 @@ class NcSettingEditView(TemplateView):
 			)
 			self.response_future.set_result(self.setting)
 			self.response_future.done()
+
 
 class NcStandingsWidget(TimesWidgetView):
 	widget_x = -160
@@ -217,142 +220,108 @@ class NcStandingsWidget(TimesWidgetView):
 	async def get_all_player_data(self, logins):
 		data = await super().get_all_player_data(logins)
 
+		# This determines the amount of records that will fit in the widget
 		max_n = min(math.floor((self.size_y - 5.5) / 3.3), self.record_amount)
 
 		scores = {}
-		if self.app.ko_active:
-			for player in self.app.instance.player_manager.online:
-				last_fin = 0
-				list_times = []
-				n = 1
-				for pcp in self.standings_manager.player_cps:
-					# Make sure to only display a certain number of entries
-					if float(n) >= max_n:
-						break
-					# Set time color to green for your own CP time
-					list_time = {'index': n, 'color': "$0f3" if player.login == pcp.player.login else "$bbb"}
 
-					if pcp.player.login in self.app.ko_qualified:
-						if (n - 1) < await self.app.get_nr_qualified():
-							list_time['virt_qualified'] = True
-							list_time['virt_eliminated'] = False
-						else:
-							list_time['virt_qualified'] = False
-							list_time['virt_eliminated'] = True
-
-
-					# Display 'fin' when the player crossed the finish line else display the CP number
-					if pcp.cp == -1 or (pcp.cp == 0 and pcp.time != 0):
-						list_time['col0'] = 'fin'
-						last_fin += 1
-					else:
-						list_time['col0'] = str(pcp.cp)
-					list_time['col2'] = times.format_time(pcp.time)
-					list_time['nickname'] = pcp.player.nickname
-					list_time['login'] = pcp.player.login
-					# Only show top 5 fins but always show the current player
-					if (pcp.cp == -1 or (pcp.cp == 0 and pcp.time != 0)) and last_fin > 5:
-						if player.login != pcp.player.login:
-							continue
-						list_times[4] = list_time
-						continue
-					list_times.append(list_time)
-					n += 1
-				scores[player.login] = {'scores': list_times}
-			data.update(scores)
+		if self.app.ta_active:
+			# Handling with TA data
+			round_data = self.standings_manager.current_rankings
+		elif self.app.ko_active:
+			# Handling with KO data
+			round_data = self.standings_manager.player_cps
+		else:
+			# In any other case there is no data
 			return data
 
-
-		# In case we are in TA phase
-		elif self.app.ta_active:
-			for player in self.app.instance.player_manager.online:
-				list_records = list()
-
-				player_index = len(self.standings_manager.current_rankings) + 1
-				if player:
-					player_record = [x for x in self.standings_manager.current_rankings if x['login'] == player.login]
+		for player in self.app.instance.player_manager.online:
+			focused_index = len(round_data) + 1
+			spectator_status = (await self.app.instance.gbx('GetPlayerInfo', player.login))['SpectatorStatus']
+			target_id = spectator_status // 10000
+			focused = player
+			if target_id:
+				# Player is spectating someone
+				target = await self.app.instance.player_manager.get_player_by_id(target_id)
+				focused = target or player
+			if focused:
+				if self.app.ta_active:
+					player_record = [x for x in round_data if x['login'] == focused.login]
+				elif self.app.ko_active:
+					player_record = [x for x in round_data if x.player.login == focused.login]
 				else:
-					player_record = list()
+					return data
+				if player_record:
+					focused_index = round_data.index(player_record[0]) + 1
 
-				if len(player_record) > 0:
-					# Set player index if there is a record
-					player_index = (self.standings_manager.current_rankings.index(player_record[0]) + 1)
+			records = list(round_data[:self.top_entries])
+			if self.app.instance.performance_mode:
+				records += round_data[self.top_entries:max_n]
+				custom_start_index = self.top_entries + 1
+			else:
+				if focused_index >= len(round_data):
+					# No personal record, get the last records
+					records_start = max(len(round_data) - max_n + self.top_entries, self.top_entries)
 
-				records = list(self.standings_manager.current_rankings[:self.top_entries])
-				if self.app.instance.performance_mode:
-					# Performance mode is turned on, get the top of the whole widget.
-					records += self.standings_manager.current_rankings[self.top_entries:max_n]
-					custom_start_index = (self.top_entries + 1)
+					# If start of current slice is in the top entries, add more records below
+					records += list(round_data[records_start:])
+					custom_start_index = records_start + 1
 				else:
-					if player_index > len(self.standings_manager.current_rankings):
-						# No personal record, get the last records
-						records_start = (len(self.standings_manager.current_rankings) - max_n + self.top_entries)
-						# If start of current slice is in the top entries, add more records below
-						if records_start < self.top_entries:
-							records_start = self.top_entries
-
-						records += list(self.standings_manager.current_rankings[records_start:])
-						custom_start_index = (records_start + 1)
+					if focused_index <= self.top_entries:
+						# Player record is in top X, get following records (top entries + 1 onwards)
+						records += round_data[self.top_entries:max_n]
+						custom_start_index = self.top_entries + 1
 					else:
-						if player_index <= self.top_entries:
-							# Player record is in top X, get following records (top entries + 1 onwards)
-							records += self.standings_manager.current_rankings[self.top_entries:max_n]
-							custom_start_index = (self.top_entries + 1)
-						else:
-							# Player record is not in top X, get records around player record
-							# Same amount above the record as below, except when not possible (favors above)
-							records_to_fill = (max_n - self.top_entries)
-							start_point = ((player_index - math.ceil((records_to_fill - 1) / 2)) - 1)
-							end_point = ((player_index + math.floor((records_to_fill - 1) / 2)) - 1)
+						# Player record is not in top X, get records around player record
+						# Same amount above the record as below, except when not possible (favors above)
+						records_to_fill = max_n - self.top_entries
+						start_point = focused_index - math.ceil((records_to_fill - 1) / 2) - 1
+						end_point = focused_index + math.floor((records_to_fill - 1) / 2) - 1
 
-							# If end of current slice is outside the list, add more records above
-							if end_point > len(self.standings_manager.current_rankings):
-								end_difference = (end_point - len(self.standings_manager.current_rankings))
-								start_point = (start_point - end_difference)
+						# If end of current slice is outside the list, add more records above
+						if end_point > len(round_data):
+							end_difference = end_point - len(round_data)
 							# If start of current slice is in the top entries, add more records below
-							if start_point < self.top_entries:
-								start_point = self.top_entries
+							start_point = (start_point - end_difference)
+						# If start of current slice is in the top entries, add more records below
+						if start_point < self.top_entries:
+							start_point = self.top_entries
+						records += round_data[start_point:start_point + records_to_fill]
+						custom_start_index = start_point + 1
 
-							records += self.standings_manager.current_rankings[start_point:(start_point + records_to_fill)]
-							custom_start_index = (start_point + 1)
+			list_records = list()
+			index = 1
+			for record in records:
+				list_record = dict()
+				list_record['color'] = '$fff'
+				if index <= self.top_entries:
+					list_record['color'] = '$ff0'
+				if index == focused_index:
+					list_record['color'] = '$0ff'
 
-				index = 1
-				best = None
-				for record in records:
-					if index == 1:
-						best = record
-					list_record = dict()
-					list_record['col0'] = index
-					list_record['virt_qualified'] = (index-1) < await self.app.get_nr_qualified()
+				if self.app.ta_active or self.app.ko_active and record.player.login in self.app.ko_qualified:
+					list_record['virt_qualified'] = (index - 1) < await self.app.get_nr_qualified()
 					list_record['virt_eliminated'] = not list_record['virt_qualified']
 
-
-					list_record['color'] = '$fff'
-					if index <= self.top_entries:
-						list_record['color'] = '$ff0'
-					if index == player_index:
-						list_record['color'] = '$0f3'
-
+				if self.app.ta_active:
+					list_record['col0'] = index
+					list_record['login'] = record['login']
 					list_record['nickname'] = record['nickname']
+					list_record['time'] = times.format_time(int(record['score']))
+				elif self.app.ko_active:
+					list_record['col0'] = 'fin' if record.cp == -1 else str(record.cp)
+					list_record['login'] = record.player.login
+					list_record['nickname'] = record.player.nickname
+					list_record['time'] = times.format_time(record.time)
 
-					list_record['col2'] = times.format_time(int(record['score']))
+				index = custom_start_index if index == self.top_entries else index + 1
 
-
-					if index == self.top_entries:
-						index = custom_start_index
-					else:
-						index += 1
-
-
-
-
-					list_records.append(list_record)
-				data[player.login] = dict(scores=list_records)
-			return data
-		else:
-			return data
+				list_records.append(list_record)
+			data[player.login] = dict(scores=list_records)
+		return data
 
 	async def handle_catch_all(self, player, action, values, **kwargs):
 		if str(action).startswith('spec_'):
 			target = action[5:]
 			await self.app.spec_player(player=player, target_login=target)
+

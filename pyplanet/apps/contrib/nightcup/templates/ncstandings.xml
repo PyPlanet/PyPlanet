@@ -21,7 +21,7 @@
         {% if score.virt_qualified %} "32CD3260"
         {% elif score.virt_eliminated %} "DC143C60"
         {% else %} "00000070" {%endif %}/>
-        <label pos="30 -1.5" z-index="1" size="10 3" text="{{ score.color }}{{ score.col2 }}" textsize="0.2"
+        <label pos="30 -1.5" z-index="1" size="10 3" text="{{ score.color }}{{ score.time }}" textsize="0.2"
                textfont="RajdhaniMono" textemboss="1" halign="center" valign="center2"/>
       </frame>
     {% endfor %}

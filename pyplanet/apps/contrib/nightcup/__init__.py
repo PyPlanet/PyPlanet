@@ -488,16 +488,17 @@ class NightCup(AppConfig):
 	async def set_ui_elements(self):
 		await self.set_properties()
 		await self.disable_standings_uis()
+		self.context.signals.listen(mp_signals.map.map_begin, self.disable_standings_uis)
 		await self.move_dedi_ui()
 
 	async def set_properties(self):
 		try:
 			await self.instance.ui_manager.app_managers['core.pyplanet'].manialinks['pyplanet__controller'].hide()
-		except UIPropertyDoesNotExist:
+		except (UIPropertyDoesNotExist, KeyError):
 			logging.error('Something went wrong while moving the pyplanet logo.')
 		try:
 			await self.instance.ui_manager.app_managers['clock'].manialinks['pyplanet__widgets_clock'].hide()
-		except UIPropertyDoesNotExist:
+		except (UIPropertyDoesNotExist, KeyError):
 			logging.error('Something went wrong while moving the pyplanet clock.')
 
 		await self.move_properties(-20)
@@ -519,7 +520,7 @@ class NightCup(AppConfig):
 
 				await dedi_view.display()
 
-	async def disable_standings_uis(self):
+	async def disable_standings_uis(self, map=None):
 		self.backup_standings_apps = [app for app in ['live_rankings', 'currentcps'] if
 									  app in self.instance.apps.apps and
 									  app not in self.instance.apps.unloaded_apps]
@@ -533,16 +534,17 @@ class NightCup(AppConfig):
 	async def reset_ui_elements(self):
 		await self.reset_properties()
 		await self.reset_dedi_ui()
+		await self.unregister_signals([self.disable_standings_uis])
 		await self.reset_standings_uis()
 
 	async def reset_properties(self):
 		try:
 			await self.instance.ui_manager.app_managers['core.pyplanet'].manialinks['pyplanet__controller'].show()
-		except UIPropertyDoesNotExist:
+		except (UIPropertyDoesNotExist, KeyError, AttributeError):
 			logging.error('Something went wrong while moving the pyplanet logo.')
 		try:
 			await self.instance.ui_manager.app_managers['clock'].manialinks['pyplanet__widgets_clock'].show()
-		except UIPropertyDoesNotExist:
+		except (UIPropertyDoesNotExist, KeyError, AttributeError):
 			logging.error('Something went wrong while moving the pyplanet clock.')
 
 		await self.move_properties(20)
@@ -553,7 +555,7 @@ class NightCup(AppConfig):
 		properties = ['countdown', 'personal_best_and_rank', 'position']
 		for p in properties:
 			pos = [float(c) for c in self.instance.ui_manager.properties.get_attribute(p, 'pos').split()]
-			pos[1] += 20
+			pos[1] += offset
 			pos = ' '.join([str(c) for c in pos])
 			self.instance.ui_manager.properties.set_attribute(p, 'pos', pos)
 
@@ -619,3 +621,5 @@ class NightCup(AppConfig):
 		except Fault as e:
 			await self.nc_chat('$f00Something went wrong while restarting the map', self.admin)
 			await self.nc_chat(str(e), self.admin)
+
+
