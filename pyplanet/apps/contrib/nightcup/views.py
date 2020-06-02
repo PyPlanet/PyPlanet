@@ -237,13 +237,14 @@ class NcStandingsWidget(TimesWidgetView):
 
 		for player in self.app.instance.player_manager.online:
 			focused_index = len(round_data) + 1
-			spectator_status = (await self.app.instance.gbx('GetPlayerInfo', player.login))['SpectatorStatus']
-			target_id = spectator_status // 10000
 			focused = player
-			if target_id:
-				# Player is spectating someone
-				target = await self.app.instance.player_manager.get_player_by_id(target_id)
-				focused = target or player
+			if player:
+				spectator_status = (await self.app.instance.gbx('GetPlayerInfo', player.login))['SpectatorStatus']
+				target_id = spectator_status // 10000
+				if target_id:
+					# Player is spectating someone
+					target = await self.app.instance.player_manager.get_player_by_id(target_id)
+					focused = target or player
 			if focused:
 				if self.app.ta_active:
 					player_record = [x for x in round_data if x['login'] == focused.login]
@@ -293,26 +294,33 @@ class NcStandingsWidget(TimesWidgetView):
 			index = 1
 			for record in records:
 				list_record = dict()
-				list_record['color'] = '$fff'
-				if index <= self.top_entries:
-					list_record['color'] = '$ff0'
 				if index == focused_index:
 					list_record['color'] = '$0ff'
-
-				if self.app.ta_active or self.app.ko_active and record.player.login in self.app.ko_qualified:
-					list_record['virt_qualified'] = (index - 1) < await self.app.get_nr_qualified()
-					list_record['virt_eliminated'] = not list_record['virt_qualified']
+				elif index <= self.top_entries:
+					list_record['color'] = '$ff0'
+				else:
+					list_record['color'] = '$fff'
 
 				if self.app.ta_active:
+					list_record['virt_qualified'] = index - 1 < await self.app.get_nr_qualified()
+					list_record['virt_eliminated'] = not list_record['virt_qualified']
 					list_record['col0'] = index
 					list_record['login'] = record['login']
 					list_record['nickname'] = record['nickname']
 					list_record['time'] = times.format_time(int(record['score']))
 				elif self.app.ko_active:
+					if record.player.login in self.app.ko_qualified:
+						virt_qualified = [rec.player.login for rec in records if rec.player.login in self.app.ko_qualified]
+						list_record['virt_qualified'] = (virt_qualified.index(record.player.login)) < await self.app.get_nr_qualified()
+						list_record['virt_eliminated'] = not list_record['virt_qualified']
+					else:
+						list_record['virt_qualified'] = False
+						list_record['virt_eliminated'] = False
 					list_record['col0'] = 'fin' if record.cp == -1 else str(record.cp)
 					list_record['login'] = record.player.login
 					list_record['nickname'] = record.player.nickname
 					list_record['time'] = times.format_time(record.time)
+
 
 				index = custom_start_index if index == self.top_entries else index + 1
 
