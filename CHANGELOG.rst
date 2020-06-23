@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.8.3 (x)
+---------
+
+Core
+~~~~
+
+* Bugfix: Fixing issue with parsing target player in spectator status in the player change callback.
+
+
 0.8.2 (23 May 2020)
 -------------------
 
