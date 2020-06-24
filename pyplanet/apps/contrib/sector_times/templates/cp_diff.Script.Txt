@@ -171,7 +171,7 @@ main() {
         ShowDiff();
 
         if (CurrentCheckpoint != TotalCheckpoints) {
-          CurrentCheckpoint += 1;
+          CurrentCheckpoint = Event.CheckpointInLap + 1;
           CurrentCheckpointScores.add(GUIPlayer.CurCheckpointLapTime);
         }
 
