@@ -4,6 +4,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from pyplanet.apps.config import AppConfig
 from pyplanet.conf import settings
 from pyplanet.contrib.command import Command
+from .view import RankListView
 
 
 class ServerRank(AppConfig):
@@ -64,7 +65,6 @@ class ServerRank(AppConfig):
 				admin=False
 			)
 		)
-
 
 	async def rank(self, player, *args, **kwargs):
 		if self.deactivated:
@@ -164,6 +164,34 @@ class ServerRank(AppConfig):
 				await self.instance.chat(msg, player)
 		else:
 			await self.instance.chat(f'{tc}You need at least 1 local record before getting a rank', player)
+
+	async def ranks(self, player, *args, **kwargs):
+		if self.deactivated:
+			return
+
+		results = []
+		try:
+			results = await self.get_rank_data()
+		except SQLAlchemyError as e:
+			print('SQL error occurred when trying to retrieve server ranks')
+			print(e)
+			await self.instance.chat('$f00$iSomething went wrong when trying to calculate your rank. '
+									 'Contact the server administrator for more information.', player)
+
+		if results:
+			index = next((index for index, x in enumerate(results, 1) if x['id'] == player.get_id()), len(results))
+			data = []
+			for i, result in enumerate(results, 1):
+				result = dict(result)
+				result['index'] = i
+				if i == index:
+					result['diff'] = '$00f0 RP'
+				else:
+					diff = int(result['sum'] - results[index - 1]['sum'])
+					result['diff'] = (f'$f00{diff}' if i < index else f'$0f0+{diff}') + ' RP'
+				data.append(result)
+			rank_view = RankListView(self, index, data)
+			await rank_view.display(player)
 
 	async def get_rank_data(self):
 		maps = self.instance.map_manager.maps
