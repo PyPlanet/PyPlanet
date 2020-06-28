@@ -1,3 +1,4 @@
+import logging
 import sqlalchemy
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -18,8 +19,8 @@ class ServerRank(AppConfig):
 		elif settings.DATABASES[db_process]['ENGINE'] == 'peewee_async.PostgresqlDatabase':
 			self.db_type = 'postgresql'
 		else:
-			print('Database type not supported')
-			print('Closing down app \'server rank\'')
+			logging.getLogger(__name__).error('Database type not supported')
+			logging.getLogger(__name__).info('Closing down app \'server rank\'')
 			self.deactivated = True
 			return
 		db_name = settings.DATABASES[db_process]['NAME']
@@ -33,14 +34,14 @@ class ServerRank(AppConfig):
 			self.engine = sqlalchemy.create_engine(f'{self.db_type}://{db_login}:{db_password}@{db_ip}/{db_name}',
 												   pool_size=10)
 		except ModuleNotFoundError as e:
-			print('Couldn\'t find module required to communicate with the database!')
-			print(e)
-			print('Closing down app \'server rank\'')
+			logging.getLogger(__name__).error('Couldn\'t find module required to communicate with the database!')
+			logging.getLogger(__name__).error(e)
+			logging.getLogger(__name__).info('Closing down app \'server rank\'')
 			self.deactivated = True
 		except SQLAlchemyError as e:
-			print('Error occurred while starting sql engine.')
-			print(e)
-			print('Closing down app \'server rank\'')
+			logging.getLogger(__name__).error('Error occurred while starting sql engine.')
+			logging.getLogger(__name__).error(e)
+			logging.getLogger(__name__).info('Closing down app \'server rank\'')
 			self.deactivated = True
 
 		self.text_color = '$f80'
@@ -79,10 +80,11 @@ class ServerRank(AppConfig):
 		try:
 			results = await self.get_rank_data()
 		except SQLAlchemyError as e:
-			print('SQL error occurred when trying to retrieve server ranks')
-			print(e)
+			logging.getLogger(__name__).error('SQL error occurred when trying to retrieve server ranks', )
+			logging.getLogger(__name__).error(e)
 			await self.instance.chat('$f00$iSomething went wrong when trying to calculate your rank. '
 									 'Contact the server administrator for more information.', player)
+			return
 
 		player_id = player.get_id()
 		rank = next(({'index': index, 'avg': x['avg']} for index, x in enumerate(results, 1) if
@@ -106,10 +108,11 @@ class ServerRank(AppConfig):
 		try:
 			results = await self.get_rank_data()
 		except SQLAlchemyError as e:
-			print('SQL error occurred when trying to retrieve server ranks')
-			print(e)
-			await self.instance.chat('$f00$iSomething went wrong when trying to calculate your rank. '
+			logging.getLogger(__name__).error('SQL error occurred when trying to retrieve server ranks')
+			logging.getLogger(__name__).error(e)
+			await self.instance.chat('$f00$iSomething went wrong when trying to calculate the next rank. '
 									 'Contact the server administrator for more information.', player)
+			return
 
 		player_id = player.get_id()
 		rank = next(({'index': index, 'sum': int(x['sum']), 'avg': round(float(x['avg']), 1)} for index, x in
@@ -142,10 +145,11 @@ class ServerRank(AppConfig):
 		try:
 			results = await self.get_rank_data()
 		except SQLAlchemyError as e:
-			print('SQL error occurred when trying to retrieve server ranks')
-			print(e)
-			await self.instance.chat('$f00$iSomething went wrong when trying to calculate your rank. '
+			logging.getLogger(__name__).error('SQL error occurred when trying to retrieve server ranks')
+			logging.getLogger(__name__).error(e)
+			await self.instance.chat('$f00$iSomething went wrong when trying to calculate the previous rank. '
 									 'Contact the server administrator for more information.', player)
+			return
 
 		player_id = player.get_id()
 		rank = next(({'index': index, 'sum': int(x['sum']), 'avg': round(float(x['avg']), 1)} for index, x in
@@ -178,10 +182,11 @@ class ServerRank(AppConfig):
 		try:
 			results = await self.get_rank_data()
 		except SQLAlchemyError as e:
-			print('SQL error occurred when trying to retrieve server ranks')
-			print(e)
-			await self.instance.chat('$f00$iSomething went wrong when trying to calculate your rank. '
+			logging.getLogger(__name__).error('SQL error occurred when trying to retrieve server ranks')
+			logging.getLogger(__name__).error(e)
+			await self.instance.chat('$f00$iSomething went wrong when trying to calculate ranks. '
 									 'Contact the server administrator for more information.', player)
+			return
 
 		if results:
 			index = next((index for index, x in enumerate(results, 1) if x['id'] == player.get_id()), len(results))
