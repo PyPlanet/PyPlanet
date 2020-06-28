@@ -85,6 +85,7 @@ class ListView(TemplateView):
 		self.num_per_page = 20
 
 		self.provide_search = True
+		self.provide_find_self = False
 
 		# Setup the receivers.
 		self.subscribe('list_button_close', self.close)
@@ -354,6 +355,7 @@ class ListView(TemplateView):
 			'actions': actions,
 			'buttons': buttons,
 			'provide_search': self.provide_search,
+			'provide_find_self': self.provide_find_self,
 			'title': await self.get_title(),
 			'icon_style': self.icon_style,
 			'icon_substyle': self.icon_substyle,

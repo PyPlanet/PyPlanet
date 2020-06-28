@@ -13,7 +13,7 @@
   <quad pos="99 59.5 0" size="7 7" z-index="1" style="Icons128x32_1" substyle="Close" action="{{ id }}__list_button_close"/>
   <quad pos="94 59 0" size="6 6" z-index="1" style="Icons64x64_1" substyle="Refresh" action="{{ id }}__list_button_refresh" />
 
-  {% if provide_search or (buttons is defined and (buttons | length > 0)) %}
+  {% if provide_search or provide_find_self or (buttons is defined and (buttons | length > 0)) %}
     <frame pos="-109 49.5" id="list_search_frame">
       <quad pos="0 0" size="218 8.5" z-index="-50" style="Bgs1InRace" substyle="BgCardList"/>
       {% if provide_search %}
@@ -21,7 +21,16 @@
       <entry pos="2 -4.25" size="80 6" z-index="2" default="{{ search|default('Search...', True) }}"
              focusareacolor1="0003" name="list_search_field" selecttext="1" textsize="1.6"
              focusareacolor2="FFF2" scriptevents="1" valign="center" />
-      <quad pos="83 -1.35" size="6 6" bgcolor="FFFA" style="Icons64x64_1" substyle="Maximize" action="{{ id }}__list_button_search" />
+      <quad pos="83 -1.35" size="6 6" style="Icons64x64_1" substyle="Maximize" action="{{ id }}__list_button_search" />
+        {% endblock %}
+      {% endif %}
+      {% if provide_find_self %}
+        {% block find_self %}
+          <quad pos="182 1.25" size="42 11" z-index="-50" style="Icons64x64_1" substyle="ClipPause" action="{{ id }}__find_own" />
+          <quad pos="188 0.75" size="30 10" z-index="49" style="Bgs1" substyle="BgTitle3_3" />
+          <label pos="203 -4.5" z-index="50" size="20 6" text="Find self" textfont="RajdhaniMono" textsize="2.0"
+                 textemboss="1" halign="center"	valign="center2" textcolor="000f" />
+
         {% endblock %}
       {% endif %}
 
@@ -32,7 +41,7 @@
     </frame>
   {% endif %}
 
-  {% if provide_search or (buttons is defined and (buttons | length > 0)) %}
+  {% if provide_search or provide_find_self or (buttons is defined and (buttons | length > 0)) %}
     <frame pos="-109 39.5">
   {% else %}
     <frame pos="-109 49.5">
