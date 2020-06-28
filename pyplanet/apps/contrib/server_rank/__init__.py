@@ -3,6 +3,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from pyplanet.apps.config import AppConfig
 from pyplanet.conf import settings
+from pyplanet.contrib.command import Command
 
 
 class ServerRank(AppConfig):
@@ -40,6 +41,49 @@ class ServerRank(AppConfig):
 			print(e)
 			print('Closing down app \'server rank\'')
 			self.deactivated = True
+
+		self.text_color = '$f80'
+		self.data_color = '$fff'
+		self.self_color = '$ff0'
+
+	async def on_start(self):
+		await self.instance.command_manager.register(
+			Command(
+				'rank',
+				target=self.rank,
+				admin=False
+			)
+		)
+
+
+	async def rank(self, player, *args, **kwargs):
+		if self.deactivated:
+			return
+
+		results = []
+		try:
+			results = await self.get_rank_data()
+		except SQLAlchemyError as e:
+			print('SQL error occurred when trying to retrieve server ranks')
+			print(e)
+			await self.instance.chat('$f00$iSomething went wrong when trying to calculate your rank. '
+									 'Contact the server administrator for more information.', player)
+
+		player_id = player.get_id()
+		rank = next(({'index': index, 'avg': x['avg']} for index, x in enumerate(results, 1) if
+					 x['id'] == player_id), None)
+
+		# 3 variables for text coloring to keep the format string readable
+		tc = self.text_color
+		dc = self.data_color
+		sc = self.self_color
+		if rank:
+			await self.instance.chat(f'{tc}Your server rank is: {sc}{rank["index"]}{tc}/{dc}{len(results)}{tc}, '
+									 f'avg: {dc}{rank["avg"]}', player)
+		else:
+			await self.instance.chat(f'{tc}You need at least 1 local record before getting a rank', player)
+
+
 
 	async def get_rank_data(self):
 		maps = self.instance.map_manager.maps
