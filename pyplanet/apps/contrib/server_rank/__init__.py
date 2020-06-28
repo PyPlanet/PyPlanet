@@ -52,6 +52,16 @@ class ServerRank(AppConfig):
 				'rank',
 				target=self.rank,
 				admin=False
+			),
+			Command(
+				'nextrank',
+				target=self.next_rank,
+				admin=False
+			),
+			Command(
+				'prevrank',
+				target=self.prev_rank,
+				admin=False
 			)
 		)
 
@@ -83,7 +93,77 @@ class ServerRank(AppConfig):
 		else:
 			await self.instance.chat(f'{tc}You need at least 1 local record before getting a rank', player)
 
+	async def next_rank(self, player, *args, **kwargs):
+		if self.deactivated:
+			return
 
+		results = []
+		try:
+			results = await self.get_rank_data()
+		except SQLAlchemyError as e:
+			print('SQL error occurred when trying to retrieve server ranks')
+			print(e)
+			await self.instance.chat('$f00$iSomething went wrong when trying to calculate your rank. '
+									 'Contact the server administrator for more information.', player)
+
+		player_id = player.get_id()
+		rank = next(({'index': index, 'sum': int(x['sum']), 'avg': round(float(x['avg']), 1)} for index, x in
+					 enumerate(results, 1) if x['id'] == player_id), None)
+
+		# 3 variables for text coloring to keep the format string readable
+		tc = self.text_color
+		dc = self.data_color
+		sc = self.self_color
+		if rank:
+			if rank['index'] == 1:
+				await self.instance.chat(f'{tc}No better ranked player :)', player)
+			else:
+				next_rank_proxy = results[rank['index'] - 2]
+				next_rank = {'index': rank['index'] - 1, 'nickname': next_rank_proxy['nickname'],
+							 'sum': int(next_rank_proxy['sum']), 'avg': next_rank_proxy['avg']}
+				msg = f'{tc}The next better ranked player is {next_rank["nickname"]}' \
+					  f'$z$s{tc} : {sc}{next_rank["index"]}{tc}/' \
+					  f'{dc}{len(results)}{tc}, avg: {dc}{next_rank["avg"]}' \
+					  f'{tc}, [{dc}-{rank["sum"] - next_rank["sum"]} {tc}RP]: '
+				await self.instance.chat(msg, player)
+		else:
+			await self.instance.chat(f'{tc}You need at least 1 local record before getting a rank', player)
+
+	async def prev_rank(self, player, *args, **kwargs):
+		if self.deactivated:
+			return
+
+		results = []
+		try:
+			results = await self.get_rank_data()
+		except SQLAlchemyError as e:
+			print('SQL error occurred when trying to retrieve server ranks')
+			print(e)
+			await self.instance.chat('$f00$iSomething went wrong when trying to calculate your rank. '
+									 'Contact the server administrator for more information.', player)
+
+		player_id = player.get_id()
+		rank = next(({'index': index, 'sum': int(x['sum']), 'avg': round(float(x['avg']), 1)} for index, x in
+					 enumerate(results, 1) if x['id'] == player_id), None)
+
+		# 3 variables for text coloring to keep the format string readable
+		tc = self.text_color
+		dc = self.data_color
+		sc = self.self_color
+		if rank:
+			if rank['index'] == len(results):
+				await self.instance.chat(f'{tc}No worse ranked player :(', player)
+			else:
+				prev_rank_proxy = results[rank['index']]
+				prev_rank = {'index': rank['index'] + 1, 'nickname': prev_rank_proxy['nickname'],
+							 'sum': int(prev_rank_proxy['sum']), 'avg': prev_rank_proxy['avg']}
+				msg = f'{tc}The previous worse ranked player is {prev_rank["nickname"]}' \
+					  f'$z$s{tc} : {sc}{prev_rank["index"]}{tc}/' \
+					  f'{dc}{len(results)}{tc}, avg: {dc}{prev_rank["avg"]}' \
+					  f'{tc}, [{dc}+{prev_rank["sum"] - rank["sum"]} {tc}RP]: '
+				await self.instance.chat(msg, player)
+		else:
+			await self.instance.chat(f'{tc}You need at least 1 local record before getting a rank', player)
 
 	async def get_rank_data(self):
 		maps = self.instance.map_manager.maps
