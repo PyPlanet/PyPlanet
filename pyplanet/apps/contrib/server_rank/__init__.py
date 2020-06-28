@@ -63,6 +63,11 @@ class ServerRank(AppConfig):
 				'prevrank',
 				target=self.prev_rank,
 				admin=False
+			),
+			Command(
+				'ranks',
+				target=self.ranks,
+				admin=False
 			)
 		)
 
