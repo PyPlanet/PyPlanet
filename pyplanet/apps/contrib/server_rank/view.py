@@ -61,6 +61,12 @@ class RankListView(ManualListView):
 		self.results = data
 
 		self.provide_search = True
+		self.provide_find_self = True
+		self.subscribe('find_own', self._find_own)
 
 	async def get_data(self):
 		return self.results
+
+	async def _find_own(self, player, *args, **kwargs):
+		self.page = self.player_index // self.num_per_page + 1
+		await self.refresh(player)
