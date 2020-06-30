@@ -1,0 +1,88 @@
+
+#Include "MathLib" as MathLib
+
+
+declare Boolean Prev_DistractionFreeMode = False;
+declare Boolean Prev_DriveHideMode = False;
+
+declare Boolean DriveHideMode_IsHidden = False;
+
+declare netwrite Boolean Net_DistractionFreeMode for UI;
+declare netwrite Boolean Net_DriveHideMode for UI;
+
+declare Boolean override_enable = False;
+declare Vec2 mousePosition = <MouseX, MouseY>;
+
+
+
+// F8
+if (Net_DistractionFreeMode == True && Net_DriveHideMode == False) {
+  Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+  foreach (Control in Page.GetClassChildren_Result) {
+    Control.Hide();
+  }
+}
+
+if (Net_DistractionFreeMode == False && Net_DriveHideMode == False) {
+  Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+  foreach (Control in Page.GetClassChildren_Result) {
+    Control.Show();
+  }
+}
+
+Prev_DistractionFreeMode = Net_DistractionFreeMode;
+Prev_DriveHideMode = Net_DriveHideMode;
+
+while(True) {
+  if (Prev_DistractionFreeMode != Net_DistractionFreeMode) {
+    Prev_DistractionFreeMode = Net_DistractionFreeMode;
+
+    if (Net_DistractionFreeMode == True) {
+      Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+      foreach (Control in Page.GetClassChildren_Result) {
+        Control.Hide();
+      }
+    } else {
+      Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+      foreach (Control in Page.GetClassChildren_Result) {
+        Control.Show();
+      }
+    }
+  }
+
+  if (Prev_DriveHideMode != Net_DriveHideMode) {
+    Prev_DriveHideMode = Net_DriveHideMode;
+
+    if (Net_DriveHideMode == True) {
+      Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+      foreach (Control in Page.GetClassChildren_Result) {
+        Control.Hide();
+      }
+    } else {
+      Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+      foreach (Control in Page.GetClassChildren_Result) {
+        Control.Show();
+      }
+      DriveHideMode_IsHidden = False;
+    }
+  }
+
+  // Distraction free, hide when driving (F9)
+  if ( ClientUI.UISequence == CUIConfig::EUISequence::Podium ) {
+    Page.GetClassChildren("distraction-hide", Page.MainFrame, True);
+    foreach (Control in Page.GetClassChildren_Result) {
+      Control.Show();
+    }
+    DriveHideMode_IsHidden = False;
+  }
+
+
+  if (MathLib::Distance(mousePosition, <MouseX, MouseY>) >= 20.) {
+    override_enable = True;
+  }
+  if (MouseLeftButton) {
+    override_enable = True;
+  }
+
+  yield;
+}

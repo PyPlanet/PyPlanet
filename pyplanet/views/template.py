@@ -61,7 +61,8 @@ class TemplateView(View):
 		Get global and local context data, used to render template.
 		"""
 		context = dict(
-			id=self.id
+			id=self.id,
+			game=self.manager.instance.game.game
 		)
 		return context
 
