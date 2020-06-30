@@ -1,6 +1,23 @@
 Changelog
 =========
 
+0.8.3 (x)
+---------
+
+Core
+~~~~
+
+* Bugfix: Fixing issue with parsing target player in spectator status in the player change callback.
+
+
+0.8.2 (23 May 2020)
+-------------------
+
+Core
+~~~~
+
+* Bugfix: Fixing issue with the non-updating widgets when performance mode is activated for several apps.
+
 0.8.1 (18 May 2020)
 -------------------
 
@@ -11,7 +28,6 @@ Apps
 * Bugfix: Fixing issue with dedimania and retrying too much (revert new retry mechanism).
 * Bugfix: Temporary fix: Revert the live-rankings as it shows incorrect data during warm-ups.
 * Bugfix: Move the donation widget to the left in Shootmania.
-
 
 0.8.0 (13 May 2020)
 -------------------
