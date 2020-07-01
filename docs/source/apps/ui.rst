@@ -50,7 +50,7 @@ The following list is available:
 
 - *_instance*: The PyPlanet instance is available with this variable. See :class:`pyplanet.core.instance.Instance` for more information.
 - *_game*: The game object is available with some game information. See :class:`pyplanet.core.game._Game` for more information.
-- *_app*: The App instance if in any App.
+- *_app*: The App instance if in any App. Not always available, only inside apps.
 
 With these three global variables/objects you are able to retrieve a lot of information about the current situation on the server
 and the versions of the server, title, and such.

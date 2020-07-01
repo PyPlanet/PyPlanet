@@ -88,7 +88,7 @@ class _ManiaLink:
 		global_data = dict(
 			_game=self.manager.instance.game,
 			_instance=self.manager.instance,
-			_app=self.manager.app,
+			_app=self.manager.app if 'app' in self.manager else None,
 		)
 
 		# Combine data (global + user specific).
