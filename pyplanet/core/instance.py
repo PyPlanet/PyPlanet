@@ -212,7 +212,8 @@ class Instance:
 		)
 
 		if self.game.game == 'tmnext':
-			await self.chat('$f00$oTMNext: $o$nNewly support for this Trackmania, can have issues, please report to PyPlanet.')
+			await self.chat('$f00$oPyPlanet: $o$nNewly support for this Trackmania version. Expect issues'
+							', please report to PyPlanet.')
 
 		try:
 			asyncio.ensure_future(releases.UpdateChecker.init_checker(self))
