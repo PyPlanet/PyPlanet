@@ -16,7 +16,7 @@ class ControllerView(TemplateView):
 		context['game'] = Controller.instance.game.game
 
 		context['chat_pos'] = '-160.25 -63.75'
-		if context['game'] not in ['tm', 'tmnext']:
+		if context['game'] != 'tm':
 			context['chat_pos'] = '-160.25 -39.75'
 
 		return context
