@@ -62,7 +62,6 @@ class TemplateView(View):
 		"""
 		context = dict(
 			id=self.id,
-			game=self.manager.instance.game.game
 		)
 		return context
 

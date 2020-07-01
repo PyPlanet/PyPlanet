@@ -23,7 +23,7 @@
 {% block after %}{% endblock %}
 
 {% block maniascript %}
-  {% if game == 'tmnext' %}
+  {% if _game.game == 'tmnext' %}
     <script><!-- {% include 'core.views/generics/widget_next.Script.Txt' %} --></script>
   {% else %}
     <script><!-- {% include 'core.views/generics/widget.Script.Txt' %} --></script>
