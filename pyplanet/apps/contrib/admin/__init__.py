@@ -9,7 +9,7 @@ from pyplanet.apps.contrib.admin.mapbrowser import MapBrowser
 
 
 class Admin(AppConfig):
-	game_dependencies = ['trackmania', 'shootmania']
+	game_dependencies = ['trackmania', 'trackmania_next', 'shootmania']
 	app_dependencies = ['core.maniaplanet']
 
 	def __init__(self, *args, **kwargs):

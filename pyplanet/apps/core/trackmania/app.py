@@ -11,7 +11,7 @@ class TrackmaniaConfig(AppConfig):
 	]
 
 	game_dependencies = [
-		'trackmania'
+		'trackmania', 'trackmania_next'
 	]
 
 	async def on_start(self):

@@ -232,7 +232,11 @@ class GbxClient(GbxRemote):
 		self.game.server_map_dir = res[3]
 		self.game.server_skin_dir = res[4]
 
-		self.game.game = self.game.game_from_environment(res[5]['Environnement'])
+		self.game.game = self.game.game_from_environment(
+			res[5]['Environnement'],
+			game_name=res[0]['Name'],
+			title_id=res[0]['TitleId'],
+		)
 
 		self.game.server_password = res[6]
 		self.game.server_spec_password = res[7]

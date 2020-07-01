@@ -8,7 +8,7 @@ Name:
 Depends on:
   ``core.maniaplanet``
 Game:
-  TrackMania, ShootMania
+  Trackmania, Trackmania Next, ShootMania
 
 Features
 --------
@@ -96,10 +96,10 @@ Functionality:
   Add map from local server disk.
 Required permission:
   ``admin:add_local``, requires admin level 2.
-  
+
 Open Map browser
 ~~~~~~~~~~~~~~~~
-Command: 
+Command:
   ``//localmaps``
 Parameters:
   None.

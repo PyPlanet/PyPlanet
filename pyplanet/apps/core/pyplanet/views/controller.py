@@ -17,7 +17,7 @@ class ControllerView(TemplateView):
 
 		context['chat_pos'] = '-160.25 -63.75'
 		if context['game'] != 'tm':
-			context['chat_pos'] = '-160.25 -84.'
+			context['chat_pos'] = '-160.25 -39.75'
 
 		return context
 

@@ -16,7 +16,7 @@ from .models import LocalRecord
 
 
 class LocalRecords(AppConfig):
-	game_dependencies = ['trackmania']
+	game_dependencies = ['trackmania', 'trackmania_next']
 	app_dependencies = ['core.maniaplanet', 'core.trackmania']
 
 	def __init__(self, *args, **kwargs):

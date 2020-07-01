@@ -113,5 +113,5 @@ class ScriptQuery(Query):
 		gbx_res = await self._client.execute(self.method, *self.args)
 
 		if self.response_id:
-			return await asyncio.wait_for(future, self.timeout) # Timeout after 15 seconds!
+			return await asyncio.wait_for(future, self.timeout)  # Timeout after 15 seconds!
 		return gbx_res

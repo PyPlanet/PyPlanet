@@ -9,7 +9,7 @@ from .view import CpTimesListView
 
 
 class BestCpTimes(AppConfig):
-	game_dependencies = ['trackmania']
+	game_dependencies = ['trackmania', 'trackmania_next']
 	app_dependencies = ['core.maniaplanet', 'core.trackmania']
 	# mode_dependencies = ['TimeAttack']
 

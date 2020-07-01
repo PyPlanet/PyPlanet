@@ -8,7 +8,7 @@ Name:
 Depends on:
   ``core.maniaplanet``
 Game:
-  TrackMania or ShootMania
+  Trackmania or Shootmania
 Mode:
   Any
 

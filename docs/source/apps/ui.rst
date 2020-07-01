@@ -43,6 +43,18 @@ Providing data to the template can be done with several overriden methods in the
 Make sure you visit the class documentation for all the methods on the TemplateView: :class:`pyplanet.views.template.TemplateView`
 
 
+Global Resources and Variables
+``````````````````````````````
+New since 0.9.0 are some of the global resources and variables available in the templates at any time.
+The following list is available:
+
+- *_instance*: The PyPlanet instance is available with this variable. See :class:`pyplanet.core.instance.Instance` for more information.
+- *_game*: The game object is available with some game information. See :class:`pyplanet.core.game._Game` for more information.
+- *_app*: The App instance if in any App. Not always available, only inside apps.
+
+With these three global variables/objects you are able to retrieve a lot of information about the current situation on the server
+and the versions of the server, title, and such.
+
 Template Content
 ````````````````
 

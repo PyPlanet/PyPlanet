@@ -162,7 +162,7 @@ class Instance:
 		await self.db.connect()				# Connect and initial state.
 		await self.apps.discover() 			# Discover apps models.
 		await self.db.initiate() 			# Execute migrations and initial tasks.
-		await self.apps.check(True)     	# Check for incompatible apps and remove them.
+		await self.apps.check(True)    		# Check for incompatible apps and remove them.
 		await self.apps.init()				# Initiate apps
 		await self.ui_manager.on_start()    # Initiate UI manager.
 		await self.__fire_signal(signals.pyplanet_start_db_after)
@@ -210,6 +210,10 @@ class Instance:
 			'$l[http://pypla.net]Docs$l'.format(version, len(self.apps.apps)),
 			raw=True
 		)
+
+		if self.game.game == 'tmnext':
+			await self.chat('$f00$oPyPlanet: $o$nNewly support for this Trackmania version. Expect issues'
+							', please report to PyPlanet.')
 
 		try:
 			asyncio.ensure_future(releases.UpdateChecker.init_checker(self))
