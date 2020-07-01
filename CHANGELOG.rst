@@ -10,6 +10,11 @@ Core
 * Feature: Support for the new Trackmania.
 * Bugfix: Fixing issue with parsing target player in spectator status in the player change callback.
 
+Apps
+~~~~
+
+* Bugfix: CP Difference bugfix for spectating users.
+
 
 0.8.2 (23 May 2020)
 -------------------
