@@ -1,12 +1,13 @@
 Changelog
 =========
 
-0.8.3 (x)
----------
+0.9.0 (1 July 2020)
+-------------------
 
 Core
 ~~~~
 
+* Feature: Support for the new Trackmania.
 * Bugfix: Fixing issue with parsing target player in spectator status in the player change callback.
 
 
