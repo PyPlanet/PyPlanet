@@ -18,6 +18,7 @@ class _LookBackUtils:
 		12: 'Canyon',
 		13: 'Lagoon',
 		17: 'TMCommon',
+		26: 'Stadium',
 		202: 'Storm',
 		299: 'SMCommon',
 		10003: 'Common',
@@ -88,7 +89,7 @@ class _AsyncBufferProxy:
 class GbxParser:
 	"""
 	Async GBX Map Information Parser.
-	
+
 	Author: Toffe.
 	"""
 
