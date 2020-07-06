@@ -9,6 +9,8 @@ from pyplanet.contrib.command import Command
 from pyplanet.contrib.setting import Setting
 from collections import namedtuple
 
+from pyplanet.utils import gbxparser
+
 logger = logging.getLogger(__name__)
 
 
@@ -154,18 +156,23 @@ class MX(AppConfig):  # pragma: no cover
 		# Prepare and fetch information about the maps from MX.
 		mx_ids = data.maps
 
-		try:
-			infos = await self.api.map_info(*mx_ids)
-			if len(infos) == 0:
-				raise MXMapNotFound()
-		except MXMapNotFound:
-			message = '$f00Error: Can\'t add map from {}. Map not found on {}!'.format(self.site_short_name, self.site_name)
-			await self.instance.chat(message, player)
-			return
-		except MXInvalidResponse as e:
-			message = '$f00Error: Got invalid response from {}: {}'.format(self.site_name, str(e))
-			await self.instance.chat(message, player.login)
-			return
+		if self.instance.game.game != 'tmnext':
+			try:
+				infos = await self.api.map_info(*mx_ids)
+				if len(infos) == 0:
+					raise MXMapNotFound()
+			except MXMapNotFound:
+				message = '$f00Error: Can\'t add map from {}. Map not found on {}!'.format(self.site_short_name, self.site_name)
+				await self.instance.chat(message, player)
+				return
+			except MXInvalidResponse as e:
+				message = '$f00Error: Got invalid response from {}: {}'.format(self.site_name, str(e))
+				await self.instance.chat(message, player.login)
+				return
+
+		else:
+			# TODO: Remove workaround when TM2020 API has been released.
+			infos = []
 
 		try:
 			if not await self.instance.storage.driver.exists(os.path.join('UserData', 'Maps', 'PyPlanet-MX')):
@@ -182,6 +189,76 @@ class MX(AppConfig):  # pragma: no cover
 		if 'jukebox' not in self.instance.apps.apps:
 			juke_maps = False
 		added_map_uids = list()
+
+		################################################################################################################
+		# TODO: Remove workaround when TM2020 API has been released.
+		if self.instance.game.game == 'tmnext':
+			juke_list = []
+			for tmx_id in mx_ids:
+				# Workaround, just download and add like a local map.
+				resp = await self.api.download(tmx_id)
+				map_filename = os.path.join('PyPlanet-MX', '{}-{}.Map.Gbx'.format(
+					self.instance.game.game.upper(), tmx_id
+				))
+				async with self.instance.storage.open_map(map_filename, 'wb+') as map_file:
+					await map_file.write(await resp.read())
+					await map_file.close()
+
+				# Add map like a normal map.
+				map_file = map_filename
+				try:
+					# Parse GBX file.
+					async with self.instance.storage.open_map(map_file) as map_fh:
+						parser = gbxparser.GbxParser(buffer=map_fh)
+						map_info = await parser.parse()
+
+					# Test if map isn't yet in our current map list.
+					if self.instance.map_manager.playlist_has_map(map_info['uid']):
+						raise Exception('Map already in playlist! Update? remove it first!')
+
+					# Insert map to server.
+					result = await self.instance.map_manager.add_map(map_file)
+
+					if result:
+						# Juke if setting has been provided.
+						if juke_maps:
+							juke_list.append(map_info['uid'])
+
+						message = '$ff0Admin $fff{}$z$s$ff0 has added{} the map $fff{}$z$s$ff0 by $fff{}$z$s$ff0.'.format(
+							player.nickname, ' and juked' if juke_maps else '', map_info['name'], map_info['author_nickname']
+						)
+						await self.instance.chat(message)
+					else:
+						raise Exception('Unknown error while adding the map!')
+				except Exception as e:
+					raise e
+					logger.warning('Error when player {} was adding map from local disk: {}'.format(player.login, str(e)))
+					message = '$ff0Error: Can\'t add map, Error: {}'.format(str(e))
+					await self.instance.chat(message, player.login)
+
+				# Save match settings after inserting maps.
+				try:
+					await self.instance.map_manager.save_matchsettings()
+				except:
+					pass
+
+				# Reindex and create maps in database.
+				try:
+					await self.instance.map_manager.update_list(full_update=True)
+				except:
+					pass
+
+				# Jukebox all the maps requested, in order.
+				if juke_maps and len(juke_list) > 0:
+					# Fetch map objects.
+					for juke_uid in juke_list:
+						map_instance = await self.instance.map_manager.get_map(uid=juke_uid)
+						if map_instance:
+							self.instance.apps.apps['jukebox'].insert_map(player, map_instance)
+
+				# TODO: Remove workaround when TM2020 MX API has been released
+				return
+		################################################################################################################
 
 		for mx_id, mx_info in infos:
 			if 'Name' not in mx_info:

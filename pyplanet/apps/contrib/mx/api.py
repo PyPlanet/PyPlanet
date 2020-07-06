@@ -26,17 +26,12 @@ class MXApi:
 				return 'https://api.mania-exchange.com/{site}'.format(site=self.site)
 			return 'https://{site}.mania-exchange.com'.format(site=self.site)
 
-		# TODO: Replace by real addresses on release of TMNextExchange
 		if api:
-			# TODO: Will not work yet! API Not available!
-			return 'https://api.mania-exchange.com/{site}'.format(site=self.site)
-		return 'https://test.trackmania.exchange'
+			return 'https://api.trackmania.exchange'
+		return 'https://trackmania.exchange'
 
 	async def create_session(self):
 		self.session = await aiohttp.ClientSession(
-			# TODO: Remove when TMNext Exchange is live
-			auth=aiohttp.BasicAuth('alphatester', 'mX!tR4ckbu1lDinG'),
-
 			cookie_jar=self.cookie_jar,
 			headers={
 				'User-Agent': 'PyPlanet/{}'.format(pyplanet_version),

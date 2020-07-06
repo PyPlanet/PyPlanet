@@ -37,12 +37,13 @@ class MapInfoWidget(WidgetView):
 				try:
 					mx_info = await self.app.instance.apps.apps['mx'].api.map_info(map.uid)
 					if mx_info and len(mx_info) >= 1:
-						mx_link = 'https://{}.mania-exchange.com/s/tr/{}'.format(
-							self.app.instance.apps.apps['mx'].api.site, mx_info[0][0]
+						base_url = self.app.instance.apps.apps['mx'].api.base_url(api=False)
+						mx_link = '{}/s/tr/{}'.format(
+							base_url, mx_info[0][0]
 						)
 					self.mx_link_cache[map.uid] = mx_link
 				except Exception as e:
-					logger.error('Could not retrieve map info from MX API for the info widget: {}'.format(str(e)))
+					logger.error('Could not retrieve map info from MX/TM API for the info widget: {}'.format(str(e)))
 					pass
 
 		context = await super().get_context_data()
