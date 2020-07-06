@@ -2,6 +2,9 @@
 Player Admin methods and functions.
 """
 import asyncio
+import logging
+import secrets
+from random import random
 
 from pyplanet.apps.contrib.admin.views.players import PlayerListView
 from pyplanet.conf import settings
@@ -18,6 +21,7 @@ class PlayerAdmin:
 		"""
 		self.app = app
 		self.instance = app.instance
+		self.claim_token = None
 
 	async def on_start(self):
 		await self.instance.permission_manager.register('ignore', 'Ignore a player', app=self.app, min_level=1)
@@ -72,7 +76,13 @@ class PlayerAdmin:
 				.add_param('file', required=False, type=str, help='Give custom blacklist file to save to.'),
 			Command(command='readblacklist', aliases=['rbl'], target=self.read_blacklist, perms='admin:read_blacklist', description='Reads the blacklist file from disk.', admin=True)
 				.add_param('file', required=False, type=str, help='Give custom blacklist file to load from.'),
+			Command(command='claim', target=self.claim_rights, description='Claim admin rights', admin=False)
+				.add_param('token', required=True, type=str, help='Token to claim rights.'),
 		)
+
+		# Claim timer.
+		self.claim_token = secrets.token_hex(8)
+		asyncio.ensure_future(self.announce_claim_message())
 
 	async def force_spec(self, player, data, **kwargs):
 		try:
@@ -389,3 +399,19 @@ class PlayerAdmin:
 	async def player_list(self, player, data, **kwargs):
 		view = PlayerListView(self.app, player)
 		await view.display()
+
+	async def claim_rights(self, player, data, **kwargs):
+		if data.token != self.claim_token:
+			await self.instance.chat('$ff0Claiming rights failed. Failure has been logged!', player)
+			logging.getLogger(__name__).error('Security: User {} ({}) tried to claim rights'.format(player.nickname, player.login))
+			return
+
+		player.level = 3
+		await player.save()
+		await self.instance.chat('$fff{}$z$s$ff0 has claimed admin rights.'.format(player.nickname), player)
+
+	async def announce_claim_message(self):
+		await asyncio.sleep(4)
+		logging.getLogger(__name__).info(
+			'Welcome to PyPlanet, to claim admin rights, copy and paste this in the chat: /claim {}'.format(self.claim_token)
+		)
