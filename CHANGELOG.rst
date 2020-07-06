@@ -1,6 +1,17 @@
 Changelog
 =========
 
+0.9.1 (6 July 2020)
+-------------------
+
+Apps
+~~~~
+
+* Feature: Claim admin rights by /claim [token]. Check the console for the token.
+* Improvement: Adding semi-support for TMX Trackmania Exchange. More support coming later when the API becomes available.
+* Bugfix: Fixing issues with adding maps for the new Trackmania (2020).
+
+
 0.9.0 (1 July 2020)
 -------------------
 
