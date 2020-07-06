@@ -29,6 +29,7 @@ class _Analytics:
 		event_properties = event_properties or dict()
 		user_properties = dict(
 			path=self.instance.game.server_path,
+			game=self.instance.game.game,
 			server_name=self.instance.game.server_name,
 			language=self.instance.game.server_language,
 			login=self.instance.game.server_player_login,
