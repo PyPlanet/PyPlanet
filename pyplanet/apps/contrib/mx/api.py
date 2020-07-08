@@ -25,10 +25,10 @@ class MXApi:
 			if api:
 				return 'https://api.mania-exchange.com/{site}'.format(site=self.site)
 			return 'https://{site}.mania-exchange.com'.format(site=self.site)
-
-		if api:
-			return 'https://api.trackmania.exchange'
-		return 'https://trackmania.exchange'
+		elif self.site == 'tmnext':
+			if api:
+				return 'https://trackmania.exchange/api'
+			return 'https://trackmania.exchange'
 
 	async def create_session(self):
 		self.session = await aiohttp.ClientSession(
@@ -124,10 +124,17 @@ class MXApi:
 		return [map for map_list in split_results for map in map_list]
 
 	async def map_info_page(self, *ids):
-		url = '{base}/maps/{ids}'.format(
-			base=self.base_url(True),
-			ids=','.join(str(i) for i in ids[0])
-		)
+		if self.site == 'tmnext':
+			url = '{base}/maps/get_map_info/multi/{ids}'.format(
+				base=self.base_url(True),
+				ids=','.join(str(i) for i in ids[0])
+			)
+		else:
+			url = '{base}/maps/{ids}'.format(
+				base=self.base_url(True),
+				ids=','.join(str(i) for i in ids[0])
+			)
+
 		params = {'key': self.key} if self.key else {}
 		response = await self.session.get(url, params=params)
 		if response.status == 404:
@@ -146,7 +153,7 @@ class MXApi:
 		return maps
 
 	async def pack_info(self, id, token):
-		url = '{base}/api/mappack/get_info/{id}?token={token}'.format(
+		url = '{base}/api/mappack/get_info/{id}?token={token}&secret={token}'.format(
 			base=self.base_url(),
 			id=id,
 			token=token
@@ -163,11 +170,19 @@ class MXApi:
 		return response.json()
 
 	async def get_pack_ids(self, pack_id, token):
-		url = '{base}/api/mappack/get_tracks/{id}?token={token}'.format(
-			base=self.base_url(),
-			id=pack_id,
-			token=token
-		)
+		if self.site == 'tmnext':
+			url = '{base}/api/mappack/get_mappack_tracks/{id}?token={token}'.format(
+				base=self.base_url(),
+				id=pack_id,
+				token=token
+			)
+		else:
+			url = '{base}/api/mappack/get_tracks/{id}?token={token}'.format(
+				base=self.base_url(),
+				id=pack_id,
+				token=token
+			)
+
 		params = {'key': self.key} if self.key else {}
 		response = await self.session.get(url, params=params)
 		if response.status == 404:
