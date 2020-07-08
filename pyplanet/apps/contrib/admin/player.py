@@ -408,7 +408,7 @@ class PlayerAdmin:
 
 		player.level = 3
 		await player.save()
-		await self.instance.chat('$fff{}$z$s$ff0 has claimed admin rights.'.format(player.nickname), player)
+		await self.instance.chat('$fff{}$z$s$ff0 has claimed admin rights.'.format(player.nickname))
 
 	async def announce_claim_message(self):
 		await asyncio.sleep(4)
