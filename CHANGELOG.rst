@@ -1,6 +1,16 @@
 Changelog
 =========
 
+0.9.2 (8 July 2020)
+-------------------
+
+Apps
+~~~~
+
+* Improvement: Add full support for TMX Trackmania Exchange.
+* Bugfix: Fixing issues with the random messages in the ads app.
+
+
 0.9.1 (6 July 2020)
 -------------------
 
