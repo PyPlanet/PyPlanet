@@ -27,6 +27,7 @@ Make sure it looks like this and click on the red area to continue.
 
   Make sure you checked the two checkboxes: `Install launcher for all users` and `Add Python to PATH`.
 
+.. _step-2-win-ref:
 
 2. Creating Virtual Environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -96,7 +97,7 @@ To upgrade your existing installation, see our :doc:`Upgrading Guide </intro/upg
 
 .. warning::
 
-  If you use the virtual environment we installed in :ref:`step-3-ref`, make sure you activate it **before you install or update dependencies**!
+  If you use the virtual environment we installed in :ref:`step-2-win-ref`, make sure you activate it **before you install or update dependencies**!
 
 
 **Head to the next step**
