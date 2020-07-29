@@ -137,10 +137,10 @@ class LiveRankingsWidget(TimesWidgetView):
 			self.record_amount = 15
 
 		current_script = await self.app.instance.mode_manager.get_current_script()
-		if 'TimeAttack' in current_script:
+		if 'TimeAttack' in current_script or 'TrackMania/TM_TimeAttack_Online' in current_script:
 			self.format_times = True
 			self.display_cpdifference = False
-		elif 'Laps' in current_script:
+		elif 'Laps' in current_script or 'TrackMania/TM_Laps_Online' in current_script:
 			self.format_times = True
 			self.display_cpdifference = True
 		else:
