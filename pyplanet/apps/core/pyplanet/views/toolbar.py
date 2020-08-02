@@ -26,7 +26,7 @@ class ToolbarView(TemplateView):
 			'bar_button_players': '/players',
 			'bar_button_topdons': '/topdons',
 			'bar_button_topsums': '/topsums',
-			'bar_button_mxinfo': '/mx info',  # TODO: Je weet zelf ;-)
+			'bar_button_mxinfo': '/{} info'.format('tmx' if self.app.instance.game.game == 'tmnext' else 'mx'),
 			'bar_button_help': '/helpall',
 		}
 
