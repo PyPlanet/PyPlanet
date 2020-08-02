@@ -8,7 +8,7 @@ from pyplanet.contrib.setting import Setting
 
 
 class LiveRankings(AppConfig):
-	game_dependencies = ['trackmania']
+	game_dependencies = ['trackmania', 'trackmania_next']
 	app_dependencies = ['core.maniaplanet', 'core.trackmania']
 
 	def __init__(self, *args, **kwargs):
@@ -45,6 +45,9 @@ class LiveRankings(AppConfig):
 		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
 		self.context.signals.listen(tm_signals.give_up, self.player_giveup)
 		self.context.signals.listen(tm_signals.scores, self.scores)
+		self.context.signals.listen(tm_signals.warmup_start, self.warmup_start)
+		self.context.signals.listen(tm_signals.warmup_end, self.warmup_end)
+		
 
 		# Make sure we move the multilap_info and disable the checkpoint_ranking and round_scores elements.
 		self.instance.ui_manager.properties.set_visibility('checkpoint_ranking', False)
@@ -76,7 +79,9 @@ class LiveRankings(AppConfig):
 	def is_mode_supported(self, mode):
 		mode = mode.lower()
 		return mode.startswith('timeattack') or mode.startswith('rounds') or mode.startswith('team') or \
-			   mode.startswith('laps') or mode.startswith('cup')
+			   mode.startswith('laps') or mode.startswith('cup') or mode.startswith('trackmania/tm_timeattack_online') or \
+			   mode.startswith('trackmania/tm_rounds_online') or mode.startswith('trackmania/tm_team_online') or \
+			   mode.startswith('trackmania/tm_laps_online') or mode.startswith('trackmania/tm_cup_online')
 
 	async def scores(self, section, players, **kwargs):
 		if section == 'PreEndRound':
@@ -92,7 +97,7 @@ class LiveRankings(AppConfig):
 		self.current_finishes = []
 
 		current_script = (await self.instance.mode_manager.get_current_script()).lower()
-		if 'timeattack' in current_script:
+		if 'timeattack' in current_script or 'trackmania/tm_timeattack_online' in current_script:
 			for player in players:
 				if 'best_race_time' in player:
 					if player['best_race_time'] != -1:
@@ -104,7 +109,8 @@ class LiveRankings(AppConfig):
 						self.current_rankings.append(new_ranking)
 
 			self.current_rankings.sort(key=lambda x: x['score'])
-		elif 'rounds' in current_script or 'team' in current_script or 'cup' in current_script:
+		elif 'rounds' in current_script or 'team' in current_script or 'cup' in current_script or \
+			'trackmania/tm_rounds_online' in current_script or 'trackmania/tm_team_online' in current_script or 'trackmania/tm_cup_online' in current_script:
 			for player in players:
 				if 'map_points' in player:
 					if player['map_points'] != -1:
@@ -131,8 +137,20 @@ class LiveRankings(AppConfig):
 	async def player_connect(self, player, is_spectator, source, signal):
 		await self.widget.display(player=player)
 
+	async def warmup_start(self):
+		self.current_rankings = []
+		self.current_finishes = []
+		await self.get_points_repartition()
+		await self.widget.display()
+		
+	async def warmup_end(self):
+		self.current_rankings = []
+		self.current_finishes = []
+		await self.get_points_repartition()
+		await self.widget.display()
+	
 	async def player_giveup(self, time, player, flow):
-		if 'Laps' not in await self.instance.mode_manager.get_current_script():
+		if 'laps' or 'trackmania/tm_laps_online' not in (await self.instance.mode_manager.get_current_script()).lower():
 			return
 
 		current_rankings = [x for x in self.current_rankings if x['login'] == player.login]
@@ -143,7 +161,7 @@ class LiveRankings(AppConfig):
 		await self.widget.display()
 
 	async def player_waypoint(self, player, race_time, flow, raw):
-		if 'laps' not in (await self.instance.mode_manager.get_current_script()).lower():
+		if 'laps' or 'trackmania/tm_laps_online' not in (await self.instance.mode_manager.get_current_script()).lower():
 			return
 
 		current_rankings = [x for x in self.current_rankings if x['login'] == player.login]
@@ -167,11 +185,11 @@ class LiveRankings(AppConfig):
 
 	async def player_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
 		current_script = (await self.instance.mode_manager.get_current_script()).lower()
-		if 'laps' in current_script:
+		if 'laps' in current_script or 'trackmania/tm_laps_online' in current_script:
 			await self.player_waypoint(player, race_time, flow, raw)
 			return
 
-		if 'timeattack' in current_script:
+		if 'timeattack' in current_script or 'trackmania/tm_timeattack_online' in current_script:
 			current_rankings = [x for x in self.current_rankings if x['login'] == player.login]
 			score = lap_time
 			if len(current_rankings) > 0:
@@ -189,10 +207,8 @@ class LiveRankings(AppConfig):
 
 			return
 
-		if 'rounds' in current_script or 'team' in current_script or 'cup' in current_script:
-			# TODO: Fix the live rankings for rounds based modes in 0.8.2 (@Max)
-			# For now, return and ignore this block
-			return
+		if 'rounds' in current_script or 'team' in current_script or 'cup' in current_script or \
+		'trackmania/tm_rounds_online' in current_script or 'trackmania/tm_team_online' in current_script or 'trackmania/tm_cup_online' in current_script:
 
 			new_finish = dict(login=player.login, nickname=player.nickname, score=race_time)
 			self.current_finishes.append(new_finish)
@@ -215,7 +231,8 @@ class LiveRankings(AppConfig):
 
 	async def get_points_repartition(self):
 		current_script = (await self.instance.mode_manager.get_current_script()).lower()
-		if 'rounds' in current_script or 'team' in current_script or 'cup' in current_script:
+		if 'rounds' in current_script or 'team' in current_script or 'cup' in current_script or \
+		'trackmania/tm_rounds_online' in current_script or 'trackmania/tm_team_online' in current_script or 'trackmania/tm_cup_online' in current_script:
 			points_repartition = await self.instance.gbx('Trackmania.GetPointsRepartition')
 			self.points_repartition = points_repartition['pointsrepartition']
 		else:
