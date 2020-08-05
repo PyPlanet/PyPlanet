@@ -11,7 +11,7 @@ from pyplanet.core.signals import pyplanet_start_after
 
 
 class SectorTimes(AppConfig):
-	game_dependencies = ['trackmania']
+	game_dependencies = ['trackmania', 'trackmania_next']
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
