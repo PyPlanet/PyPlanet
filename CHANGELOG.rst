@@ -1,6 +1,27 @@
 Changelog
 =========
 
+0.9.3 (10 September 2020)
+-------------------
+
+Core
+~~~~
+
+* Feature: Add guestlist support. //addguest, //removeguest and adding settings and commands to save it to disk.
+* Improvement: Add mode shortcuts for TM2020, from now you can do //mode ta etc.
+
+Apps
+~~~~
+
+* Feature: Add support for sector times in TM2020.
+* Feature: Add support for live rankings in TM2020.
+* Improvement: Add support for //endround in TM2020.
+* Bugfix: Fixing issue with map info from TMX.
+* Bugfix: Fixing issue with the minimal finishes setting in the karma app.
+* Bugfix: Fixing issue with inserting maps on adding from TMX.
+* Bugfix: Fixing issue with NaN in advanced list.
+
+
 0.9.2 (8 July 2020)
 -------------------
 
