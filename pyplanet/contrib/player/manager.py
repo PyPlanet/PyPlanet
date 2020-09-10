@@ -332,12 +332,71 @@ class PlayerManager(CoreContrib):
 			)
 		if not filename:
 			filename = setting.format(server_login=self._instance.game.server_player_login)
-
+		
 		try:
 			await self._instance.gbx('SaveBlackList', filename)
 		except Exception as e:
 			logging.exception(e)
 			raise StorageException('Can\'t save blacklist file to \'{}\'!'.format(filename)) from e
+
+	async def save_guestlist(self, filename=None):
+		"""
+		Save the current guestlisted players to file given or fetch from config.
+
+		:param filename: Give the filename of the guestlist, Leave empty to use the current loaded and configured one.
+		:type filename: str
+		:raise: pyplanet.core.exceptions.ImproperlyConfigured
+		:raise: pyplanet.core.storage.exceptions.StorageException
+		"""
+		setting = settings.GUESTLIST_FILE
+		if isinstance(setting, dict) and self._instance.process_name in setting:
+			setting = setting[self._instance.process_name]
+		if not isinstance(setting, str):
+			setting = None
+
+		if not filename and not setting:
+			raise ImproperlyConfigured(
+				'The setting \'GUESTLIST_FILE\' is not configured for this server! We can\'t save the Guestlist!'
+			)
+		if not filename:
+			filename = setting.format(server_login=self._instance.game.server_player_login)
+
+		try:
+			await self._instance.gbx('SaveGuestList', filename)
+		except Exception as e:
+			logging.exception(e)
+			raise StorageException('Can\'t save guestlist file to \'{}\'!'.format(filename)) from e
+
+
+	async def load_guestlist(self, filename=None):
+		"""
+		Load guestlist file.
+
+		:param filename: File to load or will get from settings.
+		:raise: pyplanet.core.exceptions.ImproperlyConfigured
+		:raise: pyplanet.core.storage.exceptions.StorageException
+		:return: Boolean if loaded.
+		"""
+		setting = settings.GUESTLIST_FILE
+		if isinstance(setting, dict) and self._instance.process_name in setting:
+			setting = setting[self._instance.process_name]
+		if not isinstance(setting, str):
+			setting = None
+
+		if not filename and not setting:
+			raise ImproperlyConfigured(
+				'The setting \'GUESTLIST_FILE\' is not configured for this server! We can\'t load the Guestlist!'
+			)
+		if not filename:
+			filename = setting.format(server_login=self._instance.game.server_player_login)
+
+		try:
+			self._instance.gbx('LoadGuestList', filename)
+		except Exception as e:
+			logging.exception(e)
+			raise StorageException('Can\'t load guestlist according the dedicated server, tried loading from \'{}\'!'.format(
+				filename
+			)) from e
 
 	async def load_blacklist(self, filename=None):
 		"""
