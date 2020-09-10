@@ -181,6 +181,7 @@ class MapListView(ManualListView):
 			if value is None:
 				return ''
 			if isinstance(value, (int, float)) and not math.isnan(value):
+				prefix = ''
 				if value > 0.0:
 					prefix = '$6CF'
 				elif value < 0.0:
