@@ -25,5 +25,9 @@
 {% endblock %}
 
 {% block maniascript %}
-  <script><!--{% include 'sector_times/sector_times.Script.Txt' %}--></script>
+  {% if _game.game == 'tm' %}
+    <script><!--{% include 'sector_times/sector_times.Script.Txt' %}--></script>
+  {% elif _game.game == 'tmnext' %}
+    <script><!--{% include 'sector_times/sector_times_next.Script.Txt' %}--></script>
+  {% endif %} 
 {% endblock %}
