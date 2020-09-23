@@ -110,7 +110,7 @@ class ServerAdmin:
 			elif lower_mode == 'cup':
 				mode = 'Trackmania/TM_Cup_Online.Script.txt'
 			elif lower_mode == 'team':
-				mode = 'Trackmania/TM_Team_Online.Script.txt'
+				mode = 'Trackmania/TM_Teams_Online.Script.txt'
 			elif lower_mode == 'knockout':
 				mode = 'Trackmania/TM_Knockout_Online.Script.txt'
 			elif lower_mode == 'champion':
