@@ -1,5 +1,6 @@
 import logging
 import os
+from argparse import Namespace
 
 from pyplanet.views.generics import ManualListView
 from pyplanet.utils import gbxparser
@@ -83,6 +84,6 @@ class BrowserView(ManualListView):
 	async def add_map(self, filename, player):
 		map_path = os.path.join(self.current_dir, filename)
 
-		data = {}
+		data = Namespace()
 		data.map = map_path
-		self.app.map.add_local_map(player, data)
+		await self.app.map.add_local_map(player, data)
