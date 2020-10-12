@@ -48,4 +48,3 @@ class DonationToolbarWidget(WidgetView):
 		async def donate(player, *args, **kwargs):
 			return await self.app.instance.command_manager.execute(player, '/donate {}'.format(planets))
 		return donate
-	
