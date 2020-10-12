@@ -19,6 +19,6 @@
   <quad pos="0 -13" z-index="0" size="35 6" bgcolor="00000060"/>
   <quad pos="0 -13" z-index="0" size="6.5 6" bgcolor="00000060"/>
   <label pos="3.25 -16" z-index="1" size="6.5 6" text="&#xf1e6;" textsize="1.8" halign="center" valign="center2"/>
-  <label pos="21.5 -16.5" z-index="1" size="28 6" text="PyPlanet {{ version }}" textsize="1.6" valign="center2"
+  <label pos="21.5 -16" z-index="1" size="28 6" text="PyPlanet {{ version }}" textsize="1.6" valign="center2"
          textfont="RajdhaniMono" textemboss="1" halign="center"/>
 {% endblock %}
