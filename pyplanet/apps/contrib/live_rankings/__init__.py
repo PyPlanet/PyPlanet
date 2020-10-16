@@ -142,15 +142,16 @@ class LiveRankings(AppConfig):
 		self.current_finishes = []
 		await self.get_points_repartition()
 		await self.widget.display()
-		
+
 	async def warmup_end(self):
 		self.current_rankings = []
 		self.current_finishes = []
 		await self.get_points_repartition()
 		await self.widget.display()
-	
+
 	async def player_giveup(self, time, player, flow):
-		if 'laps' or 'trackmania/tm_laps_online' not in (await self.instance.mode_manager.get_current_script()).lower():
+		current_script = (await self.instance.mode_manager.get_current_script()).lower()
+		if 'laps' not in current_script and 'trackmania/tm_laps_online' not in current_script:
 			return
 
 		current_rankings = [x for x in self.current_rankings if x['login'] == player.login]
@@ -161,7 +162,8 @@ class LiveRankings(AppConfig):
 		await self.widget.display()
 
 	async def player_waypoint(self, player, race_time, flow, raw):
-		if 'laps' or 'trackmania/tm_laps_online' not in (await self.instance.mode_manager.get_current_script()).lower():
+		current_script = (await self.instance.mode_manager.get_current_script()).lower()
+		if 'laps' not in current_script and 'trackmania/tm_laps_online' not in current_script:
 			return
 
 		current_rankings = [x for x in self.current_rankings if x['login'] == player.login]
