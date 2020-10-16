@@ -1,6 +1,27 @@
 Changelog
 =========
 
+0.9.4 (16 October 2020)
+-------------------
+
+Core
+~~~~
+
+* Improvement: Add widget visibility toggle in player toolbar to promote F8.
+* Bugfix: Adding local maps will refresh the list from now on.
+* Bugfix: Fix the name of the teams script for TM2020, making //mode teams work now.
+
+Apps
+~~~~
+
+* Feature:
+* Improvement: Ability to copy the player login from any player list.
+* Bugfix: Fixing live rankings in Laps mode.
+* Bugfix: Small exception resolved with adding duplicated map.
+* Bugfix: Fix issue with Karma being Nan in the advanced list and fixing issues with loading the advanced list.
+
+
+
 0.9.3 (10 September 2020)
 -------------------
 
