@@ -68,13 +68,13 @@
               {{ field.manialink|safe }}
             {% else %}
               {% if field.action %}
-                <label pos="{{ field.left }} -2.5" size="{{ field.width }} 5"
+                <{% if field.input %}entry{% else %}label{% endif %} pos="{{ field.left }} -2.5" size="{{ field.width }} 5"
                        textsize="1.2" valign="center2" action="{{ id }}__list_body_{{ outer_loop.index0 }}_{{ loop.index0 }}"
-                       text="$fff  {% if field.safe %}{{ field_renderer(row, field)|safe }}{% else %}{{ field_renderer(row, field) }}{% endif %}"
+                       {% if field.input %}default{% else %}text{% endif %}="{% if not field.input %}$fff  {% endif %}{% if field.safe %}{{ field_renderer(row, field)|safe }}{% else %}{{ field_renderer(row, field) }}{% endif %}"
                        focusareacolor1="0000" focusareacolor2="fff2" />
               {% else %}
-                <label pos="{{ field.left }} -2.5" size="{{ field.width }} 5"
-                       text="$fff  {% if field.safe %}{{ field_renderer(row, field)|safe }}{% else %}{{ field_renderer(row, field) }}{% endif %}"
+                <{% if field.input %}entry{% else %}label{% endif %} pos="{{ field.left }} -2.5" size="{{ field.width }} 5"
+                       {% if field.input %}default{% else %}text{% endif %}="{% if not field.input %}$fff  {% endif %}{% if field.safe %}{{ field_renderer(row, field)|safe }}{% else %}{{ field_renderer(row, field) }}{% endif %}"
                        textsize="1.2" valign="center2" />
               {% endif %}
             {% endif %}
