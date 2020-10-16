@@ -20,6 +20,7 @@ Apps
 * Bugfix: Small exception resolved with adding duplicated map.
 * Bugfix: Fix issue with Karma being Nan in the advanced list and fixing issues with loading the advanced list.
 
+* Known issue: Fixing the issue with CP comparison widget in TM2020.
 
 
 0.9.3 (10 September 2020)
