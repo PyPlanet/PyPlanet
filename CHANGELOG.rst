@@ -10,6 +10,7 @@ Core
 * Improvement: Add widget visibility toggle in player toolbar to promote F8.
 * Bugfix: Adding local maps will refresh the list from now on.
 * Bugfix: Fix the name of the teams script for TM2020, making //mode teams work now.
+* Bugfix: Fixing the issue with not recording any scores in TM2020 resulting in the minimum finish before karma vote issue.
 
 Apps
 ~~~~
