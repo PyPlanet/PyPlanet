@@ -94,7 +94,7 @@ Void UpdateInterface() {
   if (CurrentCheckpoint >= TotalCheckpoints) {
     Sector_Checkpoints_Text.SetText("Finish!");
   } else {
-    Sector_Checkpoints_Text.SetText("Checkpoint " ^ CurrentCheckpoint ^ "/" ^ TotalCheckpoints);
+    Sector_Checkpoints_Text.SetText("Checkpoint " ^ CurrentCheckpoint ^ "/" ^ (TotalCheckpoints - 1));
   }
 }
 
@@ -113,7 +113,7 @@ Integer[] ParseCheckpoints(Text RawInput) {
 Integer GetCPCount() {
 	declare Integer count;
 	declare Ident[][Integer] orders;
-	
+
 	foreach(Landmark in MapLandmarks) {
 		if ( (Landmark.Waypoint != Null && (Landmark.Waypoint.IsFinish || Landmark.Waypoint.IsMultiLap)) || Landmark.Tag == "Spawn") {
 			continue;
@@ -141,7 +141,7 @@ main() {
 
   declare Boolean Prev_DistractionFreeMode = False;
   declare netwrite Boolean Net_DistractionFreeMode for UI;
-  
+
   declare LastCpCount = -1;
 
   // Set variables
@@ -188,8 +188,8 @@ main() {
             CurrentCheckpoint = wayPointTimesCount;
             CurrentCheckpointScores.add(GUIPlayer.RaceWaypointTimes[wayPointTimesCount - 1]);
             UpdateInterface();
-		  
-		  
+
+
             if (CurrentCheckpoint >= TotalCheckpoints) { // end of lap (TODO handle multilap)
               CurrentCheckpoint = 0;
               if (! IsSpectating && (BestScore <= 0 || GUIPlayer.RaceWaypointTimes[wayPointTimesCount - 1] < BestScore) && CurrentCheckpointScores.count == TotalCheckpoints) {
