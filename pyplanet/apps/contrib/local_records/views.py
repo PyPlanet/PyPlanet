@@ -232,7 +232,7 @@ class LocalRecordsListView(ManualListView):
 
 	async def delete_record(self, player, values, data, view, **kwargs):
 		if not await self.app.instance.permission_manager.has_permission(player, 'local_records:manage_records'):
-			return await self.app.instance.chat('$ff0You do not have permissions to manage local records!')
+			return await self.app.instance.chat('$ff0You do not have permissions to manage local records!', player)
 
 		try:
 			record = await self.app.get_local(id=data['id'])
