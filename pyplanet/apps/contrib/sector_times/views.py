@@ -63,6 +63,8 @@ class SectorTimesWidget(WidgetView):
 		context['record_sector_times'] = fastest_cps
 		context['record_time'] = fastest_score
 		context['record_source'] = fastest_source
+		if not fastest_cps:
+			context['record_time'] = 0
 
 		return context
 
@@ -126,6 +128,8 @@ class CheckpointDiffWidget(WidgetView):
 		context['record_sector_times'] = fastest_cps
 		context['record_time'] = fastest_score
 		context['record_source'] = fastest_source
+		if not fastest_cps:
+			context['record_time'] = 0
 
 		return context
 
