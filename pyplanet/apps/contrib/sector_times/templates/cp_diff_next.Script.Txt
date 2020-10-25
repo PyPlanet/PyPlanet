@@ -114,7 +114,7 @@ Void ShowDiff() {
 Integer GetCPCount() {
 	declare Integer count;
 	declare Ident[][Integer] orders;
-	
+
 	foreach(Landmark in MapLandmarks) {
 		if ( (Landmark.Waypoint != Null && (Landmark.Waypoint.IsFinish || Landmark.Waypoint.IsMultiLap)) || Landmark.Tag == "Spawn") {
 			continue;
@@ -135,9 +135,9 @@ Integer GetCPCount() {
 	return count + 1; // +1 for ending
 }
 main() {
-	
+
   declare LastCpCount = -1;
-	
+
   // Set variables
   Sector_CPTime_Frame = (Page.GetFirstChild("cp_time_frame") as CMlFrame);
   Sector_CPTime_Data = (Page.GetFirstChild("cp_time_data") as CMlLabel);
@@ -181,11 +181,9 @@ main() {
           if (GUIPlayer.StartTime >= 0) {
             CurrentCheckpoint = wayPointTimesCount;
             CurrentCheckpointScores.add(GUIPlayer.RaceWaypointTimes[wayPointTimesCount - 1]);
-			ShowDiff();
+			      ShowDiff();
             UpdateInterface();
-			
-			
-			
+
             if (CurrentCheckpoint >= TotalCheckpoints) { // end of lap (TODO handle multilap)
               CurrentCheckpoint = 0;
               if (! IsSpectating && (BestScore <= 0 || GUIPlayer.RaceWaypointTimes[wayPointTimesCount - 1] < BestScore) && CurrentCheckpointScores.count == TotalCheckpoints) {

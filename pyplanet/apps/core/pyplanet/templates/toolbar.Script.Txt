@@ -5,6 +5,7 @@
 main() {
   declare Toolbar_Tooltip_Quad <=> (Page.GetFirstChild("player_toolbar_bar_tooltip_quad") as CMlQuad);
   declare Toolbar_Tooltip_Label <=> (Page.GetFirstChild("player_toolbar_bar_tooltip_text") as CMlLabel);
+  declare Toolbar_Visibility_Toggle_Label <=> (Page.GetFirstChild("player_toolbar_bar_button_visibility_toggle") as CMlLabel);
 
   declare CMlFrame Player_Toolbar_Frame <=> (Page.GetFirstChild("player_toolbar_bar_frame") as CMlFrame);
 
@@ -23,7 +24,8 @@ main() {
 	  "player_toolbar_bar_button_topdons" => "View list of top Donators",
 	  "player_toolbar_bar_button_topsums" => "View Server Rank List",
 	  "player_toolbar_bar_button_mxinfo" => "Info about current map",
-    "player_toolbar_bar_button_players" => "View list of Players",
+	  "player_toolbar_bar_button_players" => "View list of Players",
+	  "player_toolbar_bar_button_visibility_toggle" => "Toggle UI visibility (F8)",
 	  "player_toolbar_bar_button_help" => "List of available commands"
   ];
 
@@ -38,6 +40,18 @@ main() {
           Player_Toolbar_Frame.Show();
           IsPlayerToolbarActive = True;
           HidePlayerBarAt = Now + 5000;
+        }
+      }
+
+      if (Event.Type == CMlScriptEvent::Type::MouseClick && Event.ControlId == "player_toolbar_bar_button_visibility_toggle") {
+        declare netwrite Boolean Net_DistractionFreeMode for UI;
+
+        if (Net_DistractionFreeMode == True) {
+          Net_DistractionFreeMode = False;
+          Toolbar_Visibility_Toggle_Label.SetText("");
+        } else {
+          Net_DistractionFreeMode = True;
+          Toolbar_Visibility_Toggle_Label.SetText("");
         }
       }
 
