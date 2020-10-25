@@ -420,7 +420,7 @@ class MapManager(CoreContrib):
 		"""
 		Called to overwrite S_TimeLimit in MatchSettings file if the current map is extended
 		
-		:param filename: Give the filename of the matchsettings, Leave empty to use the current loaded and configured one.
+		:param filename: Give the filename of the matchsettings.
 		"""
 		if self._is_extended and self._original_ta:
 			with open(os.path.join(self._instance.game.server_map_dir, filename), 'r+') as f:
