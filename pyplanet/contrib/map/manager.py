@@ -423,15 +423,18 @@ class MapManager(CoreContrib):
 		:param filename: Give the filename of the matchsettings.
 		"""
 		if self._is_extended and self._original_ta:
-			with open(os.path.join(self._instance.game.server_map_dir, filename), 'r+') as f:
-				content = f.readlines()
-				for i in range(len(content)):
-					if 'S_TimeLimit' in content[i]:
-						content[i] = re.sub('value="(.+?)"', 'value="{}"'.format(self._original_ta), content[i])
-						f.seek(0)
-						f.write(''.join(content))
-						f.truncate()
-						break
+			try:
+				async with self._instance.storage.open(os.path.join(self._instance.game.server_map_dir, filename), 'r+') as f:
+					content = await f.readlines()
+					for i in range(len(content)):
+						if 'S_TimeLimit' in content[i]:
+							content[i] = re.sub('value="(.+?)"', 'value="{}"'.format(self._original_ta), content[i])
+							await f.seek(0)
+							await f.write(''.join(content))
+							await f.truncate()
+							break
+			except:
+				logging.getLogger(__name__).warning('Can\'t update matchsettings with original time limit to \'{}\'!'.format(filename))
 
 	async def save_matchsettings(self, filename=None):
 		"""
