@@ -1,8 +1,26 @@
 Changelog
 =========
 
+0.9.5 (28 October 2020)
+-----------------------
+
+Core
+~~~~
+
+* Bugfix: Fixing issues with collecting checkpoint data on finish callback. Related to the TM2020 checkpoint comparison issue.
+
+Apps
+~~~~
+
+* Improvement: Improving the external link to the map page on MX/TMX in the upper right corner.
+* Improvement: Move the sector times widget in TM2020 to the left of the time counter.
+* Bugfix: Fixing the issue with the checkpoint comparison in TM2020. Also put in a failsafe to not show corrupted local records from the past.
+* Bugfix: Fixing the issue with displaying the incorrect checkpoint counter the sector times widget.
+* Bugfix: Fixing the issue with sending the permission error message of deleting a record to all players (now send it only to the player that clicked).
+
+
 0.9.4 (16 October 2020)
--------------------
+-----------------------
 
 Core
 ~~~~
@@ -15,7 +33,6 @@ Core
 Apps
 ~~~~
 
-* Feature:
 * Improvement: Ability to copy the player login from any player list.
 * Bugfix: Fixing live rankings in Laps mode.
 * Bugfix: Small exception resolved with adding duplicated map.
