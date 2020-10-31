@@ -97,9 +97,10 @@ class MapListView(ManualListView):
 		local_app_installed = 'local_records' in self.app.instance.apps.apps
 		karma_app_installed = 'karma' in self.app.instance.apps.apps
 
-		# Get first and player records for all maps
-		records = await self.app.instance.apps.apps['local_records'].get_all_maps_first_and_player_records(
-			self.player)
+		# Get first and player records for all maps if advanced mode is enabled
+		if not self.app.instance.performance_mode and self.advanced:
+			records = await self.app.instance.apps.apps['local_records'].get_all_maps_first_and_player_records(
+				self.player)
 
 		for m in self.app.instance.map_manager.maps:
 			map_dict = model_to_dict(m)
