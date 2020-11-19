@@ -80,7 +80,7 @@ class LiveRankings(AppConfig):
 		mode = mode.lower()
 		return mode.startswith('timeattack') or mode.startswith('rounds') or mode.startswith('team') or \
 			   mode.startswith('laps') or mode.startswith('cup') or mode.startswith('trackmania/tm_timeattack_online') or \
-			   mode.startswith('trackmania/tm_rounds_online') or mode.startswith('trackmania/tm_team_online') or \
+			   mode.startswith('trackmania/tm_rounds_online') or mode.startswith('trackmania/tm_teams_online') or \
 			   mode.startswith('trackmania/tm_laps_online') or mode.startswith('trackmania/tm_cup_online')
 
 	async def scores(self, section, players, **kwargs):
@@ -110,7 +110,7 @@ class LiveRankings(AppConfig):
 
 			self.current_rankings.sort(key=lambda x: x['score'])
 		elif 'rounds' in current_script or 'team' in current_script or 'cup' in current_script or \
-			'trackmania/tm_rounds_online' in current_script or 'trackmania/tm_team_online' in current_script or 'trackmania/tm_cup_online' in current_script:
+			'trackmania/tm_rounds_online' in current_script or 'trackmania/tm_teams_online' in current_script or 'trackmania/tm_cup_online' in current_script:
 			for player in players:
 				if 'map_points' in player:
 					if player['map_points'] != -1:
@@ -210,7 +210,7 @@ class LiveRankings(AppConfig):
 			return
 
 		if 'rounds' in current_script or 'team' in current_script or 'cup' in current_script or \
-		'trackmania/tm_rounds_online' in current_script or 'trackmania/tm_team_online' in current_script or 'trackmania/tm_cup_online' in current_script:
+		'trackmania/tm_rounds_online' in current_script or 'trackmania/tm_teams_online' in current_script or 'trackmania/tm_cup_online' in current_script:
 
 			new_finish = dict(login=player.login, nickname=player.nickname, score=race_time)
 			self.current_finishes.append(new_finish)
@@ -234,7 +234,7 @@ class LiveRankings(AppConfig):
 	async def get_points_repartition(self):
 		current_script = (await self.instance.mode_manager.get_current_script()).lower()
 		if 'rounds' in current_script or 'team' in current_script or 'cup' in current_script or \
-		'trackmania/tm_rounds_online' in current_script or 'trackmania/tm_team_online' in current_script or 'trackmania/tm_cup_online' in current_script:
+		'trackmania/tm_rounds_online' in current_script or 'trackmania/tm_teams_online' in current_script or 'trackmania/tm_cup_online' in current_script:
 			points_repartition = await self.instance.gbx('Trackmania.GetPointsRepartition')
 			self.points_repartition = points_repartition['pointsrepartition']
 		else:
