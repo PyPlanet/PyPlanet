@@ -92,7 +92,7 @@ class Dedimania(AppConfig):
 		)
 
 		# Load settings + initiate api.
-		if instance.game.game == "tm":
+		if self.instance.game.game == "tm":
 			await self.reload_settings()
 		return
 		
