@@ -11,7 +11,7 @@ from pyplanet.utils.functional import empty
 logger = logging.getLogger(__name__)
 
 
-class UIProperties:  # pragma: no cover
+class UIProperties:	 # pragma: no cover
 	"""
 	Set the custom Script UI Properties.
 
@@ -46,9 +46,11 @@ class UIProperties:  # pragma: no cover
 		return False
 
 	async def on_start(self):
+	
 		await self.reset()
 		await self.refresh_properties()
 		self._instance.signals.listen(pyplanet_start_after, self.send_properties)
+		
 
 	async def reset(self):
 		"""
@@ -57,8 +59,10 @@ class UIProperties:  # pragma: no cover
 		"""
 		if self._instance.game.game == 'tm':
 			method = 'Trackmania.UI.ResetProperties'
-		else:
+		if self._instance.game.game == 'sm':
 			method = 'Shootmania.UI.ResetProperties'
+		if self._instance.game.game == 'tmnext':
+			method = 'Common.UIModules.GetProperties'
 		try:
 			logger.debug('Resetting UIProperties...')
 			await self._instance.gbx.script(method, response_id=False)
@@ -68,11 +72,20 @@ class UIProperties:  # pragma: no cover
 	async def refresh_properties(self):
 		if self._instance.game.game == 'tm':
 			method = 'Trackmania.UI.GetProperties'
-		else:
+		if self._instance.game.game == 'sm':
 			method = 'Shootmania.UI.GetProperties'
+		if self._instance.game.game == 'tmnext':
+			method = 'Common.UIModules.GetProperties'
 		try:
 			self._raw = await self._instance.gbx(method, timeout=2)
-			self._properties = xd.parse(self._raw['raw_1'])
+			if self._instance.game.game == 'tm' or self._instance.game.game == 'sm':
+				self._properties = xd.parse(self._raw['raw_1'])
+			else:
+				"""self._raw['uimodules']"""
+				for uimodules_id in self._raw['uimodules']:
+					print(uimodules_id['id'])
+					print(uimodules_id['position'])
+					print(uimodules_id['visible'])
 		except Exception as e:
 			self._properties = dict()
 			self._raw = None
@@ -156,7 +169,7 @@ class UIProperties:  # pragma: no cover
 		# Decide the method to use.
 		if self._instance.game.game == 'tm':
 			method = 'Trackmania.UI.SetProperties'
-		else:
+		if self._instance.game.game == 'sm':
 			method = 'Shootmania.UI.SetProperties'
 
 		# Create XML document
