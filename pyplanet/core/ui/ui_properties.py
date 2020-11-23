@@ -37,6 +37,7 @@ class UIProperties:	 # pragma: no cover
 		"""
 		self._instance = instance
 		self._raw = None
+		self._id = "id"
 		self._properties = dict()
 
 	@property
@@ -62,7 +63,7 @@ class UIProperties:	 # pragma: no cover
 		if self._instance.game.game == 'sm':
 			method = 'Shootmania.UI.ResetProperties'
 		if self._instance.game.game == 'tmnext':
-			method = 'Common.UIModules.GetProperties'
+			method = 'Common.UIModules.ResetProperties'
 		try:
 			logger.debug('Resetting UIProperties...')
 			await self._instance.gbx.script(method, response_id=False)
@@ -77,15 +78,29 @@ class UIProperties:	 # pragma: no cover
 		if self._instance.game.game == 'tmnext':
 			method = 'Common.UIModules.GetProperties'
 		try:
-			self._raw = await self._instance.gbx(method, timeout=2)
 			if self._instance.game.game == 'tm' or self._instance.game.game == 'sm':
+				self._raw = await self._instance.gbx(method, timeout=2)
 				self._properties = xd.parse(self._raw['raw_1'])
-			else:
+			if self._instance.game.game == "tmnext":
+				self._raw = await self._instance.gbx(method, timeout=10)
 				"""self._raw['uimodules']"""
 				for uimodules_id in self._raw['uimodules']:
+					print(self._raw)
 					print(uimodules_id['id'])
 					print(uimodules_id['position'])
 					print(uimodules_id['visible'])
+					data = '{ "uimodules": [ { "id": "Race_Chrono", "position": [0.0, 0.0], "position_update": true } ] }'
+					print(data)
+					method = 'Common.UIModules.SetProperties'
+					try:
+						await self._instance.gbx.script(method, data, encode_json=False, response_id=False)
+					except Exception as e:
+						logger.warning('Can\'t Send Common UI Properties to Server! Error: {}'.format(str(e)))
+					try:
+						methods = 'Common.UIModules.GetProperties'
+						await self._instance.gbx(methods, timeout=10)
+					except Exception as e:
+						logger.warning('Can\'t Get Common UI Properties from Server! Error: {}'.format(str(e)))
 		except Exception as e:
 			self._properties = dict()
 			self._raw = None
