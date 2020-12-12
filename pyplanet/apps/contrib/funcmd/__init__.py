@@ -75,7 +75,8 @@ class FunCmd(AppConfig):
 		await self.instance.chat('$fff {}$z$s$fff Nice one!'.format(player.nickname))
 
 	async def command_ns(self, player, data, **kwargs):
-		await self.instance.chat('$fff {}$z$s$fff Nice shot!'.format(player.nickname))
+		if self.instance.game.game == 'sm':
+			await self.instance.chat('$fff {}$z$s$fff Nice shot!'.format(player.nickname))
 
 	async def command_nt(self, player, data, **kwargs):
 		if self.instance.game.game == 'sm':
