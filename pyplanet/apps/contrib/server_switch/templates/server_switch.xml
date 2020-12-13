@@ -1,0 +1,26 @@
+{% extends 'core.views/generics/widget.xml' %}
+
+{% block content %}
+<frame pos="65 -83" z-index="1" id="server_switch_frame">
+	<quad pos="-173 109" z-index="0" size="100 50" bgcolor="00000060"/>
+	<quad pos="-173 109" z-index="0" size="100 12" bgcolor="00000060"/>
+	<quad pos="-172 108" z-index="1" size="10 10" bgcolor="FFF" opacity="0.5" style="Icons128x128_1" substyle="ServersAll"/>
+	<label pos="-153 104" z-index="1" size="75 20" text="ServerSwitch - Server List"/>
+</frame>
+<frame pos="0 0" z-index="60" id="server_switch_server">
+	<quad pos="-108 15" z-index="0" size="100 39" bgcolor="00000060"/>
+	<label sizen="50 0" posn="-82 11" z-index="1" textsize="5" scale="1" text="W1lla Test Server"/>
+	<quad sizen="12 10" posn="-107 5" z-index="1" style="Icons128x128_1" substyle="Hotseat"/>
+	<label sizen="20 0" posn="-86 2" z-index="1" textsize="5" scale="1" text="0 / 255"/>
+	<quad sizen="12 10" posn="-61 4" z-index="1" style="Icons64x64_1" substyle="Camera"/>
+	<label sizen="20 0" posn="-41 2" z-index="1" textsize="5" scale="1" text="0 / 255"/>
+	<quad sizen="12 10" posn="-59 4" z-index="1" style="Icons128x32_1" substyle="RT_Script"/>
+	{% if _game.game == 'tmnext' %}
+	<label pos="-59 -19" style="CardButtonMedium" z-index="1" valign="center" halign="center" text="Join" translate="1" scriptevents="1" id="settings_button_submit" url="#qjoin=zaVkURODRPGS-SWP_pUwGQ@Trackmania"/>
+	{% elif _game.game == 'tm' %}
+	<label pos="-59 -19" style="CardButtonMedium" z-index="1" valign="center" halign="center" text="Join" translate="1" scriptevents="1" id="settings_button_submit" url="#qjoin=w1lla-dev@TMCanyon@nadeo"/>
+	{% elif _game.game == 'sm' %}
+	<label pos="-59 -19" style="CardButtonMedium" z-index="1" valign="center" halign="center" text="Join" translate="1" scriptevents="1" id="settings_button_submit" url="#qjoin=w1lla-dev@SMStorm@nadeo"/>
+	{% endif %}
+</frame>
+{% endblock %}
