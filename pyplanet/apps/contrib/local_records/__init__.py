@@ -301,7 +301,9 @@ class LocalRecords(AppConfig):
 		if records_amount > 0:
 			first_record = self.current_records[0]
 			message = '$0f3Current Local Record: $fff\uf017 {}$z$s$0f3 by $fff{}$z$s$0f3 ($fff{}$0f3 records)'.format(
-				times.format_time(first_record.score), first_record.player.nickname, records_amount
+				times.format_time(first_record.score),
+				(lambda x: x if not (x[-1] == '$' and x[-2:].count('$') == 1) else x[:-1])(first_record.player.nickname),
+				records_amount
 			)
 			calls = list()
 			calls.append(self.instance.chat(message))
