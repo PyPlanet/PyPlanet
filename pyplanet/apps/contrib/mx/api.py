@@ -21,14 +21,18 @@ class MXApi:
 		self.map_info_page_size = 1
 
 	def base_url(self, api=False):
-		if self.site in ['tm', 'sm']:
+		if self.site =='tm':
 			if api:
-				return 'https://api.mania-exchange.com/{site}'.format(site=self.site)
+				return 'https://tm.mania.exchange{site}'.format(site=self.site)
 			return 'https://{site}.mania-exchange.com'.format(site=self.site)
 		elif self.site == 'tmnext':
 			if api:
 				return 'https://trackmania.exchange/api'
 			return 'https://trackmania.exchange'
+		elif self.site == 'sm':
+			if api:
+				return 'https://sm.mania-exchange.com/{site}'.format(site=self.site)
+			return 'https://{site}.mania-exchange.com'.format(site=self.site)
 
 	async def create_session(self):
 		self.session = await aiohttp.ClientSession(
