@@ -79,6 +79,7 @@ Information about development of apps and the core is also available under:
     apps/contrib/clock
     apps/contrib/dedimania
     apps/contrib/dynamic_points
+    apps/contrib/dynatime
     apps/contrib/jukebox
     apps/contrib/karma
     apps/contrib/live_rankings
