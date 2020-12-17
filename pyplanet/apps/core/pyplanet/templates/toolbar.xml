@@ -40,8 +40,8 @@
   {% endif %}
 
   <label pos="29.25 -3.2" z-index="1" size="6.5 6" text="&#xe959;" halign="center" valign="center2"
-           id="player_toolbar_bar_button_skip" textsize="2.5"
-           scriptevents="1" action="{{ id }}__bar_button_skip" />
+         id="player_toolbar_bar_button_skip" textsize="2.5"
+         scriptevents="1" action="{{ id }}__bar_button_skip" />
 
   <label pos="35.75 -3.2" z-index="1" size="6.5 6" text="" halign="center" valign="center2"
          id="player_toolbar_bar_button_topdons"
@@ -74,6 +74,5 @@
          scriptevents="1" action="{{ id }}__bar_button_help" />
 
 </frame>
-
 
 <script><!-- {% include 'core.pyplanet/toolbar.Script.Txt' %} --></script>
