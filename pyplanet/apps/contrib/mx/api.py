@@ -47,16 +47,15 @@ class MXApi:
 	async def close_session(self):
 		if self.session and hasattr(self.session, '__aexit__'):
 			await self.session.__aexit__()
-	
+
 	async def mx_random(self):
 		# Regular Expression to extract the MX-ID from a /tracksearch2/random/.
-		self._mx_pattern = r'\d+'
-		self._mx_id_regex = re.compile(self._mx_pattern)
+		mx_pattern = r'\d+'
+		mx_id_regex = re.compile(mx_pattern)
 		url = '{}/tracksearch/random'.format(self.base_url())
 		response = await self.session.get(url)
 		text = str(response.url)
-		#print(text)
-		matches = re.search(self._mx_id_regex, text)
+		matches = re.search(mx_id_regex, text)
 		if not matches:
 			return None
 		return str(matches.group(0))
