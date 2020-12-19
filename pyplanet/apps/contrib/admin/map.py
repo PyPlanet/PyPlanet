@@ -79,10 +79,15 @@ class MapAdmin:
 				.add_param('seconds', required=False, type=int, help='Extend the TA limit with given seconds.'),
 		)
 
-		# If jukebox app is loaded, register the map actions.
+				# If jukebox app is loaded, register the map actions.
+		
 		if 'jukebox' in self.instance.apps.apps:
-			from pyplanet.apps.contrib.jukebox.views import MapListView
-			MapListView.add_action(self.list_action_remove, 'Delete', '&#xf1f8;')
+				from pyplanet.apps.contrib.jukebox.views import MapListView
+				for player in self.app.instance.player_manager.online:
+					if not await self.app.instance.permission_manager.has_permission(player, 'admin:remove_map'):
+							return
+					else:
+						MapListView.add_action(self.list_action_remove, 'Delete', '&#xf1f8;')
 
 	async def list_action_remove(self, player, values, map_dictionary, view, **kwargs):
 		# Check permission.
