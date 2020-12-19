@@ -56,9 +56,11 @@ class Jukebox(AppConfig):
 
 		# Register callback.
 		self.context.signals.listen(mp_signals.flow.podium_start, self.podium_start)
-
+		
 		# Add button to the map list for adding to a folder.
-		MapListView.add_action(self.add_to_folder, 'Add to folder', '&#xf07b;', order=-50)
+		for player in self.instance.player_manager.online:
+			if player.level > player.LEVEL_PLAYER:
+				MapListView.add_action(self.add_to_folder, 'Add to folder', '&#xf07b;', order=-50)
 
 		# Fetch all folders.
 		await self.folder_manager.on_start()
