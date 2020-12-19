@@ -80,7 +80,9 @@ class Jukebox(AppConfig):
 		await view.display()
 
 	async def show_map_folders(self, player, data, **kwargs):
-		await self.folder_manager.display_folder_list(player)
+		if player.level > player.LEVEL_PLAYER:
+			await self.folder_manager.display_folder_list(player)
+
 
 	async def chat_command(self, player, data, **kwargs):
 		if data.option is None:
