@@ -84,6 +84,12 @@ class LiveRankingsWidget(TimesWidgetView):
 
 			list_record = dict()
 			list_record['index'] = index
+			list_record['bgcolor'] = '00000070'
+			
+			if player.flow.team_id == 0:
+				list_record['bgcolor'] = '7881F2FF'
+			if player.flow.team_id == 1:
+				list_record['bgcolor'] = 'F05F5FFF'
 
 			list_record['color'] = '$fff'
 			if index <= self.top_entries:
@@ -119,7 +125,13 @@ class LiveRankingsWidget(TimesWidgetView):
 				list_record['points_added'] = record['points_added']
 			else:
 				list_record['points_added'] = 0
-
+				
+			# MatchPoints in CupMode.
+			if 'score_matchpoints' in record:
+				list_record['match_points'] = record['score_matchpoints']
+			else:
+				list_record['match_points'] = 0
+				
 			if index == self.top_entries:
 				index = custom_start_index
 			else:
