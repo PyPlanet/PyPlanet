@@ -54,7 +54,7 @@ class LiveRankings(AppConfig):
 		self.instance.ui_manager.properties.set_visibility('round_scores', await self.setting_nadeo_live_ranking.get_value())
 		self.instance.ui_manager.properties.set_attribute('round_scores', 'pos', '-126.5 80. 150.')
 		self.instance.ui_manager.properties.set_attribute('multilap_info', 'pos', '107., 88., 5.')
-
+		
 		self.dedimania_enabled = ('dedimania' in self.instance.apps.apps and 'dedimania' not in self.instance.apps.unloaded_apps)
 
 		self.widget = LiveRankingsWidget(self)
@@ -114,22 +114,27 @@ class LiveRankings(AppConfig):
 			for player in players:
 				if 'map_points' in player:
 					if player['map_points'] != -1:
-						new_ranking = dict(login=player['player'].login, nickname=player['player'].nickname, score=player['map_points'], points_added=0)
+						new_ranking = dict(login=player['player'].login, nickname=player['player'].nickname, score=player['map_points'], score_matchpoints=player['match_points'], points_added=0)
 						self.current_rankings.append(new_ranking)
 				elif 'mappoints' in player:
 					if player['mappoints'] != -1:
-						new_ranking = dict(login=player['login'], nickname=player['name'], score=player['mappoints'], points_added=0)
+						new_ranking = dict(login=player['login'], nickname=player['name'], score=player['mappoints'], score_matchpoints=player['matchpoints'], points_added=0)
 						self.current_rankings.append(new_ranking)
 
 			self.current_rankings.sort(key=lambda x: x['score'])
 			self.current_rankings.reverse()
 
 	async def map_start(self, map, restarted, **kwargs):
-		self.current_rankings = []
-		self.current_finishes = []
-		self.dedimania_enabled = ('dedimania' in self.instance.apps.apps and 'dedimania' not in self.instance.apps.unloaded_apps)
-		await self.get_points_repartition()
-		await self.widget.display()
+			self.dedimania_enabled = ('dedimania' in self.instance.apps.apps and 'dedimania' not in self.instance.apps.unloaded_apps)
+			
+			if restarted == False:
+				await self.get_points_repartition()
+				await self.widget.display()
+			else:
+				self.current_rankings = []
+				self.current_finishes = []
+				await self.get_points_repartition()
+				await self.widget.display()
 
 	async def round_start(self, count, time):
 		await self.get_points_repartition()
@@ -141,7 +146,7 @@ class LiveRankings(AppConfig):
 		self.current_rankings = []
 		self.current_finishes = []
 		await self.get_points_repartition()
-		await self.widget.display()
+		await self.widget.hide()
 
 	async def warmup_end(self):
 		self.current_rankings = []
@@ -212,7 +217,7 @@ class LiveRankings(AppConfig):
 		if 'rounds' in current_script or 'team' in current_script or 'cup' in current_script or \
 		'trackmania/tm_rounds_online' in current_script or 'trackmania/tm_teams_online' in current_script or 'trackmania/tm_cup_online' in current_script:
 
-			new_finish = dict(login=player.login, nickname=player.nickname, score=race_time)
+			new_finish = dict(login=player.login, nickname=player.nickname, score=race_time, score_matchpoints=0)
 			self.current_finishes.append(new_finish)
 
 			new_finish_rank = len(self.current_finishes) - 1
@@ -223,6 +228,7 @@ class LiveRankings(AppConfig):
 			current_ranking = next((item for item in self.current_rankings if item['login'] == player.login), None)
 			if current_ranking is not None:
 				current_ranking['points_added'] = new_finish['points_added']
+				#current_ranking['score_matchpoints'] = new_finish['score_matchpoints']
 			else:
 				new_finish['score'] = 0
 				self.current_rankings.append(new_finish)
