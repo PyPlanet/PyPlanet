@@ -125,7 +125,13 @@ class LiveRankingsWidget(TimesWidgetView):
 				list_record['points_added'] = record['points_added']
 			else:
 				list_record['points_added'] = 0
-
+				
+			# MatchPoints in CupMode.
+			if 'score_matchpoints' in record:
+				list_record['match_points'] = record['score_matchpoints']
+			else:
+				list_record['match_points'] = 0
+				
 			if index == self.top_entries:
 				index = custom_start_index
 			else:
