@@ -125,17 +125,16 @@ class LiveRankings(AppConfig):
 			self.current_rankings.reverse()
 
 	async def map_start(self, map, restarted, **kwargs):
-		if restarted == True:
-			self.current_rankings = []
-			self.current_finishes = []
-			await self.get_points_repartition()
-			await self.widget.display()
-		else:
 			self.dedimania_enabled = ('dedimania' in self.instance.apps.apps and 'dedimania' not in self.instance.apps.unloaded_apps)
-			self.current_rankings = []
-			self.current_finishes = []
-			await self.get_points_repartition()
-			await self.widget.hide()
+			
+			if restarted == False:
+				await self.get_points_repartition()
+				await self.widget.display()
+			else:
+				self.current_rankings = []
+				self.current_finishes = []
+				await self.get_points_repartition()
+				await self.widget.display()
 
 	async def round_start(self, count, time):
 		await self.get_points_repartition()
@@ -229,6 +228,7 @@ class LiveRankings(AppConfig):
 			current_ranking = next((item for item in self.current_rankings if item['login'] == player.login), None)
 			if current_ranking is not None:
 				current_ranking['points_added'] = new_finish['points_added']
+				#current_ranking['score_matchpoints'] = new_finish['score_matchpoints']
 			else:
 				new_finish['score'] = 0
 				self.current_rankings.append(new_finish)
