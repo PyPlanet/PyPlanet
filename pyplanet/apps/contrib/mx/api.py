@@ -22,18 +22,14 @@ class MXApi:
 		self.map_info_page_size = 1
 
 	def base_url(self, api=False):
-		if self.site =='tm':
+		if self.site in ['tm', 'sm']:
 			if api:
-				return 'https://tm.mania.exchange{site}'.format(site=self.site)
-			return 'https://{site}.mania-exchange.com'.format(site=self.site)
+				return 'https://{site}.mania.exchange/api'.format(site=self.site)
+			return 'https://{site}.mania.exchange'.format(site=self.site)
 		elif self.site == 'tmnext':
 			if api:
 				return 'https://trackmania.exchange/api'
 			return 'https://trackmania.exchange'
-		elif self.site == 'sm':
-			if api:
-				return 'https://sm.mania-exchange.com/{site}'.format(site=self.site)
-			return 'https://{site}.mania-exchange.com'.format(site=self.site)
 
 	async def create_session(self):
 		self.session = await aiohttp.ClientSession(
@@ -47,7 +43,7 @@ class MXApi:
 	async def close_session(self):
 		if self.session and hasattr(self.session, '__aexit__'):
 			await self.session.__aexit__()
-
+	
 	async def mx_random(self):
 		# Regular Expression to extract the MX-ID from a /tracksearch2/random/.
 		mx_pattern = r'\d+'
@@ -141,17 +137,10 @@ class MXApi:
 		return [map for map_list in split_results for map in map_list]
 
 	async def map_info_page(self, *ids):
-		if self.site == 'tmnext':
-			url = '{base}/maps/get_map_info/multi/{ids}'.format(
-				base=self.base_url(True),
-				ids=','.join(str(i) for i in ids[0])
-			)
-		else:
-			url = '{base}/maps/{ids}'.format(
-				base=self.base_url(True),
-				ids=','.join(str(i) for i in ids[0])
-			)
-
+		url = '{base}/maps/get_map_info/multi/{ids}'.format(
+			base=self.base_url(True),
+			ids=','.join(str(i) for i in ids[0])
+		)
 		params = {'key': self.key} if self.key else {}
 		response = await self.session.get(url, params=params)
 		if response.status == 404:
@@ -187,19 +176,11 @@ class MXApi:
 		return response.json()
 
 	async def get_pack_ids(self, pack_id, token):
-		if self.site == 'tmnext':
-			url = '{base}/api/mappack/get_mappack_tracks/{id}?token={token}'.format(
-				base=self.base_url(),
-				id=pack_id,
-				token=token
-			)
-		else:
-			url = '{base}/api/mappack/get_tracks/{id}?token={token}'.format(
-				base=self.base_url(),
-				id=pack_id,
-				token=token
-			)
-
+		url = '{base}/api/mappack/get_mappack_tracks/{id}?token={token}'.format(
+			base=self.base_url(),
+			id=pack_id,
+			token=token
+		)
 		params = {'key': self.key} if self.key else {}
 		response = await self.session.get(url, params=params)
 		if response.status == 404:
@@ -218,7 +199,7 @@ class MXApi:
 			raise MXMapNotFound("Mx returned with empty response.")
 
 	async def download(self, mx_id):
-		url = '{base}/tracks/download/{id}'.format(
+		url = '{base}/maps/download/{id}'.format(
 			base=self.base_url(),
 			id=mx_id,
 		)
