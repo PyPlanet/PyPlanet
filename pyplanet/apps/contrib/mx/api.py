@@ -48,7 +48,7 @@ class MXApi:
 		# Regular Expression to extract the MX-ID from a /tracksearch2/random/.
 		mx_pattern = r'\d+'
 		mx_id_regex = re.compile(mx_pattern)
-		url = '{}/tracksearch/random'.format(self.base_url())
+		url = '{}/tracksearch2/random'.format(self.base_url())
 		response = await self.session.get(url)
 		text = str(response.url)
 		matches = re.search(mx_id_regex, text)
