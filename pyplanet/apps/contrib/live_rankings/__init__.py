@@ -67,7 +67,7 @@ class LiveRankings(AppConfig):
 			pass
 
 		if scores:
-			await self.handle_scores(scores['players'])
+			await self.handle_scores(scores['section'], scores['players'])
 			await self.widget.display()
 
 		await self.get_points_repartition()
@@ -88,11 +88,11 @@ class LiveRankings(AppConfig):
 			# Do not update the live rankings on the 'pre end round'-stage.
 			# This will make the points added disappear without updating the actual scores.
 			return
-
-		await self.handle_scores(players)
+		
+		await self.handle_scores(section, players)
 		await self.widget.display()
 
-	async def handle_scores(self, players):
+	async def handle_scores(self, section, players):
 		self.current_rankings = []
 		self.current_finishes = []
 
@@ -121,29 +121,30 @@ class LiveRankings(AppConfig):
 						new_ranking = dict(login=player['login'], nickname=player['name'], score=player['mappoints'], score_matchpoints=player['matchpoints'], points_added=0)
 						self.current_rankings.append(new_ranking)
 		elif 'cup' in current_script or 'trackmania/tm_cup_online' in current_script:
-			mode_settings = await self.instance.mode_manager.get_settings()	
-			pointlimit = mode_settings['S_PointsLimit']
-			for player in players:
-				if 'map_points' in player:
-					if player['map_points'] != -1 and player['match_points'] < pointlimit:
-						new_ranking = dict(login=player['player'].login, nickname=player['player'].nickname, score=player['map_points'], score_matchpoints=player['match_points'], points_added=0)
-						self.current_rankings.append(new_ranking)
-					elif player['map_points'] != -1 and player['match_points'] == pointlimit:
-						new_ranking = dict(login=player['player'].login, nickname=player['player'].nickname, score=player['map_points'], score_matchpoints='$f00Finalist', points_added=0)
-						self.current_rankings.append(new_ranking)
-					elif player['map_points'] != -1 and player['match_points'] > pointlimit:
-						new_ranking = dict(login=player['player'].login, nickname=player['player'].nickname, score=player['map_points'], score_matchpoints='$0f0Winner', points_added=0)
-						self.current_rankings.append(new_ranking)
-				elif 'mappoints' in player:
-					if player['mappoints'] != -1 and player['matchpoints'] < pointlimit:
-						new_ranking = dict(login=player['login'], nickname=player['name'], score=player['mappoints'], score_matchpoints=player['matchpoints'], points_added=0)
-						self.current_rankings.append(new_ranking)
-					elif player['mappoints'] != -1 and player['matchpoints'] == pointlimit:
-						new_ranking = dict(login=player['login'], nickname=player['name'], score=player['mappoints'], score_matchpoints='$f00Finalist', points_added=0)
-						self.current_rankings.append(new_ranking)
-					elif player['mappoints'] != -1 and player['matchpoints'] > pointlimit:
-						new_ranking = dict(login=player['login'], nickname=player['name'], score=player['mappoints'], score_matchpoints='$0f0Winner', points_added=0)
-						self.current_rankings.append(new_ranking)
+			if section == 'EndRound':
+				mode_settings = await self.instance.mode_manager.get_settings()	
+				pointlimit = mode_settings['S_PointsLimit']
+				for player in players:
+					if 'map_points' in player:
+						if player['map_points'] != -1 and player['match_points'] == pointlimit:
+							new_ranking = dict(login=player['player'].login, nickname=player['player'].nickname, score=player['map_points'], score_matchpoints='Finalist', points_added=0)
+							self.current_rankings.append(new_ranking)
+						elif player['map_points'] != -1 and player['match_points'] > pointlimit:
+							new_ranking = dict(login=player['player'].login, nickname=player['player'].nickname, score=player['map_points'], score_matchpoints='Winner', points_added=0)
+							self.current_rankings.append(new_ranking)
+						else:
+							new_ranking = dict(login=player['player'].login, nickname=player['player'].nickname, score=player['map_points'], score_matchpoints=player['match_points'], points_added=0)
+							self.current_rankings.append(new_ranking)
+					elif 'mappoints' in player:
+						if player['mappoints'] != -1 and player['matchpoints'] == pointlimit:
+							new_ranking = dict(login=player['login'], nickname=player['name'], score=player['mappoints'], score_matchpoints='$wFinalist', points_added=0)
+							#self.current_rankings.append(new_ranking)
+						elif player['mappoints'] != -1 and player['matchpoints'] > pointlimit:
+							new_ranking = dict(login=player['login'], nickname=player['name'], score=player['mappoints'], score_matchpoints='$wWinner', points_added=0)
+							#self.current_rankings.append(new_ranking)
+						else:
+							new_ranking = dict(login=player['login'], nickname=player['name'], score=player['mappoints'], score_matchpoints=player['matchpoints'], points_added=0)
+							self.current_rankings.append(new_ranking)
 		
 			self.current_rankings.sort(key=lambda x: x['score'])
 			self.current_rankings.reverse()
