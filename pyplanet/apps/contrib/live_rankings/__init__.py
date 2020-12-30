@@ -109,8 +109,8 @@ class LiveRankings(AppConfig):
 						self.current_rankings.append(new_ranking)
 
 			self.current_rankings.sort(key=lambda x: x['score'])
-		elif 'rounds' in current_script or 'team' in current_script or 'cup' in current_script or \
-			'trackmania/tm_rounds_online' in current_script or 'trackmania/tm_teams_online' in current_script or 'trackmania/tm_cup_online' in current_script:
+		elif 'rounds' in current_script or 'team' in current_script or \
+			'trackmania/tm_rounds_online' in current_script or 'trackmania/tm_teams_online' in current_script:
 			for player in players:
 				if 'map_points' in player:
 					if player['map_points'] != -1:
@@ -120,7 +120,31 @@ class LiveRankings(AppConfig):
 					if player['mappoints'] != -1:
 						new_ranking = dict(login=player['login'], nickname=player['name'], score=player['mappoints'], score_matchpoints=player['matchpoints'], points_added=0)
 						self.current_rankings.append(new_ranking)
-
+		elif 'cup' in current_script or 'trackmania/tm_cup_online' in current_script:
+			mode_settings = await self.instance.mode_manager.get_settings()	
+			pointlimit = mode_settings['S_PointsLimit']
+			for player in players:
+				if 'map_points' in player:
+					if player['map_points'] != -1 and player['match_points'] < pointlimit:
+						new_ranking = dict(login=player['player'].login, nickname=player['player'].nickname, score=player['map_points'], score_matchpoints=player['match_points'], points_added=0)
+						self.current_rankings.append(new_ranking)
+					elif player['map_points'] != -1 and player['match_points'] == pointlimit:
+						new_ranking = dict(login=player['player'].login, nickname=player['player'].nickname, score=player['map_points'], score_matchpoints='$f00Finalist', points_added=0)
+						self.current_rankings.append(new_ranking)
+					elif player['map_points'] != -1 and player['match_points'] > pointlimit:
+						new_ranking = dict(login=player['player'].login, nickname=player['player'].nickname, score=player['map_points'], score_matchpoints='$0f0Winner', points_added=0)
+						self.current_rankings.append(new_ranking)
+				elif 'mappoints' in player:
+					if player['mappoints'] != -1 and player['matchpoints'] < pointlimit:
+						new_ranking = dict(login=player['login'], nickname=player['name'], score=player['mappoints'], score_matchpoints=player['matchpoints'], points_added=0)
+						self.current_rankings.append(new_ranking)
+					elif player['mappoints'] != -1 and player['matchpoints'] == pointlimit:
+						new_ranking = dict(login=player['login'], nickname=player['name'], score=player['mappoints'], score_matchpoints='$f00Finalist', points_added=0)
+						self.current_rankings.append(new_ranking)
+					elif player['mappoints'] != -1 and player['matchpoints'] > pointlimit:
+						new_ranking = dict(login=player['login'], nickname=player['name'], score=player['mappoints'], score_matchpoints='$0f0Winner', points_added=0)
+						self.current_rankings.append(new_ranking)
+		
 			self.current_rankings.sort(key=lambda x: x['score'])
 			self.current_rankings.reverse()
 
@@ -228,7 +252,7 @@ class LiveRankings(AppConfig):
 			current_ranking = next((item for item in self.current_rankings if item['login'] == player.login), None)
 			if current_ranking is not None:
 				current_ranking['points_added'] = new_finish['points_added']
-				#current_ranking['score_matchpoints'] = new_finish['score_matchpoints']
+				current_ranking['score_matchpoints'] = new_finish['score_matchpoints']
 			else:
 				new_finish['score'] = 0
 				self.current_rankings.append(new_finish)
@@ -246,4 +270,4 @@ class LiveRankings(AppConfig):
 		else:
 			# Reset the points repartition array.
 			self.points_repartition = []
-			self.current_finishes = []
+			self.current_finishes = []	
