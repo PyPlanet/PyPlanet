@@ -1,6 +1,7 @@
 import asyncio
 import datetime
 import logging
+import uuid, base64
 
 from peewee import DoesNotExist
 
@@ -170,14 +171,20 @@ class PlayerManager(CoreContrib):
 		# Set the join time.
 		player.flow.joined_at = datetime.datetime.now()
 
-		# Update counter and state.
+				# Update counter and state.
 		async with self._counter_lock:
 			player.flow.player_id = info['PlayerId']
 			player.flow.team_id = info['TeamId']
 			player.flow.is_spectator = bool(info['IsSpectator'])
 			player.flow.is_player = not bool(info['IsSpectator'])
 			player.flow.zone = parse_path(info['Path'])
-
+			
+			player_addweb = player.login.ljust(24, "=")
+			player_replaceweb1 = player_addweb.replace("-", "+")
+			player_replaceweb2 = player_replaceweb1.replace("_", "/")
+			decodedbase64 = base64.b64decode(bytes(player_replaceweb2, 'ascii'))
+			player.flow.webserviceId = uuid.UUID(bytes=decodedbase64)
+			
 			self._total_count += 1
 			if player.flow.is_spectator:
 				self._spectators_count += 1
