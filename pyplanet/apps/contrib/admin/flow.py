@@ -15,6 +15,8 @@ class FlowAdmin:
 
 	async def on_start(self):
 		await self.instance.permission_manager.register('end_round', 'Force ending a round (warmup, race or custom)', app=self.app, min_level=2)
+		await self.instance.permission_manager.register('player_points', 'Change the player points', app=self.app, min_level=2)
+		await self.instance.permission_manager.register('team_points', 'Change the team points', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('points_repartition', 'Change the points repartition', app=self.app, min_level=2)
 
 		# Trackmania specific:
@@ -29,7 +31,11 @@ class FlowAdmin:
 				Command(command='pointsrepartition', aliases=['pointsrep'], target=self.set_point_repartition,
 						perms='admin:points_repartition', admin=True, description='Alters the points repartitioning.')
 					.add_param('repartition', nargs='*', type=str, required=True, help='Repartition, comma or space separated.'),
-			)
+				Command(command='playerpoints', aliases=['playerpoints'], target=self.set_player_points,
+						perms='admin:player_points', admin=True, description='Alters the Players Points for Round, Map, Match.'),
+				Command(command='teampoints', aliases=['teampoints'], target=self.set_team_points,
+						perms='admin:team_points', admin=True, description='Alters the Teams Points for Round, Map, Match.')
+				)
 
 		# Shootmania specific.
 		if self.instance.game.game == 'sm':
@@ -66,3 +72,21 @@ class FlowAdmin:
 				player.nickname, ','.join(partition))
 			)
 		)
+		
+	async def set_player_points(self, player, data, **kwargs):
+		
+		#login, 'RoundPoints', 'Mappoints', 'Matchpoints' for Sending/Updating PlayerPoints
+		#Login is for example q2-lckjXSxai11x2CgX5ew so it needs to be 
+		await self.instance.gbx.multicall(
+			self.instance.gbx('Trackmania.SetPlayerPoints', 'q2-lckjXSxai11x2CgX5ew', '10', '10', '10', encode_json=False, response_id=False),
+			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed Player Points for')
+			)
+			
+	async def set_team_points(self, player, data, **kwargs):
+		
+		#TeamId, 'RoundPoints', 'Mappoints', 'Matchpoints' for Sending/Updating TeamPoints
+		#TeamId = 0 (Blue) or 1 (Red)
+		await self.instance.gbx.multicall(
+			self.instance.gbx('Trackmania.SetTeamPoints', '1', '1', '1', '1', encode_json=False, response_id=False),
+			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed Player Points for')
+			)
