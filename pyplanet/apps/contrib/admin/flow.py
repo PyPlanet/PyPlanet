@@ -32,9 +32,13 @@ class FlowAdmin:
 						perms='admin:points_repartition', admin=True, description='Alters the points repartitioning.')
 					.add_param('repartition', nargs='*', type=str, required=True, help='Repartition, comma or space separated.'),
 				Command(command='playerpoints', aliases=['playerpoints'], target=self.set_player_points,
-						perms='admin:player_points', admin=True, description='Alters the Players Points for Round, Map, Match.'),
+						perms='admin:player_points', admin=True, description='Alters the Players Points for Round, Map, Match.')
+						.add_param(name='login', required=True)
+						.add_param(name='points', nargs='*', type=str, required=True, help='Repartition, comma or space separated.'),
 				Command(command='teampoints', aliases=['teampoints'], target=self.set_team_points,
 						perms='admin:team_points', admin=True, description='Alters the Teams Points for Round, Map, Match.')
+						.add_param(name='teamid', required=True)
+						.add_param(name='points', nargs='*', type=str, required=True, help='Repartition, comma or space separated.'),
 				)
 
 		# Shootmania specific.
@@ -74,19 +78,29 @@ class FlowAdmin:
 		)
 		
 	async def set_player_points(self, player, data, **kwargs):
+		login = data.login
+		points = data.points
+		if len(points) == 1:
+			points = str(points[0]).split(',')
+		points = [str(p).strip() for p in points]
 		
 		#login, 'RoundPoints', 'Mappoints', 'Matchpoints' for Sending/Updating PlayerPoints
-		#Login is for example q2-lckjXSxai11x2CgX5ew so it needs to be 
 		await self.instance.gbx.multicall(
-			self.instance.gbx('Trackmania.SetPlayerPoints', 'q2-lckjXSxai11x2CgX5ew', '10', '10', '10', encode_json=False, response_id=False),
-			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed Player Points for')
-			)
+			self.instance.gbx('Trackmania.SetPlayerPoints', login, *points, encode_json=False, response_id=False),
+			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points distribution for Player: $fff{} $z$s$ff0 to: {}'.format(
+				player.nickname, login, points)
+			))
 			
 	async def set_team_points(self, player, data, **kwargs):
+		teamid = data.teamid
+		points = data.points
+		if len(points) == 1:
+			points = str(points[0]).split(',')
+		points = [str(p).strip() for p in points]
 		
 		#TeamId, 'RoundPoints', 'Mappoints', 'Matchpoints' for Sending/Updating TeamPoints
 		#TeamId = 0 (Blue) or 1 (Red)
 		await self.instance.gbx.multicall(
-			self.instance.gbx('Trackmania.SetTeamPoints', '1', '1', '1', '1', encode_json=False, response_id=False),
-			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed Player Points for')
-			)
+			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points distribution for Team: $fff{} $z$s$ff0 to: {}'.format(
+				player.nickname, login, points)
+			))
