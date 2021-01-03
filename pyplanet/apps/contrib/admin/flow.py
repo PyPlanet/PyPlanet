@@ -101,6 +101,7 @@ class FlowAdmin:
 		#TeamId, 'RoundPoints', 'Mappoints', 'Matchpoints' for Sending/Updating TeamPoints
 		#TeamId = 0 (Blue) or 1 (Red)
 		await self.instance.gbx.multicall(
+			self.instance.gbx('Trackmania.SetTeamPoints', teamid, *points, encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points distribution for Team: $fff{} $z$s$ff0 to: {}'.format(
-				player.nickname, login, points)
+				player.nickname, teamid, points)
 			))
