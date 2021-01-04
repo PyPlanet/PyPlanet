@@ -65,7 +65,7 @@ async def handle_scores(source, signal, **kwargs):
 		return dict(
 			player=player,
 			best_lap_checkpoints=data['bestlapcheckpoints'],
-			match_points=data['mappoints'], rank=data['rank'], best_lap_time=data['bestlaptime'],
+			match_points=data['matchpoints'], rank=data['rank'], best_lap_time=data['bestlaptime'],
 			map_points=data['mappoints'], best_race_time=data['bestracetime'],
 			round_points=data['roundpoints'], best_race_checkpoints=data['bestracecheckpoints'],
 
@@ -464,4 +464,34 @@ warmup_status = Callback(
 :param active: Is warmup active and ongoing right now.
 :type available: bool
 :type active: bool
+"""
+
+
+tmnext_properties = Callback(
+	call='Script.Common.UIModules.Properties',
+	namespace='trackmania',
+	code='common_uimodules_properties',
+	target=handle_generic
+)
+
+tmnext_ko_elimination = Callback(
+	call='Script.Trackmania.Knockout.Elimination',
+	namespace='trackmania',
+	code='tmnext_ko_elimination',
+	target=handle_generic
+)
+
+"""
+:Signal:
+	Knockout Elimination Callback.
+:Code:
+	``trackmania:knockout_Elimination``
+:Description:
+	Returns a webserviceId on Player Knockout.
+:Original Callback:
+	`Script` Trackmania.Knockout.Elimination
+
+:param responseid: Internally used. Ignore
+:param account-id: example: ab6fa572-48d7-4b16-a2d7-5c760a05f97b.
+
 """
