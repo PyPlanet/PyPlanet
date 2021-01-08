@@ -474,6 +474,24 @@ tmnext_properties = Callback(
 	target=handle_generic
 )
 
+"""
+:Signal:
+	Common.UIModules.Properties for TM2020
+:Code:
+	``trackmania:common_uimodules_properties``
+:Description:
+	Returns UIModules Properties like for instance: Race_Chrono see: ``[{'id': 'Race_Chrono', 'position': [0, -80], 'scale': 1, 'visible': True},``
+:Original Callback:
+	`Script` Common.UIModules.Properties
+
+:param responseid: Internally used. Ignore
+:param uimodules: Collection of all UIModules in TM2020.
+:type id Name of the UIModule
+:type position Position to place/get Position [0,-80] as example
+:type scale Scale measurement 
+:type visible Boolean True or False
+"""
+
 tmnext_ko_elimination = Callback(
 	call='Script.Trackmania.Knockout.Elimination',
 	namespace='trackmania',
