@@ -3,6 +3,8 @@ Map Admin methods and functions.
 """
 import asyncio
 import logging
+import xml.etree.ElementTree as ET
+
 from argparse import Namespace
 from random import shuffle
 
@@ -80,9 +82,14 @@ class MapAdmin:
 		)
 
 		# If jukebox app is loaded, register the map actions.
+		
 		if 'jukebox' in self.instance.apps.apps:
-			from pyplanet.apps.contrib.jukebox.views import MapListView
-			MapListView.add_action(self.list_action_remove, 'Delete', '&#xf1f8;')
+				from pyplanet.apps.contrib.jukebox.views import MapListView
+				for player in self.app.instance.player_manager.online:
+					if not await self.app.instance.permission_manager.has_permission(player, 'admin:remove_map'):
+							return
+					else:
+						MapListView.add_action(self.list_action_remove, 'Delete', '&#xf1f8;')
 
 	async def list_action_remove(self, player, values, map_dictionary, view, **kwargs):
 		# Check permission.
@@ -192,18 +199,44 @@ class MapAdmin:
 	async def read_map_list(self, player, data, **kwargs):
 		file_name = data.file
 		file_path = 'MatchSettings/{}'.format(file_name)
-
+				
 		try:
 			await self.instance.map_manager.load_matchsettings(file_path)
 			message = '$ff0Match Settings has been loaded from: {}'.format(file_path)
 		except:
 			message = '$ff0Could not load match settings! Does the file exists? Check log for details.'
+		
+		try:	
+			map_dir = await self.instance.gbx('GetMapsDirectory')
+			tree = ET.parse(map_dir+file_path)
+			root = tree.getroot()
+			for entry in root.findall('mode_script_settings'):
+				settings = entry.findall('setting')
+				for setting in settings:
+					settings_modescript_name = setting.attrib['name']
+					settings_modescript_type = setting.attrib['type']
+					if settings_modescript_type == 'boolean':
+						real_type = bool
+					elif settings_modescript_type == 'integer':
+						real_type = int
+					elif settings_modescript_type == 'double':
+						real_type = float
+					elif settings_modescript_type == 'text':
+						real_type = str
 
+					settings_modescript_value = setting.attrib['value']
+					#print(settings_modescript_name)
+				await self.instance.mode_manager.update_next_settings({settings_modescript_name : real_type(settings_modescript_value)})
+				message_mode_scriptsettings = '$ff0Mode Script Settings has been loaded from: {}'.format(file_path)
+		except:
+			message_mode_scriptsettings = '$ff0Could not load match settings! Does the file exists? Check log for details.'
+			
 		# Send message + reload all maps in memory.
 		await asyncio.gather(
-			self.instance.chat(message, player),
-			self.instance.map_manager.update_list(full_update=True)
-		)
+				self.instance.chat(message, player),
+				self.instance.chat(message_mode_scriptsettings, player),
+				self.instance.map_manager.update_list(full_update=True)
+				)
 
 	async def shuffle(self, player, data, **kwargs):
 		# First, retrieve the current maplist.
@@ -326,7 +359,7 @@ class MapAdmin:
 		try:
 			extended_with = await self.instance.map_manager.extend_ta(extend_with=extend_with)
 		except ModeIncompatible:
-			return await self.instance.chat('$ff0Error: Game mode must be Time Attack to use the extend functionality!', player)
+			return await self.instance.chat('$ff0Error: Game mode must be Time Attach to use the extend functionality!', player)
 
 		message = '$ff0Admin $fff{}$z$s$ff0 has extended the time limit with $fff{} seconds.'.format(
 			player.nickname, extended_with
