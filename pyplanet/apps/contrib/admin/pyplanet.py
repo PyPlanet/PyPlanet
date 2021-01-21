@@ -1,6 +1,8 @@
 """
 Player Admin methods and functions.
 """
+import os
+
 from pyplanet.contrib.command import Command
 
 
@@ -22,3 +24,4 @@ class PyPlanetAdmin:
 
 	async def reboot_pool(self, player, data, **kwargs):
 		exit(50)
+		os.execl(sys.executable, sys.executable, *sys.argv)
