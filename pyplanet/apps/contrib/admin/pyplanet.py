@@ -23,5 +23,9 @@ class PyPlanetAdmin:
 		)
 
 	async def reboot_pool(self, player, data, **kwargs):
-		exit(50)
-		os.execl(sys.executable, sys.executable, *sys.argv)
+		if os.name == 'nt':
+			os._exit(50)
+			os.execl(sys.executable, sys.executable, *sys.argv)
+		else:
+			exit(50)
+		
