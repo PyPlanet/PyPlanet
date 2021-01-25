@@ -6,6 +6,7 @@ from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 from pyplanet.apps.config import AppConfig
 from pyplanet.conf import settings
 from pyplanet.contrib.command import Command
+from pyplanet.contrib.setting import Setting
 from .view import RankListView, RankWidget
 
 
@@ -51,6 +52,11 @@ class ServerRank(AppConfig):
 
 		self.widget = None
 
+		self.setting_server_rank_widget = Setting(
+			'server_rank_widget', 'Whether the server rank widget is visible', Setting.CAT_DESIGN,
+			type=bool, description='Whether the server rank widget is visible', default=False
+		)
+
 	async def on_start(self):
 		await self.instance.command_manager.register(
 			Command(
@@ -75,13 +81,16 @@ class ServerRank(AppConfig):
 			)
 		)
 
+		await self.context.setting.register(self.setting_server_rank_widget)
+
 		self.widget = RankWidget(self)
 		await self.update_view()
 
 		self.context.signals.listen(mp_signals.map.map_end, self.update_view)
 
-	async def update_view(self):
-		await self.widget.display()
+	async def update_view(self, map=None):
+		if await self.setting_server_rank_widget.get_value():
+			await self.widget.display()
 
 
 	async def rank(self, player, *args, **kwargs):
