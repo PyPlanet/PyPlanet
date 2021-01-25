@@ -2,10 +2,11 @@ import logging
 import sqlalchemy
 from sqlalchemy.exc import SQLAlchemyError
 
+from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 from pyplanet.apps.config import AppConfig
 from pyplanet.conf import settings
 from pyplanet.contrib.command import Command
-from .view import RankListView
+from .view import RankListView, RankWidget
 
 
 class ServerRank(AppConfig):
@@ -31,7 +32,7 @@ class ServerRank(AppConfig):
 		self.deactivated = False
 
 		try:
-			self.engine = sqlalchemy.create_engine(f'{self.db_type}://{db_login}:{db_password}@{db_ip}/{db_name}',
+			self.engine = sqlalchemy.create_engine(f'{self.db_type}://{db_login}:{db_password}@{db_ip}/{db_name}?charset=utf8mb4',
 												   pool_size=10)
 		except ModuleNotFoundError as e:
 			logging.getLogger(__name__).error('Couldn\'t find module required to communicate with the database!')
@@ -47,6 +48,8 @@ class ServerRank(AppConfig):
 		self.text_color = '$f80'
 		self.data_color = '$fff'
 		self.self_color = '$ff0'
+
+		self.widget = None
 
 	async def on_start(self):
 		await self.instance.command_manager.register(
@@ -71,6 +74,15 @@ class ServerRank(AppConfig):
 				admin=False
 			)
 		)
+
+		self.widget = RankWidget(self)
+		await self.update_view()
+
+		self.context.signals.listen(mp_signals.map.map_end, self.update_view)
+
+	async def update_view(self):
+		await self.widget.display()
+
 
 	async def rank(self, player, *args, **kwargs):
 		if self.deactivated:
