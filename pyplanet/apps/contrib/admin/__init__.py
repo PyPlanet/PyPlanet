@@ -6,7 +6,7 @@ from pyplanet.apps.contrib.admin.pyplanet import PyPlanetAdmin
 from pyplanet.apps.contrib.admin.flow import FlowAdmin
 from pyplanet.apps.contrib.admin.toolbar import ToolbarAdmin
 from pyplanet.apps.contrib.admin.mapbrowser import MapBrowser
-
+from pyplanet.apps.contrib.admin.matchsettingsbrowser import MatchSettingsBrowser
 
 class Admin(AppConfig):
 	game_dependencies = ['trackmania', 'trackmania_next', 'shootmania']
@@ -22,6 +22,7 @@ class Admin(AppConfig):
 		self.pyplanet = PyPlanetAdmin(self)
 		self.flow = FlowAdmin(self)
 		self.mapbrowser = MapBrowser(self)
+		self.matchsettingsbrowser = MatchSettingsBrowser(self)
 
 	async def on_start(self):
 		await self.toolbar.on_start()
@@ -31,3 +32,4 @@ class Admin(AppConfig):
 		await self.pyplanet.on_start()
 		await self.flow.on_start()
 		await self.mapbrowser.on_start()
+		await self.matchsettingsbrowser.on_start()

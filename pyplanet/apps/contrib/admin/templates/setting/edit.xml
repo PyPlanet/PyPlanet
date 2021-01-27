@@ -24,7 +24,7 @@
     <frame pos="0 -40" id="setting_edit_frame">
       {% if setting.type == types.str or setting.type == types.int or setting.type == types.float or setting.type == types.dict %}
         <label pos="0 0" size="30 5" text="$fff$oValue" textsize="1.2" valign="top" />
-        <entry pos="30 0" size="70 40" name="setting_value_field" id="setting_value_field"
+        <entry pos="30 0" size="70 5" name="setting_value_field" id="setting_value_field"
                textsize="1.2" default="{{ setting_value|default('', True) }}" scriptevents="1"
                focusareacolor1="0003" focusareacolor2="FFF2" />
       {% elif setting.type == types.bool %}
