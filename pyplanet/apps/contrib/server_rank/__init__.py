@@ -3,6 +3,7 @@ import sqlalchemy
 from sqlalchemy.exc import SQLAlchemyError
 
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
+from pyplanet.apps.core.trackmania import callbacks as tm_signals
 from pyplanet.apps.config import AppConfig
 from pyplanet.conf import settings
 from pyplanet.contrib.command import Command
@@ -86,9 +87,10 @@ class ServerRank(AppConfig):
 		self.widget = RankWidget(self)
 		await self.update_view()
 
-		self.context.signals.listen(mp_signals.map.map_end, self.update_view)
+		self.context.signals.listen(mp_signals.player.player_connect, self.update_view)
+		self.context.signals.listen(tm_signals.finish, self.update_view)
 
-	async def update_view(self, map=None):
+	async def update_view(self, **kwargs):
 		if await self.setting_server_rank_widget.get_value():
 			await self.widget.display()
 
@@ -101,8 +103,8 @@ class ServerRank(AppConfig):
 		try:
 			results = await self.get_rank_data()
 		except SQLAlchemyError as e:
-			logging.getLogger(__name__).error('SQL error occurred when trying to retrieve server ranks', )
-			logging.getLogger(__name__).error(e)
+			logging.error('SQL error occurred when trying to retrieve server ranks', )
+			logging.error(e)
 			await self.instance.chat('$f00$iSomething went wrong when trying to calculate your rank. '
 									 'Contact the server administrator for more information.', player)
 			return
@@ -129,8 +131,8 @@ class ServerRank(AppConfig):
 		try:
 			results = await self.get_rank_data()
 		except SQLAlchemyError as e:
-			logging.getLogger(__name__).error('SQL error occurred when trying to retrieve server ranks')
-			logging.getLogger(__name__).error(e)
+			logging.error('SQL error occurred when trying to retrieve server ranks')
+			logging.error(e)
 			await self.instance.chat('$f00$iSomething went wrong when trying to calculate the next rank. '
 									 'Contact the server administrator for more information.', player)
 			return
@@ -166,8 +168,8 @@ class ServerRank(AppConfig):
 		try:
 			results = await self.get_rank_data()
 		except SQLAlchemyError as e:
-			logging.getLogger(__name__).error('SQL error occurred when trying to retrieve server ranks')
-			logging.getLogger(__name__).error(e)
+			logging.error('SQL error occurred when trying to retrieve server ranks')
+			logging.error(e)
 			await self.instance.chat('$f00$iSomething went wrong when trying to calculate the previous rank. '
 									 'Contact the server administrator for more information.', player)
 			return
@@ -203,8 +205,8 @@ class ServerRank(AppConfig):
 		try:
 			results = await self.get_rank_data()
 		except SQLAlchemyError as e:
-			logging.getLogger(__name__).error('SQL error occurred when trying to retrieve server ranks')
-			logging.getLogger(__name__).error(e)
+			logging.error('SQL error occurred when trying to retrieve server ranks')
+			logging.error(e)
 			await self.instance.chat('$f00$iSomething went wrong when trying to calculate ranks. '
 									 'Contact the server administrator for more information.', player)
 			return
@@ -232,9 +234,10 @@ class ServerRank(AppConfig):
 			await self.instance.setting_manager.get_setting('local_records', 'record_limit')).get_value()
 
 		record_query = {
-			'mysql': f'SELECT @rec := CASE WHEN @map_id = map_id THEN @rec + 1 ELSE 1 END AS '
-					 f'rec, @map_id := map_id map_id, player_id, score FROM localrecord, '
-					 f'(SELECT @map_id := 0, @rec := 0) AS dummy WHERE map_id IN {map_ids_sql} ORDER BY map_id, score',
+			'mysql': f'SELECT CASE WHEN @prev = map_id THEN @cur := @cur + 1 ELSE @cur := 1 AND @prev := map_id END AS '
+					 f'rec, map_id, player_id, score FROM localrecord, '
+					 f'(SELECT @cur := 0) AS c, (SELECT @prev := 0) AS p '
+					 f'WHERE map_id IN {map_ids_sql} ORDER BY map_id, score',
 
 			'postgres': f'SELECT row_number() over (PARTITION BY map_id ORDER BY score) AS rec, player_id '
 						f'FROM localrecord WHERE map_id IN {map_ids_sql} ORDER BY map_id, score'
@@ -255,6 +258,10 @@ class ServerRank(AppConfig):
 					f'FROM ({record_query["postgres"]}) AS records JOIN player ON player.id = records.player_id GROUP BY player.id ORDER BY sum'
 
 		# TODO PostGres query needs to be tested for syntax errors
+
+		logging.info('SQL query used to grab data:\n')
+		logging.info(query)
+		logging.info('\n')
 
 		results = []
 		with self.engine.connect() as connection:
