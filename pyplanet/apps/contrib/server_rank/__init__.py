@@ -22,8 +22,8 @@ class ServerRank(AppConfig):
 		elif settings.DATABASES[db_process]['ENGINE'] == 'peewee_async.PostgresqlDatabase':
 			self.db_type = 'postgresql'
 		else:
-			logging.getLogger(__name__).error('Database type not supported')
-			logging.getLogger(__name__).info('Closing down app \'server rank\'')
+			logging.error('Database type not supported')
+			logging.info('Closing down app \'server rank\'')
 			self.deactivated = True
 			return
 		db_name = settings.DATABASES[db_process]['NAME']
@@ -37,14 +37,14 @@ class ServerRank(AppConfig):
 			self.engine = sqlalchemy.create_engine(f'{self.db_type}://{db_login}:{db_password}@{db_ip}/{db_name}?charset=utf8mb4',
 												   pool_size=10)
 		except ModuleNotFoundError as e:
-			logging.getLogger(__name__).error('Couldn\'t find module required to communicate with the database!')
-			logging.getLogger(__name__).error(e)
-			logging.getLogger(__name__).info('Closing down app \'server rank\'')
+			logging.error('Couldn\'t find module required to communicate with the database!')
+			logging.error(e)
+			logging.info('Closing down app \'server rank\'')
 			self.deactivated = True
 		except SQLAlchemyError as e:
-			logging.getLogger(__name__).error('Error occurred while starting sql engine.')
-			logging.getLogger(__name__).error(e)
-			logging.getLogger(__name__).info('Closing down app \'server rank\'')
+			logging.error('Error occurred while starting sql engine.')
+			logging.error(e)
+			logging.info('Closing down app \'server rank\'')
 			self.deactivated = True
 
 		self.text_color = '$f80'
@@ -88,7 +88,6 @@ class ServerRank(AppConfig):
 		await self.update_view()
 
 		self.context.signals.listen(mp_signals.player.player_connect, self.update_view)
-		self.context.signals.listen(tm_signals.finish, self.update_view)
 
 	async def update_view(self, **kwargs):
 		if await self.setting_server_rank_widget.get_value():
