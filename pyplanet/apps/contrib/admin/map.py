@@ -3,6 +3,8 @@ Map Admin methods and functions.
 """
 import asyncio
 import logging
+import xml.etree.ElementTree as ET
+
 from argparse import Namespace
 from random import shuffle
 
@@ -13,7 +15,8 @@ from pyplanet.contrib.map.exceptions import ModeIncompatible
 from pyplanet.contrib.setting import Setting
 from pyplanet.utils import gbxparser
 from pyplanet.views.generics import ask_confirmation
-
+from pyplanet.apps.contrib.admin.views.matchsettingsbrowser import LoadMatchSettingsBrowserView
+from pyplanet.apps.contrib.admin.views.matchsettingsbrowser import WriteMatchSettingsBrowserView
 logger = logging.getLogger(__name__)
 
 
@@ -67,11 +70,9 @@ class MapAdmin:
 					description='Remove and delete map from maplist and disk.')
 				.add_param('nr', required=False, type=int, help='The number from a list window or the unique identifier.'),
 			Command(command='writemaplist', aliases=['wml'], target=self.write_map_list, perms='admin:write_map_list', admin=True,
-					description='Write the current maplist to the file on disk.')
-				.add_param('file', required=False, type=str, help='Give custom match settings file to save to.'),
+					description='Write the current maplist to the file on disk.'),
 			Command(command='readmaplist', aliases=['rml'], target=self.read_map_list, perms='admin:read_map_list', admin=True,
-					description='Read the maplist from the file on disk.')
-				.add_param('file', required=True, type=str, help='Give custom match settings file to load from.'),
+					description='Read the maplist from the file on disk.'),
 			Command(command='shuffle', target=self.shuffle, perms='admin:shuffle', admin=True,
 					description='Shuffle the maplist.'),
 			Command(command='extend', target=self.extend, perms='admin:extend', admin=True,
@@ -80,9 +81,14 @@ class MapAdmin:
 		)
 
 		# If jukebox app is loaded, register the map actions.
+		
 		if 'jukebox' in self.instance.apps.apps:
-			from pyplanet.apps.contrib.jukebox.views import MapListView
-			MapListView.add_action(self.list_action_remove, 'Delete', '&#xf1f8;')
+				from pyplanet.apps.contrib.jukebox.views import MapListView
+				for player in self.app.instance.player_manager.online:
+					if not await self.app.instance.permission_manager.has_permission(player, 'admin:remove_map'):
+							return
+					else:
+						MapListView.add_action(self.list_action_remove, 'Delete', '&#xf1f8;')
 
 	async def list_action_remove(self, player, values, map_dictionary, view, **kwargs):
 		# Check permission.
@@ -165,6 +171,9 @@ class MapAdmin:
 		)
 
 	async def write_map_list(self, player, data, **kwargs):
+		view = WriteMatchSettingsBrowserView(self.app, player)
+		await view.set_dir('')
+	
 		setting = settings.MAP_MATCHSETTINGS
 		if isinstance(setting, dict) and self.instance.process_name in setting:
 			setting = setting[self.instance.process_name]
@@ -190,20 +199,59 @@ class MapAdmin:
 		)
 
 	async def read_map_list(self, player, data, **kwargs):
+		view = LoadMatchSettingsBrowserView(self.app, player)
+		await view.set_dir('')
+	
 		file_name = data.file
 		file_path = 'MatchSettings/{}'.format(file_name)
+				
+		try:	
+			map_dir = await self.instance.gbx('GetMapsDirectory')
+			tree = ET.parse(map_dir+file_path)
+			root = tree.getroot()
+			
+			# We need to go one level below to get <header>
+			# and then one more level from that to go to <type>
+			for script_name in root.findall('gameinfos/script_name'):
+				await self.instance.mode_manager.set_next_script(script_name.text)
+				await self.instance.mode_manager.get_next_script(True)			
+			for entry in root.findall('mode_script_settings'):
+				settings = entry.findall('setting')
+				for setting in settings:
+					settings_modescript_name = dict()
+					settings_modescript_name = setting.attrib['name']
+					settings_modescript_type = setting.attrib['type']
+					if settings_modescript_type == 'boolean':
+						real_type = bool
+					elif settings_modescript_type == 'integer':
+						real_type = int
+					elif settings_modescript_type == 'double':
+						real_type = float
+					elif settings_modescript_type == 'text':
+						real_type = str
 
+					settings_modescript_value = real_type(setting.attrib['value'])
+					data = {settings_modescript_name: settings_modescript_value}
+					print(data)
+					await self.instance.mode_manager.update_next_settings(data)
+				message_mode_scriptsettings = '$ff0Mode Script Settings has been loaded from: {}'.format(file_path)
+		except Exception as e:
+			logger.warning('Error when script settings are being changed: {}'.format(player.login, str(e)))
+			message_mode_scriptsettings = '$ff0Error: Can\'t SetScriptSettings, Error: {}'.format(str(e))
+			await self.instance.chat(message_mode_scriptsettings, player.login)
+		
 		try:
 			await self.instance.map_manager.load_matchsettings(file_path)
 			message = '$ff0Match Settings has been loaded from: {}'.format(file_path)
 		except:
 			message = '$ff0Could not load match settings! Does the file exists? Check log for details.'
-
+			
 		# Send message + reload all maps in memory.
 		await asyncio.gather(
-			self.instance.chat(message, player),
-			self.instance.map_manager.update_list(full_update=True)
-		)
+				self.instance.chat(message, player),
+				self.instance.chat(message_mode_scriptsettings, player),
+				self.instance.map_manager.update_list(full_update=True)
+				)
 
 	async def shuffle(self, player, data, **kwargs):
 		# First, retrieve the current maplist.
