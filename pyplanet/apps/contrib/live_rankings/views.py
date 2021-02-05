@@ -85,11 +85,12 @@ class LiveRankingsWidget(TimesWidgetView):
 			list_record = dict()
 			list_record['index'] = index
 			list_record['bgcolor'] = '00000070'
-			
-			if player.flow.team_id == 0:
-				list_record['bgcolor'] = '7881F2FF'
-			if player.flow.team_id == 1:
-				list_record['bgcolor'] = 'F05F5FFF'
+
+			if player:
+				if player.flow.team_id == 0:
+					list_record['bgcolor'] = '7881F2FF'
+				if player.flow.team_id == 1:
+					list_record['bgcolor'] = 'F05F5FFF'
 
 			list_record['color'] = '$fff'
 			if index <= self.top_entries:
