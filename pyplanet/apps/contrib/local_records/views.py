@@ -187,6 +187,7 @@ class LocalRecordsListView(ManualListView):
 		super().__init__(self)
 		self.app = app
 		self.manager = app.context.ui
+		self.last_player = None
 
 	async def get_title(self):
 		return 'Local Records on {}'.format(self.app.instance.map_manager.current_map.name)
@@ -217,33 +218,35 @@ class LocalRecordsListView(ManualListView):
 		return items
 
 	async def get_actions(self):
-		for player in self.app.instance.player_manager.online:
-			if not await self.app.instance.permission_manager.has_permission(player, 'local_records:manage_records'):
-				return [
-					dict(
-						name='',
-						action='',
-						text='',
-						textsize='',
-						safe=True,
-						type='',
-						order=49,
-						require_confirm=False,
-					)
-				]
-			else:
-				return [
-					dict(
-						name='Delete record',
-						action=self.delete_record,
-						text='&#xf1f8;',
-						textsize='1.2',
-						safe=True,
-						type='label',
-						order=49,
-						require_confirm=False,
-					)
-				]
+		if self.last_player and not await self.app.instance.permission_manager.has_permission(
+			self.last_player,
+			'local_records:manage_records'
+		):
+			return [
+				dict(
+					name='',
+					action='',
+					text='',
+					textsize='',
+					safe=True,
+					type='',
+					order=49,
+					require_confirm=False,
+				)
+			]
+		else:
+			return [
+				dict(
+					name='Delete record',
+					action=self.delete_record,
+					text='&#xf1f8;',
+					textsize='1.2',
+					safe=True,
+					type='label',
+					order=49,
+					require_confirm=False,
+				)
+			]
 
 	async def delete_record(self, player, values, data, view, **kwargs):
 		if not await self.app.instance.permission_manager.has_permission(player, 'local_records:manage_records'):
@@ -261,6 +264,9 @@ class LocalRecordsListView(ManualListView):
 			await self.app.refresh()
 			await self.refresh(player)
 
+	async def display(self, player=None):
+		self.last_player = player
+		return await super().display(player)
 
 class LocalRecordCpCompareListView(ManualListView):
 	title = 'Local Record checkpoint comparison'
