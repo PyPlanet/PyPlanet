@@ -63,6 +63,9 @@ install:
   # Install Python.
   - python -u tests\_scripts\appveyor_init.py
 
+  # Update PIP.
+  - '%PYTHON_HOME%\python.exe -m pip install --upgrade pip'
+
   # Print Versions.
   - '%PYTHON_HOME%\Scripts\virtualenv --version'
   - '%PYTHON_HOME%\Scripts\easy_install --version'

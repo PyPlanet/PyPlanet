@@ -4,6 +4,7 @@ The MX API client class.
 import asyncio
 import logging
 import aiohttp
+import re
 
 from pyplanet import __version__ as pyplanet_version
 from pyplanet.apps.contrib.mx.exceptions import MXMapNotFound, MXInvalidResponse
@@ -21,14 +22,18 @@ class MXApi:
 		self.map_info_page_size = 1
 
 	def base_url(self, api=False):
-		if self.site in ['tm', 'sm']:
+		if self.site =='tm':
 			if api:
-				return 'https://api.mania-exchange.com/{site}'.format(site=self.site)
+				return 'https://tm.mania.exchange{site}'.format(site=self.site)
 			return 'https://{site}.mania-exchange.com'.format(site=self.site)
 		elif self.site == 'tmnext':
 			if api:
 				return 'https://trackmania.exchange/api'
 			return 'https://trackmania.exchange'
+		elif self.site == 'sm':
+			if api:
+				return 'https://sm.mania-exchange.com/{site}'.format(site=self.site)
+			return 'https://{site}.mania-exchange.com'.format(site=self.site)
 
 	async def create_session(self):
 		self.session = await aiohttp.ClientSession(
@@ -42,6 +47,18 @@ class MXApi:
 	async def close_session(self):
 		if self.session and hasattr(self.session, '__aexit__'):
 			await self.session.__aexit__()
+
+	async def mx_random(self):
+		# Regular Expression to extract the MX-ID from a /tracksearch2/random/.
+		mx_pattern = r'\d+'
+		mx_id_regex = re.compile(mx_pattern)
+		url = '{}/tracksearch/random'.format(self.base_url())
+		response = await self.session.get(url)
+		text = str(response.url)
+		matches = re.search(mx_id_regex, text)
+		if not matches:
+			return None
+		return str(matches.group(0))
 
 	async def search(self, options, **kwargs):
 		if options is None:

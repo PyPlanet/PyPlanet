@@ -92,8 +92,10 @@ class Dedimania(AppConfig):
 		)
 
 		# Load settings + initiate api.
-		await self.reload_settings()
-
+		if self.instance.game.game == "tm":
+			await self.reload_settings()
+		return
+		
 		# Register signals
 		self.context.signals.listen(mp_signals.map.map_begin, self.map_begin)
 		self.context.signals.listen(mp_signals.map.map_start, self.map_start)

@@ -326,7 +326,7 @@ class MapAdmin:
 		try:
 			extended_with = await self.instance.map_manager.extend_ta(extend_with=extend_with)
 		except ModeIncompatible:
-			return await self.instance.chat('$ff0Error: Game mode must be Time Attach to use the extend functionality!', player)
+			return await self.instance.chat('$ff0Error: Game mode must be Time Attack to use the extend functionality!', player)
 
 		message = '$ff0Admin $fff{}$z$s$ff0 has extended the time limit with $fff{} seconds.'.format(
 			player.nickname, extended_with
