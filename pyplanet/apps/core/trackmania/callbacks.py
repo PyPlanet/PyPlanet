@@ -105,6 +105,7 @@ async def handle_scores(source, signal, **kwargs):
 		section=source['section']
 	)
 
+
 async def handle_stunt(source, signal, **kwargs):
 	player = await Controller.instance.player_manager.get_player(login=source['login'])
 	return dict(
@@ -473,7 +474,6 @@ tmnext_properties = Callback(
 	code='common_uimodules_properties',
 	target=handle_generic
 )
-
 """
 :Signal:
 	Common.UIModules.Properties for TM2020
@@ -488,9 +488,10 @@ tmnext_properties = Callback(
 :param uimodules: Collection of all UIModules in TM2020.
 :type id Name of the UIModule
 :type position Position to place/get Position [0,-80] as example
-:type scale Scale measurement 
+:type scale Scale measurement
 :type visible Boolean True or False
 """
+
 
 tmnext_ko_elimination = Callback(
 	call='Script.Trackmania.Knockout.Elimination',
@@ -498,7 +499,6 @@ tmnext_ko_elimination = Callback(
 	code='tmnext_ko_elimination',
 	target=handle_generic
 )
-
 """
 :Signal:
 	Knockout Elimination Callback.
