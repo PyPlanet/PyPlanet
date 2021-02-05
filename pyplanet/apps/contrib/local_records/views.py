@@ -217,18 +217,33 @@ class LocalRecordsListView(ManualListView):
 		return items
 
 	async def get_actions(self):
-		return [
-			dict(
-				name='Delete record',
-				action=self.delete_record,
-				text='&#xf1f8;',
-				textsize='1.2',
-				safe=True,
-				type='label',
-				order=49,
-				require_confirm=False,
-			)
-		]
+		for player in self.app.instance.player_manager.online:
+			if not await self.app.instance.permission_manager.has_permission(player, 'local_records:manage_records'):
+				return [
+					dict(
+						name='',
+						action='',
+						text='',
+						textsize='',
+						safe=True,
+						type='',
+						order=49,
+						require_confirm=False,
+					)
+				]
+			else:
+				return [
+					dict(
+						name='Delete record',
+						action=self.delete_record,
+						text='&#xf1f8;',
+						textsize='1.2',
+						safe=True,
+						type='label',
+						order=49,
+						require_confirm=False,
+					)
+				]
 
 	async def delete_record(self, player, values, data, view, **kwargs):
 		if not await self.app.instance.permission_manager.has_permission(player, 'local_records:manage_records'):
