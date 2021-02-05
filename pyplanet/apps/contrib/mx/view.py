@@ -500,7 +500,11 @@ class MxStatusListView(ManualListView):
 
 		# Determine which maps on the server could be found on MX (filter those with an ID attached).
 		mx_maps_on_server = [map for map in self.app.instance.map_manager.maps if map.mx_id is not None]
-		mx_maps_info = await self.api.map_info(*[map.mx_id for map in mx_maps_on_server])
+		try:
+			mx_maps_info = await self.api.map_info(*[map.mx_id for map in mx_maps_on_server])
+		except Exception as e:
+			mx_maps_info = list()
+			logger.error('Could not retrieve map info from MX/TM API: {}'.format(str(e)))
 
 		# Loop through the MX-compatible maps on the server.
 		items = []
