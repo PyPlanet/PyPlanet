@@ -157,7 +157,6 @@ on_echo = Callback(
 	code='on_echo',
 	target=handle_echo
 )
-
 """
 :Signal:
 	Echo was sent from other Controller/GBXRemote.
@@ -167,9 +166,11 @@ on_echo = Callback(
 	Callback sent when a echo was sent from Controller/GBXRemote.
 :Original Callback:
 	`Native` Maniaplanet.Echo
+
 Echo('Test1', 'Test2')
 will be reverted to:
 ('Test2, Test1')
+
 :param internal: internal
 :param public: public
 """
