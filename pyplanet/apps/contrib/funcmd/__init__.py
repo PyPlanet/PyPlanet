@@ -31,9 +31,13 @@ class FunCmd(AppConfig):
 			Command(command='rq', aliases='ragequit', target=self.command_rq, admin=False, description='Ragequit from the server'),
 			Command(command='gg', target=self.command_gg, admin=False, description='Send Good Game to everyone'),
 			Command(command='n1', target=self.command_n1, admin=False, description='Send Nice One to everyone'),
-			Command(command='ns', target=self.command_ns, admin=False, description='Send Nice Shot to everyone'),
 			Command(command='nt', target=self.command_nt, admin=False, description='Send Nice Try/Nice Time to everyone'),
 		)
+
+		if self.instance.game.game == 'sm':
+			await self.instance.command_manager.register(
+				Command(command='ns', target=self.command_ns, admin=False, description='Send Nice Shot to everyone'),
+			)
 
 		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
 
