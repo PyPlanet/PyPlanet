@@ -52,7 +52,7 @@ class FunCmd(AppConfig):
 
 	async def command_afk(self, player, data, **kwargs):
 		if 'admin' in self.instance.apps.apps and self.instance.apps.apps['admin'].server.chat_redirection:
-				return
+			return
 		await self.instance.gbx.multicall(
 			self.instance.gbx('ForceSpectator', player.login, 3),
 			self.instance.chat('$fff {}$z$s$fff is now away from keyboard.'.format(player.nickname))
@@ -60,7 +60,7 @@ class FunCmd(AppConfig):
 
 	async def command_bootme(self, player, data, **kwargs):
 		if 'admin' in self.instance.apps.apps and self.instance.apps.apps['admin'].server.chat_redirection:
-				return
+			return
 		await self.instance.gbx.multicall(
 			self.instance.chat('$fff  {}$z$s$fff chooses to boot back to real life!'.format(player.nickname)),
 			self.instance.gbx('Kick', player.login, 'chooses to boot to real life (/bootme)'),
@@ -68,7 +68,7 @@ class FunCmd(AppConfig):
 
 	async def command_rq(self, player, data, **kwargs):
 		if 'admin' in self.instance.apps.apps and self.instance.apps.apps['admin'].server.chat_redirection:
-				return
+			return
 		await self.instance.gbx.multicall(
 			self.instance.chat('$f00 {}$z$s$f00 rage quits.'.format(player.nickname)),
 			self.instance.gbx('Kick', player.login, 'rage quit (/rq)'),
@@ -76,22 +76,22 @@ class FunCmd(AppConfig):
 
 	async def command_gg(self, player, data, **kwargs):
 		if 'admin' in self.instance.apps.apps and self.instance.apps.apps['admin'].server.chat_redirection:
-				return
+			return
 		await self.instance.chat('$fff {}$z$s$fff Good Game everyone!'.format(player.nickname))
 
 	async def command_n1(self, player, data, **kwargs):
 		if 'admin' in self.instance.apps.apps and self.instance.apps.apps['admin'].server.chat_redirection:
-				return
+			return
 		await self.instance.chat('$fff {}$z$s$fff Nice one!'.format(player.nickname))
 
 	async def command_ns(self, player, data, **kwargs):
 		if 'admin' in self.instance.apps.apps and self.instance.apps.apps['admin'].server.chat_redirection:
-				return
+			return
 		await self.instance.chat('$fff {}$z$s$fff Nice shot!'.format(player.nickname))
 
 	async def command_nt(self, player, data, **kwargs):
 		if 'admin' in self.instance.apps.apps and self.instance.apps.apps['admin'].server.chat_redirection:
-				return
+			return
 		if self.instance.game.game == 'sm':
 			await self.instance.chat('$fff {}$z$s$fff Nice try!'.format(player.nickname))
 		else:
