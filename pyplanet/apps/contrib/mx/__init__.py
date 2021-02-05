@@ -87,7 +87,11 @@ class MX(AppConfig):  # pragma: no cover
 		)
 
 	async def mx_info(self, player, data, **kwargs):
-		map_info = await self.api.map_info(self.instance.map_manager.current_map.uid)
+		try:
+			map_info = await self.api.map_info(self.instance.map_manager.current_map.uid)
+		except Exception as e:
+			map_info = list()
+			logger.error('Could not retrieve map info from MX/TM API: {}'.format(str(e)))
 		if len(map_info) != 1:
 			message = '$f00Map could not be found on MX!'
 			await self.instance.chat(message, player)
