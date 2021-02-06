@@ -4,11 +4,11 @@ import os
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.mx.api import MXApi
 from pyplanet.apps.contrib.mx.exceptions import MXMapNotFound, MXInvalidResponse
-from pyplanet.apps.contrib.mx.view import MxSearchListView, MxPacksListView, MxStatusListView
+from pyplanet.apps.contrib.mx.view import MxSearchListView, MxPacksListView, MxStatusListView, MxRecordsListView
 from pyplanet.contrib.command import Command
 from pyplanet.contrib.setting import Setting
 from collections import namedtuple
-
+from pyplanet.utils import times
 from pyplanet.utils import gbxparser
 
 logger = logging.getLogger(__name__)
@@ -54,13 +54,14 @@ class MX(AppConfig):  # pragma: no cover
 		await self.instance.command_manager.register(
 			Command(command='info', namespace=self.namespace, target=self.mx_info,
 					description='Display ManiaExchange/TrackmaniaExchange information for current map.'),
+			Command(command='records', namespace=self.namespace, target=self.mx_records,
+					description='Display ManiaExchange/TrackmaniaExchange Offline Records for current map.'),
 			# support backwards
 			Command(command='mx', namespace='add', target=self.add_mx_map, perms='mx:add_remote', admin=True,
 					description='Add map from ManiaExchange to the maplist.').add_param(
 				'maps', nargs='*', type=str, required=True, help='MX ID(s) of maps to add.'),
 			# new mx command random (Adding) Random Maps from MX
-			Command(command='random', namespace=self.namespace, target=self.random_mx_map, perms='mx:add_remote',
-					admin=True, description='Get Random Maps on ManiaExchange/TrackmaniaExchange.'),
+			Command(command='random', namespace=self.namespace, target=self.random_mx_map, perms='mx:add_remote', admin=True, description='Get Random Maps on ManiaExchange/TrackmaniaExchange.').add_param('', nargs='*', type=str, required=False, help='Random maps Adding.'),
 			# new mx namespace
 			Command(command='search', aliases=['list'], namespace=self.namespace, target=self.search_mx_map, perms='mx:add_remote',
 					admin=True, description='Search for maps on ManiaExchange/TrackmaniaExchange.'),
@@ -77,7 +78,7 @@ class MX(AppConfig):  # pragma: no cover
 					admin=True, description='Add mappack from ManiaExchange/TrackmaniaExchange to the maplist.')
 				.add_param('pack', nargs='*', type=str, required=True, help='MX/TMX ID(s) of mappacks to add.'),
 		)
-
+		
 	async def random_mx_map(self, player, data, **kwargs):
 		map_random_id = await self.api.mx_random()
 		await self.instance.command_manager.execute(
@@ -85,13 +86,13 @@ class MX(AppConfig):  # pragma: no cover
 			'//{} add maps'.format(self.namespace),
 			str(map_random_id)
 		)
-
+		
+	async def mx_records(self, player, data, **kwargs):
+			window = MxRecordsListView(self, self.api)
+			await window.display(player=player)
+		
 	async def mx_info(self, player, data, **kwargs):
-		try:
-			map_info = await self.api.map_info(self.instance.map_manager.current_map.uid)
-		except Exception as e:
-			map_info = list()
-			logger.error('Could not retrieve map info from MX/TM API: {}'.format(str(e)))
+		map_info = await self.api.map_info(self.instance.map_manager.current_map.uid)
 		if len(map_info) != 1:
 			message = '$f00Map could not be found on MX!'
 			await self.instance.chat(message, player)
@@ -107,13 +108,26 @@ class MX(AppConfig):  # pragma: no cover
 			)
 		]
 		if 'ReplayCount' in map_info:  # If TM with ReplayCount
-			messages.append(
+			wr_replay = await self.api.map_offline_record(map_info['TrackID'])
+			if len(wr_replay) != 1:
+				messages.append(
 				'$ff0Number of replays: $fff{num_replays}$ff0, Number of awards: $fff{num_awards}$ff0, {site_code}-ID: $l[{link}]$fff{id}$l $n(click to open {site_code})'.format(
 					num_replays=map_info['ReplayCount'],
 					num_awards=map_info['AwardCount'],
 					site_code=self.site_short_name,
 					link='{}/s/tr/{}'.format(self.api.base_url(), map_info['TrackID']),
+					id=map_info['TrackID']))
+			else:
+				offline_mx_record = wr_replay[0]
+				messages.append(
+				'$ff0Number of replays: $fff{num_replays}$ff0, Number of awards: $fff{num_awards}$ff0, {site_code}-ID: $l[{link}]$fff{id}$l $n(click to open {site_code}), $o$ff0Offline MX Record: $fff{Replay_Time} $ff0by: $fff{User_name}'.format(
+					num_replays=map_info['ReplayCount'],
+					num_awards=map_info['AwardCount'],
+					site_code=self.site_short_name,
+					link='{}/s/tr/{}'.format(self.api.base_url(), map_info['TrackID']),
 					id=map_info['TrackID'],
+					Replay_Time=times.format_time(int(offline_mx_record['ReplayTime'])),
+					User_name=offline_mx_record['Username']
 				)
 			)
 		else:
@@ -121,7 +135,9 @@ class MX(AppConfig):  # pragma: no cover
 				'$ff0{site_code}-ID: $l[{link}]$fff{id}$l (click to open {site_code})'.format(
 					site_code=self.site_short_name,
 					link='{}/s/tr/{}'.format(self.api.base_url(), map_info['MapID']),
-					id=map_info['MapID']
+					id=map_info['MapID'],
+					ReplayTime='No Records',
+					User_name='No Records'
 				)
 			)
 
@@ -169,7 +185,7 @@ class MX(AppConfig):  # pragma: no cover
 
 		# Prepare and fetch information about the maps from MX.
 		mx_ids = data.maps
-
+		
 		try:
 			infos = await self.api.map_info(*mx_ids)
 			if len(infos) == 0:
