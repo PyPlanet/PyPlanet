@@ -8,6 +8,7 @@ from pyplanet.views.generics import ManualListView, ask_confirmation
 from pyplanet.apps.contrib.mx.exceptions import MXMapNotFound, MXInvalidResponse
 from datetime import datetime
 from collections import namedtuple
+from pyplanet.utils import times
 
 logger = logging.getLogger(__name__)
 
@@ -500,11 +501,7 @@ class MxStatusListView(ManualListView):
 
 		# Determine which maps on the server could be found on MX (filter those with an ID attached).
 		mx_maps_on_server = [map for map in self.app.instance.map_manager.maps if map.mx_id is not None]
-		try:
-			mx_maps_info = await self.api.map_info(*[map.mx_id for map in mx_maps_on_server])
-		except Exception as e:
-			mx_maps_info = list()
-			logger.error('Could not retrieve map info from MX/TM API: {}'.format(str(e)))
+		mx_maps_info = await self.api.map_info(*[map.mx_id for map in mx_maps_on_server])
 
 		# Loop through the MX-compatible maps on the server.
 		items = []
@@ -552,3 +549,80 @@ class MxStatusListView(ManualListView):
 	def destroy_sync(self):
 		self.cache = None
 		return super().destroy_sync()
+		
+class MxRecordsListView(ManualListView):
+	icon_style = 'Icons128x128_1'
+	icon_substyle = 'Statistics'
+
+	def __init__(self, app, api):
+		"""
+		:param app: App config instance.
+		:param player: Player instance.
+		:type app: pyplanet.apps.contrib.mx.app.RealMX
+		"""
+		super().__init__()
+		self.manager = app.context.ui
+		self.provide_search = False
+		self.app = app
+		self.api = api
+
+	async def get_title(self):
+		return '{} Offline Records for {}'.format(self.app.site_name, self.app.instance.map_manager.current_map.name)
+		
+	async def get_fields(self):
+		fields = [
+			{
+				'name': 'Rank',
+				'index': 'Rank',
+				'sorting': True,
+				'searching': False,
+				'width': 15,
+				'type': 'label'
+			},
+			{
+				'name': 'Username',
+				'index': 'Username',
+				'sorting': True,
+				'searching': True,
+				'width': 15,
+				'type': 'label'
+			},
+			{
+				'name': 'Time',
+				'index': 'Time',
+				'sorting': True,
+				'searching': False,
+				'width': 15,
+				'type': 'label'
+			}
+		]
+		
+		return fields
+		
+	async def get_data(self):
+		map_info = await self.api.map_info(self.app.instance.map_manager.current_map.uid)
+		if len(map_info) != 1:
+			message = '$f00Map could not be found on MX!'
+			await self.app.instance.chat(message)
+		return
+		map_info = map_info[0][1]
+
+		if 'ReplayCount' in map_info:  # If TM with ReplayCount
+			wr_replay = await self.api.map_offline_records(map_info['TrackID'])
+			offline_mx_records = wr_replay
+			print(offline_mx_records)
+			items = list()
+			for offline_mx_record in offline_mx_records:
+				item = dict()
+				item['Rank'] = offline_mx_record['Position']
+				item['Username'] = offline_mx_record['Username']
+				item['Time'] = times.format_time(int(offline_mx_record['ReplayTime']))
+				items.append(item)
+			return items
+
+	async def destroy(self):
+		return await super().destroy()
+
+	def destroy_sync(self):
+		return super().destroy_sync()
+	
