@@ -576,7 +576,7 @@ class MxRecordsListView(ManualListView):
 				'index': 'Rank',
 				'sorting': True,
 				'searching': False,
-				'width': 15,
+				'width': 10,
 				'type': 'label'
 			},
 			{
@@ -584,7 +584,7 @@ class MxRecordsListView(ManualListView):
 				'index': 'Username',
 				'sorting': True,
 				'searching': True,
-				'width': 15,
+				'width': 25,
 				'type': 'label'
 			},
 			{
@@ -592,9 +592,17 @@ class MxRecordsListView(ManualListView):
 				'index': 'Time',
 				'sorting': True,
 				'searching': False,
-				'width': 15,
+				'width': 25,
 				'type': 'label'
-			}
+			},
+			{
+				'name': 'Download Replay',
+				'index': 'DReplay',
+				'sorting': True,
+				'searching': False,
+				'width': 100,
+				'type': 'label'
+			},
 		]
 		
 		return fields
@@ -604,19 +612,22 @@ class MxRecordsListView(ManualListView):
 		if len(map_info) != 1:
 			message = '$f00Map could not be found on MX!'
 			await self.app.instance.chat(message)
-		return
+			return
 		map_info = map_info[0][1]
 
 		if 'ReplayCount' in map_info:  # If TM with ReplayCount
 			wr_replay = await self.api.map_offline_records(map_info['TrackID'])
+			#print(wr_replay)
 			offline_mx_records = wr_replay
-			print(offline_mx_records)
+			#print(offline_mx_records)
 			items = list()
 			for offline_mx_record in offline_mx_records:
 				item = dict()
 				item['Rank'] = offline_mx_record['Position']
 				item['Username'] = offline_mx_record['Username']
 				item['Time'] = times.format_time(int(offline_mx_record['ReplayTime']))
+				urldownload = '{}/replays/download/{}'.format(self.api.base_url(False), offline_mx_record['ReplayID'])
+				item['DReplay'] = '$l[{}]Download$l'.format(urldownload)
 				items.append(item)
 			return items
 
