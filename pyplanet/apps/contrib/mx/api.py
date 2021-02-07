@@ -153,20 +153,17 @@ class MXApi:
 		return record
 	
 	async def map_offline_records(self, trackid):
-		url = '{base}/replays/get_replays/{id}'.format(base=self.base_url(True), id=trackid)
-		params = {'key': self.key} if self.key else {}
-		print(url)
-		response = await self.session.get(url, params=params)
+		url = '{base}/replays/get_replays/{id}/10'.format(base=self.base_url(True), id=trackid)
+		response = await self.session.get(url)
 		if response.status == 404:
 			raise MXMapNotFound('Map has not been found!')
 		if response.status == 302:
 			raise MXInvalidResponse('Map author has declined info for the map. Status code: {}'.format(response.status))
 		if response.status < 200 or response.status > 399:
 			raise MXInvalidResponse('Got invalid response status from ManiaExchange: {}'.format(response.status))
-		
-		json = await response.json()
 		record = list()
-		for info in json:
+		for info in await response.json():
+			print(info)
 			record.append((info))
 		return record
 	
