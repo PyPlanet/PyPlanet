@@ -254,7 +254,7 @@ class FlowAdmin:
 		if self.instance.game.game == 'sm':
 			method_teampoints = 'Shootmania.SetTeamPoints'
 		if self.instance.game.game in ['tm', 'tmnext']:
-			method_teampoints = 'Trackmania.SeTeamPoints'
+			method_teampoints = 'Trackmania.SetTeamPoints'
 		await self.instance.gbx.multicall(
 				self.instance.gbx(method_teampoints, teamid, *points, encode_json=False, response_id=False),
 				self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points distribution for Team: $fff{} $z$s$ff0 to: {}'.format(
