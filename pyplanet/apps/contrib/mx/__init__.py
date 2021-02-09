@@ -50,12 +50,10 @@ class MX(AppConfig):  # pragma: no cover
 			self.namespace = 'tmx'
 			self.site_name = 'TrackmaniaExchange'
 			self.site_short_name = 'TMX'
-
+		
 		await self.instance.command_manager.register(
 			Command(command='info', namespace=self.namespace, target=self.mx_info,
 					description='Display ManiaExchange/TrackmaniaExchange information for current map.'),
-			Command(command='records', namespace=self.namespace, target=self.mx_records,
-					description='Display ManiaExchange/TrackmaniaExchange Offline Records for current map.'),
 			# support backwards
 			Command(command='mx', namespace='add', target=self.add_mx_map, perms='mx:add_remote', admin=True,
 					description='Add map from ManiaExchange to the maplist.').add_param(
@@ -78,6 +76,13 @@ class MX(AppConfig):  # pragma: no cover
 					admin=True, description='Add mappack from ManiaExchange/TrackmaniaExchange to the maplist.')
 				.add_param('pack', nargs='*', type=str, required=True, help='MX/TMX ID(s) of mappacks to add.'),
 		)
+		
+		if self.instance.game.game != 'sm':
+			await self.instance.command_manager.register(
+				Command(command='records', namespace=self.namespace, target=self.mx_records,
+					description='Display ManiaExchange/TrackmaniaExchange Offline Records for current map.'),
+			)
+
 		
 	async def random_mx_map(self, player, data, **kwargs):
 		map_random_id = await self.api.mx_random()
