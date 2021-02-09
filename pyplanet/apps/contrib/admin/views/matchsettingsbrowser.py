@@ -1,7 +1,9 @@
 import logging
 import os
-from argparse import Namespace
+import asyncio
+import xml.etree.ElementTree as ET
 
+from argparse import Namespace
 from pyplanet.views.generics import ManualListView
 from pyplanet.utils import gbxparser
 
@@ -83,10 +85,55 @@ class LoadMatchSettingsBrowserView(ManualListView):
 
 	async def load_matchsettings(self, filename, player):
 		map_path = os.path.join(self.current_dir, filename)
+				
+		try:
+			file_path = 'MatchSettings/{}'.format(filename)
+			map_dir = await self.app.instance.gbx('GetMapsDirectory')
+			tree = ET.parse(map_dir+file_path)
+			root = tree.getroot()
+			
+			# We need to go one level below to get <header>
+			# and then one more level from that to go to <type>
+			for script_name in root.findall('gameinfos/script_name'):
+				await self.app.instance.mode_manager.set_next_script(script_name.text)
+				await self.app.instance.mode_manager.get_next_script(True)			
+			for entry in root.findall('mode_script_settings'):
+				settings = entry.findall('setting')
+				for setting in settings:
+					settings_modescript_name = dict()
+					settings_modescript_name = setting.attrib['name']
+					settings_modescript_type = setting.attrib['type']
+					if settings_modescript_type == 'boolean':
+						real_type = bool
+					elif settings_modescript_type == 'integer':
+						real_type = int
+					elif settings_modescript_type == 'double':
+						real_type = float
+					elif settings_modescript_type == 'text':
+						real_type = str
 
-		data = Namespace()
-		data.file = map_path
-		await self.app.map.read_map_list(player, data)
+					settings_modescript_value = real_type(setting.attrib['value'])
+					modescriptsettings = {settings_modescript_name: settings_modescript_value}
+					await self.app.instance.mode_manager.update_next_settings(modescriptsettings)
+		except Exception as e:
+			logger.warning('Error when script settings are being changed: {}'.format(player.login, str(e)))
+			message_mode_scriptsettings = '$ff0Error: Can\'t SetScriptSettings, Error: {}'.format(str(e))
+			await self.app.instance.chat(message_mode_scriptsettings, player.login)
+		
+		try:
+			await self.app.instance.map_manager.load_matchsettings(file_path)
+			message = '$ff0Match Settings has been loaded from: {}'.format(file_path)
+			message_mode_scriptsettings = '$ff0Mode Script Settings has been loaded from: {}'.format(file_path)
+		except:
+			message = '$ff0Could not load match settings! Does the file exists? Check log for details.'
+			message_mode_scriptsettings = '$ff0Could not load Mode Script Settings!  Check log for details.'
+			
+		# Send message + reload all maps in memory.
+		await asyncio.gather(
+				self.app.instance.chat(message, player),
+				self.app.instance.chat(message_mode_scriptsettings, player),
+				self.app.instance.map_manager.update_list(full_update=True)
+				)
 		
 class WriteMatchSettingsBrowserView(ManualListView):
 	app = None
