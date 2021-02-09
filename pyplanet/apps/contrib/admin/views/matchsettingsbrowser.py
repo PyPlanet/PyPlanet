@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class LoadMatchSettingsBrowserView(ManualListView):
 	app = None
-	title = 'Local MatchSettings'
+	title = 'Load Local MatchSettings'
 	icon_style = 'Icons128x128_1'
 	icon_substyle = 'Browse'
 
@@ -34,7 +34,7 @@ class LoadMatchSettingsBrowserView(ManualListView):
 	async def set_dir(self, directory):
 		self.objects_raw = list()
 		self.current_dir = directory
-		self.title = 'Local MatchSettings     $n$aaa' + self.current_dir
+		self.title = 'Load Local MatchSettings     $n$aaa' + self.current_dir
 
 		full_dir = os.path.join('UserData', 'Maps/MatchSettings', self.current_dir)
 		files = await self.app.instance.storage.driver.listdir(path=full_dir)
@@ -137,7 +137,7 @@ class LoadMatchSettingsBrowserView(ManualListView):
 		
 class WriteMatchSettingsBrowserView(ManualListView):
 	app = None
-	title = 'Local MatchSettings'
+	title = 'Write Local MatchSettings'
 	icon_style = 'Icons128x128_1'
 	icon_substyle = 'Browse'
 
@@ -159,7 +159,7 @@ class WriteMatchSettingsBrowserView(ManualListView):
 	async def set_dir(self, directory):
 		self.objects_raw = list()
 		self.current_dir = directory
-		self.title = 'Local MatchSettings     $n$aaa' + self.current_dir
+		self.title = 'Write Local MatchSettings     $n$aaa' + self.current_dir
 
 		full_dir = os.path.join('UserData', 'Maps/MatchSettings', self.current_dir)
 		files = await self.app.instance.storage.driver.listdir(path=full_dir)
