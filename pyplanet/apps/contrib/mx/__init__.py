@@ -93,9 +93,21 @@ class MX(AppConfig):  # pragma: no cover
 		)
 		
 	async def mx_records(self, player, data, **kwargs):
+		map_info = await self.api.map_info(self.instance.map_manager.current_map.uid)
+		if len(map_info) != 1:
+			message = '$f00Map could not be found on MX!'
+			await self.instance.chat(message, player)
+			return
+		map_info = map_info[0][1]
+		
+		if 'ReplayCount' != 0 in map_info:  # If TM with ReplayCount
 			window = MxRecordsListView(self, self.api)
 			await window.display(player=player)
-		
+		else:
+			message = '$f00Map has no Offline Records on MX!'
+			await self.instance.chat(message, player)
+			return
+			
 	async def mx_info(self, player, data, **kwargs):
 		map_info = await self.api.map_info(self.instance.map_manager.current_map.uid)
 		if len(map_info) != 1:

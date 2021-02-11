@@ -22,7 +22,7 @@ class MXApi:
 		self.map_info_page_size = 1
 
 	def base_url(self, api=False):
-		if self.site in ['tm', 'sm']:
+		if self.site == 'tm':
 			if api:
 				return 'https://{site}.mania.exchange/api'.format(site=self.site)
 			return 'https://{site}.mania.exchange'.format(site=self.site)
@@ -30,6 +30,10 @@ class MXApi:
 			if api:
 				return 'https://trackmania.exchange/api'
 			return 'https://trackmania.exchange'
+		elif self.site == 'sm':	
+			if api:
+				return 'https://api.mania-exchange.com/sm'
+			return 'https://sm.mania-exchange.com'
 
 	async def create_session(self):
 		self.session = await aiohttp.ClientSession(
@@ -168,10 +172,18 @@ class MXApi:
 		return record
 	
 	async def map_info_page(self, *ids):
-		url = '{base}/maps/get_map_info/multi/{ids}'.format(
+		if self.site != 'sm':
+			url = '{base}/maps/get_map_info/multi/{ids}'.format(
 			base=self.base_url(True),
 			ids=','.join(str(i) for i in ids[0])
-		)
+			)
+			
+		else:
+			url = '{base}/maps/{ids}'.format(
+				base=self.base_url(True),
+				ids=','.join(str(i) for i in ids[0])
+			)
+
 		params = {'key': self.key} if self.key else {}
 		response = await self.session.get(url, params=params)
 		if response.status == 404:
