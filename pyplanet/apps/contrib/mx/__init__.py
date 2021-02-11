@@ -100,7 +100,7 @@ class MX(AppConfig):  # pragma: no cover
 			return
 		map_info = map_info[0][1]
 		
-		if 'ReplayCount' != 0 in map_info:  # If TM with ReplayCount
+		if map_info['ReplayCount'] != 0:  # If TM with ReplayCount
 			window = MxRecordsListView(self, self.api)
 			await window.display(player=player)
 		else:
