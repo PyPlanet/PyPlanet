@@ -83,24 +83,17 @@ class UIProperties:	 # pragma: no cover
 				self._properties = xd.parse(self._raw['raw_1'])
 			if self._instance.game.game == "tmnext":
 				self._raw = await self._instance.gbx(method, timeout=10)
-				"""self._raw['uimodules']"""
-				for uimodules_id in self._raw['uimodules']:
-					print(self._raw)
-					print(uimodules_id['id'])
-					print(uimodules_id['position'])
-					print(uimodules_id['visible'])
-					data = '{ "uimodules": [ { "id": "Race_Chrono", "position": [0.0, 0.0], "position_update": true } ] }'
-					print(data)
-					method = 'Common.UIModules.SetProperties'
-					try:
-						await self._instance.gbx.script(method, data, encode_json=False, response_id=False)
-					except Exception as e:
-						logger.warning('Can\'t Send Common UI Properties to Server! Error: {}'.format(str(e)))
-					try:
-						methods = 'Common.UIModules.GetProperties'
-						await self._instance.gbx(methods, timeout=10)
-					except Exception as e:
-						logger.warning('Can\'t Get Common UI Properties from Server! Error: {}'.format(str(e)))
+				set_Race_Checkpoint_off = '{ "uimodules": [ { "id": "Race_Checkpoint", "visible": false, "visible_update": true } ] }'
+				method = 'Common.UIModules.SetProperties'
+				try:
+					await self._instance.gbx.script(method, set_Race_Checkpoint_off, encode_json=False, response_id=False)
+				except Exception as e:
+					logger.warning('Can\'t Send Common UI Properties to Server! Error: {}'.format(str(e)))
+				set_Rounds_SmallScoresTable_position = '{ "uimodules": [ { "id": "Rounds_SmallScoresTable", "position": [-160, 10], "position_update": true } ] }'
+				try:
+					await self._instance.gbx.script(method, set_Rounds_SmallScoresTable_position, encode_json=False, response_id=False)
+				except Exception as e:
+					logger.warning('Can\'t Send Common UI Properties to Server! Error: {}'.format(str(e)))
 		except Exception as e:
 			self._properties = dict()
 			self._raw = None
