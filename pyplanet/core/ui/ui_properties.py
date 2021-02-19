@@ -84,41 +84,56 @@ class UIProperties:	 # pragma: no cover
 			if self._instance.game.game == "tmnext":
 				self._raw = await self._instance.gbx(method, timeout=2)
 				method = 'Common.UIModules.SetProperties'
-				set_Race_Checkpoint_off = '{ "uimodules": [ { "id": "Race_Checkpoint", "visible": true, "visible_update": true } ] }'
+				set_Race_Checkpoint = '{ "uimodules": [ { "id": "Race_Checkpoint", "visible": false, "visible_update": true } ] }'
 				try:
-					await self._instance.gbx.script(method, set_Race_Checkpoint_off, encode_json=False, response_id=False)
+					await self._instance.gbx.script(method, set_Race_Checkpoint, encode_json=False, response_id=False)
 				except Exception as e:
 					logger.warning('Can\'t Send Common UI Properties to Server! Error: {}'.format(str(e)))
-				set_Race_BestRaceViewer_position = '{ "uimodules": [ { "id": "Race_BestRaceViewer", "position": [135, -30], "position_update": true } ] }'
+				set_Race_BestRaceViewer = '{ "uimodules": [ { "id": "Race_BestRaceViewer", "position": [135, -30], "position_update": true } ] }'
 				try:
-					await self._instance.gbx.script(method, set_Race_BestRaceViewer_position, encode_json=False, response_id=False)
+					await self._instance.gbx.script(method, set_Race_BestRaceViewer, encode_json=False, response_id=False)
 				except Exception as e:
 					logger.warning('Can\'t Send Common UI Properties to Server! Error: {}'.format(str(e)))
-				set_Race_Countdown_position = '{ "uimodules": [ { "id": "Race_Countdown", "position": [155, -15], "position_update": true } ] }'
+				set_Race_Countdown = '{ "uimodules": [ { "id": "Race_Countdown", "position": [155, -15], "position_update": true } ] }'
 				try:
-					await self._instance.gbx.script(method, set_Race_Countdown_position, encode_json=False, response_id=False)
+					await self._instance.gbx.script(method, set_Race_Countdown, encode_json=False, response_id=False)
 				except Exception as e:
 					logger.warning('Can\'t Send Common UI Properties to Server! Error: {}'.format(str(e)))
-				set_Race_LapsCounter_position = '{ "uimodules": [ { "id": "Race_LapsCounter", "scale": "0.7", "scale_update": "true", "position": [155.7, -77], "position_update": true } ] }'
+				set_Race_LapsCounter = '{ "uimodules": [ { "id": "Race_LapsCounter", "scale": "0.7", "scale_update": "true", "position": [155.7, -77], "position_update": true } ] }'
 				try:
-					await self._instance.gbx.script(method, set_Race_LapsCounter_position, encode_json=False, response_id=False)
+					await self._instance.gbx.script(method, set_Race_LapsCounter, encode_json=False, response_id=False)
 				except Exception as e:
 					logger.warning('Can\'t Send Common UI Properties to Server! Error: {}'.format(str(e)))
-				set_Race_TimeGap_position = '{ "uimodules": [ { "id": "Race_TimeGap", "position": [44, -45], "position_update": true } ] }'
+				set_Race_TimeGap = '{ "uimodules": [ { "id": "Race_TimeGap", "position": [44, -45], "position_update": true } ] }'
 				try:
-					await self._instance.gbx.script(method, set_Race_TimeGap_position, encode_json=False, response_id=False)
+					await self._instance.gbx.script(method, set_Race_TimeGap, encode_json=False, response_id=False)
 				except Exception as e:
 					logger.warning('Can\'t Send Common UI Properties to Server! Error: {}'.format(str(e)))
-				set_Rounds_SmallScoresTable_position = '{ "uimodules": [ { "id": "Rounds_SmallScoresTable", "position": [-160, 8], "position_update": true } ] }'
+				set_Rounds_SmallScoresTable = '{ "uimodules": [ { "id": "Rounds_SmallScoresTable", "position": [-160, 8], "position_update": true } ] }'
 				try:
-					await self._instance.gbx.script(method, set_Rounds_SmallScoresTable_position, encode_json=False, response_id=False)
+					await self._instance.gbx.script(method, set_Rounds_SmallScoresTable, encode_json=False, response_id=False)
 				except Exception as e:
 					logger.warning('Can\'t Send Common UI Properties to Server! Error: {}'.format(str(e)))
-				set_Race_WarmUp_position = '{ "uimodules": [ { "id": "Race_WarmUp", "scale": "0.7", "scale_update": "true", "position": [155.7, -65], "position_update": true } ] }'
+				set_Race_WarmUp = '{ "uimodules": [ { "id": "Race_WarmUp", "scale": "0.7", "scale_update": true, "position": [155.7, -65], "position_update": true } ] }'
 				try:
-					await self._instance.gbx.script(method, set_Race_WarmUp_position, encode_json=False, response_id=False)
+					await self._instance.gbx.script(method, set_Race_WarmUp, encode_json=False, response_id=False)
 				except Exception as e:
-					logger.warning('Can\'t Send Common UI Properties to Server! Error: {}'.format(str(e)))				
+					logger.warning('Can\'t Send Common UI Properties to Server! Error: {}'.format(str(e)))
+				set_Race_RespawnHelper = '{ "uimodules": [ { "id": "Race_RespawnHelper", "visible": false, "visible_update": true } ] }'
+				try:
+					await self._instance.gbx.script(method, set_Race_RespawnHelper, encode_json=False, response_id=False)
+				except Exception as e:
+					logger.warning('Can\'t Send Common UI Properties to Server! Error: {}'.format(str(e)))
+				set_Race_ScoresTable = '{ "uimodules": [ { "id": "Race_ScoresTable", "scale": "0.9", "scale_update": true } ] }'
+				try:
+					await self._instance.gbx.script(method, set_Race_ScoresTable, encode_json=False, response_id=False)
+				except Exception as e:
+					logger.warning('Can\'t Send Common UI Properties to Server! Error: {}'.format(str(e)))
+				set_Race_SpectatorBase = '{ "uimodules": [ { "id": "Race_SpectatorBase_Commands", "position": [50,-87], "position_update": true } ] }'
+				try:
+					await self._instance.gbx.script(method, set_Race_SpectatorBase, encode_json=False, response_id=False)
+				except Exception as e:
+					logger.warning('Can\'t Send Common UI Properties to Server! Error: {}'.format(str(e)))
 		except Exception as e:
 			self._properties = dict()
 			self._raw = None
