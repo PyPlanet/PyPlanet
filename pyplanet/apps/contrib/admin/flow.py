@@ -80,135 +80,173 @@ class FlowAdmin:
 		
 		if 'smurfs' in pd:
 			points_smurfs = str('50,45,41,38,36,34,32,30,28,26,24,22,20,18,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,1,1').split(',')
-			partition = [str(p).strip() for p in points_smurfs]
+			#print(points_smurfs)
+			remove_content = ["'", "[", "]"] # Content you want to be removed from `str`
+			my_str = repr(points_smurfs)  # convert list to `str`
+			for content in remove_content:
+				my_str = my_str.replace(content, '')
 			
+			partition = [str(p).strip() for p in points_smurfs]
 			await self.instance.gbx.multicall(
 			self.instance.gbx('Trackmania.SetPointsRepartition', *partition, encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points repartition to: {}.'.format(
-				player.nickname, '$06fSmurfs Cup')
+				player.nickname, '$06fSmurfs Cup'))
 			)
-		)
+			await self.instance.mode_manager.update_settings({'S_PointsRepartition': str(my_str)})
 		
 		if 'f1old' in pd:
 			points_f1old = str('10,8,6,5,4,3,2,1').split(',')
 			partition = [str(p).strip() for p in points_f1old]
-			
+			my_str = repr(points_f1old)  # convert list to `str`
+			for content in remove_content:
+				my_str = my_str.replace(content, '')
+				
 			await self.instance.gbx.multicall(
 			self.instance.gbx('Trackmania.SetPointsRepartition', *partition, encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points repartition to: {}.'.format(
-				player.nickname, 'F1 Old')
+				player.nickname, 'F1 Old'))
 			)
-		)
+			await self.instance.mode_manager.update_settings({'S_PointsRepartition': str(my_str)})
 		
 		if 'f1new' in pd:
 			points_f1new = str('25,18,15,12,10,8,6,4,2,1').split(',')
 			partition = [str(p).strip() for p in points_f1new]
-			
+			my_str = repr(points_f1new)  # convert list to `str`
+			for content in remove_content:
+				my_str = my_str.replace(content, '')
+				
 			await self.instance.gbx.multicall(
 			self.instance.gbx('Trackmania.SetPointsRepartition', *partition, encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points repartition to: {}.'.format(
-				player.nickname, 'F1 New')
+				player.nickname, 'F1 New'))
 			)
-		)
+			await self.instance.mode_manager.update_settings({'S_PointsRepartition': str(my_str)})
 		
 		if 'motogp' in pd:
 			points_motogp = str('25,20,16,13,11,10,9,8,7,6,5,4,3,2,1').split(',')
 			partition = [str(p).strip() for p in points_motogp]
-			
+			my_str = repr(points_motogp)  # convert list to `str`
+			for content in remove_content:
+				my_str = my_str.replace(content, '')
+				
 			await self.instance.gbx.multicall(
 			self.instance.gbx('Trackmania.SetPointsRepartition', *partition, encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points repartition to: {}.'.format(
-				player.nickname, 'MotoGP')
+				player.nickname, 'MotoGP'))
 			)
-		)
+			await self.instance.mode_manager.update_settings({'S_PointsRepartition': str(my_str)})
 		
 		if 'motogp5' in pd:
 			points_motogp5 = str('30,25,21,18,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1').split(',')
 			partition = [str(p).strip() for p in points_motogp5]
-			
+			my_str = repr(points_motogp5)  # convert list to `str`
+			for content in remove_content:
+				my_str = my_str.replace(content, '')
+				
 			await self.instance.gbx.multicall(
 			self.instance.gbx('Trackmania.SetPointsRepartition', *partition, encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points repartition to: {}.'.format(
-				player.nickname, 'MotoGP + 5')
+				player.nickname, 'MotoGP + 5'))
 			)
-		)
+			await self.instance.mode_manager.update_settings({'S_PointsRepartition': str(my_str)})
 		
 		if 'fet1' in pd:
 			points_fet1 = str('12,10,9,8,7,6,5,4,4,3,3,3,2,2,2,1').split(',')
 			partition = [str(p).strip() for p in points_fet1]
-			
+			my_str = repr(points_fet1)  # convert list to `str`
+			for content in remove_content:
+				my_str = my_str.replace(content, '')
+				
 			await self.instance.gbx.multicall(
 			self.instance.gbx('Trackmania.SetPointsRepartition', *partition, encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points repartition to: {}.'.format(
-				player.nickname, 'Formula ET Season 1')
+				player.nickname, 'Formula ET Season 1'))
 			)
-		)
-		
+			await self.instance.mode_manager.update_settings({'S_PointsRepartition': str(my_str)})
+			
 		if 'fet2' in pd:
 			points_fet2 = str('15,12,11,10,9,8,7,6,6,5,5,4,4,3,3,3,2,2,2,1').split(',')
 			partition = [str(p).strip() for p in points_fet2]
-			
+			my_str = repr(points_fet2)  # convert list to `str`
+			for content in remove_content:
+				my_str = my_str.replace(content, '')
+				
 			await self.instance.gbx.multicall(
 			self.instance.gbx('Trackmania.SetPointsRepartition', *partition, encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points repartition to: {}.'.format(
-				player.nickname, 'Formula ET Season 2')
+				player.nickname, 'Formula ET Season 2'))
 			)
-		)
+			await self.instance.mode_manager.update_settings({'S_PointsRepartition': str(my_str)})
 		
 		if 'fet3' in pd:
 			points_fet3 = str('15,12,11,10,9,8,7,6,6,5,5,4,4,3,3,3,2,2,2,2,1').split(',')
 			partition = [str(p).strip() for p in points_fet3]
+			my_str = repr(points_fet3)  # convert list to `str`
+			for content in remove_content:
+				my_str = my_str.replace(content, '')
 			
 			await self.instance.gbx.multicall(
 			self.instance.gbx('Trackmania.SetPointsRepartition', *partition, encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points repartition to: {}.'.format(
-				player.nickname, 'Formula ET Season 3')
+				player.nickname, 'Formula ET Season 3'))
 			)
-		)
+			await self.instance.mode_manager.update_settings({'S_PointsRepartition': str(my_str)})
 		
 		if 'champcar' in pd:
 			points_champcar = str('31,27,25,23,21,19,17,15,13,11,10,9,8,7,6,5,4,3,2,1').split(',')
 			partition = [str(p).strip() for p in points_champcar]
-			
+			my_str = repr(points_champcar)  # convert list to `str`
+			for content in remove_content:
+				my_str = my_str.replace(content, '')
+				
 			await self.instance.gbx.multicall(
 			self.instance.gbx('Trackmania.SetPointsRepartition', *partition, encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points repartition to: {}.'.format(
-				player.nickname, 'Champ Car World Series')
+				player.nickname, 'Champ Car World Series'))
 			)
-		)
+			await self.instance.mode_manager.update_settings({'S_PointsRepartition': str(my_str)})
 		
 		if 'superstars' in pd:
 			points_superstars = str('20,15,12,10,8,6,4,3,2,1').split(',')
 			partition = [str(p).strip() for p in points_superstars]
-			
+			my_str = repr(points_superstars)  # convert list to `str`
+			for content in remove_content:
+				my_str = my_str.replace(content, '')
+				
 			await self.instance.gbx.multicall(
 			self.instance.gbx('Trackmania.SetPointsRepartition', *partition, encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points repartition to: {}.'.format(
-				player.nickname, 'Superstars')
+				player.nickname, 'Superstars'))
 			)
-		)
+			await self.instance.mode_manager.update_settings({'S_PointsRepartition': str(my_str)})
 		
 		if 'simple5' in pd:
 			points_simple5 = str('5,4,3,2,1').split(',')
 			partition = [str(p).strip() for p in points_simple5]
-			
+			my_str = repr(points_simple5)  # convert list to `str`
+			for content in remove_content:
+				my_str = my_str.replace(content, '')
+				
 			await self.instance.gbx.multicall(
 			self.instance.gbx('Trackmania.SetPointsRepartition', *partition, encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points repartition to: {}.'.format(
-				player.nickname, 'Simple 5')
+				player.nickname, 'Simple 5'))
 			)
-		)
+			await self.instance.mode_manager.update_settings({'S_PointsRepartition': str(my_str)})
 		
 		if 'simple10' in pd:
 			points_simple10 = str('10,9,8,7,6,5,4,3,2,1').split(',')
 			partition = [str(p).strip() for p in points_simple10]
-			
+			my_str = repr(points_simple10)  # convert list to `str`
+			for content in remove_content:
+				my_str = my_str.replace(content, '')
+				
 			await self.instance.gbx.multicall(
 			self.instance.gbx('Trackmania.SetPointsRepartition', *partition, encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points repartition to: {}.'.format(
-				player.nickname, 'Simple 10')
+				player.nickname, 'Simple 10'))
 			)
-		)
+			await self.instance.mode_manager.update_settings({'S_PointsRepartition': str(my_str)})
 		
 	async def set_point_repartition(self, player, data, **kwargs):
 		partition = data.repartition
