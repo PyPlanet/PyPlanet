@@ -24,7 +24,7 @@ class MXApi:
 	def base_url(self, api=False):
 		if self.site =='tm':
 			if api:
-				return 'https://tm.mania.exchange{site}'.format(site=self.site)
+				return 'https://tm.mania.exchange/{site}'.format(site=self.site)
 			return 'https://{site}.mania-exchange.com'.format(site=self.site)
 		elif self.site == 'tmnext':
 			if api:
