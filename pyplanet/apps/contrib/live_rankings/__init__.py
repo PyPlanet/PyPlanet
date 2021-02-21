@@ -47,13 +47,14 @@ class LiveRankings(AppConfig):
 		self.context.signals.listen(tm_signals.scores, self.scores)
 		self.context.signals.listen(tm_signals.warmup_start, self.warmup_start)
 		self.context.signals.listen(tm_signals.warmup_end, self.warmup_end)
-		
+
 
 		# Make sure we move the multilap_info and disable the checkpoint_ranking and round_scores elements.
-		self.instance.ui_manager.properties.set_visibility('checkpoint_ranking', False)
-		self.instance.ui_manager.properties.set_visibility('round_scores', await self.setting_nadeo_live_ranking.get_value())
-		self.instance.ui_manager.properties.set_attribute('round_scores', 'pos', '-126.5 80. 150.')
-		self.instance.ui_manager.properties.set_attribute('multilap_info', 'pos', '107., 88., 5.')
+		if self.instance.game.game in ['tm', 'sm']:
+			self.instance.ui_manager.properties.set_visibility('checkpoint_ranking', False)
+			self.instance.ui_manager.properties.set_visibility('round_scores', await self.setting_nadeo_live_ranking.get_value())
+			self.instance.ui_manager.properties.set_attribute('round_scores', 'pos', '-126.5 80. 150.')
+			self.instance.ui_manager.properties.set_attribute('multilap_info', 'pos', '107., 88., 5.')
 
 		self.dedimania_enabled = ('dedimania' in self.instance.apps.apps and 'dedimania' not in self.instance.apps.unloaded_apps)
 
@@ -73,8 +74,9 @@ class LiveRankings(AppConfig):
 		await self.get_points_repartition()
 
 	async def nadeo_widget_change(self, *args, **kwargs):
-		self.instance.ui_manager.properties.set_visibility('round_scores', await self.setting_nadeo_live_ranking.get_value())
-		await self.instance.ui_manager.properties.send_properties()
+		if self.instance.game.game in ['tm', 'sm']:
+			self.instance.ui_manager.properties.set_visibility('round_scores', await self.setting_nadeo_live_ranking.get_value())
+			await self.instance.ui_manager.properties.send_properties()
 
 	def is_mode_supported(self, mode):
 		mode = mode.lower()

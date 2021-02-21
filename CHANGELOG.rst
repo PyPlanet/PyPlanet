@@ -1,6 +1,38 @@
 Changelog
 =========
 
+0.9.6 + 0.9.7 (21 February 2021)
+--------------------------------
+
+Core
+~~~~
+
+* Improvement: Add support for UI properties in TM2020.
+* Improvement: Add support for Echo callback.
+* Improvement: Add support for several new TM2020 callbacks.
+* Improvement: Increase the supported script modes version.
+
+* Bugfix: Issue resolved for checking the mode_requirement in apps.
+
+Apps
+~~~~
+
+* Feature: Adding dynatime app! Add it in your apps.py to enable.
+* Feature: Add limit for extending the timelimit, setting has been added to //settings.
+* Feature: Mania-Exchange random maps function.
+
+* Improvement: Adjust the API urls of Mania-Exchange.
+* Improvement: Update UI support for controllers.
+* Improvement: Current CPs improvements and enable for TM2020.
+* Improvement: Don't show delete icon when not having the right permissions (in map list and records list).
+
+* Bugfix: Fix for TeamMode where the quad is fully colored.
+* Bugfix: Fix for fun commands usage in wrong games and when muted.
+* Bugfix: Fix retrieval of current players/spectators in Dedimania API update loop
+* Bugfix: Fixing issues with retrieving dedimania records when switching modes.
+* Bugfix: Resolve typos in several locations.
+
+
 0.9.5 (28 October 2020)
 -----------------------
 
@@ -14,6 +46,7 @@ Apps
 
 * Improvement: Improving the external link to the map page on MX/TMX in the upper right corner.
 * Improvement: Move the sector times widget in TM2020 to the left of the time counter.
+* Improvement: Change icon of the map info widget.
 * Bugfix: Fixing the issue with the checkpoint comparison in TM2020. Also put in a failsafe to not show corrupted local records from the past.
 * Bugfix: Fixing the issue with displaying the incorrect checkpoint counter the sector times widget.
 * Bugfix: Fixing the issue with sending the permission error message of deleting a record to all players (now send it only to the player that clicked).
