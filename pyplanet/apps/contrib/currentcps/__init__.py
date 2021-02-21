@@ -57,8 +57,9 @@ class CurrentCPs(AppConfig):
 		self.context.signals.listen(mp_signals.player.player_enter_spectator_slot, self.player_enter_spec)
 
 		# Make sure we move the rounds_scores and other gui elements.
-		self.instance.ui_manager.properties.set_attribute('round_scores', 'pos', '-126.5 80. 150.')
-		self.instance.ui_manager.properties.set_attribute('multilap_info', 'pos', '107., 88., 5.')
+		if self.instance.game.game in ['tm', 'sm']:
+			self.instance.ui_manager.properties.set_attribute('round_scores', 'pos', '-126.5 80. 150.')
+			self.instance.ui_manager.properties.set_attribute('multilap_info', 'pos', '107., 88., 5.')
 
 		self.dedimania_enabled = ('dedimania' in self.instance.apps.apps and 'dedimania' not in self.instance.apps.unloaded_apps)
 

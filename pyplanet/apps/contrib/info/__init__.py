@@ -25,8 +25,9 @@ class Info(AppConfig):
 		self.context.signals.listen(mp_signals.player.player_info_changed, self.any_change)
 
 		# Move the multilapinfo a bit. (Only Trackmania).
-		self.instance.ui_manager.properties.set_attribute('multilap_info', 'pos', '107., 88., 5.')
-		self.instance.ui_manager.properties.set_visibility('map_info', False)
+		if self.instance.game.game == 'tm':
+			self.instance.ui_manager.properties.set_attribute('multilap_info', 'pos', '107., 88., 5.')
+			self.instance.ui_manager.properties.set_visibility('map_info', False)
 
 		self.map_widget = views.MapInfoWidget(self)
 		self.server_widget = views.ServerInfoWidget(self)
