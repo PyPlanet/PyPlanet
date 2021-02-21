@@ -1,8 +1,8 @@
 Changelog
 =========
 
-0.9.6 + 0.9.7 + 0.9.8 (21 February 2021)
-----------------------------------------
+0.9.6 + 0.9.7 + 0.9.8 + 0.9.9 (21 February 2021)
+------------------------------------------------
 
 Core
 ~~~~
@@ -32,6 +32,7 @@ Apps
 * Bugfix: Fixing issues with retrieving dedimania records when switching modes.
 * Bugfix: Resolve typos in several locations.
 * Bugfix: Resolve issues with MX on MP.
+* Bugfix: Resolve issues with dedimania on MP.
 
 
 0.9.5 (28 October 2020)
