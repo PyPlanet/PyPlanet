@@ -1,8 +1,8 @@
 PyPlanet
 ========
 
-.. image:: https://travis-ci.org/PyPlanet/PyPlanet.svg?branch=master
-  :target: https://travis-ci.org/PyPlanet/PyPlanet
+.. image:: https://travis-ci.com/PyPlanet/PyPlanet.svg?branch=master
+  :target: https://travis-ci.com/PyPlanet/PyPlanet
 .. image:: https://ci.appveyor.com/api/projects/status/glsug2u5crt2o66m/branch/master?svg=true
   :target: https://ci.appveyor.com/project/tomvlk/pyplanet
 .. image:: https://coveralls.io/repos/github/PyPlanet/PyPlanet/badge.svg?branch=master
