@@ -31,4 +31,4 @@ raven==6.10.0
 xmltodict==0.12.0
 PyYAML==5.2.0
 
-cryptography<=3.4
+cryptography<3.4
