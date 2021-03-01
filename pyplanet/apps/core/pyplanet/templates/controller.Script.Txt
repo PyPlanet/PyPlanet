@@ -5,32 +5,6 @@ declare netwrite Boolean Net_DriveHideMode for UI;
 declare CMlLabel HideChatLabel <=> (Page.GetFirstChild("player_hide_chat_toggle") as CMlLabel);
 
 while(True) {
-// Input events for Xbox & PS4 Controllers
-		foreach (Event in Input.PendingEvents) {
-		// Distration free mode. (D-Pad Up)
-		if (Event.Type == CInputEvent::EType::PadButtonPress && Event.Button == CInputEvent::EButton::Up && Event.Pad != Null && Event.Pad.Type != CInputPad::EPadType::Keyboard){
-		if (Net_DistractionFreeMode == True) {
-        Net_DistractionFreeMode = False;
-      } else {
-        Net_DistractionFreeMode = True;
-      }
-	 }
-	 
-	  // Driving widget hiding
-	  if (Event.Type == CInputEvent::EType::PadButtonPress && Event.Button == CInputEvent::EButton::Down && Event.Pad != Null && Event.Pad.Type != CInputPad::EPadType::Keyboard){
-	 if (Net_DistractionFreeMode == True) {
-        // Do nothing.
-      } else {
-        if (Net_DriveHideMode == True) {
-          Net_DriveHideMode = False;
-        } else {
-          Net_DriveHideMode = True;
-        }
-      }
-    }
-	}
-	
-
   foreach (Event in PendingEvents) {
     // Distration free mode. (F8)
     if (Event.Type == CMlScriptEvent::Type::KeyPress && Event.KeyCode == 45) {
