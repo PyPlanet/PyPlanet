@@ -103,7 +103,7 @@ class Apps:
 		if the mode and game does support it again.
 		"""
 		# Check if disabled apps can be loaded again.
-		for app_label, app_module in self.unloaded_apps.items():
+		for app_label, app_module in list(self.unloaded_apps.items()):
 			try:
 				# Load the module and initiate by creating the app class instance.
 				self.populate([app_module], in_order=True)

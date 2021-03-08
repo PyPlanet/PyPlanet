@@ -11,7 +11,7 @@ from pyplanet.core.signals import pyplanet_start_after
 
 
 class SectorTimes(AppConfig):
-	game_dependencies = ['trackmania']
+	game_dependencies = ['trackmania', 'trackmania_next']
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -42,7 +42,8 @@ class SectorTimes(AppConfig):
 			self.instance.map_manager.current_map.environment == 'Stadium' and self.instance.game.game == 'tm'
 
 		# Set the MP CP diff widget position.
-		self.instance.ui_manager.properties.set_attribute('checkpoint_time', 'pos', '0. 8. -10.')
+		if self.instance.game.game in ['tm', 'sm']:
+			self.instance.ui_manager.properties.set_attribute('checkpoint_time', 'pos', '0. 8. -10.')
 
 	async def on_after_start(self, *args, **kwargs):
 		await asyncio.sleep(1)

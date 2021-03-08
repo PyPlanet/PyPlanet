@@ -49,9 +49,24 @@ class PyPlanetConfig(AppConfig):
 		await self.toolbar.on_start()
 
 		# Change some ui elements positions and visibility.
-		self.instance.ui_manager.properties.set_visibility('live_info', False)
-		self.instance.ui_manager.properties.set_attribute('live_info', 'pos', '-125. 84. 5.')
-		self.instance.ui_manager.properties.set_attribute('warmup', 'pos', '86., 87., 5.')
+		if self.instance.game.game in ['tm', 'sm']:
+			self.instance.ui_manager.properties.set_visibility('live_info', False)
+			self.instance.ui_manager.properties.set_attribute('live_info', 'pos', '-125. 84. 5.')
+			self.instance.ui_manager.properties.set_attribute('warmup', 'pos', '86., 87., 5.')
+		else:
+			self.instance.ui_manager.properties.set_visibility('Race_Checkpoint', False)
+			self.instance.ui_manager.properties.set_visibility('Race_RespawnHelper', False)
+			self.instance.ui_manager.properties.set_attribute('Race_BestRaceViewer', 'position', [135, -30])
+			self.instance.ui_manager.properties.set_attribute('Race_Countdown', 'position', [155, -15])
+			self.instance.ui_manager.properties.set_attribute('Race_LapsCounter', 'position', [155.7, -77])
+			self.instance.ui_manager.properties.set_attribute('Race_LapsCounter', 'scale', 0.7)
+			self.instance.ui_manager.properties.set_attribute('Race_TimeGap', 'position', [44, -45])
+			self.instance.ui_manager.properties.set_attribute('Rounds_SmallScoresTable', 'position', [-160, 8])
+			self.instance.ui_manager.properties.set_attribute('Race_WarmUp', 'position', [155.7, -65])
+			self.instance.ui_manager.properties.set_attribute('Race_WarmUp', 'scale', 0.7)
+			self.instance.ui_manager.properties.set_attribute('Race_ScoresTable', 'scale', 0.9)
+			self.instance.ui_manager.properties.set_attribute('Race_SpectatorBase_Commands', 'position', [50, -87])
+			await self.instance.ui_manager.properties.send_properties()
 
 		# Display logo.
 		await self.controller_view.display()

@@ -4,6 +4,7 @@ The MX API client class.
 import asyncio
 import logging
 import aiohttp
+import re
 
 from pyplanet import __version__ as pyplanet_version
 from pyplanet.apps.contrib.mx.exceptions import MXMapNotFound, MXInvalidResponse
@@ -21,14 +22,18 @@ class MXApi:
 		self.map_info_page_size = 1
 
 	def base_url(self, api=False):
-		if self.site in ['tm', 'sm']:
+		if self.site == 'tm':
 			if api:
-				return 'https://api.mania-exchange.com/{site}'.format(site=self.site)
-			return 'https://{site}.mania-exchange.com'.format(site=self.site)
+				return 'https://{site}.mania.exchange/api'.format(site=self.site)
+			return 'https://{site}.mania.exchange'.format(site=self.site)
 		elif self.site == 'tmnext':
 			if api:
 				return 'https://trackmania.exchange/api'
 			return 'https://trackmania.exchange'
+		elif self.site == 'sm':	
+			if api:
+				return 'https://api.mania-exchange.com/sm'
+			return 'https://sm.mania-exchange.com'
 
 	async def create_session(self):
 		self.session = await aiohttp.ClientSession(
@@ -42,7 +47,19 @@ class MXApi:
 	async def close_session(self):
 		if self.session and hasattr(self.session, '__aexit__'):
 			await self.session.__aexit__()
-
+	
+	async def mx_random(self):
+		# Regular Expression to extract the MX-ID from a /tracksearch2/random/.
+		mx_pattern = r'\d+'
+		mx_id_regex = re.compile(mx_pattern)
+		url = '{}/tracksearch2/random'.format(self.base_url())
+		response = await self.session.get(url)
+		text = str(response.url)
+		matches = re.search(mx_id_regex, text)
+		if not matches:
+			return None
+		return str(matches.group(0))
+	
 	async def search(self, options, **kwargs):
 		if options is None:
 			options = {
@@ -122,13 +139,45 @@ class MXApi:
 
 		# Join the multiple result lists back into one list.
 		return [map for map_list in split_results for map in map_list]
-
+	
+	async def map_offline_record(self, trackid):
+		
+		url = '{base}/replays/get_replays/{id}/1'.format(base=self.base_url(True), id=trackid)
+		params = {'key': self.key} if self.key else {}
+		response = await self.session.get(url, params=params)
+		if response.status == 404:
+			raise MXMapNotFound('Map has not been found!')
+		if response.status == 302:
+			raise MXInvalidResponse('Map author has declined info for the map. Status code: {}'.format(response.status))
+		if response.status < 200 or response.status > 399:
+			raise MXInvalidResponse('Got invalid response status from ManiaExchange: {}'.format(response.status))
+		record = list()
+		for info in await response.json():
+			record.append((info))
+		return record
+	
+	async def map_offline_records(self, trackid):
+		url = '{base}/replays/get_replays/{id}/10'.format(base=self.base_url(True), id=trackid)
+		response = await self.session.get(url)
+		if response.status == 404:
+			raise MXMapNotFound('Map has not been found!')
+		if response.status == 302:
+			raise MXInvalidResponse('Map author has declined info for the map. Status code: {}'.format(response.status))
+		if response.status < 200 or response.status > 399:
+			raise MXInvalidResponse('Got invalid response status from ManiaExchange: {}'.format(response.status))
+		record = list()
+		for info in await response.json():
+			print(info)
+			record.append((info))
+		return record
+	
 	async def map_info_page(self, *ids):
-		if self.site == 'tmnext':
+		if self.site != 'sm':
 			url = '{base}/maps/get_map_info/multi/{ids}'.format(
-				base=self.base_url(True),
-				ids=','.join(str(i) for i in ids[0])
+			base=self.base_url(True),
+			ids=','.join(str(i) for i in ids[0])
 			)
+			
 		else:
 			url = '{base}/maps/{ids}'.format(
 				base=self.base_url(True),
@@ -170,19 +219,11 @@ class MXApi:
 		return response.json()
 
 	async def get_pack_ids(self, pack_id, token):
-		if self.site == 'tmnext':
-			url = '{base}/api/mappack/get_mappack_tracks/{id}?token={token}'.format(
-				base=self.base_url(),
-				id=pack_id,
-				token=token
-			)
-		else:
-			url = '{base}/api/mappack/get_tracks/{id}?token={token}'.format(
-				base=self.base_url(),
-				id=pack_id,
-				token=token
-			)
-
+		url = '{base}/api/mappack/get_mappack_tracks/{id}?token={token}'.format(
+			base=self.base_url(),
+			id=pack_id,
+			token=token
+		)
 		params = {'key': self.key} if self.key else {}
 		response = await self.session.get(url, params=params)
 		if response.status == 404:
@@ -201,7 +242,7 @@ class MXApi:
 			raise MXMapNotFound("Mx returned with empty response.")
 
 	async def download(self, mx_id):
-		url = '{base}/tracks/download/{id}'.format(
+		url = '{base}/maps/download/{id}'.format(
 			base=self.base_url(),
 			id=mx_id,
 		)

@@ -58,7 +58,9 @@ class MX(AppConfig):  # pragma: no cover
 			Command(command='mx', namespace='add', target=self.add_mx_map, perms='mx:add_remote', admin=True,
 					description='Add map from ManiaExchange to the maplist.').add_param(
 				'maps', nargs='*', type=str, required=True, help='MX ID(s) of maps to add.'),
-
+			# new mx command random (Adding) Random Maps from MX
+			Command(command='random', namespace=self.namespace, target=self.random_mx_map, perms='mx:add_remote',
+					admin=True, description='Get Random Maps on ManiaExchange/TrackmaniaExchange.'),
 			# new mx namespace
 			Command(command='search', aliases=['list'], namespace=self.namespace, target=self.search_mx_map, perms='mx:add_remote',
 					admin=True, description='Search for maps on ManiaExchange/TrackmaniaExchange.'),
@@ -76,8 +78,20 @@ class MX(AppConfig):  # pragma: no cover
 				.add_param('pack', nargs='*', type=str, required=True, help='MX/TMX ID(s) of mappacks to add.'),
 		)
 
+	async def random_mx_map(self, player, data, **kwargs):
+		map_random_id = await self.api.mx_random()
+		await self.instance.command_manager.execute(
+			player,
+			'//{} add maps'.format(self.namespace),
+			str(map_random_id)
+		)
+
 	async def mx_info(self, player, data, **kwargs):
-		map_info = await self.api.map_info(self.instance.map_manager.current_map.uid)
+		try:
+			map_info = await self.api.map_info(self.instance.map_manager.current_map.uid)
+		except Exception as e:
+			map_info = list()
+			logger.error('Could not retrieve map info from MX/TM API: {}'.format(str(e)))
 		if len(map_info) != 1:
 			message = '$f00Map could not be found on MX!'
 			await self.instance.chat(message, player)

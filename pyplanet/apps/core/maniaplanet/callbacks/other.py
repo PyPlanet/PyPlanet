@@ -2,6 +2,11 @@ from pyplanet.core import Controller
 from pyplanet.core.events import Callback, handle_generic, Signal
 from pyplanet.contrib.player.exceptions import PlayerNotFound
 
+async def handle_echo(source, signal, **kwargs):
+	internal, public = source
+	return dict(
+		internal=internal, public=public
+	)
 
 async def handle_bill_updated(source, signal, **kwargs):
 	bill_id, state, state_name, transaction_id = source
@@ -144,4 +149,28 @@ channel_progression_end = Callback(
 	`Script` Maniaplanet.ChannelProgression_End
 
 :param time: Time when callback has been sent.
+"""
+
+on_echo = Callback(
+	call='ManiaPlanet.Echo',
+	namespace='maniaplanet',
+	code='on_echo',
+	target=handle_echo
+)
+"""
+:Signal:
+	Echo was sent from other Controller/GBXRemote.
+:Code:
+	``maniaplanet:on_echo``
+:Description:
+	Callback sent when a echo was sent from Controller/GBXRemote.
+:Original Callback:
+	`Native` Maniaplanet.Echo
+
+Echo('Test1', 'Test2')
+will be reverted to:
+('Test2, Test1')
+
+:param internal: internal
+:param public: public
 """

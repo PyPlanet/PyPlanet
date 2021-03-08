@@ -18,14 +18,14 @@ class Statistics(AppConfig):
 
 	async def on_init(self):
 		# Call components.
-		if self.instance.game.game == 'tm':
+		if self.instance.game.game in ['tm', 'tmnext']:
 			await self.trackmania.on_init()
 
 		await self.maniaplanet.on_init()
 
 	async def on_start(self):
 		# Call components.
-		if self.instance.game.game == 'tm':
+		if self.instance.game.game in ['tm', 'tmnext']:
 			await self.trackmania.on_start()
 
 		await self.maniaplanet.on_start()

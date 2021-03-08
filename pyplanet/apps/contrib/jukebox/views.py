@@ -164,7 +164,7 @@ class MapListView(ManualListView):
 			value = row[field['index']]
 			if value is None:
 				return ''
-			if isinstance(value, float) and not math.isnan(value):
+			if isinstance(value, (int, float)) and not math.isnan(value):
 				return times.format_time(int(value))
 			return 'None'
 
@@ -172,7 +172,7 @@ class MapListView(ManualListView):
 			value = row[field['index']]
 			if value is None:
 				return ''
-			if isinstance(value, float) and not math.isnan(value):
+			if isinstance(value, (int, float)) and not math.isnan(value):
 				return int(value)
 			return 'None'
 
@@ -180,14 +180,14 @@ class MapListView(ManualListView):
 			value = row[field['index']]
 			if value is None:
 				return ''
-			prefix = ''
-			if value > 0.0:
-				prefix = '$6CF'
-			elif value < 0.0:
-				prefix = '$F66'
-
-			return '{}{}'.format(prefix, value)
-
+			if isinstance(value, (int, float)) and not math.isnan(value):
+				prefix = ''
+				if value > 0.0:
+					prefix = '$6CF'
+				elif value < 0.0:
+					prefix = '$F66'
+				return '{}{}'.format(prefix, float(value))
+			
 		if self.advanced and not self.app.instance.performance_mode:
 			if 'karma' in self.app.instance.apps.apps:
 				fields.append({

@@ -1,13 +1,19 @@
 {% extends 'core.views/generics/widget.xml' %}
 
 {% block content %}
+  {% if _game.game == 'tmnext' %}
+  <frame pos="-10.2 27.0" z-index="0" id="cp_time_frame">
+  {% else %}
   <frame pos="0.2 30.5" z-index="0" id="cp_time_frame">
+  {% endif %}
     <label pos="0 0" z-index="0" hide="1" id="cp_time_data"
            data-record-sectors="{{ record_sector_times }}"
            data-record="{{ record_time }}"
            data-record-source="{{ record_source }}"
            />
+    {% if not _game.game == 'tmnext' %}
     <quad pos="-0.4 -1.4" z-index="0" size="0.4 5" bgcolor="ffffff60" id="cp_time_line" />
+    {% endif %}
 
     <quad pos="-12.4 0" z-index="0" size="12 4" bgcolor="00000065" id="cp_time_compare_quadbg" />
     <label pos="-6.4 -2" z-index="1" size="12 4" text="Local 1" textsize="1.0" textfont="RajdhaniMono" textemboss="1"
@@ -21,5 +27,9 @@
 {% endblock %}
 
 {% block maniascript %}
-  <script><!--{% include 'sector_times/cp_diff.Script.Txt' %}--></script>
+  {% if _game.game == 'tm' %}
+    <script><!--{% include 'sector_times/cp_diff.Script.Txt' %}--></script>
+  {% elif _game.game == 'tmnext' %}
+	  <script><!--{% include 'sector_times/cp_diff_next.Script.Txt' %}--></script>
+	{% endif %}
 {% endblock %}

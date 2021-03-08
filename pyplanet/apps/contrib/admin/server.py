@@ -84,19 +84,37 @@ class ServerAdmin:
 	async def set_mode(self, player, data, **kwargs):
 		mode = (' '.join(data.mode))
 		lower_mode = mode.lower()
-
-		if lower_mode == 'ta' or lower_mode == 'timeattack':
-			mode = 'TimeAttack.Script.txt'
-		elif lower_mode == 'laps':
-			mode = 'Laps.Script.txt'
-		elif lower_mode == 'rounds':
-			mode = 'Rounds.Script.txt'
-		elif lower_mode == 'cup':
-			mode = 'Cup.Script.txt'
-		elif lower_mode == 'chase':
-			mode = 'Chase.Script.txt'
-		elif lower_mode == 'team':
-			mode = 'Team.Script.txt'
+		if self.instance.game.game == 'tm':
+		
+			if lower_mode == 'ta' or lower_mode == 'timeattack':
+				mode = 'TimeAttack.Script.txt'
+			elif lower_mode == 'laps':
+				mode = 'Laps.Script.txt'
+			elif lower_mode == 'rounds':
+				mode = 'Rounds.Script.txt'
+			elif lower_mode == 'cup':
+				mode = 'Cup.Script.txt'
+			elif lower_mode == 'chase':
+				mode = 'Chase.Script.txt'
+			elif lower_mode == 'team':
+				mode = 'Team.Script.txt'
+			
+		if self.instance.game.game == 'tmnext':
+		
+			if lower_mode == 'ta' or lower_mode == 'timeattack':
+				mode = 'Trackmania/TM_TimeAttack_Online.Script.txt'
+			elif lower_mode == 'laps':
+				mode = 'Trackmania/TM_Laps_Online.Script.txt'
+			elif lower_mode == 'rounds':
+				mode = 'Trackmania/TM_Rounds_Online.Script.txt'
+			elif lower_mode == 'cup':
+				mode = 'Trackmania/TM_Cup_Online.Script.txt'
+			elif lower_mode == 'team':
+				mode = 'Trackmania/TM_Teams_Online.Script.txt'
+			elif lower_mode == 'knockout':
+				mode = 'Trackmania/TM_Knockout_Online.Script.txt'
+			elif lower_mode == 'champion':
+				mode = 'Trackmania/TM_Champion_Online.Script.txt'
 
 		try:
 			await self.instance.mode_manager.set_next_script(mode)

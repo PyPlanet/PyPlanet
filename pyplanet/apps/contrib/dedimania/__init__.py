@@ -91,8 +91,13 @@ class Dedimania(AppConfig):
 			self.setting_chat_welcome, self.setting_chat_announce, self.setting_sent_announce
 		)
 
+		# Load initial data.
+		if not self.widget:
+			self.widget = DedimaniaRecordsWidget(self)
+
 		# Load settings + initiate api.
-		await self.reload_settings()
+		if self.instance.game.game == "tm":
+			await self.reload_settings()
 
 		# Register signals
 		self.context.signals.listen(mp_signals.map.map_begin, self.map_begin)
@@ -111,11 +116,6 @@ class Dedimania(AppConfig):
 				'dedicps', target=self.command_dedicps, description='Compare your dedimania record checkpoints with another record.'
 			).add_param('record', required=False, type=int, help='Custom record rank to compare with. Defaults to 1.', default=1)
 		)
-
-		# Change round results widget location.
-
-		# Load initial data.
-		self.widget = DedimaniaRecordsWidget(self)
 
 	async def reload_settings(self, *args, **kwargs):
 		# Check setting + return errors if not correct!

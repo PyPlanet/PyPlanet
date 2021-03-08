@@ -84,6 +84,13 @@ class LiveRankingsWidget(TimesWidgetView):
 
 			list_record = dict()
 			list_record['index'] = index
+			list_record['bgcolor'] = '00000070'
+
+			if player:
+				if player.flow.team_id == 0:
+					list_record['bgcolor'] = '7881F2FF'
+				if player.flow.team_id == 1:
+					list_record['bgcolor'] = 'F05F5FFF'
 
 			list_record['color'] = '$fff'
 			if index <= self.top_entries:
@@ -137,10 +144,10 @@ class LiveRankingsWidget(TimesWidgetView):
 			self.record_amount = 15
 
 		current_script = await self.app.instance.mode_manager.get_current_script()
-		if 'TimeAttack' in current_script:
+		if 'TimeAttack' in current_script or 'TrackMania/TM_TimeAttack_Online' in current_script:
 			self.format_times = True
 			self.display_cpdifference = False
-		elif 'Laps' in current_script:
+		elif 'Laps' in current_script or 'TrackMania/TM_Laps_Online' in current_script:
 			self.format_times = True
 			self.display_cpdifference = True
 		else:

@@ -1,6 +1,102 @@
 Changelog
 =========
 
+0.9.6 + 0.9.7 + 0.9.8 + 0.9.9 (21 February 2021)
+------------------------------------------------
+
+Core
+~~~~
+
+* Improvement: Add support for UI properties in TM2020.
+* Improvement: Add support for Echo callback.
+* Improvement: Add support for several new TM2020 callbacks.
+* Improvement: Increase the supported script modes version.
+
+* Bugfix: Issue resolved for checking the mode_requirement in apps.
+
+Apps
+~~~~
+
+* Feature: Adding dynatime app! Add it in your apps.py to enable.
+* Feature: Add limit for extending the timelimit, setting has been added to //settings.
+* Feature: Mania-Exchange random maps function.
+
+* Improvement: Adjust the API urls of Mania-Exchange.
+* Improvement: Update UI support for controllers.
+* Improvement: Current CPs improvements and enable for TM2020.
+* Improvement: Don't show delete icon when not having the right permissions (in map list and records list).
+
+* Bugfix: Fix for TeamMode where the quad is fully colored.
+* Bugfix: Fix for fun commands usage in wrong games and when muted.
+* Bugfix: Fix retrieval of current players/spectators in Dedimania API update loop
+* Bugfix: Fixing issues with retrieving dedimania records when switching modes.
+* Bugfix: Resolve typos in several locations.
+* Bugfix: Resolve issues with MX on MP.
+* Bugfix: Resolve issues with dedimania on MP.
+
+
+0.9.5 (28 October 2020)
+-----------------------
+
+Core
+~~~~
+
+* Bugfix: Fixing issues with collecting checkpoint data on finish callback. Related to the TM2020 checkpoint comparison issue.
+
+Apps
+~~~~
+
+* Improvement: Improving the external link to the map page on MX/TMX in the upper right corner.
+* Improvement: Move the sector times widget in TM2020 to the left of the time counter.
+* Improvement: Change icon of the map info widget.
+* Bugfix: Fixing the issue with the checkpoint comparison in TM2020. Also put in a failsafe to not show corrupted local records from the past.
+* Bugfix: Fixing the issue with displaying the incorrect checkpoint counter the sector times widget.
+* Bugfix: Fixing the issue with sending the permission error message of deleting a record to all players (now send it only to the player that clicked).
+
+
+0.9.4 (16 October 2020)
+-----------------------
+
+Core
+~~~~
+
+* Improvement: Add widget visibility toggle in player toolbar to promote F8.
+* Bugfix: Adding local maps will refresh the list from now on.
+* Bugfix: Fix the name of the teams script for TM2020, making //mode teams work now.
+* Bugfix: Fixing the issue with not recording any scores in TM2020 resulting in the minimum finish before karma vote issue.
+
+Apps
+~~~~
+
+* Improvement: Ability to copy the player login from any player list.
+* Bugfix: Fixing live rankings in Laps mode.
+* Bugfix: Small exception resolved with adding duplicated map.
+* Bugfix: Fix issue with Karma being Nan in the advanced list and fixing issues with loading the advanced list.
+
+* Known issue: Fixing the issue with CP comparison widget in TM2020.
+
+
+0.9.3 (10 September 2020)
+-------------------
+
+Core
+~~~~
+
+* Feature: Add guestlist support. //addguest, //removeguest and adding settings and commands to save it to disk.
+* Improvement: Add mode shortcuts for TM2020, from now you can do //mode ta etc.
+
+Apps
+~~~~
+
+* Feature: Add support for sector times in TM2020.
+* Feature: Add support for live rankings in TM2020.
+* Improvement: Add support for //endround in TM2020.
+* Bugfix: Fixing issue with map info from TMX.
+* Bugfix: Fixing issue with the minimal finishes setting in the karma app.
+* Bugfix: Fixing issue with inserting maps on adding from TMX.
+* Bugfix: Fixing issue with NaN in advanced list.
+
+
 0.9.2 (8 July 2020)
 -------------------
 
