@@ -26,22 +26,22 @@ class BrawlMatch(AppConfig):
 		self.ban_queue = asyncio.Queue()
 
 		self.brawl_maps = [
-			'26yU1ouud7IqURhbmlEzX3jxJM1',  # On the Run
-			'I5y9YjoVaw9updRFOecqmN0V6sh',  # Moon Base
-			'WUrcV1ziafkmDOEUQJslceNghs2',  # Nos Astra
-			'DPl6mjmUhXhlXqhpva_INcwvx5e',  # Maru
-			'3Pg4di6kaDyM04oHYm5AkC3r2ch',  # Aliens Exist
-			'ML4VsiZKZSiWNkwpEdSA11SH7mg',  # L v g v s
-			'GuIyeKb7lF6fsebOZ589d47Pqnk'   # Only a wooden leg remained
+			'dQbEScNS8r6csB0aiAFgDc77Xw',  # Mediterranean Adventure
+			'aldX4j8HaNfGkNqjtu81Rr1T7lh',  # Jumanji
+			'xyQXcDOJ93KKP5Dzqz0ULHNA9B2',  # Concrete
+			'EwhFmHyCz6zTHovO9YguqmLBzg0',  # Black Mesa - Hazard Course
+			'LKMIBb34myjiNCO9bEC8Wg1YIy3',  # Hypnosis
+			'aceV8PzKm8OhacrCGLc2SDgq_rc',  # MaraPark
+			'YOkBuNeHCU_f3hl23tTxMPtDblg'   # DrekkaFöld
 		]
 		self.timeouts = {
-			'26yU1ouud7IqURhbmlEzX3jxJM1': 49,  # On the Run
-			'I5y9YjoVaw9updRFOecqmN0V6sh': 73,  # Moon Base
-			'WUrcV1ziafkmDOEUQJslceNghs2': 72,  # Nos Astra
-			'DPl6mjmUhXhlXqhpva_INcwvx5e': 55,  # Maru
-			'3Pg4di6kaDyM04oHYm5AkC3r2ch': 46,  # Aliens Exist
-			'ML4VsiZKZSiWNkwpEdSA11SH7mg': 61,  # L v g v s
-			'GuIyeKb7lF6fsebOZ589d47Pqnk': 64   # Only a wooden leg remained
+			'dQbEScNS8r6csB0aiAFgDc77Xw': 42,  # Mediterranean Adventure
+			'aldX4j8HaNfGkNqjtu81Rr1T7lh': 36,  # Jumanji
+			'xyQXcDOJ93KKP5Dzqz0ULHNA9B2': 55,  # Concrete
+			'EwhFmHyCz6zTHovO9YguqmLBzg0': 28,  # Black Mesa - Hazard Course
+			'LKMIBb34myjiNCO9bEC8Wg1YIy3': 44,  # Hypnosis
+			'aceV8PzKm8OhacrCGLc2SDgq_rc': 40,  # MaraPark
+			'YOkBuNeHCU_f3hl23tTxMPtDblg': 34   # DrekkaFöld
 		}
 
 		self.match_maps = collections.deque(self.brawl_maps)
