@@ -9,4 +9,18 @@
          url="https://github.com/PyPlanet/PyPlanet/issues/new" halign="center" />
 {% endif %}
 
+
+<!-- Disable chat -->
+<frame pos="{{ chat_pos }}" z-index="60" id="player_hide_chat_frame">
+  <quad pos="0 -0.25" z-index="0" size="6.5 6" bgcolor="00000060"/>
+  <label pos="3.25 -3.2" z-index="1" size="6.5 6" text="&#xf086;" halign="center" valign="center2"
+         id="player_hide_chat_toggle" scriptevents="1" />
+</frame>
+
+<!-- Hidden F8 and F9 -->
+<label pos="0 0" z-index="0" size="0 0" textsize="0.0" hide="1" text="" action="{{ id }}__f8"
+       actionkey="4" scriptevents="4" halign="center" valign="center2" />
+<label pos="0 0" z-index="0" size="0 0" textsize="0.0" hide="1" text="" action="{{ id }}__f9"
+       actionkey="5" scriptevents="4" halign="center" valign="center2" />
+
 <script><!-- {% include 'core.pyplanet/controller.Script.Txt' %} --></script>

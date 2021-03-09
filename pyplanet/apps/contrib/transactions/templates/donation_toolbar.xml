@@ -1,0 +1,30 @@
+{% extends 'core.views/generics/widget.xml' %}
+
+{% block content %}
+    <quad pos="-15 9.5" z-index="0" size="15 6" bgcolor="00000060"/>
+
+
+    <!-- Bar 1 Icons -->
+    <quad pos="-15 9.5" z-index="0" size="15 6" bgcolor="00000060"/>
+    <label pos="-7.5 6.5" z-index="1" size="15 6" textfont="RajdhaniMono" text="$sDonate" halign="center" valign="center2" textsize="2.0" />
+
+    <label pos="0 0.5" z-index="1" size="15 6" text="100 $39c " halign="right" valign="center2"
+           id="player_toolbar_bar_button_100P" textsize="2.0"
+           scriptevents="1" action="{{ id }}__bar_button_100P" />
+
+    <label pos="0 -5.5" z-index="1" size="15 6" text="500 $39c " halign="right" valign="center2"
+           id="player_toolbar_bar_button_500P" textsize="2.0"
+           scriptevents="1" action="{{ id }}__bar_button_500P" />
+
+    <label pos="0 -11.5" z-index="1" size="15 6" text="1000 $39c " halign="right" valign="center2"
+           id="player_toolbar_bar_button_1000P" textsize="2.0"
+           scriptevents="1" action="{{ id }}__bar_button_1000P" />
+
+    <label pos="0 -17.5" z-index="1" size="15 6" text="2000 $39c " halign="right" valign="center2"
+           id="player_toolbar_bar_button_2000P" textsize="2.0"
+           scriptevents="1" action="{{ id }}__bar_button_2000P" />
+
+    <label pos="0 -23.5" z-index="1" size="15 6" text="5000 $39c " halign="right" valign="center2"
+           id="player_toolbar_bar_button_5000P" textsize="2.0"
+           scriptevents="1" action="{{ id }}__bar_button_5000P" />
+{% endblock %}

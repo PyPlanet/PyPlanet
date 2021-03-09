@@ -1,0 +1,72 @@
+<frame pos="0 0 70" z-index="900">
+  <quad pos="0 0 -1" size="320 180" halign="center" valign="center" style="Bgs1" substyle="BgDialogBlur" z-index="50" scriptevents="1" />
+</frame>
+<frame pos="0 17 0" z-index="910">
+  <quad pos="0 62.5" size="120 127" z-index="60" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
+  <quad pos="0 62.5" size="120 127" z-index="61" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
+  <quad pos="0 61.5" size="118 11" z-index="62" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
+
+  <quad pos="-54 60.5 0" size="9 9" z-index="63" style="{{ icon_style }}" substyle="{{ icon_substyle }}"/>
+  <label pos="-20.5 57.8 0" size="60 7" z-index="63" text="$o{{ title }}" textsize="2.5" textcolor="FFFFFFF" halign="left"/>
+
+  <quad pos="49.5 59.5 0" size="7 7" z-index="63" style="Icons128x32_1" substyle="Close" action="{{ id }}__button_close"/>
+
+  {% if 'result' not in method %}
+    <frame pos="-54.5 45 0" id="call_body" z-index="70">
+      <label pos="0 0" size="30 5" text="$fff$oName" textsize="1.2" valign="top" />
+      <label pos="30 0" size="70 5" text="$fff$i{{ method.name }}" textsize="1.2" valign="top" />
+
+      <label pos="0 -5" size="30 5" text="$fff$oHelp" textsize="1.2" valign="top" />
+      <label pos="30 -5" size="70 20" autonewline="1" maxline="6" text="$fff$i{{ method.help }}" textsize="1.2" valign="top" />
+
+      <label pos="0 -25" size="30 5" text="$fff$oInput(s)" textsize="1.2" valign="top" />
+      <label pos="30 -25" size="70 5" text="$fff$i{{ method.inputs|join(', ')|default('-') }}" textsize="1.2" valign="top" />
+
+      <label pos="0 -30" size="30 5" text="$fff$oOutput" textsize="1.2" valign="top" />
+      <label pos="30 -30" size="70 5" text="$fff$i{{ method.output }}" textsize="1.2" valign="top" />
+
+      <label pos="0 -35" size="30 5" text="$fff$oType" textsize="1.2" valign="top" />
+      <label pos="30 -35" size="70 5" text="$fff$i{{ method.type }}" textsize="1.2" valign="top" />
+
+      <frame pos="0 -40" id="call_edit_frame">
+        <frame id="call_value_list">
+          <textedit pos="10 -15" size="90 40" name="call_value_field" id="call_value_field"
+                    textsize="1.2" scriptevents="1"
+                    default="{{ method['last_input']|default('') }}"
+                    focusareacolor1="0003" focusareacolor2="FFF2" showlinenumbers="1" />
+          <label pos="0 -3" size="100 5" text="$fff$oEvery line represents one input:" textsize="1.2" valign="top" />
+          {% if 'error' in method %}
+            <label pos="0 -8" size="100 5" text="$f00Error: {{ method['error'] }}" textsize="1.0" autonewline="1" maxline="2" valign="top" />
+          {% endif %}
+        </frame>
+      </frame>
+
+      <label pos="30 -100" style="CardButtonMedium" valign="center" halign="center"
+             text="Execute" translate="1" action="{{ id }}__button_execute"
+             scriptevents="1" id="call_button_submit" />
+      <label pos="80 -100" style="CardButtonMedium" valign="center" halign="center"
+             text="Cancel" translate="1" action="{{ id }}__button_cancel"
+             scriptevents="1" id="call_button_cancel" />
+    </frame>
+  {% else %}
+    <frame pos="-54.5 45 0" id="call_body" z-index="70">
+      <label pos="0 0" size="30 5" text="$fff$oName" textsize="1.2" valign="top" />
+      <label pos="30 0" size="70 5" text="$fff$i{{ method.name }} Results" textsize="1.2" valign="top" />
+
+      <label pos="0 -5" size="30 5" text="$fff$oHelp" textsize="1.2" valign="top" />
+      <label pos="30 -5" size="70 20" autonewline="1" maxline="6" text="$fff$i{{ method.help }}" textsize="1.2" valign="top" />
+
+      <label pos="0 -25" size="30 5" text="$fff$oOutput Type" textsize="1.2" valign="top" />
+      <label pos="30 -25" size="70 5" text="$fff$i{{ method.output }}" textsize="1.2" valign="top" />
+
+      <textedit pos="10 -30" size="90 60" name="call_value_result" id="call_value_result"
+                textsize="1.2" scriptevents="1"
+                default="{{ method.result }}"
+                focusareacolor1="0003" focusareacolor2="FFF2" showlinenumbers="1" />
+
+      <label pos="30 -100" style="CardButtonMedium" valign="center" halign="center"
+             text="Close" translate="1" action="{{ id }}__button_cancel"
+             scriptevents="1" id="call_button_cancel" />
+    </frame>
+  {% endif %}
+</frame>

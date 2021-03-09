@@ -120,8 +120,6 @@ class MapManager(CoreContrib):
 		"""
 		# Set back the timer if time has been extended.
 		if self._is_extended and self._original_ta:
-			self._is_extended = False
-
 			mode_settings = await self._instance.mode_manager.get_settings()
 			if 'S_TimeLimit' not in mode_settings:
 				return
@@ -129,6 +127,7 @@ class MapManager(CoreContrib):
 			mode_settings['S_TimeLimit'] = self._original_ta
 			await self._instance.mode_manager.update_settings(mode_settings)
 
+			self._is_extended = False
 			self._original_ta = None
 
 	async def update_list(self, full_update=False, detach_fks=True):
@@ -148,8 +147,16 @@ class MapManager(CoreContrib):
 			rows = list()
 			for details in diff:
 				mx_id = self._extract_mx_id(details['FileName'])
+
+				# HACK: Due to a limited map name length of 150 chars, we want to strip it to the maximum possible.
+				# This is a temporary fix and should be better handled in the future.
+				name = details['Name']
+				if len(name) > 150:
+					name = name[:150]
+					logging.getLogger(__name__).warning('Map name is very long, truncating to 150 chars.')
+
 				rows.append(dict(
-					uid=details['UId'], file=details['FileName'], name=details['Name'], author_login=details['Author'],
+					uid=details['UId'], file=details['FileName'], name=name, author_login=details['Author'],
 					environment=details['Environnement'], time_gold=details['GoldTime'], price=details['CopperPrice'],
 					map_type=details['MapType'], map_style=details['MapStyle'], mx_id=mx_id
 				))
@@ -409,6 +416,26 @@ class MapManager(CoreContrib):
 			except:
 				raise MapException('Can\'t delete map file after removing from playlist.')
 
+	async def _override_timelimit(self, filename):
+		"""
+		Called to overwrite S_TimeLimit in MatchSettings file if the current map is extended
+		
+		:param filename: Give the filename of the matchsettings.
+		"""
+		if self._is_extended and self._original_ta:
+			try:
+				async with self._instance.storage.open(os.path.join(self._instance.game.server_map_dir, filename), 'r+') as f:
+					content = await f.readlines()
+					for i in range(len(content)):
+						if 'S_TimeLimit' in content[i]:
+							content[i] = re.sub('value="(.+?)"', 'value="{}"'.format(self._original_ta), content[i])
+							await f.seek(0)
+							await f.write(''.join(content))
+							await f.truncate()
+							break
+			except:
+				logging.getLogger(__name__).warning('Can\'t update matchsettings with original time limit to \'{}\'!'.format(filename))
+
 	async def save_matchsettings(self, filename=None):
 		"""
 		Save the current playlist and configuration to the matchsettings file.
@@ -435,6 +462,7 @@ class MapManager(CoreContrib):
 
 		try:
 			await self._instance.gbx('SaveMatchSettings', filename)
+			await self._override_timelimit(filename)
 		except Exception as e:
 			logging.exception(e)
 			raise MapException('Can\'t save matchsettings to \'{}\'!'.format(filename)) from e

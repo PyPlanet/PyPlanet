@@ -287,6 +287,12 @@ Some of these settings are required to be able to save match settings and to sav
     'default': 'blacklist.txt'
   }
 
+  # Guestlist file is managed by the dedicated server and will be loaded and written to by PyPlanet once a
+  # player gets blacklisted. The default will be the filename Maniaplanet always uses and is generic.
+  GUESTLIST_FILE = {
+    'default': 'guestlist.txt',
+  }
+
 .. code-block:: yaml
   :caption: base.yaml
 
@@ -295,6 +301,9 @@ Some of these settings are required to be able to save match settings and to sav
 
   BLACKLIST_FILE:
     default: 'blacklist.txt'
+
+  GUESTLIST_FILE:
+    default: 'guestlist.txt'
 
 .. code-block:: json
   :caption: base.json
@@ -305,6 +314,9 @@ Some of these settings are required to be able to save match settings and to sav
     },
     "BLACKLIST_FILE": {
       "default": "blacklist.txt"
+    },
+    "GUESTLIST_FILE": {
+      "default": "guestlist.txt"
     }
   }
 
@@ -315,8 +327,7 @@ Storage (base)
 This may need some explanation, why is this here? We wanted to be able to run PyPlanet on a separate machine as the dedicated
 is. But also access files from the dedicated for investigating maps, loading and writing maps and settings.
 
-To be able to make this simple, and robust, we will implement several so called *storage drivers* that will work local or remote.
-For example: *SFTP*, *FTP*, etc.
+To be able to make this simple, and robust, we will implement several so called *storage drivers* that will work local or remote (currently only local).
 
 **Local Dedicated**
 
@@ -351,50 +362,6 @@ If you run your dedicated server locally, you should use the following setting:
       }
     }
   }
-
-
-**Using SFTP/SCP/SSH**
-
-.. error::
-
-  The SFTP/SCP/SSH driver doesn't work for now! It's planned to be implemented later on if there are enough use-cases.
-
-If your dedicated server is remote, and you want to give access, you can use the SFTP driver (that works over SSH).
-
-.. code-block:: python
-
-  STORAGE = {
-    'default': {
-      'DRIVER': 'pyplanet.core.storage.drivers.asyncssh.SFTPDriver',
-      'OPTIONS': {
-        'HOST': 'remote-hostname.com',
-        'PORT': 22,
-        'USERNAME': 'maniaplanet',
-
-        # Using password:
-        'PASSWORD': 'only-when-using-password',
-
-        # Using private/public keys:
-        'CLIENT_KEYS': [
-          '/home/mp/.ssh/id_rsa'
-        ],
-        'PASSPHRASE': 'optional',
-
-        # Optional:
-        'KNOWN_HOSTS': '~/.ssh/known_hosts',
-        'KWARGS': {
-          'CUSTOM_OPTIONS': 'http://asyncssh.readthedocs.io/en/latest/#sftp-client',
-        }
-      },
-    }
-  }
-
-
-.. note::
-
-  The SFTP driver has not yet been fully tested.
-  Documentation is available on: http://asyncssh.readthedocs.io/en/latest/#sftp-client
-
 
 Cache (base)
 ~~~~~~~~~~~~
@@ -538,6 +505,9 @@ The order doesn't make a difference when starting/loading PyPlanet.
       'pyplanet.apps.contrib.queue',
       'pyplanet.apps.contrib.ads',
       'pyplanet.apps.contrib.music_server',
+
+      # New since 0.8.0:
+      'pyplanet.apps.contrib.funcmd',
     ],
   }
 
@@ -570,6 +540,9 @@ The order doesn't make a difference when starting/loading PyPlanet.
       - 'pyplanet.apps.contrib.ads'
       - 'pyplanet.apps.contrib.music_server'
 
+      # New since 0.8.0:
+      - 'pyplanet.apps.contrib.funcmd
+
 .. code-block:: json
   :caption: apps.json
 
@@ -595,7 +568,9 @@ The order doesn't make a difference when starting/loading PyPlanet.
 
         "pyplanet.apps.contrib.queue",
         "pyplanet.apps.contrib.ads",
-        "pyplanet.apps.contrib.music_server"
+        "pyplanet.apps.contrib.music_server",
+
+        "pyplanet.apps.contrib.funcmd"
       ]
     }
   }

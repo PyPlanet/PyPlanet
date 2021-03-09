@@ -31,6 +31,16 @@ Who is behind PyPlanet
 
 * Toffe: Bundled Application developer.
 * TheM: Bundled Application developer.
+* Reaby: Bundled & External Application developer.
+
+**Testers**:
+
+* HaagseSmurf: Tester for the PyPlanet core and apps code.
+
+**External Contributors**
+
+* StupsKiesel: App Contributor.
+* Moski: App Contributor.
 
 Want to help us? Contact Toffe on Discord or Forum:
 :code:`Toffe#8999` or `Forum Profile <https://forum.maniaplanet.com/memberlist.php?mode=viewprofile&u=20394>`_.
@@ -39,7 +49,9 @@ Want to help us? Contact Toffe on Discord or Forum:
 Donate
 ======
 
-You can support PyPlanet and other projects of Toffe (such as ManiaCDN and the Toolkit application) with the following donation options:
+You can support PyPlanet and other projects of Toffe (such as PyPlanet and ManiaCDN) with the following donation options:
+The money will go towards hosting and paying bills for ManiaCDN, hosting test-servers for PyPlanet and other projects. When
+profit is made it will be saved for bills in the future.
 
 .. image:: https://img.shields.io/badge/patreon-donate-yellow.svg
   :target: https://patreon.com/pyplanet

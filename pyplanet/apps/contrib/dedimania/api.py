@@ -185,11 +185,13 @@ class DedimaniaAPI:
 			player_list = [
 				{'Login': p['Login'], 'IsSpec': is_spectator(p), 'Vote': -1} for p in players if p['Login'] != self.instance.game.server_player_login
 			]
+
 			num_specs = sum(p['IsSpec'] for p in player_list)
 			num_players = len(player_list) - num_specs
-			max_players = self.instance.game.server_max_players['CurrentValue']
-			max_specs = self.instance.game.server_max_specs['CurrentValue']
+			max_players = self.instance.player_manager.max_players
+			max_specs = self.instance.player_manager.max_spectators
 			mode = self.mode_to_dedi_mode(await self.instance.mode_manager.get_current_script())
+
 			if not mode:
 				continue
 			try:

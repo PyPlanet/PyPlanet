@@ -15,18 +15,20 @@ aiofiles==0.4.0
 asyncssh==1.18.0
 
 # Network
-aiohttp==2.3.9
+aiohttp==3.7.4
 requests==2.22.0
 urllib3==1.25.8
 
 # Utils
 cached-property==1.5.1
-watchdog==0.10.1
-pandas<=1.0.1
-numpy==1.18.1
+watchdog==0.10.2
+pandas==1.0.3
+numpy==1.18.2
 async_generator==1.10
 asyncio_extras==1.3.2
 bcrypt==3.1.7
 raven==6.10.0
 xmltodict==0.12.0
 PyYAML==5.2.0
+
+cryptography<3.4

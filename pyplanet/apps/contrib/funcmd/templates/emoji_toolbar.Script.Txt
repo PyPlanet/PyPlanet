@@ -1,0 +1,32 @@
+
+main() {
+  declare CMlFrame Emoji_Toolbar_Frame <=> (Page.GetFirstChild("emoji_toolbar_frame") as CMlFrame);
+  declare Boolean IsEmojiToolbarActive = False;
+  declare Integer HideEmojiBarAt;
+
+  Emoji_Toolbar_Frame.Hide();
+
+  // Main Loop.
+  while(True) {
+    foreach (Event in PendingEvents) {
+      if (Event.Type == CMlScriptEvent::Type::MouseClick && Event.ControlId == "emoji_toolbar_bar_button_view") {
+        if (IsEmojiToolbarActive) {
+          Emoji_Toolbar_Frame.Hide();
+          IsEmojiToolbarActive = False;
+          HideEmojiBarAt = 0;
+        } else {
+          Emoji_Toolbar_Frame.Show();
+          IsEmojiToolbarActive = True;
+          HideEmojiBarAt = Now + 5000;
+        }
+      }
+    }
+
+    if (HideEmojiBarAt != 0 && HideEmojiBarAt <= Now) {
+      Emoji_Toolbar_Frame.Hide();
+      IsEmojiToolbarActive = False;
+      HideEmojiBarAt = 0;
+    }
+    yield;
+  }
+}

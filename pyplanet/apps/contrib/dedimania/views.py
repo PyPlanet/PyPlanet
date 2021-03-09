@@ -9,7 +9,8 @@ from pyplanet.utils import times
 
 class DedimaniaRecordsWidget(TimesWidgetView):
 	widget_x = -160
-	widget_y = 12.5
+	widget_y = 70.5
+	z_index = 30
 	size_x = 38
 	size_y = 55.5
 	top_entries = 5
@@ -46,7 +47,7 @@ class DedimaniaRecordsWidget(TimesWidgetView):
 				records_start = (len(self.app.current_records) - self.record_amount + self.top_entries)
 				# If start of current slice is in the top entries, add more records below
 				if records_start < self.top_entries:
-					records_start = (self.top_entries)
+					records_start = self.top_entries
 
 				records += list(self.app.current_records[records_start:])
 				custom_start_index = (records_start + 1)

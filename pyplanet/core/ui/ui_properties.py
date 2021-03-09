@@ -1,6 +1,7 @@
 """
 The UI Properties will be set and hold in the class definition bellow.
 """
+import json
 import logging
 import xmltodict as xd
 
@@ -21,6 +22,7 @@ class UIProperties:  # pragma: no cover
 
 		- Trackmania: https://github.com/maniaplanet/script-xmlrpc/blob/master/XmlRpcListing.md#trackmaniauisetproperties
 		- Shootmania: https://github.com/maniaplanet/script-xmlrpc/blob/master/XmlRpcListing.md#shootmaniauisetproperties
+		- TM2020: Undocumented by Nadeo, check in-game tool OpenPlanet and discover what properties exist and what it means.
 
 	Access this class with:
 
@@ -38,11 +40,16 @@ class UIProperties:  # pragma: no cover
 		self._instance = instance
 		self._raw = None
 		self._properties = dict()
+		self._update_properties = dict()
 
 	@property
 	def properties(self):
-		if 'ui_properties' in self._properties:
-			return self._properties['ui_properties']
+		if self._instance.game.game in ['tm', 'sm']:
+			if 'ui_properties' in self._properties:
+				return self._properties['ui_properties']
+		else:
+			if self._properties:
+				return self._properties
 		return False
 
 	async def on_start(self):
@@ -57,8 +64,10 @@ class UIProperties:  # pragma: no cover
 		"""
 		if self._instance.game.game == 'tm':
 			method = 'Trackmania.UI.ResetProperties'
-		else:
+		elif self._instance.game.game == 'sm':
 			method = 'Shootmania.UI.ResetProperties'
+		else:
+			method = 'Common.UIModules.ResetProperties'
 		try:
 			logger.debug('Resetting UIProperties...')
 			await self._instance.gbx.script(method, response_id=False)
@@ -68,11 +77,19 @@ class UIProperties:  # pragma: no cover
 	async def refresh_properties(self):
 		if self._instance.game.game == 'tm':
 			method = 'Trackmania.UI.GetProperties'
-		else:
+		elif self._instance.game.game == 'sm':
 			method = 'Shootmania.UI.GetProperties'
+		else:
+			method = 'Common.UIModules.GetProperties'
 		try:
-			self._raw = await self._instance.gbx(method)
-			self._properties = xd.parse(self._raw['raw_1'])
+			if self._instance.game.game == 'tm' or self._instance.game.game == 'sm':
+				self._raw = await self._instance.gbx(method, timeout=2)
+				self._properties = xd.parse(self._raw['raw_1'])
+			else:
+				self._raw = await self._instance.gbx(method, timeout=2)
+				self._properties = dict()
+				for entry in self._raw['uimodules']:
+					self._properties[entry['id']] = entry
 		except Exception as e:
 			self._properties = dict()
 			self._raw = None
@@ -119,11 +136,21 @@ class UIProperties:  # pragma: no cover
 		"""
 		if not self._properties:
 			return False
-		if element not in self.properties:
-			return False
-		if '@{}'.format(attribute) not in self.properties[element]:
-			return False
-		self.properties[element]['@{}'.format(attribute)] = value
+		if self._instance.game.game in ['tm', 'sm']:
+			if element not in self.properties:
+				return False
+			if '@{}'.format(attribute) not in self.properties[element]:
+				return False
+			self.properties[element]['@{}'.format(attribute)] = value
+		else:
+			if element not in self.properties:
+				return False
+
+			self.properties[element][attribute] = value
+			if element not in self._update_properties:
+				self._update_properties[element] = dict(id=element)
+			self._update_properties[element][attribute] = value
+			self._update_properties[element]['{}_update'.format(attribute)] = True
 		return True
 
 	def get_attribute(self, element: str, attribute: str, default=empty):
@@ -143,31 +170,53 @@ class UIProperties:  # pragma: no cover
 			if default is not empty:
 				return default
 			raise UIPropertyDoesNotExist('UI Properties has no element with name \'{}\''.format(element))
-		if '@{}'.format(attribute) not in self.properties[element]:
+		if self._instance.game.game in ['tm', 'sm'] and '@{}'.format(attribute) not in self.properties[element]:
 			if default is not empty:
 				return default
 			raise UIPropertyDoesNotExist('UI Properties has no attribute with name \'{}\''.format(attribute))
-		return self.properties[element]['@{}'.format(attribute)]
+		elif attribute not in self.properties[element]:
+			if default is not empty:
+				return default
+			raise UIPropertyDoesNotExist('UI Properties has no attribute with name \'{}\''.format(attribute))
+
+		if self._instance.game.game in ['tm', 'sm']:
+			return self.properties[element]['@{}'.format(attribute)]
+		return self.properties[element][attribute]
 
 	async def send_properties(self, **kwargs):
-		if not self._properties or 'ui_properties' not in self._properties:
+		if not self._properties or (self._instance.game.game in ['tm', 'sm'] and 'ui_properties' not in self._properties):
 			return
 
 		# Decide the method to use.
 		if self._instance.game.game == 'tm':
 			method = 'Trackmania.UI.SetProperties'
-		else:
+		elif self._instance.game.game == 'sm':
 			method = 'Shootmania.UI.SetProperties'
+		else:
+			method = 'Common.UIModules.SetProperties'
 
-		# Create XML document
-		try:
-			xml = xd.unparse(self._properties, full_document=False, short_empty_elements=True)
-		except Exception as e:
-			logger.warning('Can\'t convert UI Properties to XML document! Error: {}'.format(str(e)))
-			return
+		if self._instance.game.game in ['tm', 'sm']:
+			# Create XML document
+			try:
+				xml = xd.unparse(self._properties, full_document=False, short_empty_elements=True)
+			except Exception as e:
+				logger.warning('Can\'t convert UI Properties to XML document! Error: {}'.format(str(e)))
+				return
 
-		try:
-			await self._instance.gbx(method, xml, encode_json=False, response_id=False)
-		except Exception as e:
-			logger.warning('Can\'t send UI Properties! Error: {}'.format(str(e)))
-			return
+			try:
+				await self._instance.gbx(method, xml, encode_json=False, response_id=False)
+			except Exception as e:
+				logger.warning('Can\'t send UI Properties! Error: {}'.format(str(e)))
+				return
+		else:
+			# Update TM2020 properties.
+			try:
+				await self._instance.gbx(
+					method,
+					json.dumps(dict(uimodules=list(self._update_properties.values()))),
+					encode_json=False, response_id=False
+				)
+				logger.debug('UI Properties send and reloaded')
+			except Exception as e:
+				logger.warning('Can\'t send UI Properties! Error: {}'.format(str(e)))
+				return

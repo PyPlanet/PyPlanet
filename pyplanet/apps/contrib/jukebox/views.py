@@ -164,7 +164,7 @@ class MapListView(ManualListView):
 			value = row[field['index']]
 			if value is None:
 				return ''
-			if isinstance(value, float) and not math.isnan(value):
+			if isinstance(value, (int, float)) and not math.isnan(value):
 				return times.format_time(int(value))
 			return 'None'
 
@@ -172,7 +172,7 @@ class MapListView(ManualListView):
 			value = row[field['index']]
 			if value is None:
 				return ''
-			if isinstance(value, float) and not math.isnan(value):
+			if isinstance(value, (int, float)) and not math.isnan(value):
 				return int(value)
 			return 'None'
 
@@ -180,14 +180,14 @@ class MapListView(ManualListView):
 			value = row[field['index']]
 			if value is None:
 				return ''
-			prefix = ''
-			if value > 0.0:
-				prefix = '$6CF'
-			elif value < 0.0:
-				prefix = '$F66'
-
-			return '{}{}'.format(prefix, value)
-
+			if isinstance(value, (int, float)) and not math.isnan(value):
+				prefix = ''
+				if value > 0.0:
+					prefix = '$6CF'
+				elif value < 0.0:
+					prefix = '$F66'
+				return '{}{}'.format(prefix, float(value))
+			
 		if self.advanced and not self.app.instance.performance_mode:
 			if 'karma' in self.app.instance.apps.apps:
 				fields.append({
@@ -379,10 +379,7 @@ class FolderMapListView(MapListView):
 			return
 
 		# Remove from folder.
-		await MapInFolder.execute(
-			MapInFolder.delete()
-				.where((MapInFolder.map_id == map_dictionary['id']) & (MapInFolder.folder_id == self.folder_instance.id))
-		)
+		await self.folder_manager.remove_map_from_folder(self.folder_instance.id, map_dictionary['id'])
 
 		# Refresh list.
 		await self.refresh(player)
@@ -751,22 +748,10 @@ class AddToFolderView(TemplateView):
 		if not folder.public and folder.player_id != player.id:
 			return
 
-		# Check for duplicates.
-		existing = await MapInFolder.execute(
-			MapInFolder.select(MapInFolder)
-				.where((MapInFolder.folder == folder) & (MapInFolder.map_id == self.map_id))
-		)
-
-		if len(existing) > 0:
+		# Add map to folder.
+		if not await self.folder_manager.add_map_to_folder(folder.id, self.map_id):
 			await show_alert(player, 'Map already in folder!', 'sm')
 			return
-
-		# Add map to folder.
-		map_in_folder = MapInFolder(
-			map_id=self.map_id,
-			folder=folder
-		)
-		await map_in_folder.save()
 
 		self.response_future.set_result(True)
 		self.response_future.done()

@@ -1,7 +1,7 @@
-<frame pos="0 0 70" z-index="50">
+<frame pos="0 0 70" z-index="900">
   <quad pos="0 0 -1" size="320 180" halign="center" valign="center" style="Bgs1" substyle="BgDialogBlur" z-index="50" scriptevents="1" />
 </frame>
-<frame pos="0 17 0" z-index="60">
+<frame pos="0 17 0" z-index="910">
   <quad pos="0 62.5" size="120 127" z-index="60" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
   <quad pos="0 62.5" size="120 127" z-index="61" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
   <quad pos="0 61.5" size="118 11" z-index="62" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
@@ -45,8 +45,11 @@
         </frame>
       {% elif setting.type == types.set or setting.type == types.list %}
         <frame id="setting_value_list">
-          <entry hidden="1" id="setting_value_field" name="setting_value_field" default="{{ setting_value }}" />
-          <label pos="0 0" size="100 5" text="$fff$oTodo: List/set entries. ManiaScript!" textsize="1.2" valign="top" />
+          <textedit pos="10 -10" size="90 40" name="setting_value_field" id="setting_value_field"
+                    textsize="1.2" scriptevents="1"
+                    default="{% if setting_value %}{{ setting_value|join('\n') }}{% else %}{% endif %}"
+                    focusareacolor1="0003" focusareacolor2="FFF2" showlinenumbers="1" />
+          <label pos="0 -3" size="100 5" text="$fff$oEvery line represents one entry:" textsize="1.2" valign="top" />
         </frame>
       {% endif %}
     </frame>

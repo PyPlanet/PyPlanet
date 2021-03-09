@@ -13,7 +13,7 @@ from pyplanet.views.generics.alert import show_alert
 
 class Jukebox(AppConfig):
 	name = 'pyplanet.apps.contrib.jukebox'
-	game_dependencies = ['trackmania', 'shootmania']
+	game_dependencies = ['trackmania', 'trackmania_next', 'shootmania']
 	app_dependencies = ['core.maniaplanet']
 
 	def __init__(self, *args, **kwargs):
@@ -41,11 +41,14 @@ class Jukebox(AppConfig):
 		# Register permissions + commands.
 		await self.instance.permission_manager.register('clear', 'Clear the jukebox', app=self, min_level=1)
 		await self.instance.command_manager.register(
-			Command(command='cjb', target=self.clear_jukebox, perms='jukebox:clear', admin=True),
-			Command(command='clearjukebox', target=self.clear_jukebox, perms='jukebox:clear', admin=True),
-			Command(command='list', target=self.show_map_list).add_param(name='search', required=False),
-			Command(command='jukebox', target=self.chat_command).add_param(name='option', required=False),
-			Command(command='mapfolders', aliases=['mf'], target=self.show_map_folders),
+			Command(command='clearjukebox', aliases=['cjb'], target=self.clear_jukebox, perms='jukebox:clear', admin=True,
+					description='Clears the current maps from the jukebox.'),
+			Command(command='list', target=self.show_map_list,
+					description='Displays the maps currently in the jukebox.').add_param(name='search', required=False),
+			Command(command='jukebox', target=self.chat_command,
+					description='Provides access to the jukebox commands.').add_param(name='option', required=False),
+			Command(command='mapfolders', aliases=['mf'], target=self.show_map_folders,
+					description='Shows the available (personal) map folders.'),
 		)
 
 		# Register settings.
@@ -61,7 +64,7 @@ class Jukebox(AppConfig):
 		await self.folder_manager.on_start()
 
 	def insert_map(self, player, map):
-		self.jukebox = [{'player': player, 'map': map}] + self.jukebox
+		self.jukebox.insert(0, {'player': player, 'map': map})
 
 	def append_map(self, player, map):
 		self.jukebox.append({'player': player, 'map': map})

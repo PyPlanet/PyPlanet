@@ -16,6 +16,7 @@ class _EnvironmentManager:
 	def environment(self):
 		if not self._environment:
 			self._environment = Environment(
+				enable_async=True,
 				loader=PyPlanetLoader.get_loader(),
 				autoescape=select_autoescape(['html', 'xml', 'Txt', 'txt', 'ml', 'ms', 'script.txt', 'Script.Txt']),
 				auto_reload=bool(settings.DEBUG),
@@ -47,4 +48,4 @@ class Template:
 		self.template = self.env.get_template(file)
 
 	async def render(self, **data):
-		return self.template.render(**data)
+		return await self.template.render_async(**data)

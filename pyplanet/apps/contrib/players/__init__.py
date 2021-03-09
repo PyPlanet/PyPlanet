@@ -9,7 +9,7 @@ from pyplanet.contrib.setting import Setting
 
 class Players(AppConfig):
 	name = 'pyplanet.apps.contrib.players'
-	game_dependencies = ['trackmania', 'shootmania']
+	game_dependencies = ['trackmania', 'trackmania_next', 'shootmania']
 	app_dependencies = ['core.maniaplanet']
 
 	def __init__(self, *args, **kwargs):
@@ -26,8 +26,9 @@ class Players(AppConfig):
 
 	async def on_start(self):
 		await self.instance.command_manager.register(
-			Command(command='players', target=self.player_list),
-			Command(command='laston', aliases=['lastseen'], target=self.command_laston).add_param(name='login', required=True),
+			Command(command='players', target=self.player_list, description='Displays the list of players currently online.'),
+			Command(command='laston', aliases=['lastseen'], target=self.command_laston,
+					description='Displays the last time the provided player was online on this server.').add_param(name='login', required=True),
 		)
 		await self.context.setting.register(
 			self.setting_enable_join_msg, self.setting_enable_leave_msg

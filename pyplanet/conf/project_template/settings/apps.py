@@ -23,6 +23,7 @@ APPS = {
 		'pyplanet.apps.contrib.transactions',
 		'pyplanet.apps.contrib.sector_times',
 		'pyplanet.apps.contrib.clock',
+		'pyplanet.apps.contrib.funcmd',
 
 		# You can optionally enable one of the following apps. Please look at this page for more information:
 		# http://pypla.net/#app-docs

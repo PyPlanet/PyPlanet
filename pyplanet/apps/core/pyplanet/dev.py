@@ -5,6 +5,8 @@ import json
 
 from pyplanet.contrib.command import Command
 
+from .views.call import CallMenuView
+
 
 class DevComponent:
 	def __init__(self, app):
@@ -25,25 +27,16 @@ class DevComponent:
 		)
 
 		await self.app.instance.command_manager.register(
-			Command('call', self.admin_call, perms='core.pyplanet:execute_calls', admin=True)
-				.add_param('method', type=str)
-				.add_param('args', type=str, nargs='*', required=False),
+			Command('call', self.admin_call, perms='core.pyplanet:execute_calls', admin=True,
+					description='Allows execution of API calls on the dedicated server.')
+				.add_param('search', type=str, required=False)
 		)
 
 	async def admin_call(self, player, data, **kwargs):
-		method = data.method
-		args = data.args
-		if not isinstance(args, list):
-			args = list()
-		if len(args) == 1:
-			try:
-				args = json.loads(args[0])
-			except:
-				pass
+		await self.app.instance.chat('$ff0Please wait... loading methods...', player)
 
-		try:
-			result = await self.app.instance.gbx(method, *args)
-			message = '$ff0Result: {}'.format(result)
-		except Exception as e:
-			message = '$ff0Error: {}'.format(str(e))
-		await self.app.instance.chat(message, player)
+		view = CallMenuView(self.app, player)
+		if 'search' in data:
+			view.search_text = data.search
+		await view.display()
+		return

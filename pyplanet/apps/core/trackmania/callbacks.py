@@ -16,6 +16,7 @@ async def handle_start_line(source, signal, **kwargs):
 		player=player, time=source['time'], flow=flow
 	)
 
+
 async def handle_waypoint(source, signal, **kwargs):
 	player = await Controller.instance.player_manager.get_player(login=source['login'])
 	flow = player.flow
@@ -43,10 +44,12 @@ async def handle_waypoint(source, signal, **kwargs):
 		logging.warning('Not isendlap!')
 	raise SignalGlueStop()
 
+
 async def handle_give_up(source, signal, **kwargs):
 	player = await Controller.instance.player_manager.get_player(login=source['login'])
 	player.flow.reset_run()
 	return dict(player=player, flow=player.flow, time=source['time'])
+
 
 async def handle_respawn(source, signal, **kwargs):
 	player = await Controller.instance.player_manager.get_player(login=source['login'])
@@ -55,15 +58,24 @@ async def handle_respawn(source, signal, **kwargs):
 		race_time=source['racetime'], lap_time=source['laptime']
 	)
 
+
 async def handle_scores(source, signal, **kwargs):
 	async def get_player_scores(data):
 		player = await Controller.instance.player_manager.get_player(login=data['login'])
 		return dict(
-			player=player, stunts_score=data['stuntsscore'], best_lap_checkpoints=data['bestlapcheckpoints'],
-			match_points=data['mappoints'], rank=data['rank'], best_lap_time=data['bestlaptime'],
-			best_lap_respawns=data['bestlaprespawns'], map_points=data['mappoints'], best_race_time=data['bestracetime'],
+			player=player,
+			best_lap_checkpoints=data['bestlapcheckpoints'],
+			match_points=data['matchpoints'], rank=data['rank'], best_lap_time=data['bestlaptime'],
+			map_points=data['mappoints'], best_race_time=data['bestracetime'],
 			round_points=data['roundpoints'], best_race_checkpoints=data['bestracecheckpoints'],
-			best_race_respawns=data['bestracerespawns'],
+
+			# TMNext only
+			player_account_id=data['accountid'] if 'accountid' in data else None,
+
+			# ManiaPlanet Only (Not for TMNext)
+			stunts_score=data['stuntsscore'] if 'stuntsscore' in data else None,
+			best_lap_respawns=data['bestlaprespawns'] if 'bestlaprespawns' in data else None,
+			best_race_respawns=data['bestracerespawns'] if 'bestracerespawns' in data else None,
 
 			# New since 2.5.0, so check if exist as we want backward compatibility.
 			prevracetime=data['prevracetime'] if 'prevracetime' in data else None,
@@ -93,6 +105,7 @@ async def handle_scores(source, signal, **kwargs):
 		section=source['section']
 	)
 
+
 async def handle_stunt(source, signal, **kwargs):
 	player = await Controller.instance.player_manager.get_player(login=source['login'])
 	return dict(
@@ -110,7 +123,7 @@ start_line = Callback(
 	target=handle_start_line,
 )
 """
-:Signal: 
+:Signal:
 	Player drives off from the start line.
 :Code:
 	``trackmania:start_line``
@@ -134,7 +147,7 @@ start_countdown = Callback(
 	target=handle_start_line,
 )
 """
-:Signal: 
+:Signal:
 	Player starts his round, the countdown starts right now.
 :Code:
 	``trackmania:start_countdown``
@@ -158,7 +171,7 @@ waypoint = Callback(
 	target=handle_waypoint,
 )
 """
-:Signal: 
+:Signal:
 	Player crosses a checkpoint.
 :Code:
 	``trackmania:waypoint``
@@ -190,7 +203,7 @@ give_up = Callback(
 	target=handle_give_up,
 )
 """
-:Signal: 
+:Signal:
 	Player gives up.
 :Code:
 	``trackmania:give_up``
@@ -206,6 +219,7 @@ give_up = Callback(
 :type flow: pyplanet.apps.core.maniaplanet.models.player.PlayerFlow
 """
 
+
 respawn = Callback(
 	call='Script.Trackmania.Event.Respawn',
 	namespace='trackmania',
@@ -213,7 +227,7 @@ respawn = Callback(
 	target=handle_respawn,
 )
 """
-:Signal: 
+:Signal:
 	Player respawn at cp.
 :Code:
 	``trackmania:respawn``
@@ -232,6 +246,32 @@ respawn = Callback(
 :type flow: pyplanet.apps.core.maniaplanet.models.player.PlayerFlow
 """
 
+
+request_respawn = Callback(
+	call='Script.Trackmania.Event.OnPlayerRequestRespawn',
+	namespace='trackmania',
+	code='request_respawn',
+	target=handle_generic,
+)
+"""
+:Signal:
+	Request respawn by player.
+:Code:
+	``trackmania:request_respawn``
+:Description:
+	Callback sent when a player requests a respawns.
+:Original Callback:
+	`Script` Trackmania.Event.OnPlayerRequestRespawn
+
+:param login: Player login
+:param player: Player instance
+:param time: Time of event
+:type login: str
+:type player: pyplanet.apps.core.maniaplanet.models.player.Player
+:type time: int
+"""
+
+
 stunt = Callback(
 	call='Script.Trackmania.Event.Stunt',
 	namespace='trackmania',
@@ -239,7 +279,7 @@ stunt = Callback(
 	target=handle_stunt
 )
 """
-:Signal: 
+:Signal:
 	Player did a stunt.
 :Code:
 	``trackmania:stunt``
@@ -263,6 +303,7 @@ stunt = Callback(
 :type player: pyplanet.apps.core.maniaplanet.models.player.Player
 """
 
+
 warmup_start = Callback(
 	call='Script.Trackmania.WarmUp.Start',
 	namespace='trackmania',
@@ -270,7 +311,7 @@ warmup_start = Callback(
 	target=handle_generic
 )
 """
-:Signal: 
+:Signal:
 	Warmup Starts
 :Code:
 	``trackmania:warmup_start``
@@ -280,6 +321,7 @@ warmup_start = Callback(
 	`Script` Trackmania.WarmUp.Start
 """
 
+
 warmup_end = Callback(
 	call='Script.Trackmania.WarmUp.End',
 	namespace='trackmania',
@@ -287,7 +329,7 @@ warmup_end = Callback(
 	target=handle_generic
 )
 """
-:Signal: 
+:Signal:
 	Warmup Ends
 :Code:
 	``trackmania:warmup_end``
@@ -305,7 +347,7 @@ warmup_start_round = Callback(
 	target=handle_generic
 )
 """
-:Signal: 
+:Signal:
 	Warmup Round Starts.
 :Code:
 	``trackmania:warmup_start_round``
@@ -313,7 +355,7 @@ warmup_start_round = Callback(
 	Callback sent when a warm up round start.
 :Original Callback:
 	`Script` Trackmania.WarmUp.StartRound
-	
+
 :param current: Current round number.
 :param total: Total warm up rounds.
 """
@@ -326,7 +368,7 @@ warmup_end_round = Callback(
 	target=handle_generic
 )
 """
-:Signal: 
+:Signal:
 	Warmup Round Ends.
 :Code:
 	``trackmania:warmup_end_round``
@@ -334,7 +376,7 @@ warmup_end_round = Callback(
 	Callback sent when a warm up round ends.
 :Original Callback:
 	`Script` Trackmania.WarmUp.EndRound
-	
+
 :param current: Current round number.
 :param total: Total warm up rounds.
 """
@@ -347,7 +389,7 @@ scores = Callback(
 	target=handle_scores
 )
 """
-:Signal: 
+:Signal:
 	Score callback, called after the map. (Around the podium time).
 :Code:
 	``trackmania:scores``
@@ -372,7 +414,7 @@ finish = Signal(
 	code='finish',
 )
 """
-:Signal: 
+:Signal:
 	Player finishes a lap or the race.
 :Code:
 	``trackmania:finish``
@@ -409,7 +451,7 @@ warmup_status = Callback(
 	target=handle_generic
 )
 """
-:Signal: 
+:Signal:
 	Status of Trackmania warmup. (mostly as response).
 :Code:
 	``trackmania:warmup_status``
@@ -423,4 +465,51 @@ warmup_status = Callback(
 :param active: Is warmup active and ongoing right now.
 :type available: bool
 :type active: bool
+"""
+
+
+tmnext_properties = Callback(
+	call='Script.Common.UIModules.Properties',
+	namespace='trackmania',
+	code='common_uimodules_properties',
+	target=handle_generic
+)
+"""
+:Signal:
+	Common.UIModules.Properties for TM2020
+:Code:
+	``trackmania:common_uimodules_properties``
+:Description:
+	Returns UIModules Properties like for instance: Race_Chrono see: ``[{'id': 'Race_Chrono', 'position': [0, -80], 'scale': 1, 'visible': True},``
+:Original Callback:
+	`Script` Common.UIModules.Properties
+
+:param responseid: Internally used. Ignore
+:param uimodules: Collection of all UIModules in TM2020.
+:type id Name of the UIModule
+:type position Position to place/get Position [0,-80] as example
+:type scale Scale measurement
+:type visible Boolean True or False
+"""
+
+
+tmnext_ko_elimination = Callback(
+	call='Script.Trackmania.Knockout.Elimination',
+	namespace='trackmania',
+	code='tmnext_ko_elimination',
+	target=handle_generic
+)
+"""
+:Signal:
+	Knockout Elimination Callback.
+:Code:
+	``trackmania:knockout_Elimination``
+:Description:
+	Returns a webserviceId on Player Knockout.
+:Original Callback:
+	`Script` Trackmania.Knockout.Elimination
+
+:param responseid: Internally used. Ignore
+:param account-id: example: ab6fa572-48d7-4b16-a2d7-5c760a05f97b.
+
 """

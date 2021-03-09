@@ -2,7 +2,6 @@ import textwrap
 
 from pyplanet.contrib import CoreContrib
 from pyplanet.contrib.command.command import Command
-from pyplanet.utils.functional import batch
 
 
 class CommandManager(CoreContrib):
@@ -46,12 +45,6 @@ class CommandManager(CoreContrib):
 	async def on_start(self, **kwargs):
 		# Register events.
 		self._instance.signals.listen('maniaplanet:player_chat', self._on_chat)
-
-		# Register /help and //help
-		await self.register(
-			Command('help', target=self._help).add_param('command', nargs='*', required=False),
-			Command('help', target=self._help, admin=True).add_param('command', nargs='*', required=False),
-		)
 
 	async def register(self, *commands):
 		"""
@@ -117,48 +110,31 @@ class CommandManager(CoreContrib):
 			player.login
 		),
 
-	async def _help(self, player, data, raw, command):  # pragma: no cover
-		help_command = command
-		filter_admin = bool(help_command.admin)
+	async def get_command_by_command_text(self, command):
+		"""
+		Get command by command text. (Used in the /help command)
 
-		# Show usage of a single command, given as second or more params.
-		if data.command:
-			cmd_args = data.command
+		:param command: Command entry, array of strings (split by spaces).
+		:return: Command object.
+		"""
+		# Find the right command.
+		for cmd in self._commands:
+			if cmd.match(command):
+				return cmd
+		return None
 
-			# HACK: Add / before an admin command to match the right command.
-			if filter_admin and cmd_args:
-				cmd_args[0] = '/{}'.format(cmd_args[0])
+	async def help_entries(self, player, admin_only):  # pragma: no cover
+		"""
+		Get all help entries for the player.
 
-			# Find the right command.
-			cmd_instance = None
-			for cmd in self._commands:
-				if cmd.match(cmd_args):
-					cmd_instance = cmd
-					break
-			# If found, show the usage of the command.
-			if cmd_instance:
-				await self._instance.chat(
-					'$z$s{}'.format(cmd_instance.usage_text),
-					player
-				)
-				return
-
+		:param player: Player instance.
+		:param admin_only: Only the admin commands or non-admin. True for admin only, False for player only.
+						Will filter on permissions of the player as well!
+		:return: List of commands objects.
+		"""
 		# All commands.
-		commands = [c for c in self._commands if c.admin is filter_admin]
-		calls = list()
-		for cmds in batch(commands, 7):
-			help_texts = [str(c) for c in cmds]
-			calls.append(
-				self._instance.chat(
-					'$z$s{}'.format(' | '.join(help_texts)),
-					player.login
-				)
-			)
+		commands = [c for c in self._commands if c.admin is admin_only]
+		if admin_only:
+			commands = [c for c in commands if await c.has_permission(self._instance, player)]
 
-		await self._instance.gbx.multicall(
-			self._instance.chat(
-				'$z$sCommand list. Help per command: /{}help [command]'.format('/' if filter_admin else ''),
-				player.login
-			),
-			*calls
-		)
+		return commands

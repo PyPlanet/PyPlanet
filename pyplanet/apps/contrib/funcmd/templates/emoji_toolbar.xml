@@ -1,0 +1,49 @@
+
+<frame pos="-160.25 -51.75" z-index="110" id="emoji_toolbar_bar_frame">
+  <quad pos="0 -0.25" z-index="0" size="6.5 6" bgcolor="00000060"/>
+
+  <!-- Icon -->
+  <label pos="3.25 -3.2" z-index="1" size="6.5 6" text="&#xf27a;" halign="center" valign="center2"
+         id="emoji_toolbar_bar_button_view"
+         scriptevents="1" />
+</frame>
+
+
+<frame pos="-153 -51.75" z-index="109" id="emoji_toolbar_frame" hide="1">
+  <quad pos="0 -0.25" z-index="0" size="65 6" bgcolor="00000040"/>
+
+  <label pos="3.25 -3.2" z-index="1" size="6.5 6" text="" halign="center" valign="center2"
+         scriptevents="1" action="{{ id }}__bar_button_1" />
+
+  <label pos="9.75 -3.2" z-index="1" size="6.5 6" text="" halign="center" valign="center2"
+         scriptevents="1" action="{{ id }}__bar_button_2" />
+
+  <label pos="16.25 -3.2" z-index="1" size="6.5 6" text="" halign="center" valign="center2"
+         scriptevents="1" action="{{ id }}__bar_button_3" />
+
+  <label pos="22.75 -3.2" z-index="1" size="6.5 6" text="" halign="center" valign="center2" textsize="2.0"
+         scriptevents="1" action="{{ id }}__bar_button_4" />
+
+  <label pos="29.25 -3.2" z-index="1" size="6.5 6" text="" halign="center" valign="center2" textsize="2.0"
+         scriptevents="1" action="{{ id }}__bar_button_5" />
+
+  <label pos="35.75 -3.2" z-index="1" size="6.5 6" text="" halign="center" valign="center2"
+         scriptevents="1" action="{{ id }}__bar_button_6" />
+
+  <label pos="42.25 -3.2" z-index="1" size="6.5 6" text="" halign="center" valign="center2"
+         scriptevents="1" action="{{ id }}__bar_button_7" />
+
+  <label pos="48.75 -3.2" z-index="1" size="6.5 6" text="" halign="center" valign="center2"
+         scriptevents="1" action="{{ id }}__bar_button_8" />
+
+  <label pos="55.25 -3.2" z-index="1" size="6.5 6" text="" halign="center" valign="center2" textsize="2.0"
+         scriptevents="1" action="{{ id }}__bar_button_9" />
+
+  <label pos="61.75 -3.2" z-index="1" size="6.5 6" text="🏆" halign="center" valign="center2" textsize="2.0"
+         scriptevents="1" action="{{ id }}__bar_button_10" />
+</frame>
+
+{% block maniascript %}
+  <script><!--{% include 'funcmd/emoji_toolbar.Script.Txt' %}--></script>
+{% endblock %}
+

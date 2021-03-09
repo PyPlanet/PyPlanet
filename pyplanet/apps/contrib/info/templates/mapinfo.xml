@@ -3,7 +3,13 @@
 {% block content %}
   <quad pos="0 0" z-index="0" size="35 6" bgcolor="00000060"/>
   <quad pos="0 0" z-index="0" size="6.5 6" bgcolor="00000060"/>
-  <quad pos="0.5 -0.25" z-index="1" size="5.5 5" image="file://Media/Manialinks/Common/LogoManiaPlanet.png" {% if map_mx_link %}url="{{ map_mx_link }}"{% endif %}/>
+  {% if map_mx_link %}
+    <label pos="1.5 -1.2" z-index="1" size="5.5 5" text="&#xf08e;" textsize="2.2" />
+  {% else %}
+    <label pos="1.4 -1.2" z-index="1" size="5.5 5" text="&#xf279;" textsize="2.2" />
+  {% endif %}
+  <quad pos="0.5 -0.25" z-index="1" size="5.5 5" {% if map_mx_link %}url="{{ map_mx_link }}"{% endif %}/>
+
   <label pos="20.5 -3.25" z-index="1" size="28.5 6" text="{{ map_name }}" textsize="1.6" valign="center2" halign="center" textfont="RajdhaniMono" textemboss="1"/>
 
   <quad pos="0 -6.5" z-index="0" size="35 6" bgcolor="00000060"/>

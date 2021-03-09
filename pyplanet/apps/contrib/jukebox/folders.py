@@ -136,6 +136,65 @@ class FolderManager:
 		await view.display(player=player)
 		return view
 
+	async def add_map_to_folder(self, folder_id, map_id):
+		"""
+		Adds the provided map to the provided folder.
+
+		:param folder_id: folder identifier to add the map to
+		:param map_id: map identifier to add to the folder
+		:return: whether the map was successfully added to the folder
+		"""
+		existing = await MapInFolder.execute(
+			MapInFolder.select(MapInFolder)
+				.where((MapInFolder.folder_id == folder_id) & (MapInFolder.map_id == map_id))
+		)
+
+		if existing:
+			return False
+
+		# Add map to folder.
+		map_in_folder = MapInFolder(
+			map_id=map_id,
+			folder_id=folder_id
+		)
+		await map_in_folder.save()
+
+		return True
+
+	async def remove_map_from_folder(self, folder_id, map_id):
+		"""
+		Removes the provided map from the provided folder.
+
+		:param folder_id: folder identifier to remove map from
+		:param map_id: map identifier to remove from folder
+		"""
+		await MapInFolder.execute(
+			MapInFolder.delete()
+				.where((MapInFolder.map_id == map_id) & (MapInFolder.folder_id == folder_id))
+		)
+
+	async def get_folders_containing_map(self, map_id):
+		"""
+		Returns the folders that contain the provided map.
+
+		:param map_id: map identifier to check folders for
+		:return: list of Folder instances (None if no found)
+		"""
+		map_in_folders = await MapInFolder.execute(
+			MapInFolder.select(MapInFolder)
+				.where(MapInFolder.map_id == map_id)
+		)
+
+		if map_in_folders is None or len(map_in_folders) == 0:
+			return None
+
+		folder_ids = [mf.folder_id for mf in map_in_folders]
+
+		return await Folders.execute(
+			Folders.select(Folders)
+				.where(Folders.id << folder_ids)
+		)
+
 	async def get_folder_code_contents(self, folder_code):
 		folder = folder_code
 

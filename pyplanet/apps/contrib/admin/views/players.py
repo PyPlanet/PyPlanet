@@ -33,6 +33,7 @@ class PlayerListView(ManualListView):
 			{
 				'name': 'Login',
 				'index': 'login',
+				'input': True,
 				'sorting': False,
 				'searching': True,
 				'width': 40,
@@ -64,7 +65,7 @@ class PlayerListView(ManualListView):
 		players = self.app.instance.player_manager.online
 		return [dict(
 			nickname=p.nickname,
-			login=p.login,
+			login='{}'.format(p.login),
 			is_spectator='$f00&#xf03d;' if p.flow.is_spectator else '$73f&#xf007;',
 			is_spectator_bool=p.flow.is_spectator,
 			level='{}: {}'.format(p.level, p.get_level_string())

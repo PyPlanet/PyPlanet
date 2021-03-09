@@ -4,8 +4,11 @@ import math
 
 from pyplanet.apps.config import AppConfig
 from pyplanet.contrib.command import Command
+from pyplanet.contrib.setting import Setting
 
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
+
+from pyplanet.apps.contrib.transactions.view import DonationToolbarWidget
 
 logger = logging.getLogger(__name__)
 
@@ -23,18 +26,77 @@ class Transactions(AppConfig):
 		self.public_appreciation = 100
 		self.lock = asyncio.Lock()
 
+		self.widget = DonationToolbarWidget(self)
+
+		self.setting_display_widget = Setting(
+			'donation_widget', 'Display Donation Widget', Setting.CAT_DESIGN, type=bool, default=True,
+			description='Display the donation widget to the players',
+			change_target=self.reload_settings,
+		)
+		self.setting_display_widget_podium_only = Setting(
+			'donation_widget_podium', 'Display Donation Widget only during podiums', Setting.CAT_BEHAVIOUR, type=bool,
+			default=True, description='Enabling this will only display the donation widget on the podium '
+									  '(requires the other setting to be enabled as well)',
+			change_target=self.reload_settings
+		)
+
 	async def on_start(self):
+		await self.context.setting.register(
+			self.setting_display_widget, self.setting_display_widget_podium_only
+		)
+
 		await self.instance.permission_manager.register('pay', 'Pay planets to players', app=self, min_level=3)
 		await self.instance.permission_manager.register('planets', 'Display amount of planets', app=self, min_level=3)
 
 		await self.instance.command_manager.register(
 			Command(command='planets', target=self.display_planets, perms='transactions:planets', admin=True),
-			Command(command='pay', target=self.pay_to_player, perms='transactions:pay', admin=True).add_param(name='login', required=True).add_param(name='amount', required=True),
+			Command(command='pay', target=self.pay_to_player, perms='transactions:pay', admin=True)
+				.add_param(name='login', required=True).add_param(name='amount', required=True),
 			Command(command='donate', target=self.donate).add_param(name='amount', required=True),
 		)
 
 		# Register callback.
 		self.context.signals.listen(mp_signals.other.bill_updated, self.bill_updated)
+
+		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
+		self.context.signals.listen(mp_signals.flow.podium_start, self.podium_start)
+		self.context.signals.listen(mp_signals.flow.podium_end, self.podium_end)
+		self.context.signals.listen(mp_signals.map.map_start, self.map_start)
+
+		# Show widget.
+		if await self.setting_display_widget.get_value() and not await self.setting_display_widget_podium_only.get_value():
+			await self.widget.display()
+
+	async def reload_settings(self, *args, **kwargs):
+		if await self.setting_display_widget.get_value() \
+			and not await self.setting_display_widget_podium_only.get_value():
+			await self.widget.display()
+		elif not await self.setting_display_widget.get_value() \
+			or await self.setting_display_widget_podium_only.get_value():
+			await self.widget.hide()
+
+	async def player_connect(self, player, *args, **kwargs):
+		if not await self.setting_display_widget.get_value():
+			return
+		if await self.setting_display_widget_podium_only.get_value():
+			return
+
+		await self.widget.display(player_logins=[player.login])
+
+	async def podium_start(self, *args, **kwargs):
+		if await self.setting_display_widget.get_value() \
+			and await self.setting_display_widget_podium_only.get_value():
+			await self.widget.display()
+
+	async def podium_end(self, *args, **kwargs):
+		if await self.setting_display_widget.get_value() \
+			and await self.setting_display_widget_podium_only.get_value():
+			await self.widget.hide()
+
+	async def map_start(self, *args, **kwargs):
+		if await self.setting_display_widget.get_value() \
+			and await self.setting_display_widget_podium_only.get_value():
+			await self.widget.hide()
 
 	async def display_planets(self, player, data, **kwargs):
 		planets = await self.instance.gbx('GetServerPlanets')

@@ -1,7 +1,6 @@
 import asyncio
 import datetime
 import logging
-import math
 
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
@@ -18,9 +17,9 @@ class Voting(AppConfig):
 	"""
 	Chat-based voting plugin.
 	"""
-		
+
 	name = 'pyplanet.apps.contrib.voting'
-	game_dependencies = ['trackmania', 'shootmania']
+	game_dependencies = ['trackmania', 'trackmania_next', 'shootmania']
 	app_dependencies = ['core.maniaplanet']
 
 	def __init__(self, *args, **kwargs):
@@ -32,6 +31,7 @@ class Voting(AppConfig):
 		self.current_vote = None
 		self.widget = None
 		self.podium_stage = False
+		self.extend_current_count = 0
 
 		self.setting_voting_enabled = Setting(
 			'voting_enabled', 'Voting enabled', Setting.CAT_BEHAVIOUR, type=bool,
@@ -93,6 +93,12 @@ class Voting(AppConfig):
 			default=30
 		)
 
+		self.setting_extend_max_amount = Setting(
+			'extend_max_amount', 'Max number of extends', Setting.CAT_BEHAVIOUR, type=int,
+			description='Set max number of extends allowed on map. use -1 for disable.',
+			default=-1
+		)
+
 	async def on_start(self):
 		"""
 		Called on starting the application.
@@ -106,21 +112,29 @@ class Voting(AppConfig):
 			self.setting_voting_enabled, self.setting_voting_ratio, self.setting_voting_timeout,
 			self.setting_remind_interval, self.setting_enabled_replay, self.setting_enabled_restart,
 			self.setting_enabled_skip, self.setting_callvoting_disable, self.setting_callvoting_timeout,
-			self.setting_enabled_time_extend
+			self.setting_enabled_time_extend, self.setting_extend_max_amount
 		)
 
 		await self.instance.permission_manager.register('cancel', 'Cancel the current vote', app=self, min_level=1)
 		await self.instance.permission_manager.register('pass', 'Pass the current vote', app=self, min_level=1)
 
 		await self.instance.command_manager.register(
-			Command(command='cancel', target=self.cancel_vote, perms='voting:cancel', admin=True),
-			Command(command='pass', target=self.pass_vote, perms='voting:pass', admin=True),
-			Command(command='y', aliases=['yes'], target=self.vote_yes),
-			Command(command='n', aliases=['no'], target=self.vote_no),
-			Command(command='replay', target=self.vote_replay),
-			Command(command='restart', aliases=['res'], target=self.vote_restart),
-			Command(command='skip', target=self.vote_skip),
-			Command(command='extend', target=self.vote_extend),
+			Command(command='cancel', target=self.cancel_vote, perms='voting:cancel', admin=True,
+					description='Cancels the current chat-based vote.'),
+			Command(command='pass', target=self.pass_vote, perms='voting:pass', admin=True,
+					description='Passes the current chat-based vote.'),
+			Command(command='y', aliases=['yes'], target=self.vote_yes,
+					description='Votes yes on the current chat-based vote.'),
+			Command(command='n', aliases=['no'], target=self.vote_no,
+					description='Votes no on the current chat-based vote.'),
+			Command(command='replay', target=self.vote_replay,
+					description='Starts a chat-based vote to replay the current map.'),
+			Command(command='restart', aliases=['res'], target=self.vote_restart,
+					description='Starts a chat-based vote to restart the current map.'),
+			Command(command='skip', target=self.vote_skip,
+					description='Starts a chat-based vote to skip the current map.'),
+			Command(command='extend', target=self.vote_extend,
+					description='Starts a chat-based vote to extend the playing time on the current map.'),
 		)
 
 		self.widget = VoteWidget(self)
@@ -167,6 +181,7 @@ class Voting(AppConfig):
 		"""
 
 		self.podium_stage = True
+		self.extend_current_count = 0
 
 		if self.current_vote is not None:
 			message = '$0cfVote to $fff{}$0cf has been cancelled.'.format(self.current_vote.action)
@@ -182,6 +197,7 @@ class Voting(AppConfig):
 		"""
 
 		self.podium_stage = False
+		self.extend_current_count = 0
 
 	async def cancel_vote(self, player, data, **kwargs):
 		"""
@@ -196,7 +212,8 @@ class Voting(AppConfig):
 			await self.instance.chat(message, player)
 			return
 
-		message = '$0cfAdmin $fff{}$z$s$0cf cancelled the current vote to $fff{}$z$s$0cf.'.format(player.nickname, self.current_vote.action)
+		message = '$0cfAdmin $fff{}$z$s$0cf cancelled the current vote to $fff{}$z$s$0cf.'.format(player.nickname,
+																								  self.current_vote.action)
 		await self.instance.chat(message)
 
 		# Hide the voting widget and reset the current vote
@@ -215,7 +232,8 @@ class Voting(AppConfig):
 			await self.instance.chat(message, player)
 			return
 
-		message = '$0cfAdmin $fff{}$z$s$0cf passed the current vote to $fff{}$z$s$0cf.'.format(player.nickname, self.current_vote.action)
+		message = '$0cfAdmin $fff{}$z$s$0cf passed the current vote to $fff{}$z$s$0cf.'.format(player.nickname,
+																							   self.current_vote.action)
 		await self.instance.chat(message)
 
 		await self.current_vote.fire_passed_event(True)
@@ -238,7 +256,8 @@ class Voting(AppConfig):
 			required_votes = (vote.votes_required - len(vote.votes_current))
 			message = '$fff{}$z$s$0cf voted to $fff{}$0cf, $fff{}$0cf more {} needed (use $fffF5$0cf to vote){}.'.format(
 				player.nickname, vote.action, required_votes, ('votes' if required_votes > 1 else 'vote'),
-				(' ($fff{}$0cf seconds left)'.format(int(round((self.current_vote.time_limit - datetime.datetime.now()).total_seconds()))) if self.current_vote.time_limit is not None else '')
+				(' ($fff{}$0cf seconds left)'.format(int(round((
+																	   self.current_vote.time_limit - datetime.datetime.now()).total_seconds()))) if self.current_vote.time_limit is not None else '')
 			)
 			await self.instance.chat(message)
 
@@ -252,8 +271,10 @@ class Voting(AppConfig):
 
 		required_votes = (vote.votes_required - len(vote.votes_current))
 		message = '$0cfThere {} $fff{}$0cf more {} needed to $fff{}$0cf (use $fffF5$0cf to vote){}.'.format(
-			('are' if required_votes > 1 else 'is'), required_votes, ('votes' if required_votes > 1 else 'vote'), vote.action,
-			(' ($fff{}$0cf seconds left)'.format(int(round((self.current_vote.time_limit - datetime.datetime.now()).total_seconds()))) if self.current_vote.time_limit is not None else '')
+			('are' if required_votes > 1 else 'is'), required_votes, ('votes' if required_votes > 1 else 'vote'),
+			vote.action,
+			(' ($fff{}$0cf seconds left)'.format(int(round((
+																   self.current_vote.time_limit - datetime.datetime.now()).total_seconds()))) if self.current_vote.time_limit is not None else '')
 		)
 		await self.instance.chat(message)
 
@@ -358,8 +379,10 @@ class Voting(AppConfig):
 			await self.instance.chat(message, player)
 
 		message = '$fff{}$z$s$0cf wants to $fff{}$0cf, $fff{}$0cf more {} needed (use $fffF5$0cf to vote){}.'.format(
-			player.nickname, self.current_vote.action, self.current_vote.votes_required, ('votes' if self.current_vote.votes_required > 1 else 'vote'),
-			(' ($fff{}$0cf seconds left)'.format(int(round((self.current_vote.time_limit - datetime.datetime.now()).total_seconds()))) if self.current_vote.time_limit is not None else '')
+			player.nickname, self.current_vote.action, self.current_vote.votes_required,
+			('votes' if self.current_vote.votes_required > 1 else 'vote'),
+			(' ($fff{}$0cf seconds left)'.format(int(round((
+																   self.current_vote.time_limit - datetime.datetime.now()).total_seconds()))) if self.current_vote.time_limit is not None else '')
 		)
 		await self.instance.chat(message)
 
@@ -378,11 +401,14 @@ class Voting(AppConfig):
 
 		maps_in_jukebox = [j['map'] for j in self.instance.apps.apps['jukebox'].jukebox]
 		if self.instance.map_manager.current_map.uid in [m.uid for m in maps_in_jukebox]:
-			drop_map = next((item for item in self.instance.apps.apps['jukebox'].jukebox if item['map'].uid == self.instance.map_manager.current_map.uid), None)
+			drop_map = next((item for item in self.instance.apps.apps['jukebox'].jukebox if
+							 item['map'].uid == self.instance.map_manager.current_map.uid), None)
 			if drop_map is not None:
 				self.instance.apps.apps['jukebox'].jukebox.remove(drop_map)
 
-		self.instance.apps.apps['jukebox'].jukebox = [{'player': vote.requester, 'map': self.instance.map_manager.current_map}] + self.instance.apps.apps['jukebox'].jukebox
+		self.instance.apps.apps['jukebox'].jukebox = [{'player': vote.requester,
+													   'map': self.instance.map_manager.current_map}] + \
+													 self.instance.apps.apps['jukebox'].jukebox
 
 		if not forced:
 			message = '$0cfVote to $fff{}$0cf has passed.'.format(vote.action)
@@ -427,8 +453,10 @@ class Voting(AppConfig):
 		await self.create_vote('restart this map', player, self.vote_restart_passed)
 
 		message = '$fff{}$z$s$0cf wants to $fff{}$0cf, $fff{}$0cf more {} needed (use $fffF5$0cf to vote){}.'.format(
-			player.nickname, self.current_vote.action, self.current_vote.votes_required, ('votes' if self.current_vote.votes_required > 1 else 'vote'),
-			(' ($fff{}$0cf seconds left)'.format(int(round((self.current_vote.time_limit - datetime.datetime.now()).total_seconds()))) if self.current_vote.time_limit is not None else '')
+			player.nickname, self.current_vote.action, self.current_vote.votes_required,
+			('votes' if self.current_vote.votes_required > 1 else 'vote'),
+			(' ($fff{}$0cf seconds left)'.format(int(round((
+																   self.current_vote.time_limit - datetime.datetime.now()).total_seconds()))) if self.current_vote.time_limit is not None else '')
 		)
 		await self.instance.chat(message)
 
@@ -497,8 +525,10 @@ class Voting(AppConfig):
 		await self.create_vote('skip this map', player, self.vote_skip_passed)
 
 		message = '$fff{}$z$s$0cf wants to $fff{}$0cf, $fff{}$0cf more {} needed (use $fffF5$0cf to vote){}.'.format(
-			player.nickname, self.current_vote.action, self.current_vote.votes_required, ('votes' if self.current_vote.votes_required > 1 else 'vote'),
-			(' ($fff{}$0cf seconds left)'.format(int(round((self.current_vote.time_limit - datetime.datetime.now()).total_seconds()))) if self.current_vote.time_limit is not None else '')
+			player.nickname, self.current_vote.action, self.current_vote.votes_required,
+			('votes' if self.current_vote.votes_required > 1 else 'vote'),
+			(' ($fff{}$0cf seconds left)'.format(int(round((
+																   self.current_vote.time_limit - datetime.datetime.now()).total_seconds()))) if self.current_vote.time_limit is not None else '')
 		)
 		await self.instance.chat(message)
 
@@ -529,6 +559,11 @@ class Voting(AppConfig):
 
 		:param player: player requesting the vote
 		"""
+		extend_max = await self.setting_extend_max_amount.get_value()
+		if 0 < extend_max <= self.extend_current_count:
+			message = f'$i$f00Map has reached extend limit (max {extend_max})'
+			await self.instance.chat(message, player)
+			return
 
 		if self.current_vote is not None:
 			message = '$i$f00You cannot start a vote while one is already in progress.'
@@ -565,7 +600,8 @@ class Voting(AppConfig):
 		message = '$fff{}$z$s$0cf wants to $fff{}$0cf, $fff{}$0cf more {} needed (use $fffF5$0cf to vote){}.'.format(
 			player.nickname, self.current_vote.action, self.current_vote.votes_required,
 			('votes' if self.current_vote.votes_required > 1 else 'vote'),
-			(' ($fff{}$0cf seconds left)'.format(int(round((self.current_vote.time_limit - datetime.datetime.now()).total_seconds()))) if self.current_vote.time_limit is not None else '')
+			(' ($fff{}$0cf seconds left)'.format(int(round((
+																   self.current_vote.time_limit - datetime.datetime.now()).total_seconds()))) if self.current_vote.time_limit is not None else '')
 		)
 		await self.instance.chat(message)
 		await self.current_vote.add_vote(player)
@@ -579,7 +615,7 @@ class Voting(AppConfig):
 		"""
 
 		message = '$0cfVote to $fff{}$0cf has passed.'.format(vote.action)
-		
+		self.extend_current_count += 1
 		# Hide the voting widget and reset the current vote
 		await self.reset_vote()
 
@@ -604,8 +640,10 @@ class Voting(AppConfig):
 			current_required_votes = (vote.votes_required - len(vote.votes_current))
 			if self.current_vote.action == vote.action and current_required_votes == required_votes:
 				message = '$0cfThere are $fff{}$0cf more {} needed to $fff{}$0cf (use $fffF5$0cf to vote){}.'.format(
-					current_required_votes, ('votes' if current_required_votes > 1 else 'vote'), self.current_vote.action,
-					(' ($fff{}$0cf seconds left)'.format(int(round((self.current_vote.time_limit - datetime.datetime.now()).total_seconds()))) if self.current_vote.time_limit is not None else '')
+					current_required_votes, ('votes' if current_required_votes > 1 else 'vote'),
+					self.current_vote.action,
+					(' ($fff{}$0cf seconds left)'.format(int(round((
+																		   self.current_vote.time_limit - datetime.datetime.now()).total_seconds()))) if self.current_vote.time_limit is not None else '')
 				)
 				await self.instance.chat(message)
 

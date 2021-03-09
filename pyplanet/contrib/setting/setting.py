@@ -7,28 +7,28 @@ from pyplanet.contrib.setting.exceptions import TypeUnknownException, Serializat
 
 class Setting:
 	"""
-	The setting class is for defining a setting for the end-user. 
+	The setting class is for defining a setting for the end-user.
 	This setting can be changed with /settings and //settings.
-	
+
 	With this class you can define or manage your setting that is going to be public for all other apps and end-user.
 
 	You can get notified of changes with the ``change_target`` in the init of this class. Point this to a method (async or sync)
 	with the following params: ``old_value`` and ``new_value``.
-	
+
 	Example:
-		
+
 	.. code-block:: python
-	
+
 		my_setting = Setting(
 			'dedimania_code', 'Dedimania Server Code', Setting.CAT_KEYS, type=str,
 			description='The secret dedimania code. Get one at $lhttp://dedimania.net/tm2stats/?do=register',
 			default=None
 		)
-		
+
 		my_other_setting = Setting(
 			'sample_boolean', 'Booleans for the win!', Setting.CAT_BEHAVIOUR, type=bool, description='Example',
 		)
-	
+
 	"""
 
 	CAT_GENERAL = 'General'
@@ -46,8 +46,8 @@ class Setting:
 	):
 		"""
 		Create setting with properties.
-		
-		:param key: Key of setting, this is mainly only used for the backend and for referencing the setting. 
+
+		:param key: Key of setting, this is mainly only used for the backend and for referencing the setting.
 					You should keep this unique in your app!
 		:param name: Name of the setting that will be displayed as a small label to the player.
 		:param category: Category from Categories.*. Must be provided!
@@ -87,7 +87,7 @@ class Setting:
 	def unserialize_value(self, value):
 		"""
 		Unserialize the datastorage value to the python value, based on the type of the setting.
-		
+
 		:param value: Value from database.
 		:return: Python value.
 		:raise pyplanet.contrib.setting.exceptions.SerializationException: SerializationException
@@ -124,6 +124,10 @@ class Setting:
 		if value is None:
 			return value
 
+		# Empty value, set the default.
+		if value == '':
+			return self.default
+
 		if self.choices and value not in self.choices:
 			raise SerializationException('Value given is not in the predefined choices!')
 
@@ -153,7 +157,7 @@ class Setting:
 	def type_name(self):
 		"""
 		Get the name of the specified type in string format, suited for displaying to end-user.
-		
+
 		:return: User friendly name of type.
 		"""
 		if self.type == str:
@@ -164,8 +168,10 @@ class Setting:
 			return 'float'
 		elif self.type == bool:
 			return 'boolean'
-		elif self.type == list or self.type == set or self.type == dict:
-			return 'list/dict'
+		elif self.type == list or self.type == set:
+			return 'list'
+		elif self.type == dict:
+			return 'dict'
 		else:
 			return 'unknown'
 
@@ -185,7 +191,7 @@ class Setting:
 	async def set_value(self, value):
 		"""
 		Set the value, this will serialize and save the setting to the data storage.
-		
+
 		:param value: Python value input.
 		:raise: NotFound / SerializationException
 		"""
@@ -206,8 +212,8 @@ class Setting:
 	async def clear(self):
 		"""
 		Clear the value in the data storage. This will set the value to None, and will return the default value on
-		request of data. 
-		
+		request of data.
+
 		:raise: NotFound / SerializationException
 		"""
 		return await self.set_value(None)
@@ -215,7 +221,7 @@ class Setting:
 	async def get_model(self):
 		"""
 		Get the model for the setting. This will return the model instance or raise an exception when not found.
-		
+
 		:return: Model instance
 		:raise: NotFound
 		"""

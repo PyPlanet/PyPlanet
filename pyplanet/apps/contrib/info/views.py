@@ -1,3 +1,4 @@
+import logging
 
 from pyplanet import __version__ as version
 from pyplanet.apps.core.maniaplanet.models import Player
@@ -5,10 +6,13 @@ from pyplanet.views.generics.widget import WidgetView
 from pyplanet.utils import times
 from pyplanet.contrib.player.exceptions import PlayerNotFound
 
+logger = logging.getLogger(__name__)
+
 
 class MapInfoWidget(WidgetView):
 	widget_x = 125
 	widget_y = 90
+	z_index = 60
 
 	template_name = 'info/mapinfo.xml'
 
@@ -30,12 +34,17 @@ class MapInfoWidget(WidgetView):
 				mx_link = self.mx_link_cache[map.uid]
 			else:
 				# Fetch, validate and make link.
-				mx_info = await self.app.instance.apps.apps['mx'].api.map_info(map.uid)
-				if mx_info and len(mx_info) >= 1:
-					mx_link = 'https://{}.mania-exchange.com/s/tr/{}'.format(
-						self.app.instance.apps.apps['mx'].api.site, mx_info[0][0]
-					)
-				self.mx_link_cache[map.uid] = mx_link
+				try:
+					mx_info = await self.app.instance.apps.apps['mx'].api.map_info(map.uid)
+					if mx_info and len(mx_info) >= 1:
+						base_url = self.app.instance.apps.apps['mx'].api.base_url()
+						mx_link = '{}/s/tr/{}'.format(
+							base_url, mx_info[0][0]
+						)
+					self.mx_link_cache[map.uid] = mx_link
+				except Exception as e:
+					logger.error('Could not retrieve map info from MX/TM API for the info widget: {}'.format(str(e)))
+					pass
 
 		context = await super().get_context_data()
 		context.update({
@@ -52,6 +61,7 @@ class MapInfoWidget(WidgetView):
 class ServerInfoWidget(WidgetView):
 	widget_x = -160
 	widget_y = 90
+	z_index = 60
 
 	template_name = 'info/serverinfo.xml'
 

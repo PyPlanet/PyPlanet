@@ -1,6 +1,7 @@
 import asyncio
 import platform
 import aiohttp
+import sys
 
 from json import dumps
 
@@ -28,12 +29,15 @@ class _Analytics:
 		event_properties = event_properties or dict()
 		user_properties = dict(
 			path=self.instance.game.server_path,
+			game=self.instance.game.game,
 			server_name=self.instance.game.server_name,
 			language=self.instance.game.server_language,
 			login=self.instance.game.server_player_login,
 			title=self.instance.game.dedicated_title,
 			dedicated_build=self.instance.game.dedicated_build,
 			dedicated_version=self.instance.game.dedicated_version,
+			python_version='{}.{}'.format(sys.version_info[0], sys.version_info[1]),
+			python_version_full='{}.{}.{}'.format(*sys.version_info[0:3])
 		)
 
 		await self.execute(dict(

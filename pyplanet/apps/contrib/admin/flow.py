@@ -18,12 +18,16 @@ class FlowAdmin:
 		await self.instance.permission_manager.register('points_repartition', 'Change the points repartition', app=self.app, min_level=2)
 
 		# Trackmania specific:
-		if self.instance.game.game == 'tm':
+		if self.instance.game.game == 'tm' or self.instance.game.game == 'tmnext':
 			await self.instance.command_manager.register(
-				Command(command='endround', target=self.end_round, perms='admin:end_round', admin=True),
-				Command(command='endwuround', target=self.end_wu_round, perms='admin:end_round', admin=True),
-				Command(command='endwu', target=self.end_wu, perms='admin:end_round', admin=True),
-				Command(command='pointsrepartition', aliases=['pointsrep'], target=self.set_point_repartition, perms='admin:points_repartition', admin=True)
+				Command(command='endround', target=self.end_round, perms='admin:end_round', admin=True,
+						description='Ends the current round of play.'),
+				Command(command='endwuround', target=self.end_wu_round, perms='admin:end_round', admin=True,
+						description='Ends the current warm-up round of play.'),
+				Command(command='endwu', target=self.end_wu, perms='admin:end_round', admin=True,
+						description='Ends the complete warm-up on this map.'),
+				Command(command='pointsrepartition', aliases=['pointsrep'], target=self.set_point_repartition,
+						perms='admin:points_repartition', admin=True, description='Alters the points repartitioning.')
 					.add_param('repartition', nargs='*', type=str, required=True, help='Repartition, comma or space separated.'),
 			)
 

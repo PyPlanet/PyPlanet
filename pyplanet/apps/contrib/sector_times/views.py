@@ -1,8 +1,9 @@
+from pyplanet.views import TemplateView
 from pyplanet.views.generics.widget import WidgetView
 
 
 class SectorTimesWidget(WidgetView):
-	widget_x = 20
+	# widget_x = 20
 	widget_y = -70
 
 	template_name = 'sector_times/sector_times.xml'
@@ -16,6 +17,13 @@ class SectorTimesWidget(WidgetView):
 		self.app = app
 		self.manager = app.context.ui
 		self.id = 'pyplanet__widgets_sector_times'
+
+	@property
+	def widget_x(self):
+		if self.app:
+			if self.app.instance.game.game == 'tmnext':
+				return -55
+		return 20
 
 	async def get_per_player_data(self, login):
 		dedi_score = 0
@@ -62,6 +70,8 @@ class SectorTimesWidget(WidgetView):
 		context['record_sector_times'] = fastest_cps
 		context['record_time'] = fastest_score
 		context['record_source'] = fastest_source
+		if not fastest_cps:
+			context['record_time'] = 0
 
 		return context
 
@@ -125,5 +135,17 @@ class CheckpointDiffWidget(WidgetView):
 		context['record_sector_times'] = fastest_cps
 		context['record_time'] = fastest_score
 		context['record_source'] = fastest_source
+		if not fastest_cps:
+			context['record_time'] = 0
 
 		return context
+
+
+class GearIndicatorView(TemplateView):
+	template_name = 'sector_times/gear_indicator.xml'
+
+	def __init__(self, app, *args, **kwargs):
+		super().__init__(app.context.ui, *args, **kwargs)
+		self.app = app
+		self.manager = app.context.ui
+		self.id = 'sector_times_gear'

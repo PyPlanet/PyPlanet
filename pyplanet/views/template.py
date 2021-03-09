@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.core import Controller
@@ -60,7 +61,7 @@ class TemplateView(View):
 		Get global and local context data, used to render template.
 		"""
 		context = dict(
-			id=self.id
+			id=self.id,
 		)
 		return context
 
@@ -117,8 +118,15 @@ class TemplateView(View):
 
 		:param player_logins: Only display to the list of player logins given.
 		"""
-		# Get player data (old way).
-		self.player_data = await self.get_player_data()
+		# Get player data (old way). Deprecated since 0.4.0.
+		# Added warning since 0.8.0.
+		self.player_data = deprecated_data = await self.get_player_data()
+		# COMMENTED IN 0.8.2: FAST FIX.
+		# if deprecated_data and len(deprecated_data.keys()) > 0:
+			# logging.getLogger(self.__class__.__module__ + '.' + self.__class__.__name__).warning(
+			# 	'Method \'get_player_data\' is deprecated and will be removed soon! Please refactor your code!'
+			# )
+			# self.player_data = deprecated_data
 
 		self.player_data.update(await self.get_all_player_data(
 			player_logins or [p.login for p in Controller.instance.player_manager.online]

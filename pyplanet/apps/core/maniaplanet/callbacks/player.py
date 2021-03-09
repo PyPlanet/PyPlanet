@@ -45,7 +45,7 @@ async def handle_player_info_changed(source, signal, **kwargs):
 	is_temp_spectator =		bool((source['SpectatorStatus'] / 10)	% 10)
 	is_pure_spectator =		bool((source['SpectatorStatus'] / 100)	% 10)
 	auto_target =			bool((source['SpectatorStatus'] / 1000)	% 10)
-	target_id =				bool((source['SpectatorStatus'] / 10000))
+	target_id =				int((source['SpectatorStatus'] // 10000))
 
 	# Unpack flags.
 	force_spectator =				int((source['Flags'] % 10))  # Int
@@ -95,7 +95,7 @@ player_connect = Callback(
 	target=handle_player_connect,
 )
 """
-:Signal: 
+:Signal:
 	Player has been connected.
 :Code:
 	``maniaplanet:player_connect``
@@ -117,7 +117,7 @@ player_disconnect = Callback(
 	target=handle_player_disconnect,
 )
 """
-:Signal: 
+:Signal:
 	Player has been disconnected.
 :Code:
 	``maniaplanet:player_disconnect``
@@ -139,7 +139,7 @@ player_chat = Callback(
 	target=handle_player_chat,
 )
 """
-:Signal: 
+:Signal:
 	Player has been writing a chat entry. When the server writes something we **wont** inform it in here!
 :Code:
 	``maniaplanet:player_chat``
@@ -162,7 +162,7 @@ player_info_changed = Callback(
 	target=handle_player_info_changed,
 )
 """
-:Signal: 
+:Signal:
 	Player has changed status.
 :Code:
 	``maniaplanet:player_info_changed``
@@ -203,7 +203,7 @@ player_enter_player_slot = Signal(
 	code='player_enter_player_slot',
 )
 """
-:Signal: 
+:Signal:
 	Player enters a player slot.
 :Code:
 	``maniaplanet:player_enter_player_slot``
@@ -221,7 +221,7 @@ player_enter_spectator_slot = Signal(
 	code='player_enter_spectator_slot',
 )
 """
-:Signal: 
+:Signal:
 	Player enters a spectator slot (not temporary).
 :Code:
 	``maniaplanet:player_enter_spectator_slot``
