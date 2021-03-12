@@ -15,6 +15,7 @@ class FlowAdmin:
 
 	async def on_start(self):
 		await self.instance.permission_manager.register('end_round', 'Force ending a round (warmup, race or custom)', app=self.app, min_level=2)
+		await self.instance.permission_manager.register('pause', 'Force Pause (warmup, race or custom)', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('player_points', 'Change the player points', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('team_points', 'Change the team points', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('points_repartition', 'Change the points repartition', app=self.app, min_level=2)
@@ -22,8 +23,10 @@ class FlowAdmin:
 		# Trackmania specific:
 		if self.instance.game.game == 'tm' or self.instance.game.game == 'tmnext':
 			await self.instance.command_manager.register(
-				Command(command='endround', target=self.end_round, perms='admin:end_round', admin=True,
-						description='Ends the current round of play.'),
+				Command(command='pause', target=self.pause, perms='admin:pause', admin=True,
+						description='Pauses a Match.'),
+				Command(command='unpause', target=self.unpause, perms='admin:pause', admin=True,
+						description='Continues a Match.'),
 				Command(command='endwuround', target=self.end_wu_round, perms='admin:end_round', admin=True,
 						description='Ends the current warm-up round of play.'),
 				Command(command='endwu', target=self.end_wu, perms='admin:end_round', admin=True,
@@ -62,7 +65,18 @@ class FlowAdmin:
 			self.instance.gbx('Trackmania.ForceEndRound', encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has forced the current round to end.'.format(player.nickname))
 		)
-
+	
+	async def pause(self, player, data, **kwargs):
+		await self.instance.gbx.multicall(
+			self.instance.gbx('Maniaplanet.Pause.SetActive', 'true', encode_json=False, response_id=False),
+			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has forced a Pause of the Match.'.format(player.nickname))
+		)
+		
+	async def unpause(self, player, data, **kwargs):
+		await self.instance.gbx.multicall(
+			self.instance.gbx('Maniaplanet.Pause.SetActive', 'false', encode_json=False, response_id=False),
+			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has forced to continue the Match.'.format(player.nickname))
+		)	
 	async def end_wu_round(self, player, data, **kwargs):
 		await self.instance.gbx.multicall(
 			self.instance.gbx('Trackmania.WarmUp.ForceStopRound', encode_json=False, response_id=False),
