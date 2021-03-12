@@ -35,6 +35,9 @@ Void UpdateInterface() {
   if (GUIPlayer != Null && GUIPlayer.RaceWaypointTimes.existskey(CurrentCheckpoint - 1)) {
     CurrentCheckpointTime = GUIPlayer.RaceWaypointTimes[CurrentCheckpoint - 1];
   }
+  if (GUIPlayer != Null && GUIPlayer.LapWaypointTimes.existskey(CurrentCheckpoint - 1)) {
+    CurrentCheckpointTime = GUIPlayer.LapWaypointTimes[CurrentCheckpoint - 1];
+  }
   if (CurrentCheckpointTime == -1 && CurrentLapScore > 0) {
     CurrentCheckpointTime = CurrentLapScore;
   }
@@ -125,14 +128,11 @@ Integer GetCPCount() {
 			orders[Landmark.Order] = [Landmark.MarkerId];
 		}
 	}
-	if(orders.count == 1 && orders.existskey(0)) { // No linked cp in the map
-		count = orders[0].count;
-	}
-	else {
-		count = orders.count;
-	}
+	count = orders[0].count;
+	
 	return count + 1; // +1 for ending
 }
+
 main() {
   // Access the local + dedimania variables. TODO: Implement this in the local + dedi widgets.
   declare Integer PyApp_local_records__player_score for LocalUser;
@@ -174,9 +174,10 @@ main() {
   while(True) {
   // From https://github.com/EvoTM/EvoSC/blob/283b282ef60b18a3ebd9fc7e7d2e3bc181742528/core/Modules/CpDiffs/Templates/widget.latte.xml
     if (GUIPlayer != Null){
-      declare wayPointTimesCount = GUIPlayer.RaceWaypointTimes.count;
+      declare wayPointTimesCount = GUIPlayer.RaceWaypointTimes.count; // Race without MultiLaps
+	  declare LapwayPointTimesCount = GUIPlayer.LapWaypointTimes.count; // Race with Multilaps
       declare Boolean IsSpectating = GUIPlayer != InputPlayer;
-	  //New cp or reset
+	  //New cp or reset on Race
       if (LastCpCount != wayPointTimesCount) {
 		//reset
         if (wayPointTimesCount == 0) {
@@ -190,7 +191,7 @@ main() {
             UpdateInterface();
 
 
-            if (CurrentCheckpoint >= TotalCheckpoints) { // end of lap (TODO handle multilap)
+            if (CurrentCheckpoint >= TotalCheckpoints) {
               CurrentCheckpoint = 0;
               if (! IsSpectating && (BestScore <= 0 || GUIPlayer.RaceWaypointTimes[wayPointTimesCount - 1] < BestScore) && CurrentCheckpointScores.count == TotalCheckpoints) {
                 BestScore = GUIPlayer.RaceWaypointTimes[wayPointTimesCount - 1];
@@ -202,6 +203,33 @@ main() {
           }
         }
         LastCpCount = wayPointTimesCount;
+      }
+	//New cp or reset on Race
+      if (LastCpCount != LapwayPointTimesCount) {
+		//reset
+        if (LapwayPointTimesCount == 0) {
+          CurrentCheckpointScores = Integer[];
+          CurrentCheckpoint = 0;
+          UpdateInterface();
+        } else { //new cp
+          if (GUIPlayer.StartTime >= 0) {
+            CurrentCheckpoint = LapwayPointTimesCount;
+            CurrentCheckpointScores.add(GUIPlayer.LapWaypointTimes[LapwayPointTimesCount - 1]);
+            UpdateInterface();
+
+
+            if (CurrentCheckpoint >= TotalCheckpoints) { // end of lap (TODO handle multilap)
+              CurrentCheckpoint = 0;
+              if (! IsSpectating && (BestScore <= 0 || GUIPlayer.LapWaypointTimes[LapwayPointTimesCount - 1] < BestScore) && CurrentCheckpointScores.count == TotalCheckpoints) {
+                BestScore = GUIPlayer.LapWaypointTimes[LapwayPointTimesCount - 1];
+                BestSource = "Round";
+                BestCheckpoints = CurrentCheckpointScores;
+              }
+              CurrentCheckpointScores = Integer[];
+            }
+          }
+        }
+        LastCpCount = LapwayPointTimesCount;
       }
     }
     yield;
