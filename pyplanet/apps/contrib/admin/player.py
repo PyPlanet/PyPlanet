@@ -407,11 +407,11 @@ class PlayerAdmin:
 		await target_player.save()
 
 		if data.level > 0:
-			message = '$ff0Admin $fff{}$z$s$ff0 has added $fff{}$z$s$ff0 as an {}.'.format(
+			message = '$ff0Admin $fff{}$z$s$ff0 has added $fff{}$z$s$ff0 as a {}.'.format(
 				player.nickname, target_player.nickname, new_level_name
 			)
 		else:
-			message = '$ff0Admin $fff{}$z$s$ff0 has removed $fff{}$z$s$ff0 as an {}.'.format(
+			message = '$ff0Admin $fff{}$z$s$ff0 has removed $fff{}$z$s$ff0 as a {}.'.format(
 				player.nickname, target_player.nickname, old_level_name
 			)
 		await self.instance.chat(message)
