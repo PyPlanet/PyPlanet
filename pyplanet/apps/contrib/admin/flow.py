@@ -23,6 +23,8 @@ class FlowAdmin:
 		# Trackmania specific:
 		if self.instance.game.game == 'tm' or self.instance.game.game == 'tmnext':
 			await self.instance.command_manager.register(
+				Command(command='endround', target=self.end_round, perms='admin:end_round', admin=True,
+						description='Ends the current round of play.'),
 				Command(command='pause', target=self.pause, perms='admin:pause', admin=True,
 						description='Pauses a Match.'),
 				Command(command='unpause', target=self.unpause, perms='admin:pause', admin=True,
