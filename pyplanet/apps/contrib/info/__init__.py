@@ -28,7 +28,7 @@ class Info(AppConfig):
 		if self.instance.game.game == 'tm':
 			self.instance.ui_manager.properties.set_attribute('multilap_info', 'pos', '107., 88., 5.')
         
-		if self.instance.game.game == 'tm' and self.instance.game.game == 'sm':        
+		if self.instance.game.game in ['tm', 'sm']:       
             self.instance.ui_manager.properties.set_visibility('map_info', False)
 
 		self.map_widget = views.MapInfoWidget(self)
