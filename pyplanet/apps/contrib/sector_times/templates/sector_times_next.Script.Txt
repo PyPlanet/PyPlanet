@@ -195,7 +195,7 @@ main() {
               CurrentCheckpoint = 0;
               if (! IsSpectating && (BestScore <= 0 || GUIPlayer.RaceWaypointTimes[wayPointTimesCount - 1] < BestScore) && CurrentCheckpointScores.count == TotalCheckpoints) {
                 BestScore = GUIPlayer.RaceWaypointTimes[wayPointTimesCount - 1];
-                BestSource = "Round";
+                BestSource = "Local";
                 BestCheckpoints = CurrentCheckpointScores;
               }
               CurrentCheckpointScores = Integer[];
