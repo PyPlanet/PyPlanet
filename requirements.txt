@@ -2,7 +2,7 @@
 colorlog==4.1.0
 
 # Templating
-Jinja2==2.11.1
+Jinja2==2.11.3
 
 # DB/Storage
 peewee==2.10.2
