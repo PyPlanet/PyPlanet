@@ -1,6 +1,22 @@
 Changelog
 =========
 
+0.9.10 (22 March 2021)
+----------------------
+
+Core
+~~~~
+
+* Improvement: Several libs updated.
+
+* Bugfix: Showing mapinfo from Nadeo on Shootmania (hidden again)
+
+Apps
+~~~~
+
+* Bugfix: Revert the controller 'hide GUI' feature.
+
+
 0.9.6 + 0.9.7 + 0.9.8 + 0.9.9 (21 February 2021)
 ------------------------------------------------
 
