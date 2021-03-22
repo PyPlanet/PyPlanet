@@ -11,7 +11,7 @@ aiopg==0.16.0
 aiomysql==0.0.20
 pymysql==0.9.2
 apyio==0.2.0
-aiofiles==0.6.0
+aiofiles==0.4.0
 asyncssh==1.18.0
 
 # Network
