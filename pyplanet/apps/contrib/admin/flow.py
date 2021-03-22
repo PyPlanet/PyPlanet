@@ -112,11 +112,12 @@ class FlowAdmin:
 		
 		if 'f1old' in pd:
 			points_f1old = str('10,8,6,5,4,3,2,1').split(',')
-			partition = [str(p).strip() for p in points_f1old]
-			my_str = repr(points_f1old)  # convert list to `str`
+			remove_content = ["'", "[", "]"] # Content you want to be removed from `str`
+			my_str = repr(points_smurfs)  # convert list to `str`
 			for content in remove_content:
 				my_str = my_str.replace(content, '')
-				
+			
+			partition = [str(p).strip() for p in points_f1old]
 			await self.instance.gbx.multicall(
 			self.instance.gbx('Trackmania.SetPointsRepartition', *partition, encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points repartition to: {}.'.format(
@@ -126,11 +127,12 @@ class FlowAdmin:
 		
 		if 'f1new' in pd:
 			points_f1new = str('25,18,15,12,10,8,6,4,2,1').split(',')
-			partition = [str(p).strip() for p in points_f1new]
+			remove_content = ["'", "[", "]"] # Content you want to be removed from `str`
 			my_str = repr(points_f1new)  # convert list to `str`
 			for content in remove_content:
 				my_str = my_str.replace(content, '')
-				
+			
+			partition = [str(p).strip() for p in points_f1new]
 			await self.instance.gbx.multicall(
 			self.instance.gbx('Trackmania.SetPointsRepartition', *partition, encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points repartition to: {}.'.format(
@@ -140,11 +142,12 @@ class FlowAdmin:
 		
 		if 'motogp' in pd:
 			points_motogp = str('25,20,16,13,11,10,9,8,7,6,5,4,3,2,1').split(',')
-			partition = [str(p).strip() for p in points_motogp]
+			remove_content = ["'", "[", "]"] # Content you want to be removed from `str`
 			my_str = repr(points_motogp)  # convert list to `str`
 			for content in remove_content:
 				my_str = my_str.replace(content, '')
-				
+			
+			partition = [str(p).strip() for p in points_motogp]
 			await self.instance.gbx.multicall(
 			self.instance.gbx('Trackmania.SetPointsRepartition', *partition, encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points repartition to: {}.'.format(
@@ -154,11 +157,12 @@ class FlowAdmin:
 		
 		if 'motogp5' in pd:
 			points_motogp5 = str('30,25,21,18,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1').split(',')
-			partition = [str(p).strip() for p in points_motogp5]
+			remove_content = ["'", "[", "]"] # Content you want to be removed from `str`
 			my_str = repr(points_motogp5)  # convert list to `str`
 			for content in remove_content:
 				my_str = my_str.replace(content, '')
-				
+			
+			partition = [str(p).strip() for p in points_motogp5]
 			await self.instance.gbx.multicall(
 			self.instance.gbx('Trackmania.SetPointsRepartition', *partition, encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points repartition to: {}.'.format(
@@ -168,11 +172,12 @@ class FlowAdmin:
 		
 		if 'fet1' in pd:
 			points_fet1 = str('12,10,9,8,7,6,5,4,4,3,3,3,2,2,2,1').split(',')
-			partition = [str(p).strip() for p in points_fet1]
+			remove_content = ["'", "[", "]"] # Content you want to be removed from `str`
 			my_str = repr(points_fet1)  # convert list to `str`
 			for content in remove_content:
 				my_str = my_str.replace(content, '')
-				
+			
+			partition = [str(p).strip() for p in points_fet1]
 			await self.instance.gbx.multicall(
 			self.instance.gbx('Trackmania.SetPointsRepartition', *partition, encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points repartition to: {}.'.format(
@@ -182,11 +187,12 @@ class FlowAdmin:
 			
 		if 'fet2' in pd:
 			points_fet2 = str('15,12,11,10,9,8,7,6,6,5,5,4,4,3,3,3,2,2,2,1').split(',')
-			partition = [str(p).strip() for p in points_fet2]
+			remove_content = ["'", "[", "]"] # Content you want to be removed from `str`
 			my_str = repr(points_fet2)  # convert list to `str`
 			for content in remove_content:
 				my_str = my_str.replace(content, '')
-				
+			
+			partition = [str(p).strip() for p in points_fet2]
 			await self.instance.gbx.multicall(
 			self.instance.gbx('Trackmania.SetPointsRepartition', *partition, encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points repartition to: {}.'.format(
@@ -196,11 +202,12 @@ class FlowAdmin:
 		
 		if 'fet3' in pd:
 			points_fet3 = str('15,12,11,10,9,8,7,6,6,5,5,4,4,3,3,3,2,2,2,2,1').split(',')
-			partition = [str(p).strip() for p in points_fet3]
+			remove_content = ["'", "[", "]"] # Content you want to be removed from `str`
 			my_str = repr(points_fet3)  # convert list to `str`
 			for content in remove_content:
 				my_str = my_str.replace(content, '')
 			
+			partition = [str(p).strip() for p in points_fet3]
 			await self.instance.gbx.multicall(
 			self.instance.gbx('Trackmania.SetPointsRepartition', *partition, encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points repartition to: {}.'.format(
@@ -210,11 +217,12 @@ class FlowAdmin:
 		
 		if 'champcar' in pd:
 			points_champcar = str('31,27,25,23,21,19,17,15,13,11,10,9,8,7,6,5,4,3,2,1').split(',')
-			partition = [str(p).strip() for p in points_champcar]
+			remove_content = ["'", "[", "]"] # Content you want to be removed from `str`
 			my_str = repr(points_champcar)  # convert list to `str`
 			for content in remove_content:
 				my_str = my_str.replace(content, '')
-				
+			
+			partition = [str(p).strip() for p in points_champcar]
 			await self.instance.gbx.multicall(
 			self.instance.gbx('Trackmania.SetPointsRepartition', *partition, encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points repartition to: {}.'.format(
@@ -224,11 +232,12 @@ class FlowAdmin:
 		
 		if 'superstars' in pd:
 			points_superstars = str('20,15,12,10,8,6,4,3,2,1').split(',')
-			partition = [str(p).strip() for p in points_superstars]
+			remove_content = ["'", "[", "]"] # Content you want to be removed from `str`
 			my_str = repr(points_superstars)  # convert list to `str`
 			for content in remove_content:
 				my_str = my_str.replace(content, '')
-				
+			
+			partition = [str(p).strip() for p in points_superstars]
 			await self.instance.gbx.multicall(
 			self.instance.gbx('Trackmania.SetPointsRepartition', *partition, encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points repartition to: {}.'.format(
@@ -238,11 +247,12 @@ class FlowAdmin:
 		
 		if 'simple5' in pd:
 			points_simple5 = str('5,4,3,2,1').split(',')
-			partition = [str(p).strip() for p in points_simple5]
+			remove_content = ["'", "[", "]"] # Content you want to be removed from `str`
 			my_str = repr(points_simple5)  # convert list to `str`
 			for content in remove_content:
 				my_str = my_str.replace(content, '')
-				
+			
+			partition = [str(p).strip() for p in points_simple5]
 			await self.instance.gbx.multicall(
 			self.instance.gbx('Trackmania.SetPointsRepartition', *partition, encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points repartition to: {}.'.format(
@@ -252,11 +262,12 @@ class FlowAdmin:
 		
 		if 'simple10' in pd:
 			points_simple10 = str('10,9,8,7,6,5,4,3,2,1').split(',')
-			partition = [str(p).strip() for p in points_simple10]
+			remove_content = ["'", "[", "]"] # Content you want to be removed from `str`
 			my_str = repr(points_simple10)  # convert list to `str`
 			for content in remove_content:
 				my_str = my_str.replace(content, '')
-				
+			
+			partition = [str(p).strip() for p in points_simple10]
 			await self.instance.gbx.multicall(
 			self.instance.gbx('Trackmania.SetPointsRepartition', *partition, encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has changed the points repartition to: {}.'.format(
