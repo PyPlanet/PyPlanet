@@ -3,6 +3,13 @@
 // ==================
 
 #Include "TextLib" as TL
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+// Structures
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+#Struct MapInfo_Sector {
+	CMapLandmark[] Checkpoints;
+	CMapLandmark[][Integer] LinkedCheckpoints;
+}
 
 // Includes
 {% include 'core.views/libs/TimeUtils.Script.Txt' %}
@@ -10,6 +17,7 @@
 // =================
 // == MAIN SCRIPT ==
 // =================
+
 
 declare CMlLabel Sector_Checkpoints_Icon;
 declare CMlLabel Sector_Checkpoints_Text;
@@ -28,6 +36,11 @@ declare Integer[] CurrentCheckpointScores;
 declare Integer BestScore;
 declare Integer[] BestCheckpoints;
 declare Text BestSource;
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+// Globales
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+declare MapInfo_Sector G_MapInfoSector;
 
 Void UpdateInterface() {
   // Current lap sector time.
@@ -97,7 +110,7 @@ Void UpdateInterface() {
   if (CurrentCheckpoint >= TotalCheckpoints) {
     Sector_Checkpoints_Text.SetText("Finish!");
   } else {
-    Sector_Checkpoints_Text.SetText("Checkpoint " ^ CurrentCheckpoint ^ "/" ^ (TotalCheckpoints - 1));
+    Sector_Checkpoints_Text.SetText("Checkpoint " ^ CurrentCheckpoint ^ "/" ^ (TotalCheckpoints));
   }
 }
 
@@ -113,24 +126,31 @@ Integer[] ParseCheckpoints(Text RawInput) {
   return Output;
 }
 
-Integer GetCPCount() {
-	declare Integer count;
-	declare Ident[][Integer] orders;
+MapInfo_Sector Private_GetMapInfoSector() {
+	return MapInfo_Sector {
+		Checkpoints = [],
+		LinkedCheckpoints = []
+	};
+}
 
+Integer GetCPCount() {
+	G_MapInfoSector = Private_GetMapInfoSector();
 	foreach(Landmark in MapLandmarks) {
 		if ( (Landmark.Waypoint != Null && (Landmark.Waypoint.IsFinish || Landmark.Waypoint.IsMultiLap)) || Landmark.Tag == "Spawn") {
 			continue;
 		}
-		if(orders.existskey(Landmark.Order)) {
-			orders[Landmark.Order].add(Landmark.MarkerId);
+		log(Landmark);
+		if ( Landmark.Tag == "Checkpoint"){
+		G_MapInfoSector.Checkpoints.add(Landmark);
 		}
-		else {
-			orders[Landmark.Order] = [Landmark.MarkerId];
+		if ( Landmark.Tag == "LinkedCheckpoint"){
+		if (!G_MapInfoSector.LinkedCheckpoints.existskey(Landmark.Order)) {
+						G_MapInfoSector.LinkedCheckpoints[Landmark.Order] = [];
 		}
-	}
-	count = orders[0].count;
-	
-	return count + 1; // +1 for ending
+		G_MapInfoSector.LinkedCheckpoints[Landmark.Order].add(Landmark);
+		}
+		}
+		return G_MapInfoSector.Checkpoints.count + G_MapInfoSector.LinkedCheckpoints.count;	
 }
 
 main() {
