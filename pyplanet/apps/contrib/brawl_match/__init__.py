@@ -262,11 +262,11 @@ class BrawlMatch(AppConfig):
 		self.context.signals.listen(mp_signals.flow.match_end__end, self.reset_server)
 
 		self.rounds_information[self.match_name] = {
-			'maps': self.match_maps,
+			'maps': [map for map in self.match_maps],
 			'rounds': []
 		}
 		self.respawn_information[self.match_name] = {
-			'maps': self.match_maps,
+			'maps': [map for map in self.match_maps],
 			'respawns': []
 		}
 		self.context.signals.listen(mp_signals.flow.round_end, self.save_round_information)
@@ -477,13 +477,15 @@ class BrawlMatch(AppConfig):
 	async def save_round_information(self, count, time):
 		round_scores = (await self.instance.gbx('Trackmania.GetScores'))['players']
 		self.rounds_information[self.match_name]['rounds'].append({
-			'login': record['login'],
-			'name': record['name'],
-			'prevracetime': record['prevracetime'],
-			'prevracerespawns': record['prevracerespawns'],
-			'prevracecheckpoints': record['prevracecheckpoints'],
-			'prevstuntsscore': record['prevstuntsscore']
-		} for record in round_scores)
+			'map':  self.instance.map_manager.current_map.uid,
+			record['login']: {
+				'name': record['name'],
+				'prevracetime': record['prevracetime'],
+				'prevracerespawns': record['prevracerespawns'],
+				'prevracecheckpoints': record['prevracecheckpoints'],
+				'prevstuntsscore': record['prevstuntsscore']
+			} for record in round_scores
+		})
 
 	async def save_respawn_information(self, player, flow, race_cp, lap_cp, race_time, lap_time):
 		login = player.login
