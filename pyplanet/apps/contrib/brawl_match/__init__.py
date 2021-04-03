@@ -476,8 +476,7 @@ class BrawlMatch(AppConfig):
 
 	async def save_round_information(self, count, time):
 		round_scores = (await self.instance.gbx('Trackmania.GetScores'))['players']
-		self.rounds_information[self.match_name]['rounds'].append({
-			'map':  self.instance.map_manager.current_map.uid,
+		rounds = {
 			record['login']: {
 				'name': record['name'],
 				'prevracetime': record['prevracetime'],
@@ -485,7 +484,9 @@ class BrawlMatch(AppConfig):
 				'prevracecheckpoints': record['prevracecheckpoints'],
 				'prevstuntsscore': record['prevstuntsscore']
 			} for record in round_scores
-		})
+		}
+		current_map = self.instance.map_manager.current_map.map_uid
+		self.rounds_information[self.match_name]['rounds'].append(dict(**current_map, **rounds))
 
 	async def save_respawn_information(self, player, flow, race_cp, lap_cp, race_time, lap_time):
 		login = player.login
