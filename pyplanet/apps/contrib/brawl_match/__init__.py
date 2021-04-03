@@ -117,18 +117,18 @@ class BrawlMatch(AppConfig):
 		)
 
 	async def start_match_command(self, player, *args, **kwargs):
-		if self.match_tasks:
+		if self.match_tasks or self.match_active:
 			await self.brawl_chat(f'A match is currently in progress!', player)
 		elif not await self.check_maps_on_server():
 			await self.brawl_chat(f'Not all maps for the match are on the server', player)
-		elif not args:
+		elif not kwargs['raw']:
 			await self.brawl_chat(f'You forgot to add a name for the match: e.g. WB8F-A', player)
-		elif len(args) == 0 or not args[0].endswith(('-A', '-B', '-C', '-D', '-E', '-F', '-G', '-H')):
+		elif not kwargs['raw'][0].endswith(('-A', '-B', '-C', '-D', '-E', '-F', '-G', '-H')):
 			await self.brawl_chat(f"Incorrect match: don't forget to include '-A' or '-B' etc (even in a round that only has 1 match)")
-		elif args[0] in self.rounds_information and (len(args) < 1 or args[1] != '-f'):
+		elif kwargs['raw'][0] in self.rounds_information and (len(kwargs['raw'][1]) < 1 or kwargs['raw'][1] != '-f'):
 			await self.brawl_chat(f"This match already exists, if you want to overwrite it: use //match start {args[0]} -f")
 		else:
-			self.match_name = args[0]
+			self.match_name = kwargs['raw'][0]
 			await self.register_match_task(self.start_match, player)
 
 	async def check_maps_on_server(self):
