@@ -1,12 +1,15 @@
 import asyncio
+import os
 import random
 import collections
+import json
 
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.brawl_match.views import (BrawlMapListView,
 													 BrawlPlayerListView,
 													 TimerView)
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
+from pyplanet.apps.core.trackmania import callbacks as tm_signals
 from pyplanet.apps.core.maniaplanet.models import Map, Player
 from pyplanet.contrib.command import Command
 
@@ -19,7 +22,6 @@ class BrawlMatch(AppConfig):
 	TIME_UNTIL_MATCH_PHASE = 60
 	TIME_UNTIL_NEXT_WALL = 3
 	TIME_BREAK = 120
-
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -35,13 +37,13 @@ class BrawlMatch(AppConfig):
 			'YOkBuNeHCU_f3hl23tTxMPtDblg'   # DrekkaFöld
 		]
 		self.timeouts = {
-			'dQbEScNS8r6csB0aiAFgDc77Xw': 42,  # Mediterranean Adventure
-			'aldX4j8HaNfGkNqjtu81Rr1T7lh': 36,  # Jumanji
-			'xyQXcDOJ93KKP5Dzqz0ULHNA9B2': 55,  # Concrete
-			'EwhFmHyCz6zTHovO9YguqmLBzg0': 28,  # Black Mesa - Hazard Course
-			'LKMIBb34myjiNCO9bEC8Wg1YIy3': 44,  # Hypnosis
-			'aceV8PzKm8OhacrCGLc2SDgq_rc': 40,  # MaraPark
-			'YOkBuNeHCU_f3hl23tTxMPtDblg': 34   # DrekkaFöld
+			'dQbEScNS8r6csB0aiAFgDc77Xw': 69,  # Mediterranean Adventure
+			'aldX4j8HaNfGkNqjtu81Rr1T7lh': 59,  # Jumanji
+			'xyQXcDOJ93KKP5Dzqz0ULHNA9B2': 92,  # Concrete
+			'EwhFmHyCz6zTHovO9YguqmLBzg0': 46,  # Black Mesa - Hazard Course
+			'LKMIBb34myjiNCO9bEC8Wg1YIy3': 73,  # Hypnosis
+			'aceV8PzKm8OhacrCGLc2SDgq_rc': 66,  # MaraPark
+			'YOkBuNeHCU_f3hl23tTxMPtDblg': 54   # DrekkaFöld
 		}
 
 		self.match_maps = collections.deque(self.brawl_maps)
@@ -60,6 +62,12 @@ class BrawlMatch(AppConfig):
 		self.maps_played = 0
 		self.rounds_played = 0
 		self.open_views = []
+
+		with open('rounds_information.json') as rounds_json:
+			self.rounds_information = json.load(rounds_json)
+		with open('respawn_information.json') as respawn_json:
+			self.respawn_information = json.load(respawn_json)
+		self.match_name = ""
 
 	async def on_init(self):
 		await super().on_init()
@@ -112,7 +120,14 @@ class BrawlMatch(AppConfig):
 			await self.brawl_chat(f'A match is currently in progress!', player)
 		elif not await self.check_maps_on_server():
 			await self.brawl_chat(f'Not all maps for the match are on the server', player)
+		elif not args:
+			await self.brawl_chat(f'You forgot to add a name for the match: e.g. WB8F-A', player)
+		elif len(args) == 0 or not args[0].endswith(('-A', '-B', '-C', '-D', '-E', '-F', '-G', '-H')):
+			await self.brawl_chat(f"Incorrect match: don't forget to include '-A' or '-B' etc (even in a round that only has 1 match)")
+		elif args[0] in self.rounds_information and (len(args) < 1 or args[1] != '-f'):
+			await self.brawl_chat(f"This match already exists, if you want to overwrite it: use //match start {args[0]} -f")
 		else:
+			self.match_name = args[0]
 			await self.register_match_task(self.start_match, player)
 
 	async def check_maps_on_server(self):
@@ -245,6 +260,17 @@ class BrawlMatch(AppConfig):
 		self.context.signals.listen(mp_signals.flow.round_end, self.incr_round_counter)
 		self.context.signals.listen(mp_signals.flow.match_end__end, self.reset_server)
 
+		self.rounds_information[self.match_name] = {
+			'maps': self.match_maps,
+			'rounds': []
+		}
+		self.respawn_information[self.match_name] = {
+			'maps': self.match_maps,
+			'respawns': []
+		}
+		self.context.signals.listen(mp_signals.flow.round_end, self.save_round_information)
+		self.context.signals.listen(tm_signals.respawn, self.save_respawn_information)
+
 		random.shuffle(self.match_maps)
 
 		await self.set_match_settings()
@@ -283,6 +309,14 @@ class BrawlMatch(AppConfig):
 			await self.brawl_chat(f'No match is currently in progress!', player)
 			return
 		self.match_active = False
+		self.match_name = ""
+
+		location = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+		with open(os.path.join(location, 'rounds_information.json')) as rounds_json:
+			json.dump(self.rounds_information, rounds_json)
+		with open(os.path.join(location, 'respawn_information.json')) as respawn_json:
+			json.dump(self.respawn_information, respawn_json)
+
 		await self.brawl_chat(f'Admin {player.nickname}{self.chat_reset} stopped match!')
 		await self.reset_server()
 
@@ -296,9 +330,15 @@ class BrawlMatch(AppConfig):
 			await view.destroy()
 
 		for signal, target in self.context.signals.listeners:
-			if target in [self.set_settings_next_map, self.display_current_round,
-						self.incr_round_counter, self.reset_server,
-						  self.init_break]:
+			if target in [
+				self.set_settings_next_map,
+				self.display_current_round,
+				self.incr_round_counter,
+				self.reset_server,
+				self.init_break,
+				self.save_round_information,
+				self.save_respawn_information
+			]:
 				signal.unregister(target)
 
 		self.maps_played = 0
@@ -432,6 +472,26 @@ class BrawlMatch(AppConfig):
 
 		await break_timer.destroy()
 		await self.instance.gbx('Trackmania.ForceEndRound', encode_json=False, response_id=False)
+
+	async def save_round_information(self, count, time):
+		round_scores = (await self.instance.gbx('Trackmania.GetScores'))['players']
+		self.rounds_information[self.match_name]['rounds'].append([{
+			'login': record['login'],
+			'name': record['name'],
+			'prevracetime': record['prevracetime'],
+			'prevracerespawns': record['prevracerespawns'],
+			'prevracecheckpoints': record['prevracecheckpoints'],
+			'prevstuntsscore': record['prevstuntsscore']
+		} for record in round_scores])
+
+	async def save_respawn_information(self, player, flow, race_cp, lap_cp, race_time, lap_time):
+		login = player.login
+		self.respawn_information[self.match_name]['respawns'] = {
+			'login': login,
+			'map': self.instance.map_manager.current_map.uid,
+			'checkpointinrace': race_cp + 1,
+			'race_time': race_time
+		}
 
 	async def format_time(self, seconds):
 		return f'{seconds // 60}:{seconds % 60:02d}'
