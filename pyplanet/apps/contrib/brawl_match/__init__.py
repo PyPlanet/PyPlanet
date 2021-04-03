@@ -64,9 +64,9 @@ class BrawlMatch(AppConfig):
 		self.open_views = []
 
 		self.location = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-		with open(os.path.join(self.location, 'rounds_information.json')) as rounds_json:
+		with open(os.path.join(self.location, 'rounds_information.json'), 'r') as rounds_json:
 			self.rounds_information = json.load(rounds_json)
-		with open(os.path.join(self.location, 'respawn_information.json')) as respawn_json:
+		with open(os.path.join(self.location, 'respawn_information.json'), 'r') as respawn_json:
 			self.respawn_information = json.load(respawn_json)
 		self.match_name = ""
 
@@ -309,13 +309,6 @@ class BrawlMatch(AppConfig):
 		if not self.match_tasks:
 			await self.brawl_chat(f'No match is currently in progress!', player)
 			return
-		self.match_active = False
-		self.match_name = ""
-
-		with open(os.path.join(self.location, 'rounds_information.json')) as rounds_json:
-			json.dump(self.rounds_information, rounds_json)
-		with open(os.path.join(self.location, 'respawn_information.json')) as respawn_json:
-			json.dump(self.respawn_information, respawn_json)
 
 		await self.brawl_chat(f'Admin {player.nickname}{self.chat_reset} stopped match!')
 		await self.reset_server()
@@ -340,6 +333,14 @@ class BrawlMatch(AppConfig):
 				self.save_respawn_information
 			]:
 				signal.unregister(target)
+
+		self.match_active = False
+		self.match_name = ""
+
+		with open(os.path.join(self.location, 'rounds_information.json'), 'w') as rounds_json:
+			json.dump(self.rounds_information, rounds_json)
+		with open(os.path.join(self.location, 'respawn_information.json'), 'w') as respawn_json:
+			json.dump(self.respawn_information, respawn_json)
 
 		self.maps_played = 0
 
@@ -475,23 +476,23 @@ class BrawlMatch(AppConfig):
 
 	async def save_round_information(self, count, time):
 		round_scores = (await self.instance.gbx('Trackmania.GetScores'))['players']
-		self.rounds_information[self.match_name]['rounds'].append([{
+		self.rounds_information[self.match_name]['rounds'].append({
 			'login': record['login'],
 			'name': record['name'],
 			'prevracetime': record['prevracetime'],
 			'prevracerespawns': record['prevracerespawns'],
 			'prevracecheckpoints': record['prevracecheckpoints'],
 			'prevstuntsscore': record['prevstuntsscore']
-		} for record in round_scores])
+		} for record in round_scores)
 
 	async def save_respawn_information(self, player, flow, race_cp, lap_cp, race_time, lap_time):
 		login = player.login
-		self.respawn_information[self.match_name]['respawns'] = {
+		self.respawn_information[self.match_name]['respawns'].append({
 			'login': login,
 			'map': self.instance.map_manager.current_map.uid,
 			'checkpointinrace': race_cp + 1,
 			'race_time': race_time
-		}
+		})
 
 	async def format_time(self, seconds):
 		return f'{seconds // 60}:{seconds % 60:02d}'
