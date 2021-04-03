@@ -63,9 +63,10 @@ class BrawlMatch(AppConfig):
 		self.rounds_played = 0
 		self.open_views = []
 
-		with open('rounds_information.json') as rounds_json:
+		self.location = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+		with open(os.path.join(self.location, 'rounds_information.json')) as rounds_json:
 			self.rounds_information = json.load(rounds_json)
-		with open('respawn_information.json') as respawn_json:
+		with open(os.path.join(self.location, 'respawn_information.json')) as respawn_json:
 			self.respawn_information = json.load(respawn_json)
 		self.match_name = ""
 
@@ -311,10 +312,9 @@ class BrawlMatch(AppConfig):
 		self.match_active = False
 		self.match_name = ""
 
-		location = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-		with open(os.path.join(location, 'rounds_information.json')) as rounds_json:
+		with open(os.path.join(self.location, 'rounds_information.json')) as rounds_json:
 			json.dump(self.rounds_information, rounds_json)
-		with open(os.path.join(location, 'respawn_information.json')) as respawn_json:
+		with open(os.path.join(self.location, 'respawn_information.json')) as respawn_json:
 			json.dump(self.respawn_information, respawn_json)
 
 		await self.brawl_chat(f'Admin {player.nickname}{self.chat_reset} stopped match!')
