@@ -5,9 +5,7 @@ import collections
 import json
 
 from pyplanet.apps.config import AppConfig
-from pyplanet.apps.contrib.brawl_match.views import (BrawlMapListView,
-													 BrawlPlayerListView,
-													 TimerView)
+from pyplanet.apps.contrib.brawl_match.views import (BrawlMapListView, BrawlPlayerListView, TimerView)
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 from pyplanet.apps.core.trackmania import callbacks as tm_signals
 from pyplanet.apps.core.maniaplanet.models import Map, Player
@@ -34,7 +32,7 @@ class BrawlMatch(AppConfig):
 			'EwhFmHyCz6zTHovO9YguqmLBzg0',  # Black Mesa - Hazard Course
 			'LKMIBb34myjiNCO9bEC8Wg1YIy3',  # Hypnosis
 			'aceV8PzKm8OhacrCGLc2SDgq_rc',  # MaraPark
-			'YOkBuNeHCU_f3hl23tTxMPtDblg'   # DrekkaFöld
+			'YOkBuNeHCU_f3hl23tTxMPtDblg'  # DrekkaFöld
 		]
 		self.timeouts = {
 			'dQbEScNS8r6csB0aiAFgDc77Xw': 69,  # Mediterranean Adventure
@@ -43,7 +41,7 @@ class BrawlMatch(AppConfig):
 			'EwhFmHyCz6zTHovO9YguqmLBzg0': 46,  # Black Mesa - Hazard Course
 			'LKMIBb34myjiNCO9bEC8Wg1YIy3': 73,  # Hypnosis
 			'aceV8PzKm8OhacrCGLc2SDgq_rc': 66,  # MaraPark
-			'YOkBuNeHCU_f3hl23tTxMPtDblg': 54   # DrekkaFöld
+			'YOkBuNeHCU_f3hl23tTxMPtDblg': 54  # DrekkaFöld
 		}
 
 		self.match_maps = collections.deque(self.brawl_maps)
@@ -64,11 +62,9 @@ class BrawlMatch(AppConfig):
 		self.open_views = []
 
 		self.location = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-		with open(os.path.join(self.location, 'rounds_information.json'), 'r') as rounds_json:
-			self.rounds_information = json.load(rounds_json)
-		with open(os.path.join(self.location, 'respawn_information.json'), 'r') as respawn_json:
-			self.respawn_information = json.load(respawn_json)
 		self.match_name = ""
+		self.rounds_information = {}
+		self.respawn_information = {}
 
 	async def on_init(self):
 		await super().on_init()
@@ -117,6 +113,8 @@ class BrawlMatch(AppConfig):
 		)
 
 	async def start_match_command(self, player, *args, **kwargs):
+		with open(os.path.join(self.location, 'rounds_information.json'), 'r') as rounds_json:
+			all_rounds_information = json.load(rounds_json)
 		if self.match_tasks or self.match_active:
 			await self.brawl_chat(f'A match is currently in progress!', player)
 		elif not await self.check_maps_on_server():
@@ -124,9 +122,11 @@ class BrawlMatch(AppConfig):
 		elif not kwargs['raw']:
 			await self.brawl_chat(f'You forgot to add a name for the match: e.g. WB8F-A', player)
 		elif not kwargs['raw'][0].endswith(('-A', '-B', '-C', '-D', '-E', '-F', '-G', '-H')):
-			await self.brawl_chat(f"Incorrect match: don't forget to include '-A' or '-B' etc (even in a round that only has 1 match)")
-		elif kwargs['raw'][0] in self.rounds_information and (len(kwargs['raw'][1]) < 1 or kwargs['raw'][1] != '-f'):
-			await self.brawl_chat(f"This match already exists, if you want to overwrite it: use //match start {args[0]} -f")
+			await self.brawl_chat(
+				f"Incorrect match: don't forget to include '-A' or '-B' etc (even in a round that only has 1 match)")
+		elif kwargs['raw'][0] in all_rounds_information and (len(kwargs['raw'][1]) < 1 or kwargs['raw'][1] != '-f'):
+			await self.brawl_chat(
+				f"This match already exists, if you want to overwrite it: use //match start {args[0]} -f")
 		else:
 			self.match_name = kwargs['raw'][0]
 			await self.register_match_task(self.start_match, player)
@@ -233,7 +233,7 @@ class BrawlMatch(AppConfig):
 		if len(self.match_maps) > 3:
 			player_to_ban = await self.ban_queue.get()
 			player_nick = player_to_ban.nickname
-			message = f'[{self.match_players.index(player_to_ban)+1}/{len(self.match_players)}] {player_nick}{self.chat_reset} is now banning.'
+			message = f'[{self.match_players.index(player_to_ban) + 1}/{len(self.match_players)}] {player_nick}{self.chat_reset} is now banning.'
 			await self.brawl_chat(message)
 			await self.ban_map(player_to_ban)
 			self.ban_queue.task_done()
@@ -250,9 +250,9 @@ class BrawlMatch(AppConfig):
 
 	async def remove_map_from_match(self, player, map_info):
 		await self.brawl_chat(f'Player '
-								  f'{player.nickname}{self.chat_reset} has just banned '
-								  f'{map_info["name"]}')
-		del self.match_maps[map_info['index']-1]
+							  f'{player.nickname}{self.chat_reset} has just banned '
+							  f'{map_info["name"]}')
+		del self.match_maps[map_info['index'] - 1]
 
 	async def init_match(self):
 		await self.await_match_start()
@@ -261,11 +261,11 @@ class BrawlMatch(AppConfig):
 		self.context.signals.listen(mp_signals.flow.round_end, self.incr_round_counter)
 		self.context.signals.listen(mp_signals.flow.match_end__end, self.reset_server)
 
-		self.rounds_information[self.match_name] = {
+		self.rounds_information = {
 			'maps': [map for map in self.match_maps],
 			'rounds': []
 		}
-		self.respawn_information[self.match_name] = {
+		self.respawn_information = {
 			'maps': [map for map in self.match_maps],
 			'respawns': []
 		}
@@ -313,7 +313,7 @@ class BrawlMatch(AppConfig):
 		await self.brawl_chat(f'Admin {player.nickname}{self.chat_reset} stopped match!')
 		await self.reset_server()
 
-	async def reset_server(self, count=0, time=0):
+	async def reset_server(self, *args, **kwargs):
 		for task in self.match_tasks:
 			if not task.done():
 				task.cancel()
@@ -335,12 +335,20 @@ class BrawlMatch(AppConfig):
 				signal.unregister(target)
 
 		self.match_active = False
+		with open(os.path.join(self.location, 'rounds_information.json'), 'r') as rounds_json:
+			all_rounds_information = json.load(rounds_json)
+		with open(os.path.join(self.location, 'respawn_information.json'), 'r') as respawn_json:
+			all_respawn_information = json.load(respawn_json)
+
+		all_rounds_information[self.match_name] = self.rounds_information
+		all_respawn_information[self.match_name] = self.respawn_information
+
 		self.match_name = ""
 
 		with open(os.path.join(self.location, 'rounds_information.json'), 'w') as rounds_json:
-			json.dump(self.rounds_information, rounds_json)
+			json.dump(all_rounds_information, rounds_json)
 		with open(os.path.join(self.location, 'respawn_information.json'), 'w') as respawn_json:
-			json.dump(self.respawn_information, respawn_json)
+			json.dump(all_respawn_information, respawn_json)
 
 		self.maps_played = 0
 
@@ -399,7 +407,7 @@ class BrawlMatch(AppConfig):
 
 	async def display_current_round(self, count, time):
 		rounds_per_map = (await self.instance.mode_manager.get_settings())['S_RoundsPerMap']
-		await self.brawl_chat(f'Round {self.rounds_played+1}/{rounds_per_map}')
+		await self.brawl_chat(f'Round {self.rounds_played + 1}/{rounds_per_map}')
 
 	async def remove_wu(self):
 		settings = await self.instance.mode_manager.get_settings()
@@ -443,7 +451,8 @@ class BrawlMatch(AppConfig):
 		elif player in self.requested_break_players:
 			await self.brawl_chat('You have already requested your break.', player)
 		elif self.break_queued:
-			await self.brawl_chat('There is already a break planned. You can request a break again during that break.', player)
+			await self.brawl_chat('There is already a break planned. You can request a break again during that break.',
+								  player)
 		else:
 			self.break_queued = True
 			self.requested_break_players.append(player)
@@ -486,11 +495,11 @@ class BrawlMatch(AppConfig):
 			} for record in round_scores
 		}
 		current_map = self.instance.map_manager.current_map.map_uid
-		self.rounds_information[self.match_name]['rounds'].append(dict(**current_map, **rounds))
+		self.rounds_information['rounds'].append(dict(**current_map, **rounds))
 
 	async def save_respawn_information(self, player, flow, race_cp, lap_cp, race_time, lap_time):
 		login = player.login
-		self.respawn_information[self.match_name]['respawns'].append({
+		self.respawn_information['respawns'].append({
 			'login': login,
 			'map': self.instance.map_manager.current_map.uid,
 			'checkpointinrace': race_cp + 1,
