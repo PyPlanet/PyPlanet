@@ -447,7 +447,7 @@ class BrawlMatch(AppConfig):
 		elif player in self.ready_players:
 			await self.brawl_chat(f'You are ready.')
 		else:
-			self.ready_times[player.login] = time.time() - self.time_ready_start
+			self.match_information['ready_times'][player.login] = time.time() - self.time_ready_start
 			self.ready_players.append(player)
 			await self.brawl_chat(f'Player {player.nickname}{self.chat_reset} is ready!')
 			if set(self.match_players) == set(self.ready_players):
@@ -522,7 +522,6 @@ class BrawlMatch(AppConfig):
 		}
 		current_map = {'map': self.instance.map_manager.current_map.uid}
 		self.match_information['rounds'].append(dict(**current_map, **rounds))
-		logging.info(self.match_information)
 
 	async def save_respawn_information(self, player, flow, race_cp, lap_cp, race_time, lap_time):
 		login = player.login
