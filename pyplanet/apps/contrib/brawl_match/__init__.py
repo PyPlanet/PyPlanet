@@ -1,8 +1,10 @@
 import asyncio
+import logging
 import os
 import random
 import collections
 import json
+import time
 
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.brawl_match.views import (BrawlMapListView, BrawlPlayerListView, TimerView)
@@ -11,6 +13,7 @@ from pyplanet.apps.core.trackmania import callbacks as tm_signals
 from pyplanet.apps.core.maniaplanet.models import Map, Player
 from pyplanet.contrib.command import Command
 
+logger = logging.getLogger(__name__)
 
 class BrawlMatch(AppConfig):
 	game_dependencies = ['trackmania']
@@ -63,6 +66,13 @@ class BrawlMatch(AppConfig):
 
 		self.location = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 		self.match_name = ""
+		self.timing_information = {}
+		self.time_start = -1
+		self.time_ready_start = -1
+		self.time_ban_start = -1
+		self.time_match_start = -1
+		self.ready_times = []
+		self.ban_times = []
 		self.rounds_information = {}
 		self.respawn_information = {}
 
@@ -124,11 +134,12 @@ class BrawlMatch(AppConfig):
 		elif not kwargs['raw'][0].endswith(('-A', '-B', '-C', '-D', '-E', '-F', '-G', '-H')):
 			await self.brawl_chat(
 				f"Incorrect match: don't forget to include '-A' or '-B' etc (even in a round that only has 1 match)")
-		elif kwargs['raw'][0] in all_rounds_information and (len(kwargs['raw'][1]) < 1 or kwargs['raw'][1] != '-f'):
+		elif kwargs['raw'][0] in all_rounds_information and (len(kwargs['raw']) == 1 or kwargs['raw'][1] != '-f'):
 			await self.brawl_chat(
-				f"This match already exists, if you want to overwrite it: use //match start {args[0]} -f")
+				f"This match already exists, if you want to overwrite it: use //match start {kwargs['raw'][0]} -f")
 		else:
 			self.match_name = kwargs['raw'][0]
+			self.time_start = time.time()
 			await self.register_match_task(self.start_match, player)
 
 	async def check_maps_on_server(self):
@@ -153,6 +164,9 @@ class BrawlMatch(AppConfig):
 		await self.instance.gbx('NextMap')
 		while await self.instance.mode_manager.get_current_full_script() != 'Cup.Script.txt':
 			await asyncio.sleep(1)
+
+		self.context.signals.listen(mp_signals.flow.round_end, self.save_round_information)
+		self.context.signals.listen(tm_signals.respawn, self.save_respawn_information)
 		await self.set_settings()
 
 	async def set_settings(self):
@@ -269,8 +283,7 @@ class BrawlMatch(AppConfig):
 			'maps': [map for map in self.match_maps],
 			'respawns': []
 		}
-		self.context.signals.listen(mp_signals.flow.round_end, self.save_round_information)
-		self.context.signals.listen(tm_signals.respawn, self.save_respawn_information)
+		# The signals are activated in set_match_settings, otherwise the last round before the match is added to the information.
 
 		random.shuffle(self.match_maps)
 
@@ -344,6 +357,9 @@ class BrawlMatch(AppConfig):
 		all_respawn_information[self.match_name] = self.respawn_information
 
 		self.match_name = ""
+		self.time_start = -1
+		self.time_ban_start = -1
+		self.time_match_start = -1
 
 		with open(os.path.join(self.location, 'rounds_information.json'), 'w') as rounds_json:
 			json.dump(all_rounds_information, rounds_json)
@@ -492,19 +508,21 @@ class BrawlMatch(AppConfig):
 				'prevracerespawns': record['prevracerespawns'],
 				'prevracecheckpoints': record['prevracecheckpoints'],
 				'prevstuntsscore': record['prevstuntsscore']
-			} for record in round_scores
+			} for record in round_scores if (await Player.get_by_login(record['login'])) in self.match_players
 		}
-		current_map = self.instance.map_manager.current_map.map_uid
+		current_map = {'map': self.instance.map_manager.current_map.uid}
 		self.rounds_information['rounds'].append(dict(**current_map, **rounds))
+#		logging.info(self.rounds_information)
 
 	async def save_respawn_information(self, player, flow, race_cp, lap_cp, race_time, lap_time):
 		login = player.login
-		self.respawn_information['respawns'].append({
-			'login': login,
-			'map': self.instance.map_manager.current_map.uid,
-			'checkpointinrace': race_cp + 1,
-			'race_time': race_time
-		})
+		if player in self.match_players:
+			self.respawn_information['respawns'].append({
+				'login': login,
+				'map': self.instance.map_manager.current_map.uid,
+				'checkpointinrace': race_cp + 1,
+				'race_time': race_time
+			})
 
 	async def format_time(self, seconds):
 		return f'{seconds // 60}:{seconds % 60:02d}'
