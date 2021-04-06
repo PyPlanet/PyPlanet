@@ -66,15 +66,19 @@ class BrawlMatch(AppConfig):
 
 		self.location = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 		self.match_name = ""
-		self.timing_information = {}
 		self.time_start = -1
 		self.time_ready_start = -1
 		self.time_ban_start = -1
 		self.time_match_start = -1
-		self.ready_times = []
-		self.ban_times = []
-		self.rounds_information = {}
-		self.respawn_information = {}
+		self.match_information: dict = {
+			'maps': [map for map in self.match_maps],
+			'rounds': [],
+			'respawns': [],
+			'ready_times': {},
+			'ban_times': {},
+			'match_time': -1.,
+			'total_time': -1.
+		}
 
 	async def on_init(self):
 		await super().on_init()
@@ -123,8 +127,8 @@ class BrawlMatch(AppConfig):
 		)
 
 	async def start_match_command(self, player, *args, **kwargs):
-		with open(os.path.join(self.location, 'rounds_information.json'), 'r') as rounds_json:
-			all_rounds_information = json.load(rounds_json)
+		with open(os.path.join(self.location, 'match_information.json'), 'r') as matches_json:
+			all_matches_information = json.load(matches_json)
 		if self.match_tasks or self.match_active:
 			await self.brawl_chat(f'A match is currently in progress!', player)
 		elif not await self.check_maps_on_server():
@@ -134,7 +138,7 @@ class BrawlMatch(AppConfig):
 		elif not kwargs['raw'][0].endswith(('-A', '-B', '-C', '-D', '-E', '-F', '-G', '-H')):
 			await self.brawl_chat(
 				f"Incorrect match: don't forget to include '-A' or '-B' etc (even in a round that only has 1 match)")
-		elif kwargs['raw'][0] in all_rounds_information and (len(kwargs['raw']) == 1 or kwargs['raw'][1] != '-f'):
+		elif kwargs['raw'][0] in all_matches_information and (len(kwargs['raw']) == 1 or kwargs['raw'][1] != '-f'):
 			await self.brawl_chat(
 				f"This match already exists, if you want to overwrite it: use //match start {kwargs['raw'][0]} -f")
 		else:
@@ -211,6 +215,7 @@ class BrawlMatch(AppConfig):
 		await self.brawl_chat('You can vote to skip the warmup using /match endwu')
 		await self.brawl_chat('You are allowed 1 break, request it by using /match break')
 		await self.brawl_chat('To start the match, type /match r')
+		self.time_ready_start = time.time()
 
 	async def start_ban_phase(self):
 		event_loop = asyncio.get_running_loop()
@@ -260,9 +265,11 @@ class BrawlMatch(AppConfig):
 	async def ban_map(self, player):
 		ban_view = BrawlMapListView(self, self.match_maps)
 		self.open_views.append(ban_view)
+		self.time_ban_start = time.time()
 		await ban_view.display(player=player)
 
 	async def remove_map_from_match(self, player, map_info):
+		self.match_information['ban_times'][player.login] = time.time() - self.time_ban_start
 		await self.brawl_chat(f'Player '
 							  f'{player.nickname}{self.chat_reset} has just banned '
 							  f'{map_info["name"]}')
@@ -275,17 +282,12 @@ class BrawlMatch(AppConfig):
 		self.context.signals.listen(mp_signals.flow.round_end, self.incr_round_counter)
 		self.context.signals.listen(mp_signals.flow.match_end__end, self.reset_server)
 
-		self.rounds_information = {
-			'maps': [map for map in self.match_maps],
-			'rounds': []
-		}
-		self.respawn_information = {
-			'maps': [map for map in self.match_maps],
-			'respawns': []
-		}
-		# The signals are activated in set_match_settings, otherwise the last round before the match is added to the information.
-
 		random.shuffle(self.match_maps)
+
+		self.match_information['maps'] = [map for map in self.match_maps]
+
+		# The signals are activated in set_match_settings, otherwise the last round before the match is added to the information.
+		self.time_match_start = time.time()
 
 		await self.set_match_settings()
 
@@ -348,23 +350,30 @@ class BrawlMatch(AppConfig):
 				signal.unregister(target)
 
 		self.match_active = False
-		with open(os.path.join(self.location, 'rounds_information.json'), 'r') as rounds_json:
-			all_rounds_information = json.load(rounds_json)
-		with open(os.path.join(self.location, 'respawn_information.json'), 'r') as respawn_json:
-			all_respawn_information = json.load(respawn_json)
+		with open(os.path.join(self.location, 'match_information.json'), 'r') as matches_json:
+			all_matches_information = json.load(matches_json)
 
-		all_rounds_information[self.match_name] = self.rounds_information
-		all_respawn_information[self.match_name] = self.respawn_information
+		self.match_information['match_time'] = time.time() - self.time_match_start
+		self.match_information['total_time'] = time.time() - self.time_start
+		all_matches_information[self.match_name] = self.match_information
 
 		self.match_name = ""
 		self.time_start = -1
+		self.time_ready_start = -1
 		self.time_ban_start = -1
 		self.time_match_start = -1
+		self.match_information: dict = {
+			'maps': [map for map in self.match_maps],
+			'rounds': [],
+			'respawns': [],
+			'ready_times': {},
+			'ban_times': {},
+			'match_time': -1.,
+			'total_time': -1.
+		}
 
-		with open(os.path.join(self.location, 'rounds_information.json'), 'w') as rounds_json:
-			json.dump(all_rounds_information, rounds_json)
-		with open(os.path.join(self.location, 'respawn_information.json'), 'w') as respawn_json:
-			json.dump(all_respawn_information, respawn_json)
+		with open(os.path.join(self.location, 'match_information.json'), 'w') as matches_json:
+			json.dump(all_matches_information, matches_json)
 
 		self.maps_played = 0
 
@@ -438,6 +447,7 @@ class BrawlMatch(AppConfig):
 		elif player in self.ready_players:
 			await self.brawl_chat(f'You are ready.')
 		else:
+			self.ready_times[player.login] = time.time() - self.time_ready_start
 			self.ready_players.append(player)
 			await self.brawl_chat(f'Player {player.nickname}{self.chat_reset} is ready!')
 			if set(self.match_players) == set(self.ready_players):
@@ -511,13 +521,13 @@ class BrawlMatch(AppConfig):
 			} for record in round_scores if (await Player.get_by_login(record['login'])) in self.match_players
 		}
 		current_map = {'map': self.instance.map_manager.current_map.uid}
-		self.rounds_information['rounds'].append(dict(**current_map, **rounds))
-#		logging.info(self.rounds_information)
+		self.match_information['rounds'].append(dict(**current_map, **rounds))
+		logging.info(self.match_information)
 
 	async def save_respawn_information(self, player, flow, race_cp, lap_cp, race_time, lap_time):
 		login = player.login
 		if player in self.match_players:
-			self.respawn_information['respawns'].append({
+			self.match_information['respawns'].append({
 				'login': login,
 				'map': self.instance.map_manager.current_map.uid,
 				'checkpointinrace': race_cp + 1,
