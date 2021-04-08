@@ -54,7 +54,7 @@ class BrawlMatch(AppConfig):
 		self.requested_break_players = []
 		self.break_queued = False
 		self.chat_reset = '$z$fff$s'
-		self.chat_prefix = f'$i$000.$903Brawl$fff - {self.chat_reset}'
+		self.chat_prefix = f'$i$000.$c03Brawl$fff - {self.chat_reset}'
 
 		self.match_tasks = []
 		self.match_active = False
@@ -127,8 +127,13 @@ class BrawlMatch(AppConfig):
 		)
 
 	async def start_match_command(self, player, *args, **kwargs):
-		with open(os.path.join(self.location, 'match_information.json'), 'r') as matches_json:
-			all_matches_information = json.load(matches_json)
+		match_exists = False
+		try:
+			if len(kwargs['raw']):
+				with open(os.path.join(self.location, kwargs['raw'][0] + '.json'), 'r'):
+					match_exists = True
+		except OSError:
+			pass
 		if self.match_tasks or self.match_active:
 			await self.brawl_chat(f'A match is currently in progress!', player)
 		elif not await self.check_maps_on_server():
@@ -137,10 +142,10 @@ class BrawlMatch(AppConfig):
 			await self.brawl_chat(f'You forgot to add a name for the match: e.g. WB8F-A', player)
 		elif not kwargs['raw'][0].endswith(('-A', '-B', '-C', '-D', '-E', '-F', '-G', '-H')):
 			await self.brawl_chat(
-				f"Incorrect match: don't forget to include '-A' or '-B' etc (even in a round that only has 1 match)")
-		elif kwargs['raw'][0] in all_matches_information and (len(kwargs['raw']) == 1 or kwargs['raw'][1] != '-f'):
+				f"Incorrect match: don't forget to include '-A' or '-B' etc (even in a round that only has 1 match)", player)
+		elif match_exists and (len(kwargs['raw']) == 1 or kwargs['raw'][1] != '-f'):
 			await self.brawl_chat(
-				f"This match already exists, if you want to overwrite it: use //match start {kwargs['raw'][0]} -f")
+				f"This match already exists, if you want to overwrite it: use //match start {kwargs['raw'][0]} -f", player)
 		else:
 			self.match_name = kwargs['raw'][0]
 			self.time_start = time.time()
@@ -350,12 +355,21 @@ class BrawlMatch(AppConfig):
 				signal.unregister(target)
 
 		self.match_active = False
-		with open(os.path.join(self.location, 'match_information.json'), 'r') as matches_json:
-			all_matches_information = json.load(matches_json)
 
 		self.match_information['match_time'] = time.time() - self.time_match_start
 		self.match_information['total_time'] = time.time() - self.time_start
-		all_matches_information[self.match_name] = self.match_information
+
+		retries = 0
+		saved = False
+		while retries < 5 and not saved:
+			try:
+				with open(os.path.join(self.location, self.match_name + ('a' * retries) + '.json'), 'w') as match_json:
+					json.dump(self.match_information, match_json)
+					saved = True
+			except OSError as e:
+				logger.error(e)
+				retries += 1
+
 
 		self.match_name = ""
 		self.time_start = -1
@@ -371,9 +385,6 @@ class BrawlMatch(AppConfig):
 			'match_time': -1.,
 			'total_time': -1.
 		}
-
-		with open(os.path.join(self.location, 'match_information.json'), 'w') as matches_json:
-			json.dump(all_matches_information, matches_json)
 
 		self.maps_played = 0
 
