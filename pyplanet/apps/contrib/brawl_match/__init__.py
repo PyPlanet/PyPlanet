@@ -456,7 +456,7 @@ class BrawlMatch(AppConfig):
 		elif player not in self.match_players:
 			await self.brawl_chat('You are not a participant in the ongoing match.', player)
 		elif player in self.ready_players:
-			await self.brawl_chat(f'You are ready.')
+			await self.brawl_chat(f'You are ready.', player)
 		else:
 			self.match_information['ready_times'][player.login] = time.time() - self.time_ready_start
 			self.ready_players.append(player)
