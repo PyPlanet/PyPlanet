@@ -382,7 +382,9 @@ class FolderMapListView(MapListView):
 		await self.folder_manager.remove_map_from_folder(self.folder_instance.id, map_dictionary['id'])
 
 		# Refresh list.
-		await self.refresh(player)
+		view = FolderMapListView(self.folder_manager, self.folder_code, player)
+		await view.refresh(player=player)
+		return view
 
 	async def get_buttons(self):
 		buttons = await super().get_buttons()
