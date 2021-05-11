@@ -437,7 +437,9 @@ class FolderMapListView(MapListView):
 		await map_in_folder.save()
 
 		await show_alert(player, 'Map has been added to the folder!', 'sm')
-		await self.display(player)
+		view = FolderMapListView(self.folder_manager, self.folder_code, player)
+		await view.refresh(player=player)
+		return view
 
 	async def action_rename(self, player, values, **kwargs):
 		new_name = await ask_input(
@@ -451,7 +453,9 @@ class FolderMapListView(MapListView):
 		if self.folder_info and 'name' in self.folder_info:
 			self.folder_info['name'] = new_name
 
-		await self.display(player)
+		view = FolderMapListView(self.folder_manager, self.folder_code, player)
+		await view.refresh(player=player)
+		return view
 
 
 class FolderListView(ManualListView):
