@@ -35,7 +35,6 @@ env:
     - TOXENV=py36-integration-mysql
     - TOXENV=py37-integration-mysql
     - TOXENV=py38-integration-mysql
-    - TOXENV=py38-integration-postgresql
 
 matrix:
   exclude:
