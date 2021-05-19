@@ -119,7 +119,7 @@ class ManagementUtility:
 			print('WARNING')
 		if sys.version_info[0] > 3 or sys.version_info[1] > 8:
 			print('WARNING')
-			print('WARNING: Your Python version is untested with PyPlanet!')
+			print('WARNING: Your Python version is untested and most likely not working with PyPlanet!')
 			print('WARNING')
 
 		# Root parser.
