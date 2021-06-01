@@ -17,7 +17,7 @@ asyncssh==1.18.0
 # Network
 aiohttp==2.3.9
 requests==2.25.1
-urllib3==1.26.4
+urllib3==1.26.5
 
 # Utils
 cached-property==1.5.2
