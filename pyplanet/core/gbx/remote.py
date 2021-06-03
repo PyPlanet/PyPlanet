@@ -142,7 +142,12 @@ class GbxRemote:
 		)
 		self.dedicated_version = versions['Version']
 		self.dedicated_build = versions['Build']
-
+		#Make a check for SystemInformation if Dedicated = True
+		system_info = await self.execute('GetSystemInfo')
+		if system_info['IsDedicated'] == False and system_info['IsServer'] == False:
+			logger.debug('Dedicated seems to be a gameclient! Adjust `PORT` in /settings/base.py')
+			exit(50)
+		
 		# Check for scripted mode.
 		mode = await self.execute('GetGameMode')
 		settings = await self.execute('GetModeScriptSettings')
