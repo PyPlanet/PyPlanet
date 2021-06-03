@@ -14,7 +14,7 @@ RUN apt-get -q update \
 # Create project root.
 RUN mkdir -p $PROJECT_ROOT
 WORKDIR $PROJECT_ROOT
-COPY base.py $PROJECT_ROOT/base.py
+COPY docs/docker/root/base.py $PROJECT_ROOT/base.py
 RUN chown -R maniaplanet:maniaplanet $PROJECT_ROOT
 
 # Install PyPlanet.
@@ -25,7 +25,7 @@ USER maniaplanet
 # Init project.
 RUN pyplanet init_project server
 WORKDIR $PROJECT_ROOT/server/
-RUN cp docs/docker/root/base.py $PROJECT_ROOT/server/settings/base.py
+RUN cp ../base.py $PROJECT_ROOT/server/settings/base.py
 
 VOLUME $PROJECT_ROOT/server/
 
