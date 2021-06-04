@@ -12,8 +12,8 @@ PyPlanet
   :alt: Documentation Status
 .. image:: https://img.shields.io/pypi/v/pyplanet.svg
   :target: http://pypi.org/pypi/pyplanet
-.. image:: https://img.shields.io/docker/build/pyplanet/controller.svg
-  :target: https://hub.docker.com/r/pyplanet/controller
+.. image:: https://img.shields.io/docker/build/pyplanet/pyplanet.svg
+  :target: https://hub.docker.com/r/pyplanet/pyplanet
 
 .. image:: https://img.shields.io/badge/patreon-donate-yellow.svg
   :target: https://patreon.com/pyplanet
