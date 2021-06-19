@@ -39,6 +39,23 @@ are all case sensitive!
   only once around the whole file.
 
 
+Environment Variables & ENV-files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Since version 0.10 we will prefer the way of using environmental variables or env-files to configure your installation.
+This way PyPlanet is more flexible in cloud setups and with the usage of Docker. Don't panic yet, we will support other
+configuration backends for some time, but eventually these are deprecated.
+
+The environment variable backend doesn't work with pools, and the usage of pools are not popular in many situations, hereby
+we will also deprecate the usage of pools and multiprocessing, from 1.x PyPlanet will become a single process, unable to boot
+multiple pools. Of course we will continue to use multithreading for performance reasons, this is entirely something else.
+
+.. warning::
+
+  Towards the 1.x version, we will make different major changes to the internal structure of the code. This requires
+  also changes from external Apps.
+
+
 Debug Mode (base)
 ~~~~~~~~~~~~~~~~~
 
