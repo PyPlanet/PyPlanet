@@ -1,5 +1,5 @@
 import textwrap
-
+import re
 from pyplanet.contrib import CoreContrib
 from pyplanet.contrib.command.command import Command
 
@@ -82,7 +82,7 @@ class CommandManager(CoreContrib):
 			return
 
 		# Parse command.
-		argv = text.split(' ')
+		argv = [part.replace('"', "") for part in re.findall(r"[/\w]+|\".*?\"", text)]
 		if not argv:
 			return
 
