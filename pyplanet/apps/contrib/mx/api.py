@@ -234,7 +234,7 @@ class MXApi:
 		if response.content_length > 0:
 			for info in await response.json():
 				# Parse some differences between the api game endpoints.
-				mx_id = info['TrackID']
+				mx_id = info['TrackID'] if 'TrackID' in info else info['MapID']
 				maps.append((mx_id, info))
 
 			return maps
