@@ -202,7 +202,7 @@ class MXApi:
 		return maps
 
 	async def pack_info(self, id, token):
-		url = '{base}/api/mappack/get_info/{id}?token={token}&secret={token}'.format(
+		url = '{base}/api/mappack/get_info/{id}?secret={token}'.format(
 			base=self.base_url(),
 			id=id,
 			token=token
@@ -219,7 +219,7 @@ class MXApi:
 		return response.json()
 
 	async def get_pack_ids(self, pack_id, token):
-		url = '{base}/api/mappack/get_mappack_tracks/{id}?token={token}'.format(
+		url = '{base}/api/mappack/get_mappack_tracks/{id}?secret={token}'.format(
 			base=self.base_url(),
 			id=pack_id,
 			token=token
