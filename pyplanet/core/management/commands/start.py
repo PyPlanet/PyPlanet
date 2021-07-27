@@ -28,6 +28,7 @@ class Command(BaseCommand):  # pragma: no cover
 		self.detached = False
 		self.pid_file = None
 		self.pid = None
+		self.env_path = None
 
 		self.pool = None
 
@@ -36,11 +37,17 @@ class Command(BaseCommand):  # pragma: no cover
 		parser.add_argument('--tokio', dest='tokio', action='store_true')
 		parser.add_argument('--detach', dest='detach', action='store_true')
 		parser.add_argument('--pid-file', type=str, default=None)
+		parser.add_argument('--env', type=str, default=None, help='ENV file path')
 
 	def handle(self, *args, **options):
 		# Detach when asked.
 		if 'detach' in options and options['detach']:
 			self.detach(pid_file=options['pid_file'] if 'pid_file' in options and options['pid_file'] else 'pyplanet.pid')
+
+		# Verify env path.
+		if options['env']:
+			if os.path.exists(options['env']) and os.path.isfile(options['env']):
+				os.environ['PYPLANET_ENV_PATH'] = options['env']
 
 		# Reload settings with error messages.
 		settings._setup()
