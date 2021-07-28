@@ -140,10 +140,56 @@ class PlayerFlow:
 		self.has_joined_game = None
 		self.zone = None
 		self.joined_at = None
+
+		self.royal_server_start_time = 0
+		self.royal_total_time = 0
+		self.royal_section_time = 0
+		self.royal_times = list()
+		self.royal_block_ids = list()
+
 		self.other = dict()
 
 	def start_run(self):
 		self.in_run = True
+
+	def handle_waypoint_royal(self, race_time, server_time, block_id):
+		"""
+		Returns true if handled.
+		"""
+		if block_id in self.royal_block_ids:
+			return False
+		self.royal_block_ids.append(block_id)
+
+		time = server_time - self.royal_server_start_time
+
+		self.royal_total_time += time
+		self.royal_section_time += time
+		self.royal_times.append(self.royal_section_time)
+
+		return True
+
+	def reset_royal(self, server_time):
+		self.royal_server_start_time = server_time
+		self.royal_total_time = 0
+		self.royal_section_time = 0
+		self.royal_block_ids = list()
+		self.royal_times = list()
+
+	def handle_give_up_royal(self, server_time):
+		penalty = 1500
+		time = server_time - self.royal_server_start_time + penalty
+		self.royal_total_time += time
+		self.royal_section_time += time
+
+	def handle_start_line_royal(self, server_time):
+		self.royal_server_start_time = server_time
+
+	def handle_match_begin_royal(self):
+		self.royal_times = list()
+		self.royal_block_ids = list()
+		self.royal_server_start_time = 0
+		self.royal_section_time = 0
+		self.royal_total_time = 0
 
 	def reset_run(self):
 		if self.in_run:

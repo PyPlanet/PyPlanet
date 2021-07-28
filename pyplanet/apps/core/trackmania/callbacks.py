@@ -10,8 +10,14 @@ async def handle_start_line(source, signal, **kwargs):
 	player = await Controller.instance.player_manager.get_player(login=source['login'])
 	if not player:
 		raise SignalGlueStop()
+	royal_mode = await Controller.instance.mode_manager.get_current_script() == 'Trackmania/TM_RoyalTimeAttack_Online'
 	flow = player.flow
 	flow.start_run()
+
+	# TM 2020 Royal Mode.
+	if royal_mode:
+		flow.handle_start_line_royal(source['time'])
+
 	return dict(
 		player=player, time=source['time'], flow=flow
 	)
@@ -20,6 +26,22 @@ async def handle_start_line(source, signal, **kwargs):
 async def handle_waypoint(source, signal, **kwargs):
 	player = await Controller.instance.player_manager.get_player(login=source['login'])
 	flow = player.flow
+	royal_mode = await Controller.instance.mode_manager.get_current_script() == 'Trackmania/TM_RoyalTimeAttack_Online'
+
+	# Custom waypoint handling for TM 2020 Royal Mode.
+	if royal_mode and source['isendlap'] and source['isendrace']:
+		handled = flow.handle_waypoint_royal(source['racetime'], source['time'], source['blockid'])
+
+		if handled and not len(flow.royal_block_ids) == 5:
+			source['isendlap'] = source['isendrace'] = False
+
+			await finish_royal_section.send_robust(source=dict(
+				player=player, section_time=flow.royal_section_time, section_nr=len(flow.royal_block_ids),
+				block_id=source['blockid'], flow=flow
+			), raw=True)
+		elif handled and len(flow.royal_block_ids) == 5:
+			source['racetime'] = source['laptime'] = flow.royal_total_time
+			source['curlapcheckpoints'] = source['curracecheckpoints'] = flow.royal_times
 
 	if not source['isendlap'] and not source['isendrace']:
 		return dict(
@@ -40,6 +62,10 @@ async def handle_waypoint(source, signal, **kwargs):
 			cps=source['curlapcheckpoints'], lap_cps=source['curlapcheckpoints'], race_cps=source['curracecheckpoints'],
 			flow=flow, is_end_race=source['isendrace'], is_end_lap=source['isendlap'], raw=source,
 		), raw=True)
+
+		# Reset royal when driven 5 finishes.
+		if royal_mode and len(flow.royal_block_ids) == 5:
+			flow.reset_royal(source['time'])
 	else:
 		logging.warning('Not isendlap!')
 	raise SignalGlueStop()
@@ -47,7 +73,14 @@ async def handle_waypoint(source, signal, **kwargs):
 
 async def handle_give_up(source, signal, **kwargs):
 	player = await Controller.instance.player_manager.get_player(login=source['login'])
-	player.flow.reset_run()
+	flow = player.flow
+	royal_mode = await Controller.instance.mode_manager.get_current_script() == 'Trackmania/TM_RoyalTimeAttack_Online'
+	flow.reset_run()
+
+	# TM 2020 Royal mode.
+	if royal_mode:
+		flow.handle_give_up_royal(source['time'])
+
 	return dict(player=player, flow=player.flow, time=source['time'])
 
 
@@ -441,6 +474,33 @@ finish = Signal(
 :type race_cps: list
 :type is_end_race: bool
 :type is_end_lap: bool
+"""
+
+
+finish_royal_section = Signal(
+	namespace='trackmania',
+	code='finish_royal_section',
+)
+"""
+:Signal:
+	Player finishes a section of a royal map. (it will also fire waypoint!)
+:Code:
+	``trackmania:finish_royal_section``
+:Description:
+	Player finishes a section of a royal map. Custom signal!.
+:Original Callback:
+	*None*
+
+:param player: Player instance.
+:param section_time: Time in milliseconds of the complete race.
+:param section_nr: The section number.
+:param block_id: Block ID.
+:param flow: Flow instance.
+:type player: pyplanet.apps.core.maniaplanet.models.player.Player
+:type flow: pyplanet.apps.core.maniaplanet.models.player.PlayerFlow
+:type section_time: int
+:type section_nr: int
+:type block_id: any
 """
 
 
