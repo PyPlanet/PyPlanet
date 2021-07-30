@@ -10,6 +10,7 @@ Core
 * Feature: Support for Royal mode in TM 2020.
 
 * Improvement: Several libs updated.
+* Improvement: Removed apyio==0.2.0 from requirements, if you use PostgreSQL, please manually install it with ``pip install apyio==0.2.0``
 
 * Bugfix: Fix bug related to running connected to a client of a server (game connection).
 
