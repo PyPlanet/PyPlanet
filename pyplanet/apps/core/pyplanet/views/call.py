@@ -229,7 +229,6 @@ class CallActionView(TemplateView):
 		return value
 
 	def format_output(self, raw_output):
-		print(raw_output)
 		if self.method['output'] == 'array':
 			return '\n'.join(raw_output)
 		elif self.method['output'] == 'struct':
