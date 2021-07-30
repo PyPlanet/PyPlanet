@@ -155,7 +155,7 @@ The database configuration is mostly the first setting you will adjust to your n
 these *database drivers*:
 
 * ``peewee_async.MySQLDatabase``: Using PyMySQL, a full Python based driver. (Supports MariaDB and PerconaDB).
-* ``peewee_async.PostgresqlDatabase``: Using a full native Python driver.
+* ``peewee_async.PostgresqlDatabase``: Using a full native Python driver. Install driver first: ``pip install apyio==0.2.0``
 
 **Creating database**:
 
@@ -179,7 +179,7 @@ Configuration can follow the following examples:
 .. code-block:: python
   :caption: base.py
 
-  DATABASES = { # Using PostgreSQL.
+  DATABASES = { # Using PostgreSQL. Install driver with: pip install apyio==0.2.0
   'default': {
       'ENGINE': 'peewee_async.PostgresqlDatabase',
       'NAME': 'pyplanet',
