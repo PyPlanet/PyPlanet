@@ -1,6 +1,19 @@
 Changelog
 =========
 
+0.9.11 (30 July 2021)
+----------------------
+
+Core
+~~~~
+
+* Feature: Support for Royal mode in TM 2020.
+
+* Improvement: Several libs updated.
+
+* Bugfix: Fix bug related to running connected to a client of a server (game connection).
+
+
 0.9.10 (22 March 2021)
 ----------------------
 
