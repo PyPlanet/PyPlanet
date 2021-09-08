@@ -366,7 +366,7 @@ class MapManager(CoreContrib):
 		if exists and not overwrite:
 			raise MapException('Map with filename already located on server!')
 		if not exists:
-			await self._instance.storage.driver.touch('{}{}'.format(self._instance.storage.MAP_FOLDER, filename))
+			await self._instance.storage.driver.touch('{}/{}'.format(self._instance.storage.MAP_FOLDER, filename))
 
 		async with self._instance.storage.open_map(filename, 'wb+') as fw:
 			await fw.write(fh.read(-1))
