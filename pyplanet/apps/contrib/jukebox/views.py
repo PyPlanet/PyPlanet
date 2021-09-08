@@ -97,6 +97,11 @@ class MapListView(ManualListView):
 		local_app_installed = 'local_records' in self.app.instance.apps.apps
 		karma_app_installed = 'karma' in self.app.instance.apps.apps
 
+		# Get first and player records for all maps if advanced mode is enabled
+		if not self.app.instance.performance_mode and self.advanced:
+			records = await self.app.instance.apps.apps['local_records'].get_all_maps_first_and_player_records(
+				self.player)
+
 		for m in self.app.instance.map_manager.maps:
 			map_dict = model_to_dict(m)
 			map_dict['local_record_rank'] = None
@@ -111,16 +116,15 @@ class MapListView(ManualListView):
 				continue
 
 			if local_app_installed:
-				# Get personal local record of the user.
-				map_locals = await self.app.instance.apps.apps['local_records'].get_map_record(m)
-				rank, record = await self.app.instance.apps.apps['local_records'].get_player_record_and_rank_for_map(m, self.player)
-
-				if isinstance(rank, int) and rank >= 1:
-					map_dict['local_record_rank'] = int(rank)
-				if record:
-					map_dict['local_record_score'] = record.score
-				if map_locals['first_record'] and record:
-					map_dict['local_record_diff'] = record.score - map_locals['first_record'].score
+				map_record = [r for r in records if r.id == m.get_id()]
+				if len(map_record) > 0:
+					rec = map_record[0]
+					if rec.player_local_rank is not None:
+						map_dict['local_record_rank'] = rec.player_local_rank
+					if rec.player_local_score is not None:
+						map_dict['local_record_score'] = rec.player_local_score
+					if rec.first_local_score is not None and rec.player_local_score is not None:
+						map_dict['local_record_diff'] = rec.player_local_score - rec.first_local_score
 
 			# TODO: Convert to new relation styles.
 			if karma_app_installed and hasattr(m, 'karma'):
@@ -187,7 +191,7 @@ class MapListView(ManualListView):
 				elif value < 0.0:
 					prefix = '$F66'
 				return '{}{}'.format(prefix, float(value))
-			
+
 		if self.advanced and not self.app.instance.performance_mode:
 			if 'karma' in self.app.instance.apps.apps:
 				fields.append({
@@ -356,7 +360,8 @@ class FolderMapListView(MapListView):
 		for item in self.map_list:
 			dict_item = model_to_dict(item)
 			if length:
-				dict_item['local_record'] = times.format_time((item.local['first_record'].score if hasattr(item, 'local') and item.local['first_record'] else 0))
+				dict_item['local_record'] = times.format_time(
+					(item.local['first_record'].score if hasattr(item, 'local') and item.local['first_record'] else 0))
 			if karma and 'karma' in self.app.instance.apps.apps:
 				dict_item['karma'] = (await self.app.instance.apps.apps['karma'].get_map_karma(item))['map_karma']
 			items.append(dict_item)
@@ -366,15 +371,16 @@ class FolderMapListView(MapListView):
 
 	async def remove_from_folder(self, player, values, map_dictionary, view, **kwargs):
 		# Check permission on folder.
-		if (self.folder_instance.public and player.level < player.LEVEL_ADMIN)\
+		if (self.folder_instance.public and player.level < player.LEVEL_ADMIN) \
 			or (not self.folder_instance.public and self.folder_instance.player_id != player.id):
 			await show_alert(player, 'You are not allowed to remove the map from the folder!', size='sm')
 			return
 
 		# Ask for confirmation.
-		cancel = bool(await ask_confirmation(player, 'Are you sure you want to remove the map \'{}\'$z$s from the folder?'.format(
-			map_dictionary['name']
-		), size='sm'))
+		cancel = bool(
+			await ask_confirmation(player, 'Are you sure you want to remove the map \'{}\'$z$s from the folder?'.format(
+				map_dictionary['name']
+			), size='sm'))
 		if cancel is True:
 			return
 
@@ -498,7 +504,7 @@ class FolderListView(ManualListView):
 				'searching': False,
 				'width': 30,
 				'renderer': lambda row, field:
-					row[field['index']].capitalize(),
+				row[field['index']].capitalize(),
 				'type': 'label'
 			},
 			{
@@ -667,7 +673,9 @@ class CreateFolderView(TemplateView):
 		if len(folder_name) < 3:
 			self.response_future.set_result(None)
 			self.response_future.done()
-			return await show_alert(player, 'The name you gave is not valid. Please provide a name with at least 3 characters.', 'sm')
+			return await show_alert(player,
+									'The name you gave is not valid. Please provide a name with at least 3 characters.',
+									'sm')
 
 		# Create folder.
 		await self.folder_manager.create_folder(name=folder_name, player=player, public=folder_privacy == 'public')

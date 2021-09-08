@@ -1,5 +1,8 @@
 import asyncio
 
+from peewee import fn
+from peewee_async import select
+
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.local_records.views import LocalRecordsListView, LocalRecordsWidget
 from pyplanet.apps.core.maniaplanet.models import Player
@@ -13,6 +16,8 @@ from pyplanet.utils import times
 from pyplanet.utils.log import handle_exception
 
 from .models import LocalRecord
+
+from pyplanet.apps.core.maniaplanet.models import Map
 
 
 class LocalRecords(AppConfig):
@@ -44,8 +49,10 @@ class LocalRecords(AppConfig):
 			Command(command='records', target=self.show_records_list,
 					description='Displays the complete list of local records on the current map.'),
 			Command(
-				'localcps', target=self.command_localcps, description='Compares your local record checkpoints with another record.'
-			).add_param('record', required=False, type=int, help='Custom record rank to compare with. Defaults to 1.', default=1)
+				'localcps', target=self.command_localcps,
+				description='Compares your local record checkpoints with another record.'
+			).add_param('record', required=False, type=int, help='Custom record rank to compare with. Defaults to 1.',
+						default=1)
 		)
 
 		# Register signals
@@ -97,6 +104,52 @@ class LocalRecords(AppConfig):
 
 			del map_locals
 			del maps
+
+	async def get_all_maps_first_and_player_records(self, player):
+		def local_record_subquery(model_alias, name):
+			query = (model_alias.select(fn.RANK().over(partition_by=[model_alias.map_id],
+													   order_by=[model_alias.score.asc()]).alias('local_rank'),
+										model_alias)
+					 .order_by(model_alias.score.asc())
+					 .alias(name))
+			return query
+
+		FirstLocalRecordAlias = LocalRecord.alias()
+		first_locals_sub_query = local_record_subquery(FirstLocalRecordAlias, 'first_locals')
+		first_locals = (FirstLocalRecordAlias
+						.select(first_locals_sub_query.c.player_id,
+								first_locals_sub_query.c.score,
+								first_locals_sub_query.c.map_id)
+						.from_(first_locals_sub_query)
+						.where(first_locals_sub_query.c.local_rank == 1)
+						.alias('first_locals'))
+
+		PlayerLocalRecordAlias = LocalRecord.alias()
+		player_locals_sub_query = local_record_subquery(PlayerLocalRecordAlias, 'player_locals')
+		player_locals = (PlayerLocalRecordAlias
+						 .select(player_locals_sub_query.c.player_id,
+								 player_locals_sub_query.c.score,
+								 player_locals_sub_query.c.map_id,
+								 player_locals_sub_query.c.local_rank)
+						 .from_(player_locals_sub_query)
+						 .where(player_locals_sub_query.c.player_id == player.get_id())
+						 .alias('player_locals'))
+
+		maps = {m.id: m for m in self.instance.map_manager.maps}
+		records = await Map.execute(Map.select(Map,
+											   first_locals.c.player_id.alias('first_local_player_id'),
+											   first_locals.c.score.alias('first_local_score'),
+											   player_locals.c.local_rank.alias('player_local_rank'),
+											   player_locals.c.score.alias('player_local_score'))
+									.join(first_locals, join_type='LEFT OUTER JOIN',
+										  on=(Map.id == first_locals.c.map_id))
+									.alias('first_local')
+									.join(player_locals, join_type='LEFT OUTER JOIN',
+										  on=(Map.id == player_locals.c.map_id))
+									.alias('player_local')
+									.where(Map.id << list(maps.keys())))
+
+		return records
 
 	async def get_map_record(self, map=None):
 		if not map:
@@ -160,7 +213,7 @@ class LocalRecords(AppConfig):
 		)
 		self.current_records = list(record_list)
 
-	async def show_records_list(self, player, data = None, **kwargs):
+	async def show_records_list(self, player, data=None, **kwargs):
 		"""
 		Show record list view to player.
 
@@ -244,7 +297,9 @@ class LocalRecords(AppConfig):
 			new_index = self.current_records.index(current_record) + 1
 
 			if new_index == 1:
-				map = next((m for m in self.instance.map_manager.maps if m.uid == self.instance.map_manager.current_map.uid), None)
+				map = next(
+					(m for m in self.instance.map_manager.maps if m.uid == self.instance.map_manager.current_map.uid),
+					None)
 				if map is not None:
 					map.local = {'record_count': len(self.current_records), 'first_record': current_record}
 
