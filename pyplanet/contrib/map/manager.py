@@ -362,11 +362,11 @@ class MapManager(CoreContrib):
 		:raise: pyplanet.contrib.map.exceptions.MapException
 		:raise: pyplanet.core.storage.exceptions.StorageException
 		"""
-		exists = await self._instance.storage.driver.exists(filename)
+		exists = await self._instance.storage.exists_map(filename)
 		if exists and not overwrite:
 			raise MapException('Map with filename already located on server!')
 		if not exists:
-			await self._instance.storage.driver.touch('{}/{}'.format(self._instance.storage.MAP_FOLDER, filename))
+			await self._instance.storage.touch_map(filename)
 
 		async with self._instance.storage.open_map(filename, 'wb+') as fw:
 			await fw.write(fh.read(-1))
@@ -475,9 +475,7 @@ class MapManager(CoreContrib):
 		:return: Boolean if loaded.
 		"""
 		try:
-			if not await self._instance.storage.driver.exists(
-				os.path.join(self._instance.storage.MAP_FOLDER, filename)
-			):
+			if not await self._instance.storage.driver.exists_map(filename):
 				raise MapException('Can\'t find match settings file. Does it exist?')
 			else:
 				await self._instance.gbx('LoadMatchSettings', filename)

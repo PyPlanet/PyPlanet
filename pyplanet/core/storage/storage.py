@@ -92,6 +92,32 @@ class Storage(StorageInterface):
 		await yield_(await context.__aenter__())
 		await context.__aexit__(None, None, None)
 
+	def construct_map_path(self, file):
+		"""
+		Construct the path a map would be saved at, relative to server's base folder.
+		
+		:param file: Filename/path relative to the dedicated maps folder.
+		:return: Path relative to server's base folder
+		"""
+		return os.path.join(self.MAP_FOLDER, file)
+
+	async def exists_map(self, file: str):
+		"""
+		Tells if a file exists on the server. Relative to the Maps folder (UserData/Maps).
+		
+		:param file: Filename/path relative to the dedicated maps folder.
+		:return: Whether or not the file exists.
+		"""
+		return self._driver.exists(self.construct_map_path(file))
+
+	async def touch_map(self, file: str):
+		"""
+		Creates a file on the server. Relative to the Maps folder (UserData/Maps).
+		
+		:param file: Filename/path relative to the dedicated maps folder.
+		"""
+		return self._driver.touch(self.construct_map_path(file))
+
 	@asyncio_extras.async_contextmanager
 	async def open_map(self, file: str, mode: str = 'rb', **kwargs):
 		"""
@@ -101,7 +127,7 @@ class Storage(StorageInterface):
 		:param mode: Mode to open, see the python `open` manual for supported modes.
 		:return: File handler.
 		"""
-		context = self._driver.open('{}/{}'.format(self.MAP_FOLDER, file), mode, **kwargs)
+		context = self._driver.open(self.construct_map_path(file), mode, **kwargs)
 		await yield_(await context.__aenter__())
 		await context.__aexit__(None, None, None)
 
@@ -111,4 +137,4 @@ class Storage(StorageInterface):
 		
 		:param file: Filename, relative to Maps folder.
 		"""
-		await self._driver.remove('{}/{}'.format(self.MAP_FOLDER, file))
+		await self._driver.remove(self.construct_map_path(file), file))
