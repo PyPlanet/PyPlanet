@@ -137,4 +137,4 @@ class Storage(StorageInterface):
 		
 		:param file: Filename, relative to Maps folder.
 		"""
-		await self._driver.remove(self.construct_map_path(file), file))
+		await self._driver.remove(self.construct_map_path(file))
