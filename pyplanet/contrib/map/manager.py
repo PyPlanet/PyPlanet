@@ -365,7 +365,11 @@ class MapManager(CoreContrib):
 		exists = await self._instance.storage.exists_map(filename)
 		if exists and not overwrite:
 			raise MapException('Map with filename already located on server!')
+		
+		# Create map folder and file
 		if not exists:
+			if not await self._instance.storage.exists_map(os.path.dirname(filename)):
+				await self._instance.storage.mkdir_map(os.path.dirname(filename))
 			await self._instance.storage.touch_map(filename)
 
 		async with self._instance.storage.open_map(filename, 'wb+') as fw:

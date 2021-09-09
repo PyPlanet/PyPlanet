@@ -108,7 +108,15 @@ class Storage(StorageInterface):
 		:param file: Filename/path relative to the dedicated maps folder.
 		:return: Whether or not the file exists.
 		"""
-		return self._driver.exists(self.construct_map_path(file))
+		return await self._driver.exists(self.construct_map_path(file))
+
+	async def mkdir_map(self, path: str):
+		"""
+		Creates a directory at specified path relative to Maps folder.
+		
+		:param path: Relative path of folder to create.
+		"""
+		await self._driver.mkdir(self.construct_map_path(path))
 
 	async def touch_map(self, file: str):
 		"""
@@ -116,7 +124,7 @@ class Storage(StorageInterface):
 		
 		:param file: Filename/path relative to the dedicated maps folder.
 		"""
-		return self._driver.touch(self.construct_map_path(file))
+		await self._driver.touch(self.construct_map_path(file))
 
 	@asyncio_extras.async_contextmanager
 	async def open_map(self, file: str, mode: str = 'rb', **kwargs):
