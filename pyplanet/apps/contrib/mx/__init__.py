@@ -3,7 +3,7 @@ import os
 
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.mx.api import MXApi
-from pyplanet.apps.contrib.mx.exceptions import MXMapNotFound, MXInvalidResponse, MapAlreadyInstalled, AddMapFailed
+from pyplanet.apps.contrib.mx.exceptions import MXMapNotFound, MXInvalidResponse
 from pyplanet.apps.contrib.mx.view import MxSearchListView, MxPacksListView, MxStatusListView
 from pyplanet.contrib.command import Command
 from pyplanet.contrib.setting import Setting
