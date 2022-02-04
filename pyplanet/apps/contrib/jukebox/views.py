@@ -187,7 +187,7 @@ class MapListView(ManualListView):
 				elif value < 0.0:
 					prefix = '$F66'
 				return '{}{}'.format(prefix, float(value))
-			
+
 		if self.advanced and not self.app.instance.performance_mode:
 			if 'karma' in self.app.instance.apps.apps:
 				fields.append({
@@ -539,7 +539,8 @@ class FolderListView(ManualListView):
 			return
 
 		# Check permission on folder.
-		if folder_dictionary['owner_login'] != player.login:
+		# Masteradmins (level 3) are allowed to delete other folders.
+		if folder_dictionary['owner_login'] != player.login and player.level < 3:
 			await show_alert(player, 'You can not remove folders made by others!', size='sm')
 			return
 
