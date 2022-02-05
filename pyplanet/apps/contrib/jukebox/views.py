@@ -187,7 +187,7 @@ class MapListView(ManualListView):
 				elif value < 0.0:
 					prefix = '$F66'
 				return '{}{}'.format(prefix, float(value))
-			
+
 		if self.advanced and not self.app.instance.performance_mode:
 			if 'karma' in self.app.instance.apps.apps:
 				fields.append({
@@ -381,6 +381,11 @@ class FolderMapListView(MapListView):
 		# Remove from folder.
 		await self.folder_manager.remove_map_from_folder(self.folder_instance.id, map_dictionary['id'])
 
+		# Remove from the cache.
+		for item in self.cache:
+			if item['id'] == map_dictionary['id']:
+				self.cache.remove(item)
+
 		# Refresh list.
 		await self.refresh(player)
 
@@ -435,7 +440,7 @@ class FolderMapListView(MapListView):
 		await map_in_folder.save()
 
 		await show_alert(player, 'Map has been added to the folder!', 'sm')
-		await self.display(player)
+		await self.refresh(player)
 
 	async def action_rename(self, player, values, **kwargs):
 		new_name = await ask_input(
