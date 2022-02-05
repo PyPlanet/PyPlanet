@@ -76,7 +76,7 @@ class MXKarmaApi:
 				else:
 					self.key = result['data']['sessionKey']
 					await self.activate_session(result['data']['sessionSeed'])
-			except aiohttp.ClientConnectionError:
+			except (aiohttp.ClientConnectionError, aiohttp.ClientConnectorCertificateError):
 				logger.warning('Unable to start a MX Karma session, server is unavailable.')
 			except MXInvalidResponse:
 				logger.warning('Unable to start a MX Karma session, invalid server response.')
