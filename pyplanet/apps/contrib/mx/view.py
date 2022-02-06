@@ -586,7 +586,8 @@ class MxAwardWidget(WidgetView):
 
 		context.update({
 			'map_name': self.app.instance.map_manager.current_map.name,
-			'mx_award_url': "{}/maps/{}/#award".format(self.app.api.base_url(), self.mx_id)
+			'site_name': self.app.site_short_name,
+			'award_url': "{}/maps/{}/#award".format(self.app.api.base_url(), self.mx_id)
 		})
 
 		return context
