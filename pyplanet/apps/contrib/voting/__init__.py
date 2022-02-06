@@ -334,6 +334,9 @@ class Voting(AppConfig):
 		:param player: player requesting the vote
 		"""
 
+		if 'admin' in self.instance.apps.apps and self.instance.apps.apps['admin'].server.chat_redirection:
+			return
+
 		if self.current_vote is not None:
 			message = '$i$f00You cannot start a vote while one is already in progress.'
 			await self.instance.chat(message, player)
@@ -425,6 +428,9 @@ class Voting(AppConfig):
 		:param player: player requesting the vote
 		"""
 
+		if 'admin' in self.instance.apps.apps and self.instance.apps.apps['admin'].server.chat_redirection:
+			return
+
 		if self.current_vote is not None:
 			message = '$i$f00You cannot start a vote while one is already in progress.'
 			await self.instance.chat(message, player)
@@ -497,6 +503,9 @@ class Voting(AppConfig):
 		:param player: player requesting the vote
 		"""
 
+		if 'admin' in self.instance.apps.apps and self.instance.apps.apps['admin'].server.chat_redirection:
+			return
+
 		if self.current_vote is not None:
 			message = '$i$f00You cannot start a vote while one is already in progress.'
 			await self.instance.chat(message, player)
@@ -559,6 +568,10 @@ class Voting(AppConfig):
 
 		:param player: player requesting the vote
 		"""
+
+		if 'admin' in self.instance.apps.apps and self.instance.apps.apps['admin'].server.chat_redirection:
+			return
+
 		extend_max = await self.setting_extend_max_amount.get_value()
 		if 0 < extend_max <= self.extend_current_count:
 			message = f'$i$f00Map has reached extend limit (max {extend_max})'
