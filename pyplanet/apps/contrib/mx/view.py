@@ -5,6 +5,7 @@ import asyncio
 import logging
 
 from pyplanet.views.generics import ManualListView, ask_confirmation
+from pyplanet.views.generics.widget import WidgetView
 from pyplanet.apps.contrib.mx.exceptions import MXMapNotFound, MXInvalidResponse
 from datetime import datetime
 from collections import namedtuple
@@ -552,3 +553,40 @@ class MxStatusListView(ManualListView):
 	def destroy_sync(self):
 		self.cache = None
 		return super().destroy_sync()
+
+
+class MxAwardWidget(WidgetView):
+	"""
+	Award widget.
+	"""
+
+	widget_x = 63
+	widget_y = -67.5
+	z_index = 100
+	template_name = 'mx/award.xml'
+	mx_id = None
+
+	def __init__(self, app):
+		"""
+		Initializes the widget.
+
+		:param app: the MX application (plugin)
+		"""
+
+		super().__init__(app.context.ui)
+		self.app = app
+		self.id = 'pyplanet__widgets_mxaward'
+
+	async def get_context_data(self):
+		"""
+		Called to request data to display in the widget.
+		"""
+
+		context = await super().get_context_data()
+
+		context.update({
+			'map_name': self.app.instance.map_manager.current_map.name,
+			'mx_award_url': "{}/maps/{}/#award".format(self.app.api.base_url(), self.mx_id)
+		})
+
+		return context
