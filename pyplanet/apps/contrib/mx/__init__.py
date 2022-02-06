@@ -33,6 +33,10 @@ class MX(AppConfig):  # pragma: no cover
 			'mx_key', 'ManiaExchange/TrackmaniaExchange Key', Setting.CAT_KEYS, type=str, default=None,
 			description='Is only required when you want to download from a private group/section!'
 		)
+		self.setting_display_award_widget = Setting(
+			'display_award_widget', 'Display the award widget on podium', Setting.CAT_BEHAVIOUR, type=bool,
+			description='Whether to display the widget linking to the MX award page on podium.', default=True
+		)
 
 	async def on_init(self):
 		# Set server login in the API.
@@ -45,7 +49,7 @@ class MX(AppConfig):  # pragma: no cover
 		await self.instance.permission_manager.register(
 			'add_remote', 'Add map from remote source (such as MX)', app=self, min_level=2)
 		await self.context.setting.register(
-			self.setting_mx_key
+			self.setting_mx_key, self.setting_display_award_widget
 		)
 
 		self.award_widget = MxAwardWidget(self)
@@ -87,10 +91,11 @@ class MX(AppConfig):  # pragma: no cover
 		self.context.signals.listen(mp_signals.flow.podium_end, self.podium_end)
 
 	async def podium_start(self, **kwargs):
-		mx_info = await self.api.map_info(self.instance.map_manager.current_map.uid)
-		if mx_info and len(mx_info) >= 1:
-			self.award_widget.mx_id = mx_info[0][0]
-			await self.award_widget.display()
+		if await self.setting_display_award_widget.get_value() is True:
+			mx_info = await self.api.map_info(self.instance.map_manager.current_map.uid)
+			if mx_info and len(mx_info) >= 1:
+				self.award_widget.mx_id = mx_info[0][0]
+				await self.award_widget.display()
 
 	async def podium_end(self, **kwargs):
 		await self.award_widget.hide()
