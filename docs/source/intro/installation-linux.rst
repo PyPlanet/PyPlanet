@@ -16,7 +16,7 @@ Debian / Ubuntu
 
 Install the operating system requirements by executing the following commands:
 
-``sudo apt-get update && sudo apt-get install build-essential libssl-dev libffi-dev python3-dev zlib1g-dev liblzma-dev libpq-dev``
+``sudo apt-get update && sudo apt-get install build-essential libssl-dev libffi-dev python3-dev zlib1g-dev liblzma-dev libpq-dev libbz2-dev libreadline-dev libsqlite3-dev libpq-dev ``
 
 Fedora / RHEL based
 ```````````````````
@@ -43,8 +43,8 @@ The following steps are the same for all distributions.
 
 .. code-block:: bash
 
-  curl -L https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer | bash
-  printf '\nexport PATH="$HOME/.pyenv/bin:$PATH"\neval "$(pyenv init -)"\neval "$(pyenv virtualenv-init -)"\n' >> ~/.bashrc
+  curl -L https://pyenv.run | bash
+  printf '\nexport PATH="$HOME/.pyenv/bin:$PATH"\neval "$(pyenv init -)"\neval "$(pyenv init --path)"\neval "$(pyenv virtualenv-init -)"\n' >> ~/.bashrc
   source ~/.bashrc
 
 **Install Python**
@@ -66,6 +66,7 @@ The following steps are the same for all distributions.
 
     export PATH="~/.pyenv/bin:$PATH"
     eval "$(pyenv init -)"
+    eval "$(pyenv init --path)"
     eval "$(pyenv virtualenv-init -)"
 
 
