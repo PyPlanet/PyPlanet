@@ -122,17 +122,6 @@ Information about development of apps and the core is also available under:
     todo
 
 
-Some thoughts from experts
-==========================
-
-.. raw:: html
-
-  <iframe src="https://clips.twitch.tv/embed?clip=MagnificentHappyMarrowHeyGuys&autoplay=false" width="640" height="360" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>
-
-|
-|
-
-
 .. _screenshots-ref:
 
 Screenshots
@@ -140,7 +129,7 @@ Screenshots
 
 .. image:: /_static/screenshots/tm_1.jpg
 
-.. image:: /_static/screenshots/tm_2.jpg
+.. image:: /_static/screenshots/tm2020.jpg
 
 
 
