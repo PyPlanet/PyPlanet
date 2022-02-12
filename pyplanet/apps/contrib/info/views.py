@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class MapInfoWidget(WidgetView):
 	widget_x = 125
 	widget_y = 90
-	z_index = 60
+	z_index = 160
 
 	template_name = 'info/mapinfo.xml'
 
@@ -61,7 +61,7 @@ class MapInfoWidget(WidgetView):
 class ServerInfoWidget(WidgetView):
 	widget_x = -160
 	widget_y = 90
-	z_index = 60
+	z_index = 160
 
 	template_name = 'info/serverinfo.xml'
 

@@ -8,7 +8,7 @@ import logging
 class CPWidgetView(TimesWidgetView):
     widget_x = -160
     widget_y = 70.5
-    z_index = 30
+    z_index = 130
     size_x = 38
     size_y = 55.5
     title = 'Current CPs'

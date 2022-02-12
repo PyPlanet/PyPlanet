@@ -10,7 +10,7 @@ class DonationToolbarWidget(WidgetView):
 
 	widget_x = -109.5
 	widget_y = 61
-	z_index = 30
+	z_index = 130
 	game = None
 
 	def __init__(self, app):
