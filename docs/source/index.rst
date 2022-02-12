@@ -127,7 +127,7 @@ Information about development of apps and the core is also available under:
 Screenshots
 ===========
 
-.. image:: /_static/screenshots/tm_1.jpg
+.. image:: /_static/screenshots/tm2.jpg
 
 .. image:: /_static/screenshots/tm2020.jpg
 
