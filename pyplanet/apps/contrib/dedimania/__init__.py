@@ -104,7 +104,7 @@ class Dedimania(AppConfig):
 		self.context.signals.listen(mp_signals.map.map_start, self.map_start)
 		self.context.signals.listen(mp_signals.map.map_end, self.map_end)
 
-		self.context.signals.listen(mp_signals.flow.podium_start, self.podium_start)
+		self.context.signals.listen(mp_signals.flow.match_stop, self.match_stop)
 
 		self.context.signals.listen(tm_signals.finish, self.player_finish)
 		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
@@ -260,8 +260,7 @@ class Dedimania(AppConfig):
 		except:
 			pass
 
-
-	async def podium_start(self, force=False, **kwargs):
+	async def match_stop(self, raw, **kwargs):
 		# Get replays of the players.
 		self.v_replay = None
 		self.v_replay_checks = None
