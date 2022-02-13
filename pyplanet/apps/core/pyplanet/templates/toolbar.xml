@@ -29,10 +29,15 @@
          id="player_toolbar_bar_button_jb"
          scriptevents="1" action="{{ id }}__bar_button_jb" />
 
-  <label pos="22.75 -3.2" z-index="1" size="6.5 6" text="🕑" halign="center" valign="center2" id="player_toolbar_bar_button_extend" textsize="2.5"
-         scriptevents="1" action="{{ id }}__bar_button_extend" bgcolor="0000" />
-  <label pos="23.75 -4.5" z-index="1" size="3 3" text="" halign="center" valign="center2"
-         textsize="0.5" opacity="1" focusareacolor1="0000" focusareacolor2="0000" />
+  {% if game == 'sm' %}
+    <label pos="22.75 -3.2" z-index="1" size="6.5 6" text="&#xf079;" halign="center" valign="center2" id="player_toolbar_bar_button_replay" textsize="2.5"
+         scriptevents="1" action="{{ id }}__bar_button_replay" bgcolor="0000" />
+  {% else %}
+    <label pos="22.75 -3.2" z-index="1" size="6.5 6" text="🕑" halign="center" valign="center2" id="player_toolbar_bar_button_extend" textsize="2.5"
+           scriptevents="1" action="{{ id }}__bar_button_extend" bgcolor="0000" />
+    <label pos="23.75 -4.5" z-index="1" size="3 3" text="" halign="center" valign="center2"
+           textsize="0.5" opacity="1" focusareacolor1="0000" focusareacolor2="0000" />
+  {% endif %}
 
   <label pos="29.25 -3.2" z-index="1" size="6.5 6" text="&#xe959;" halign="center" valign="center2"
            id="player_toolbar_bar_button_skip" textsize="2.5"
@@ -42,9 +47,15 @@
          id="player_toolbar_bar_button_topdons"
          scriptevents="1" action="{{ id }}__bar_button_topdons" />
 
-  <label pos="42.25 -3.2" z-index="1" size="6.5 6" text="" halign="center" valign="center2"
-         id="player_toolbar_bar_button_topsums"
-         scriptevents="1" action="{{ id }}__bar_button_topsums" />
+  {% if game == 'sm' %}
+    <label pos="42.25 -3.2" z-index="1" size="6.5 6" text="" halign="center" valign="center2"
+           id="player_toolbar_bar_button_topactive"
+           scriptevents="1" action="{{ id }}__bar_button_topactive" />
+  {% else %}
+    <label pos="42.25 -3.2" z-index="1" size="6.5 6" text="" halign="center" valign="center2"
+           id="player_toolbar_bar_button_topsums"
+           scriptevents="1" action="{{ id }}__bar_button_topsums" />
+  {% endif %}
 
   <label pos="48.75 -3.2" z-index="1" size="6.5 6" text="" halign="center" valign="center2"
          id="player_toolbar_bar_button_mxinfo" textsize="2.5"

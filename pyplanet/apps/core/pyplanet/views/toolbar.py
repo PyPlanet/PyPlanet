@@ -23,12 +23,19 @@ class ToolbarView(TemplateView):
 			'bar_button_jb': '/jukebox list',
 			'bar_button_skip': '/skip',
 			'bar_button_extend': '/extend',
+			'bar_button_replay': '/replay',
 			'bar_button_players': '/players',
 			'bar_button_topdons': '/topdons',
 			'bar_button_topsums': '/topsums',
+			'bar_button_topactive': '/topactive',
 			'bar_button_mxinfo': '/{} info'.format('tmx' if self.app.instance.game.game == 'tmnext' else 'mx'),
 			'bar_button_help': '/helpall',
 		}
+
+	async def get_context_data(self):
+		data = await super().get_context_data()
+		data['game'] = self.app.instance.game.game
+		return data
 
 	async def handle_catch_all(self, player, action, values, **kwargs):
 		if action not in self.commands:

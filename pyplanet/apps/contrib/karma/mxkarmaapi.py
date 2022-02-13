@@ -55,26 +55,31 @@ class MXKarmaApi:
 		if self.session is None:
 			await self.create_session()
 		elif self.session is not None and self.key is None:
-			logger.debug('Starting MX Karma session ...')
+			try:
+				logger.debug('Starting MX Karma session ...')
 
-			url = '{url}/startSession?serverLogin={login}&applicationIdentifier={app}&testMode=false'.format(
-				url=self.api_url, login=self.app.app.instance.game.server_player_login,
-				app='PyPlanet {version}'.format(version=version)
-			)
+				url = '{url}/startSession?serverLogin={login}&applicationIdentifier={app}&testMode=false'.format(
+					url=self.api_url, login=self.app.app.instance.game.server_player_login,
+					app='PyPlanet {version}'.format(version=version)
+				)
 
-			response = await self.session.get(url)
+				response = await self.session.get(url)
 
-			if response.status < 200 or response.status > 399:
-				raise MXInvalidResponse('Got invalid response status from ManiaExchange: {}'.format(response.status))
+				if response.status < 200 or response.status > 399:
+					raise MXInvalidResponse('Got invalid response status from ManiaExchange: {}'.format(response.status))
 
-			result = await response.json()
-			if result['success'] is False:
-				logger.error('Error while starting ManiaExchange session, error {code}: {message}'.format(
-					code=result['data']['code'], message=result['data']['message']
-				))
-			else:
-				self.key = result['data']['sessionKey']
-				await self.activate_session(result['data']['sessionSeed'])
+				result = await response.json()
+				if result['success'] is False:
+					logger.error('Error while starting ManiaExchange session, error {code}: {message}'.format(
+						code=result['data']['code'], message=result['data']['message']
+					))
+				else:
+					self.key = result['data']['sessionKey']
+					await self.activate_session(result['data']['sessionSeed'])
+			except (aiohttp.ClientConnectionError, aiohttp.ClientConnectorCertificateError):
+				logger.warning('Unable to start a MX Karma session, server is unavailable.')
+			except MXInvalidResponse:
+				logger.warning('Unable to start a MX Karma session, invalid server response.')
 
 	async def activate_session(self, session_seed):
 		"""

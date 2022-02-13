@@ -28,7 +28,7 @@ class FunCmd(AppConfig):
 		await self.instance.command_manager.register(
 			Command(command='afk', target=self.command_afk, admin=False, description='Set yourself as AFK'),
 			Command(command='bootme', target=self.command_bootme, admin=False, description='Boot yourself from the server'),
-			Command(command='rq', aliases='ragequit', target=self.command_rq, admin=False, description='Ragequit from the server'),
+			Command(command='rq', aliases=['ragequit'], target=self.command_rq, admin=False, description='Ragequit from the server'),
 			Command(command='gg', target=self.command_gg, admin=False, description='Send Good Game to everyone'),
 			Command(command='n1', target=self.command_n1, admin=False, description='Send Nice One to everyone'),
 			Command(command='nt', target=self.command_nt, admin=False, description='Send Nice Try/Nice Time to everyone'),

@@ -1,0 +1,11 @@
+{% extends 'core.views/generics/widget.xml' %}
+
+{% block content %}
+  <quad pos="0 0" z-index="0" size="8 10" bgcolor="00000080"/>
+  <label pos="1.8 -2.9" z-index="1" size="5 5" text="&#xf091;"/>
+  <quad pos="8 0" z-index="0" size="42 10" bgcolor="B1830050"/>
+  <label pos="29 -5" z-index="1" size="42 10" text="$fffAward '{{ map_name }}$z$s$fff' on {{ site_name }}"
+         textsize="1.2" textfont="RajdhaniMono" textemboss="1" halign="center" valign="center2" autonewline="1"
+         url="{{ award_url }}" focusareacolor1="B1830000"/>
+
+{% endblock %}
