@@ -2,9 +2,10 @@ import logging
 import os
 
 from pyplanet.apps.config import AppConfig
+from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 from pyplanet.apps.contrib.mx.api import MXApi
 from pyplanet.apps.contrib.mx.exceptions import MXMapNotFound, MXInvalidResponse
-from pyplanet.apps.contrib.mx.view import MxSearchListView, MxPacksListView, MxStatusListView
+from pyplanet.apps.contrib.mx.view import MxSearchListView, MxPacksListView, MxStatusListView, MxAwardWidget
 from pyplanet.contrib.command import Command
 from pyplanet.contrib.setting import Setting
 from collections import namedtuple
@@ -26,10 +27,15 @@ class MX(AppConfig):  # pragma: no cover
 		self.namespace = 'mx'
 		self.site_name = 'ManiaExchange'
 		self.site_short_name = 'MX'
+		self.award_widget = None
 
 		self.setting_mx_key = Setting(
 			'mx_key', 'ManiaExchange/TrackmaniaExchange Key', Setting.CAT_KEYS, type=str, default=None,
 			description='Is only required when you want to download from a private group/section!'
+		)
+		self.setting_display_award_widget = Setting(
+			'display_award_widget', 'Display the award widget on podium', Setting.CAT_BEHAVIOUR, type=bool,
+			description='Whether to display the widget linking to the MX award page on podium.', default=True
 		)
 
 	async def on_init(self):
@@ -43,8 +49,10 @@ class MX(AppConfig):  # pragma: no cover
 		await self.instance.permission_manager.register(
 			'add_remote', 'Add map from remote source (such as MX)', app=self, min_level=2)
 		await self.context.setting.register(
-			self.setting_mx_key
+			self.setting_mx_key, self.setting_display_award_widget
 		)
+
+		self.award_widget = MxAwardWidget(self)
 
 		if self.instance.game.game == 'tmnext':
 			self.namespace = 'tmx'
@@ -77,6 +85,20 @@ class MX(AppConfig):  # pragma: no cover
 					admin=True, description='Add mappack from ManiaExchange/TrackmaniaExchange to the maplist.')
 				.add_param('pack', nargs='*', type=str, required=True, help='MX/TMX ID(s) of mappacks to add.'),
 		)
+
+		# Register callback.
+		self.context.signals.listen(mp_signals.flow.podium_start, self.podium_start)
+		self.context.signals.listen(mp_signals.flow.podium_end, self.podium_end)
+
+	async def podium_start(self, **kwargs):
+		if await self.setting_display_award_widget.get_value() is True:
+			mx_info = await self.api.map_info(self.instance.map_manager.current_map.uid)
+			if mx_info and len(mx_info) >= 1:
+				self.award_widget.mx_id = mx_info[0][0]
+				await self.award_widget.display()
+
+	async def podium_end(self, **kwargs):
+		await self.award_widget.hide()
 
 	async def random_mx_map(self, player, data, **kwargs):
 		map_random_id = await self.api.mx_random()

@@ -346,8 +346,8 @@ class LocalRecords(AppConfig):
 
 			compare_record = self.current_records[data.record - 1]
 
-			record_index = self.current_records.index(record[0]) if len(record) else None
-			compare_index = self.current_records.index(compare_record)
+			record_index = (self.current_records.index(record[0]) + 1) if len(record) else None
+			compare_index = (self.current_records.index(compare_record) + 1)
 
 		view = views.LocalRecordCpCompareListView(
 			self, record[0] if len(record) else None, record_index, compare_record, compare_index
