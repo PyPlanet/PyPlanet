@@ -15,4 +15,4 @@ python-coveralls
 
 # Release Utilities.
 twine
-bumpversion==0.6.0
+bumpversion==0.5.3
