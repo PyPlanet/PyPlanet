@@ -1,5 +1,5 @@
 
-<frame pos="-160.25 -45.75" z-index="60" id="player_toolbar_bar_toggle_frame">
+<frame pos="-160.25 -45.75" z-index="160" id="player_toolbar_bar_toggle_frame">
   <quad pos="0 -0.25" z-index="0" size="6.5 6" bgcolor="00000060"/>
 
   <!-- Icon -->
@@ -8,7 +8,7 @@
 </frame>
 
 
-<frame pos="-153 -45.75" z-index="60" id="player_toolbar_bar_frame" hide="1">
+<frame pos="-153 -45.75" z-index="160" id="player_toolbar_bar_frame" hide="1">
   <quad pos="0 -0.25" z-index="0" size="71.5 6" bgcolor="00000060"/>
 
   <!-- Tooltip -->

@@ -7,7 +7,7 @@ from pyplanet.views.generics.list import ManualListView
 class KarmaWidget(WidgetView):
 	widget_x = 125
 	widget_y = 70
-	z_index = 30
+	z_index = 130
 
 	template_name = 'karma/karma.xml'
 
