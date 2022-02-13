@@ -1,10 +1,10 @@
 -r requirements.txt
 
 # Documentation Building.
-sphinx==2.4.4
-sphinx-autobuild==0.7.1
-sphinx_rtd_theme==0.4.3
-sphinx-intl==2.0.0
+sphinx==4.4.0
+sphinx-autobuild==2021.3.14
+sphinx_rtd_theme==1.0.0
+sphinx-intl==2.0.1
 
 # Testing Utilities.
 nose
@@ -15,4 +15,4 @@ python-coveralls
 
 # Release Utilities.
 twine
-bumpversion==0.5.3
+bumpversion==0.6.0
