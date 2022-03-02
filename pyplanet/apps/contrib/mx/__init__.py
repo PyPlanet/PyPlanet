@@ -86,9 +86,11 @@ class MX(AppConfig):  # pragma: no cover
 				.add_param('pack', nargs='*', type=str, required=True, help='MX/TMX ID(s) of mappacks to add.'),
 		)
 
-		# Register callback.
+		# Register callbacks.
+		# Use podium end for regular map changes, the map start is required in case the map get restarted during the podium.
 		self.context.signals.listen(mp_signals.flow.podium_start, self.podium_start)
 		self.context.signals.listen(mp_signals.flow.podium_end, self.podium_end)
+		self.context.signals.listen(mp_signals.map.map_start, self.map_start)
 
 	async def podium_start(self, **kwargs):
 		if await self.setting_display_award_widget.get_value() is True:
@@ -101,6 +103,9 @@ class MX(AppConfig):  # pragma: no cover
 				await self.award_widget.display(player_logins=play_logins)
 
 	async def podium_end(self, **kwargs):
+		await self.award_widget.hide()
+
+	async def map_start(self, map, restarted, **kwargs):
 		await self.award_widget.hide()
 
 	async def random_mx_map(self, player, data, **kwargs):
