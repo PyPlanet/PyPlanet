@@ -349,17 +349,9 @@ class FolderMapListView(MapListView):
 
 		self.title = 'Folder: ' + self.folder_info['name']
 
-		karma = any(f['index'] == "karma" for f in self.fields)
-		length = any(f['index'] == "local_record" for f in self.fields)
-
 		items = []
 		for item in self.map_list:
-			dict_item = model_to_dict(item)
-			if length:
-				dict_item['local_record'] = times.format_time((item.local['first_record'].score if hasattr(item, 'local') and item.local['first_record'] else 0))
-			if karma and 'karma' in self.app.instance.apps.apps:
-				dict_item['karma'] = (await self.app.instance.apps.apps['karma'].get_map_karma(item))['map_karma']
-			items.append(dict_item)
+			items.append(await self.map_to_dict(item))
 
 		self.cache = items
 		return self.cache
@@ -439,6 +431,10 @@ class FolderMapListView(MapListView):
 		)
 		await map_in_folder.save()
 
+		# Add the map to the cache to show it on refresh.
+		if self.cache:
+			self.cache.append(await self.map_to_dict(self.app.instance.map_manager.current_map))
+
 		await show_alert(player, 'Map has been added to the folder!', 'sm')
 		await self.refresh(player)
 
@@ -455,6 +451,15 @@ class FolderMapListView(MapListView):
 			self.folder_info['name'] = new_name
 
 		await self.display(player)
+
+	async def map_to_dict(self, map):
+		dict_item = model_to_dict(map)
+		if any(f['index'] == "local_record" for f in self.fields):
+			dict_item['local_record'] = times.format_time((map.local['first_record'].score if hasattr(map, 'local') and map.local['first_record'] else 0))
+		if any(f['index'] == "karma" for f in self.fields) and 'karma' in self.app.instance.apps.apps:
+			dict_item['karma'] = (await self.app.instance.apps.apps['karma'].get_map_karma(map))['map_karma']
+
+		return dict_item
 
 
 class FolderListView(ManualListView):
