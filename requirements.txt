@@ -3,6 +3,7 @@ colorlog==4.8.0
 
 # Templating
 Jinja2==2.11.3
+MarkupSafe==2.0.1
 
 # DB/Storage
 peewee==2.10.2
