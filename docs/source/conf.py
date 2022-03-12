@@ -29,6 +29,10 @@ import pyplanet
 import pyplanet.core.instance
 import pyplanet.apps
 
+# Also load the template settings.
+template_settings_folder = os.path.join(src_folder, 'docs', 'settings')
+sys.path.insert(0, os.path.dirname(template_settings_folder))
+
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
