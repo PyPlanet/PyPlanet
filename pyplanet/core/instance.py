@@ -6,7 +6,6 @@ This module holds the main instance class of the PyPlanet system.
 import os
 import asyncio
 import logging
-import traceback
 
 from pyplanet.utils.analytics import Analytics
 from .controller import Controller as _Controller
@@ -40,7 +39,6 @@ class Instance:
 	"""
 	Controller Instance. The very base of the controller, containing class instances of all core components.
 
-	:ivar process_name: Process and pool name.
 	:ivar loop: AsyncIO Event Loop.
 	:ivar game: Game Information class.
 	:ivar apps: Apps component.
@@ -58,21 +56,17 @@ class Instance:
 	:ivar mode_manager: Contrib. Mode Manager.
 	"""
 
-	def __init__(self, process_name):
+	def __init__(self):
 		"""
 		The actual instance of the controller.
-
-		:param process_name: EnvironmentProcess class specific for this process.
-		:type process_name: str
 		"""
 		# Initiate all the core components.
-		self.process_name = 		process_name
 		self.loop = 				asyncio.get_event_loop()
 		self.game =					Game
 
-		self.gbx = 					GbxClient.create_from_settings(self, settings.DEDICATED[self.process_name])
-		self.db = 					Database.create_from_settings(self, settings.DATABASES[self.process_name])
-		self.storage =				Storage.create_from_settings(self, settings.STORAGE[self.process_name])
+		self.gbx = 					GbxClient.create_from_settings(self, settings)
+		self.db = 					Database.create_from_settings(self, settings)
+		self.storage =				Storage.create_from_settings(self, settings)
 		self.signals =				SignalManager
 		self.ui_manager =			GlobalUIManager(self)
 		self.apps = 				Apps(self)
@@ -87,9 +81,9 @@ class Instance:
 		self.chat_manager = self.chat = ChatManager(self)
 
 		# Populate apps.
-		self.apps.populate(settings.MANDATORY_APPS, in_order=True)
+		self.apps.populate(settings.PYPLANET_MANDATORY_APPS, in_order=True)
 		try:
-			self.apps.populate(settings.APPS[self.process_name])
+			self.apps.populate(settings.PYPLANET_APPS)
 		except KeyError as e:
 			raise ImproperlyConfigured(
 				'One of the pool names doesn\'t reflect into the APPS setting! You must '

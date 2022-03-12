@@ -12,17 +12,16 @@ class StorageInterface:
 
 class StorageDriver:
 
-	def __init__(self, instance, config: dict = None):
+	def __init__(self, instance, config):
 		"""
 		Initiate storage driver.
-		
+
 		:param instance: Instance instance :P.
-		:param config: Driver configuration.
+		:param config: Global settings instance.
 		:type instance: pyplanet.core.instance.Instance
-		:type config: dict
 		"""
 		self.instance = instance
-		self.config = config or {}
+		self.config = config
 
 		self.map_dir = None
 		self.skin_dir = None

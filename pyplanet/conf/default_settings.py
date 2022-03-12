@@ -2,9 +2,8 @@
 This file contains the default configuration for PyPlanet. All configuration the user provides will override the
 following lines declared in this file.
 """
-import tempfile
-import os
 import logging
+import tempfile
 
 
 ##########################################
@@ -13,23 +12,14 @@ import logging
 
 # Enable debug mode to get verbose output, not report any errors and dynamically use the DEBUG in your code
 # for extra verbosity of logging/output.
-DEBUG = False
-
-# This should ALWAYS be overridden by the local settings.
-ROOT_PATH = None
+PYPLANET_DEBUG = False
 
 # Define the temporary folder to write temporary files to, such as downloaded files that are only required once
 # or are only required parsing and can be removed.
-# This should ALWAYS be overridden by the local settings.
-TMP_PATH = None
-
-# Add your pools (the controller instances per dedicated here) or leave as it is to use a single instance only.
-POOLS = [
-	'default'
-]
+PYPLANET_TMP_PATH = tempfile.gettempdir()
 
 # Allow self-upgrading the installation. Disable on shared servers with one installation!
-SELF_UPGRADE = True
+PYPLANET_SELF_UPGRADE = True
 
 ##########################################
 ################## DB ####################
@@ -37,24 +27,19 @@ SELF_UPGRADE = True
 
 # Databases configuration holds an dictionary with information of the database backend.
 # Please refer to the documentation for all examples.
-DATABASES = {
-	'default': {
-		'ENGINE': 'peewee.SqliteDatabase',
-		'NAME': 'database.db',
-	}
-}
+PYPLANET_DB_ENGINE = 'peewee_async.MySQLDatabase'
+PYPLANET_DB_DATABASE = 'pyplanet'
+PYPLANET_DB_CHARSET = 'utf8mb4'
+PYPLANET_DB_PORT = 3306
+PYPLANET_DB_HOST = 'localhost'
 
 
 ##########################################
-################ CACHE ###################
+################ STORAGE #################
 ##########################################
 
-# Define any cache backends that can be used by the core and the plugins to cache data.
-CACHES = {
-	'default': {
-		'DRIVER': 'pyplanet.cache.backends.memory',
-	}
-}
+PYPLANET_STORAGE_DRIVER = 'pyplanet.core.storage.drivers.local.LocalDriver'
+PYPLANET_STORAGE_AUTODETECT = 1
 
 
 ##########################################
@@ -130,19 +115,49 @@ LOGGING_DIRECTORY = 'logs'
 LOGGING_REPORTING = 3
 
 # Enable usage analytics. On by default. (Will be turned off when DEBUG is true!).
-ANALYTICS = True
+PYPLANET_ANALYTICS = True
 
 
 ##########################################
 ################# APPS ###################
 ##########################################
-APPS = {
-	'default': []
-}
+PYPLANET_APPS = [
+	'pyplanet.apps.contrib.admin',
+	'pyplanet.apps.contrib.jukebox',
+	'pyplanet.apps.contrib.karma',
+	'pyplanet.apps.contrib.local_records',
+	'pyplanet.apps.contrib.dedimania',  # Will be disabled in Shootmania and TM2020 automatically.
+	'pyplanet.apps.contrib.players',
+	'pyplanet.apps.contrib.info',
+	'pyplanet.apps.contrib.mx',
+	'pyplanet.apps.contrib.transactions',
+	'pyplanet.apps.contrib.sector_times',
+	'pyplanet.apps.contrib.clock',
+	'pyplanet.apps.contrib.funcmd',
+
+	# Live Ranking App. Useful when playing in Laps, Rounds and all sort of Trackmania game modes.
+	'pyplanet.apps.contrib.live_rankings',
+	'pyplanet.apps.contrib.ads',
+
+	# Best CP Widget on top of the screen for the Trackmania game.
+	'pyplanet.apps.contrib.best_cps',
+
+	# Use chat-based votes instead of the callvotes of the dedicated server with the voting app.
+	'pyplanet.apps.contrib.voting',
+
+	# Dynamic Points Limit is meant for Shootmania Royal.
+	'pyplanet.apps.contrib.dynamic_points',
+
+	# Waiting Queue. Enable on limited player servers to fairly queue players.
+	'pyplanet.apps.contrib.queue',
+
+	# Music Server App. Enable to queue your music together on the server.
+	'pyplanet.apps.contrib.music_server',
+]
 
 # The following apps are mandatory loaded, and part of the core. This apps are always loaded *BEFORE* all other
 # apps are initiated and loaded.
-MANDATORY_APPS = [
+PYPLANET_MANDATORY_APPS = [
 	'pyplanet.apps.core.pyplanet.app.PyPlanetConfig',
 	'pyplanet.apps.core.maniaplanet.app.ManiaplanetConfig',
 	'pyplanet.apps.core.trackmania.app.TrackmaniaConfig',
@@ -156,44 +171,18 @@ MANDATORY_APPS = [
 
 # Dedicated contains the dedicated servers configurations, by default this is the localhost entry with default
 # credentials and details.
-DEDICATED = {
-	'default': {
-		'HOST': '127.0.0.1',
-		'PORT': '5000',
-		'USER': 'SuperAdmin',
-		'PASSWORD': 'SuperAdmin',
-	}
-}
+PYPLANET_SERVER_HOST = '127.0.0.1'
+PYPLANET_SERVER_PORT = '5000'
+PYPLANET_SERVER_USER = 'SuperAdmin'
+PYPLANET_SERVER_PASSWORD = 'SuperAdmin'
 
 # Map configuration is a set of configuration options related to match settings etc.
 # Matchsettings filename.
-MAP_MATCHSETTINGS = {
-	'default': 'maplist.txt'
-}
+PYPLANET_MATCHSETTINGS = 'maplist.txt'
 
 # Blacklist file is managed by the dedicated server and will be loaded and writen to by PyPlanet once a
 # player gets blacklisted. The default will be the filename Maniaplanet always uses and is generic.
-BLACKLIST_FILE = {
-	'default': 'blacklist.txt'
-}
+PYPLANET_BLACKLIST = 'blacklist.txt'
 
-# The storage configuration contains the same instance mapping of the dedicated servers and is used
-# to access the filesystem on the dedicated server location.
-# Please refer to the documentation for more information.
-STORAGE = {
-	'default': {
-		'DRIVER': 'pyplanet.core.storage.drivers.local.LocalDriver',
-		'OPTIONS': {},
-	}
-}
-
-# Owners are logins of the server owners, the owners always get *ALL* the permissions in the system.
-OWNERS = {
-	'default': []
-}
-
-# Songs is a list of URLs to .ogg files of songs to be played by the music server.
-SONGS = {
-	'default': []
-}
-
+# Owner, will be granted highest level of admin at initial start and connect.
+PYPLANET_OWNER = None

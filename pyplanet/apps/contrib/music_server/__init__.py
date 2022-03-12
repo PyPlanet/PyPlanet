@@ -154,8 +154,6 @@ class MusicServer(AppConfig):
 
 	async def get_songs(self):
 		setting = settings.SONGS
-		if isinstance(setting, dict) and self.instance.process_name in setting:
-			setting = setting[self.instance.process_name]
 		if not isinstance(setting, list):
 			setting = None
 

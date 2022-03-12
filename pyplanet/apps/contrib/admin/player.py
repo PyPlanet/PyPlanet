@@ -340,9 +340,7 @@ class PlayerAdmin:
 			pass
 
 	async def write_guestlist(self, player, data, **kwargs):
-		setting = settings.GUESTLIST_FILE
-		if isinstance(setting, dict) and self.instance.process_name in setting:
-			setting = setting[self.instance.process_name]
+		setting = settings.PYPLANET_GUESTLIST
 		if not isinstance(setting, str):
 			setting = None
 
@@ -364,9 +362,7 @@ class PlayerAdmin:
 			await self.instance.chat('$ff0Guestlist saving failed to {}'.format(file_name), player)
 
 	async def read_guestlist(self, player, data, **kwargs):
-		setting = settings.GUESTLIST_FILE
-		if isinstance(setting, dict) and self.instance.process_name in setting:
-			setting = setting[self.instance.process_name]
+		setting = settings.PYPLANET_GUESTLIST
 		if not isinstance(setting, str):
 			setting = None
 
@@ -434,9 +430,7 @@ class PlayerAdmin:
 			return
 
 	async def write_blacklist(self, player, data, **kwargs):
-		setting = settings.BLACKLIST_FILE
-		if isinstance(setting, dict) and self.instance.process_name in setting:
-			setting = setting[self.instance.process_name]
+		setting = settings.PYPLANET_BLACKLIST
 		if not isinstance(setting, str):
 			setting = None
 
@@ -458,9 +452,7 @@ class PlayerAdmin:
 			await self.instance.chat('$ff0Blacklist saving failed to {}'.format(file_name), player)
 
 	async def read_blacklist(self, player, data, **kwargs):
-		setting = settings.BLACKLIST_FILE
-		if isinstance(setting, dict) and self.instance.process_name in setting:
-			setting = setting[self.instance.process_name]
+		setting = settings.PYPLANET_BLACKLIST
 		if not isinstance(setting, str):
 			setting = None
 
@@ -496,7 +488,7 @@ class PlayerAdmin:
 		await self.instance.chat('$fff{}$z$s$ff0 has claimed admin rights.'.format(player.nickname))
 
 	async def announce_claim_message(self):
-		await asyncio.sleep(4)
+		await asyncio.sleep(3)
 		logging.getLogger(__name__).info(
 			'Welcome to PyPlanet, to claim admin rights, copy and paste this in the chat: /claim {}'.format(self.claim_token)
 		)

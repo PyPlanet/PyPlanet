@@ -5,7 +5,7 @@ import sys
 if __name__ == '__main__':
 
 	# Use Python for the configuration
-	os.environ.setdefault('PYPLANET_SETTINGS_METHOD', 'python')
+	os.environ.setdefault('PYPLANET_SETTINGS_METHOD', 'env')
 	os.environ.setdefault('PYPLANET_SETTINGS_MODULE', 'settings')
 
 	# Use YAML for configuration (comment other options and uncomment the following two lines).

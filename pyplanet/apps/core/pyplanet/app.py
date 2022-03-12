@@ -100,7 +100,7 @@ class PyPlanetConfig(AppConfig):
 		to_version = data.to_version
 		if player.level != 3:
 			return await self.instance.chat('$f00Only MasterAdmin can upgrade installation!', player)
-		if not settings.SELF_UPGRADE:
+		if not settings.PYPLANET_SELF_UPGRADE:
 			return await self.instance.chat('$f00In-game upgrade method is disabled by the hoster!', player)
 
 		# Getting PIP.
@@ -153,7 +153,7 @@ class PyPlanetConfig(AppConfig):
 		asyncio.ensure_future(self.send_updates())
 		await asyncio.sleep(2)
 
-		if settings.DEBUG:
+		if settings.PYPLANET_DEBUG:
 			logging.getLogger(__name__).warning('DEBUG MODE, NOT ACTUALLY UPGRADING PYPLANET!!!!!!!!!!!!!!!!!!!')
 			package = 'example'
 			to_version = None

@@ -10,14 +10,14 @@ from pyplanet.core.storage import StorageDriver
 class LocalDriver(StorageDriver):
 	"""
 	Local storage driver is using the Python build-in file access utilities for accessing a local storage-like system.
-	
+
 	:option BASE_PATH: Override the maniaplanet given base path.
 	"""
 
-	def __init__(self, instance, config: dict = None):
+	def __init__(self, instance, config):
 		super().__init__(instance, config)
 
-		self.override_base_path = config['BASE_PATH'] if 'BASE_PATH' in config else None
+		self.override_base_path = config.PYPLANET_STORAGE_BASE_PATH
 
 	def absolute(self, path):
 		if self.override_base_path:

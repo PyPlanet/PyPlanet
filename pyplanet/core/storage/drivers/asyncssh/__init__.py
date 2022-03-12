@@ -12,33 +12,31 @@ logger = logging.getLogger(__name__)
 class SFTPDriver(StorageDriver):
 	"""
 	SFTP storage driver is using the asyncssh module to access storage that is situated remotely.
-	
+
 	.. warning::
-	
+
 		This driver is not ready for production use!!
-	
-	:option HOST: Hostname of destinotion server.
-	:option PORT: Port destinotion server.
-	:option USERNAME: Username of the user account.
-	:option PASSWORD: Password of the user account. (optional if you use public/private keys).
-	:option KNOWN_HOSTS: File to the Known Hosts file.
-	:option CLIENT_KEYS: Array with client private keys.
-	:option PASSPHRASE: Passphrase to unlock private key(s).
-	:option KWARGS: Any other options that will be passed to ``asyncssh``.
+
+	:option PYPLANET_STORAGE_HOST: Hostname of destinotion server.
+	:option PYPLANET_STORAGE_PORT: Port destinotion server.
+	:option PYPLANET_STORAGE_USERNAME: Username of the user account.
+	:option PYPLANET_STORAGE_PASSWORD: Password of the user account. (optional if you use public/private keys).
+	:option PYPLANET_STORAGE_KNOWN_HOSTS: File to the Known Hosts file.
+	:option PYPLANET_STORAGE_CLIENT_KEYS: Array with client private keys.
+	:option PYPLANET_STORAGE_PASSPHRASE: Passphrase to unlock private key(s).
 	"""
 
-	def __init__(self, instance, config: dict = None):
+	def __init__(self, instance, config):
 		super().__init__(instance, config)
 
 		# Extract config to local vars.
-		self.host = config['HOST']
-		self.port = int(config['PORT']) if 'PORT' in config else 22
-		self.username = config['USERNAME']
-		self.password = config['PASSWORD'] if 'PASSWORD' in config else None
-		self.known_hosts = config['KNOWN_HOSTS'] if 'KNOWN_HOSTS' in config and isinstance(config['KNOWN_HOSTS'], list) else []
-		self.client_keys = config['CLIENT_KEYS'] if 'CLIENT_KEYS' in config and isinstance(config['CLIENT_KEYS'], list) else []
-		self.passphrase = config['PASSPHRASE'] if 'PASSPHRASE' in config else None
-		self.kwargs = config['KWARGS'] if 'KWARGS' in config and isinstance(config['KWARGS'], dict) else dict()
+		self.host = config.PYPLANET_STORAGE_HOST
+		self.port = int(config.PYPLANET_STORAGE_PORT) or 22
+		self.username = config.PYPLANET_STORAGE_USERNAME
+		self.password = config.PYPLANET_STORAGE_PASSWORD
+		self.known_hosts = config.PYPLANET_STORAGE_KNOWN_HOSTS
+		self.client_keys = config.PYPLANET_STORAGE_CLIENT_KEYS
+		self.passphrase = config.PYPLANET_STORAGE_PASSPHRASE
 
 		self.options = dict(
 			host=self.host, port=self.port, known_hosts=self.known_hosts, username=self.username, password=self.password,
@@ -58,7 +56,7 @@ class SFTPDriver(StorageDriver):
 	async def connect_sftp(self):
 		"""
 		Get sftp client.
-		
+
 		:return: Sftp client.
 		:rtype: asyncssh.SFTPClient
 		"""
