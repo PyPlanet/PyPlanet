@@ -1,8 +1,8 @@
 Changelog
 =========
 
-0.9.13 (beta release)
----------------------
+0.9.14-rc1
+----------
 
 Core
 ~~~~
@@ -29,6 +29,15 @@ Apps
 * Bugfix: Fix folder view not refreshing when changes are made.
 * Bugfix: Handle error with SSL certificate in MX karma app.
 * Bugfix: Fix title of local rank in localcps screen (the nr of rank was wrong).
+
+
+0.9.13
+---------------------
+
+Core
+~~~~
+
+* Bugfix: Fix issue with Jinja2 and MarkupSafe (MarkupSafe version not locked).
 
 
 0.9.11 & 0.9.12 (30 July 2021)
