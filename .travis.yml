@@ -107,7 +107,7 @@ before_install:
   - python -m pip install --upgrade pip
 
 install:
-  - pip install tox codacy-coverage python-coveralls -U pip
+  - pip install tox codacy-coverage python-coveralls apyio==0.2.0 -U pip
   - tests/_scripts/travis_dedicated_setup.sh
 
 before_script:

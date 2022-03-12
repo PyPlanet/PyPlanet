@@ -45,6 +45,9 @@ class SectorTimes(AppConfig):
 		if self.instance.game.game in ['tm', 'sm']:
 			self.instance.ui_manager.properties.set_attribute('checkpoint_time', 'pos', '0. 8. -10.')
 
+	def is_mode_supported(self, mode):
+		return mode != 'Trackmania/TM_RoyalTimeAttack_Online'
+
 	async def on_after_start(self, *args, **kwargs):
 		await asyncio.sleep(1)
 		asyncio.ensure_future(asyncio.gather(*[

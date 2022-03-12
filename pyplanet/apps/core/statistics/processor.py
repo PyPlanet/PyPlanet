@@ -2,8 +2,6 @@
 This file contains several queries and logic to fetch statistics that can be displayed on the statistics views.
 Please note that this file is only meant for the statistics app, and can change at any time!
 """
-from pprint import pprint
-
 import asyncio
 
 from datetime import datetime

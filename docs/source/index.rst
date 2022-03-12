@@ -11,28 +11,28 @@ an event loop and have simultaneously processing of received events from the ded
 
 **Features**:
 
-* Core: Super fast and 'event' driven based on Python 3.5 ``asyncio`` eventloop.
-* Core: Stable and well designed core and apps system. (Inspired by Django).
-* Core: All apps will handle the game experience.
-* Core: Adjustable settings for all your apps.
-* Core: Supports **Trackmania 2**, **Trackmania 2020** and **Shootmania**, **Scripted only!**
-* App: Local Records, including widget + list.
-* App: Dedimania Records, including widget + list.
-* App: Admin Commands, Providing with basic commands and control for maintaining your server.
-* App: Admin Toolbar, Providing mostly used admin functions within a few clicks.
-* App: Karma, Let your players vote on your maps! Includes MX Karma integration.
-* App: Jukebox, Let your players 'juke' the next map.
-* App: ManiaExchange, Simply add your maps directly from Mania-Exchange.
-* App: Players, This app shows messages when players join and leave.
-* App: Transactions, Donate planets to the server, show number of planets on server and pay out players.
-* App: Live Rankings, Show the live rankings of the game mode. (Trackmania).
-* App: Sector Times, Compare your checkpoint time against your local or dedimania record. (Trackmania).
-* App: Dynamic Pointlimit, Royal point limit adjustment based on the number of players. (Shootmania Royal).
-* App: CP Times, Show the best checkpoint times on top of your screen.
-* App: Chat based voting, No more uncontrollable and unfair Call Votes. Use chat based voting.
-* App: Vote to extend the TimeAttack limit instead of restarting the map! Extend-TA© command and voting is awesome!
-* App: Waiting Queue, no more unfair and spamming of the join button, fairly queue spectators to join your full server.
-* App: Add links to your PayPal donate page or Discord server.
+- Core: Super fast and 'event' driven based on Python 3.5 ``asyncio`` eventloop.
+- Core: Stable and well designed core and apps system. (Inspired by Django).
+- Core: All apps will handle the game experience.
+- Core: Adjustable settings for all your apps.
+- Core: Supports **Trackmania 2**, **Trackmania 2020** and **Shootmania**, **Scripted only!**
+- Core: Local Records, including widget + list.
+- Core: Dedimania Records, including widget + list.
+- Core: Admin Commands, Providing with basic commands and control for maintaining your server.
+- Core: Admin Toolbar, Providing mostly used admin functions within a few clicks.
+- Core: Karma, Let your players vote on your maps! Includes MX Karma integration.
+- Core: Jukebox, Let your players 'juke' the next map.
+- Core: ManiaExchange, Simply add your maps directly from Mania-Exchange.
+- Core: Players, This app shows messages when players join and leave.
+- Core: Transactions, Donate planets to the server, show number of planets on server and pay out players.
+- Core: Live Rankings, Show the live rankings of the game mode. (Trackmania).
+- Core: Sector Times, Compare your checkpoint time against your local or dedimania record. (Trackmania).
+- Core: Dynamic Pointlimit, Royal point limit adjustment based on the number of players. (Shootmania Royal).
+- Core: CP Times, Show the best checkpoint times on top of your screen.
+- Core: Chat based voting, No more uncontrollable and unfair Call Votes. Use chat based voting.
+- Core: Vote to extend the TimeAttack limit instead of restarting the map! Extend-TA© command and voting is awesome!
+- Core: Waiting Queue, no more unfair and spamming of the join button, fairly queue spectators to join your full server.
+- Core: Add links to your PayPal donate page or Discord server.
 
 Do you want to install PyPlanet, head towards our :doc:`Getting Started Manual </intro/index>`.
 Want to see PyPlanet in action, head to :ref:`screenshots-ref`.
@@ -122,25 +122,14 @@ Information about development of apps and the core is also available under:
     todo
 
 
-Some thoughts from experts
-==========================
-
-.. raw:: html
-
-  <iframe src="https://clips.twitch.tv/embed?clip=MagnificentHappyMarrowHeyGuys&autoplay=false" width="640" height="360" frameborder="0" scrolling="no" allowfullscreen="true"></iframe>
-
-|
-|
-
-
 .. _screenshots-ref:
 
 Screenshots
 ===========
 
-.. image:: /_static/screenshots/tm_1.jpg
+.. image:: /_static/screenshots/tm2.jpg
 
-.. image:: /_static/screenshots/tm_2.jpg
+.. image:: /_static/screenshots/tm2020.jpg
 
 
 

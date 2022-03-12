@@ -1,6 +1,59 @@
 Changelog
 =========
 
+0.9.14
+------
+
+Core
+~~~~
+
+* Improvement: Several libs updated.
+* Improvement: Update documentation installation guides with new requirements.
+* Improvement: Write PID file also without detaching process.
+* Improvement: Updated screenshots on the documentation page.
+
+* Bugfix: Fix maximum lines in settings textarea fields.
+* Bugfix: Fix the visibility of widgets in TM2020 (z-index increase).
+
+
+Apps
+~~~~
+
+* Feature: Add widget to award map on TMX/MX at the podium stage (added a setting to //settings to disable this).
+
+* Improvement: Allow masteradmins to remove public maps of other admins.
+* Improvement: Disable chat votes when public chat is disabled.
+* Improvement: Replaced TM-related stuff in the toolbar with more related stuff in Shootmania.
+
+* Bugfix: Fix bug when MX Karma is down to ignore everything with MX karma.
+* Bugfix: Fix folder view not refreshing when changes are made.
+* Bugfix: Handle error with SSL certificate in MX karma app.
+* Bugfix: Fix title of local rank in localcps screen (the nr of rank was wrong).
+
+
+0.9.13
+---------------------
+
+Core
+~~~~
+
+* Bugfix: Fix issue with Jinja2 and MarkupSafe (MarkupSafe version not locked).
+
+
+0.9.11 & 0.9.12 (30 July 2021)
+------------------------------
+
+Core
+~~~~
+
+* Feature: Support for Royal mode in TM 2020.
+
+* Improvement: Several libs updated.
+* Improvement: Removed apyio==0.2.0 from requirements, if you use PostgreSQL, please manually install it with ``pip install apyio==0.2.0``
+
+* Bugfix: Fix bug related to running connected to a client of a server (game connection).
+
+
 0.9.10 (22 March 2021)
 ----------------------
 

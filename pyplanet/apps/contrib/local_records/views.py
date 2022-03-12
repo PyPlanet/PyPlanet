@@ -11,7 +11,7 @@ from pyplanet.utils import times
 class LocalRecordsWidget(TimesWidgetView):
 	widget_x = 125
 	widget_y = 56.5
-	z_index = 30
+	z_index = 130
 	top_entries = 5
 	title = 'Local Records'
 
@@ -267,6 +267,7 @@ class LocalRecordsListView(ManualListView):
 	async def display(self, player=None):
 		self.last_player = player
 		return await super().display(player)
+
 
 class LocalRecordCpCompareListView(ManualListView):
 	title = 'Local Record checkpoint comparison'

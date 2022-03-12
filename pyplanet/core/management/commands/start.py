@@ -42,7 +42,10 @@ class Command(BaseCommand):  # pragma: no cover
 	def handle(self, *args, **options):
 		# Detach when asked.
 		if 'detach' in options and options['detach']:
-			self.detach(pid_file=options['pid_file'] if 'pid_file' in options and options['pid_file'] else 'pyplanet.pid')
+			self.detach()
+
+		# Write process ID (pid) to file.
+		self.write_pid(pid_file=options['pid_file'] if 'pid_file' in options and options['pid_file'] else 'pyplanet.pid')
 
 		# Verify env path.
 		if options['env']:
@@ -77,7 +80,7 @@ class Command(BaseCommand):  # pragma: no cover
 			self.pool.shutdown()
 			exit(0)
 
-	def detach(self, pid_file):
+	def write_pid(self, pid_file):
 		self.pid_file = pid_file
 
 		# Check for old pid file.
@@ -93,16 +96,22 @@ class Command(BaseCommand):  # pragma: no cover
 			logging.error('Can\'t create PID file!')
 			sys.exit(1)
 
-		# Try to get lock on the file.
-		try:
-			fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
-		except IOError:
-			logging.error('Can\'t create PID file! Can\'t lock on file!')
+		# Try to get lock on the file (on non-Windows).
+		if fcntl != dict():
+			try:
+				fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+			except IOError:
+				logging.error('Can\'t create PID file! Can\'t lock on file!')
 
-			# We need to overwrite the pidfile if we got here.
-			with open(pid_file, 'w') as pid_handle:
-				pid_handle.write(old_pid)
+				# We need to overwrite the pidfile if we got here.
+				with open(pid_file, 'w') as pid_handle:
+					pid_handle.write(old_pid)
 
+		# Write PID file.
+		lock_file.write(str(os.getpid()))
+		lock_file.flush()
+
+	def detach(self):
 		# Fork to background.
 		try:
 			pid = os.fork()
@@ -129,10 +138,6 @@ class Command(BaseCommand):  # pragma: no cover
 		os.dup2(dev_null_fd, 1)
 		os.dup2(dev_null_fd, 2)
 		os.close(dev_null_fd)
-
-		# Write PID file.
-		lock_file.write(str(os.getpid()))
-		lock_file.flush()
 
 		self.detached = True
 

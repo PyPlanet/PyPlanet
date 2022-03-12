@@ -19,10 +19,12 @@ main() {
     "player_toolbar_bar_button_mf" => "View list of Map Folders",
     "player_toolbar_bar_button_jb" => "View the Juke Box List",
     "player_toolbar_bar_button_extend" => "Vote for extending the Time Limit",
+    "player_toolbar_bar_button_replay" => "Vote to replay the map",
     "player_toolbar_bar_button_skip" => "Vote for a skip map",
 
 	  "player_toolbar_bar_button_topdons" => "View list of top Donators",
 	  "player_toolbar_bar_button_topsums" => "View Server Rank List",
+	  "player_toolbar_bar_button_topactive" => "View Top Active List",
 	  "player_toolbar_bar_button_mxinfo" => "Info about current map",
 	  "player_toolbar_bar_button_players" => "View list of Players",
 	  "player_toolbar_bar_button_visibility_toggle" => "Toggle UI visibility (F8)",

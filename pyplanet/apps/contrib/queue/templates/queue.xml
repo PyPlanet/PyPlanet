@@ -1,5 +1,5 @@
 
-<frame pos="65 -70" z-index="60" id="queue_widget_frame">
+<frame pos="65 -70" z-index="160" id="queue_widget_frame">
   <quad pos="0 0" z-index="0" size="26 6" bgcolor="00000060"/>
   <quad pos="26.5 0" z-index="0" size="19.75 6" bgcolor="00000060"/>
   <quad pos="26.5 0" z-index="0" size="19.75 6" bgcolor="00000060"/>
