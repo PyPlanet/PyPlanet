@@ -1,7 +1,11 @@
 import os
+import logging
+import dotenv
 
 from pyplanet.conf.backends.base import ConfigBackend
 from pyplanet.core.exceptions import ImproperlyConfigured
+
+logger = logging.getLogger(__name__)
 
 
 class EnvironmentConfigBackend(ConfigBackend):
@@ -17,33 +21,14 @@ class EnvironmentConfigBackend(ConfigBackend):
 		super().load()
 
 		# Check if env file should be loaded from specific path.
-		env_file = None
-		if 'PYPLANET_ENV_PATH' in os.environ:
-			# TODO: envfile load from this file.
-			pass
+		if os.getenv('PYPLANET_ENV_PATH'):
+			if os.path.exists(os.getenv('PYPLANET_ENV_PATH')):
+				dotenv.load_dotenv(os.getenv('PYPLANET_ENV_PATH'))
+			else:
+				logger.error('Can\'t load env path from PYPLANET_ENV_PATH variable.')
+				raise ImproperlyConfigured('Can\'t load env-path given in PYPLANET_ENV_PATH.')
 		else:
-			# TODO: Detect envfile in work dir.
-			pass
-
-		# Load env file found/given.
-		if env_file:
-			# TODO: Load env file.
-			pass
+			dotenv.load_dotenv()
 
 		# Verify required env variables.
 		# TODO: Verify required variables.
-
-
-		# Load from the modules.
-		processed = 0
-		for setting in dir(module):
-			if setting.isupper():
-				self.settings[setting] = getattr(module, setting)
-				processed += 1
-
-		# Check for empty results.
-		if processed < 1:
-			raise ImproperlyConfigured(
-				'The settings module doesn\'t contain any submodules or files to load! Please make sure '
-				'your settings module exist or contains the files base.py and apps.py. Your module: {}'.format(self.module)
-			)
