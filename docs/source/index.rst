@@ -5,13 +5,13 @@ Welcome to PyPlanet's documentation!
     :scale: 30%
     :align: right
 
-PyPlanet is a Maniaplanet/Trackmania Dedicated Server Controller that works on Python 3.6 until version 3.8 (we are working 3.9 and later).
+PyPlanet is a Maniaplanet/Trackmania Dedicated Server Controller that works on Python 3.10.
 Because Maniaplanet/Trackmania is using a system that can be event based we use AsyncIO to provide
 an event loop and have simultaneously processing of received events from the dedicated server.
 
 **Features**:
 
-- Core: Super fast and 'event' driven based on Python 3.5 ``asyncio`` eventloop.
+- Core: Super fast and 'event' driven based on Python ``asyncio`` eventloop and uvloop dropin.
 - Core: Stable and well designed core and apps system. (Inspired by Django).
 - Core: All apps will handle the game experience.
 - Core: Adjustable settings for all your apps.

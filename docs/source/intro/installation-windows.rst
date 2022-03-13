@@ -8,9 +8,9 @@ Installation on Windows
 1. Installing Python
 ~~~~~~~~~~~~~~~~~~~~
 
-If you have not yet installed Python 3.6 or later on your Windows machine, do it now by going to the following link:
+If you have not yet installed Python 3.10 on your Windows machine, do it now by going to the following link:
 
-https://www.python.org/downloads/release/python-370/
+https://www.python.org/downloads/release/python-3100/
 
 Head towards the end of the page and click on the `Windows x86-64 executable installer` link. After starting the executable
 you will get an wizard.
