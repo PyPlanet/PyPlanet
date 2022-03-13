@@ -27,13 +27,13 @@ class Raven:  # pragma: no cover
 
 	@classmethod
 	def get_client(cls):
-		if not cls.CLIENT:
-			cls.CLIENT = Client(
-				dsn='https://bcbafd2d81234d53b32c66077ae0a008:98dcc46acc484eeb95ebf9f0c30e6dd4@sentry.s3.toffe.me/2',
-				environment='development' if settings.PYPLANET_DEBUG else 'production',
-				release=version,
-				include_paths=['pyplanet']
-			)
+		# if not cls.CLIENT:
+		# 	cls.CLIENT = Client(
+		# 		dsn='https://bcbafd2d81234d53b32c66077ae0a008:98dcc46acc484eeb95ebf9f0c30e6dd4@sentry.s3.toffe.me/2',
+		# 		environment='development' if settings.PYPLANET_DEBUG else 'production',
+		# 		release=version,
+		# 		include_paths=['pyplanet']
+		# 	)
 		return cls.CLIENT
 
 

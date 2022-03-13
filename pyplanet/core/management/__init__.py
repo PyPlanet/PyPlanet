@@ -100,11 +100,11 @@ class ManagementUtility:
 			subcommand = 'help'
 
 		# Check for platform requirements. (Python version)
-		if sys.version_info[0] < 3 or sys.version_info[1] <= 5:
+		if sys.version_info[0] < 3 or sys.version_info[1] <= 9:
 			print('WARNING')
-			print('WARNING: Your Python version is not officially supported by PyPlanet, please upgrade your Python!')
+			print('WARNING: Your Python version is outdated and not supported by PyPlanet, please upgrade your Python!')
 			print('WARNING')
-		if sys.version_info[0] > 3 or sys.version_info[1] > 8:
+		if sys.version_info[0] > 3 or sys.version_info[1] > 10:
 			print('WARNING')
 			print('WARNING: Your Python version is untested and most likely not working with PyPlanet!')
 			print('WARNING')

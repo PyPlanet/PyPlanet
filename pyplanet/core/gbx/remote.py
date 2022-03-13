@@ -106,7 +106,6 @@ class GbxRemote:
 				self.reader, self.writer = await asyncio.open_connection(
 					host=self.host,
 					port=self.port,
-					loop=self.event_loop,
 				)
 				break
 			except Exception as exc:

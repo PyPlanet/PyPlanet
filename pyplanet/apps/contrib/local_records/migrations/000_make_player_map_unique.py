@@ -6,7 +6,7 @@ from ..models.local_record import LocalRecord
 
 def upgrade(migrator: SchemaMigrator):
 	migrate(
-		migrator.add_index(LocalRecord._meta.db_table, [
+		migrator.add_index(LocalRecord._meta.table_name, [
 			'player_id', 'map_id'
 		], unique=True),
 	)
