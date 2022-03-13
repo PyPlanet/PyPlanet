@@ -64,7 +64,6 @@ class Model(PeeweeModel):
 	async def create(cls, **insert):
 		inst = cls(**insert)
 		await inst.save(force_insert=True)
-		inst._prepare_instance()
 		return inst
 
 	@classmethod
