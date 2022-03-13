@@ -44,9 +44,6 @@ def get_commands():
 	"""
 	commands = {name: 'pyplanet.core' for name in find_commands(__path__[0])}
 
-	if not settings.configured:
-		return commands
-
 	# TODO: Implement later.
 	# for app_config in reversed(list(apps.get_app_configs())):
 	# 	path = os.path.join(app_config.path, 'management')
@@ -75,8 +72,6 @@ class ManagementUtility:
 
 		self.commands = find_commands(__path__[0])
 
-		settings._setup(optional_loading=True)
-
 	def fetch_command(self, subcommand):
 		"""
 		Try to fetch the given subcommand, printing a message with the
@@ -87,14 +82,6 @@ class ManagementUtility:
 		try:
 			app_name = commands[subcommand]
 		except KeyError:
-			if os.environ.get('PYPLANET_SETTINGS_MODULE'):
-				# If `subcommand` is missing due to misconfigured settings, the
-				# following line will retrigger an ImproperlyConfigured exception
-				# (get_commands() swallows the original one) so the user is
-				# informed about it.
-				_ = settings.APPS
-			else:
-				sys.stderr.write('No PyPlanet settings specified.\n')
 			sys.stderr.write(
 				'Unknown command: {}\nType \'{} help\' for usage.\n'.format(subcommand, self.prog_name)
 			)
@@ -113,11 +100,11 @@ class ManagementUtility:
 			subcommand = 'help'
 
 		# Check for platform requirements. (Python version)
-		if sys.version_info[0] < 3 or sys.version_info[1] <= 5:
+		if sys.version_info[0] < 3 or sys.version_info[1] <= 9:
 			print('WARNING')
-			print('WARNING: Your Python version is not officially supported by PyPlanet, please upgrade your Python!')
+			print('WARNING: Your Python version is outdated and not supported by PyPlanet, please upgrade your Python!')
 			print('WARNING')
-		if sys.version_info[0] > 3 or sys.version_info[1] > 8:
+		if sys.version_info[0] > 3 or sys.version_info[1] > 10:
 			print('WARNING')
 			print('WARNING: Your Python version is untested and most likely not working with PyPlanet!')
 			print('WARNING')
@@ -133,13 +120,6 @@ class ManagementUtility:
 			handle_default_options(options)
 		except CommandError:
 			pass # Ignore any option errors at this point.
-
-		try:
-			settings.APPS
-		except ImproperlyConfigured as e:
-			self.settings_exception = e
-
-		# TODO: Load some parts of the app (with the provided pool or default pool) so we can load commands from apps.
 
 		self.autocomplete()
 
@@ -264,6 +244,5 @@ class ManagementUtility:
 
 def execute_from_command_line(argv=None):
 	"""Run a ManagementUtility."""
-	settings._optional = True
 	utility = ManagementUtility(argv)
 	utility.execute()

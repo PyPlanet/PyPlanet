@@ -19,7 +19,7 @@ class _EnvironmentManager:
 				enable_async=True,
 				loader=PyPlanetLoader.get_loader(),
 				autoescape=select_autoescape(['html', 'xml', 'Txt', 'txt', 'ml', 'ms', 'script.txt', 'Script.Txt']),
-				auto_reload=bool(settings.DEBUG),
+				auto_reload=bool(settings.PYPLANET_DEBUG),
 			)
 		return self._environment
 

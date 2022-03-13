@@ -147,7 +147,7 @@ class PlayerManager(CoreContrib):
 			# See #126
 			return
 		ip, _, port = info['IPAddress'].rpartition(':')
-		is_owner = login in settings.OWNERS[self._instance.process_name]
+		is_owner = login == settings.PYPLANET_OWNER
 
 		try:
 			player = await Player.get_by_login(login)
@@ -320,9 +320,7 @@ class PlayerManager(CoreContrib):
 		:raise: pyplanet.core.exceptions.ImproperlyConfigured
 		:raise: pyplanet.core.storage.exceptions.StorageException
 		"""
-		setting = settings.BLACKLIST_FILE
-		if isinstance(setting, dict) and self._instance.process_name in setting:
-			setting = setting[self._instance.process_name]
+		setting = settings.PYPLANET_BLACKLIST
 		if not isinstance(setting, str):
 			setting = None
 
@@ -332,7 +330,7 @@ class PlayerManager(CoreContrib):
 			)
 		if not filename:
 			filename = setting.format(server_login=self._instance.game.server_player_login)
-		
+
 		try:
 			await self._instance.gbx('SaveBlackList', filename)
 		except Exception as e:
@@ -348,9 +346,7 @@ class PlayerManager(CoreContrib):
 		:raise: pyplanet.core.exceptions.ImproperlyConfigured
 		:raise: pyplanet.core.storage.exceptions.StorageException
 		"""
-		setting = settings.GUESTLIST_FILE
-		if isinstance(setting, dict) and self._instance.process_name in setting:
-			setting = setting[self._instance.process_name]
+		setting = settings.PYPLANET_GUESTLIST
 		if not isinstance(setting, str):
 			setting = None
 
@@ -377,9 +373,7 @@ class PlayerManager(CoreContrib):
 		:raise: pyplanet.core.storage.exceptions.StorageException
 		:return: Boolean if loaded.
 		"""
-		setting = settings.GUESTLIST_FILE
-		if isinstance(setting, dict) and self._instance.process_name in setting:
-			setting = setting[self._instance.process_name]
+		setting = settings.PYPLANET_GUESTLIST
 		if not isinstance(setting, str):
 			setting = None
 
@@ -407,9 +401,7 @@ class PlayerManager(CoreContrib):
 		:raise: pyplanet.core.storage.exceptions.StorageException
 		:return: Boolean if loaded.
 		"""
-		setting = settings.BLACKLIST_FILE
-		if isinstance(setting, dict) and self._instance.process_name in setting:
-			setting = setting[self._instance.process_name]
+		setting = settings.PYPLANET_BLACKLIST
 		if not isinstance(setting, str):
 			setting = None
 

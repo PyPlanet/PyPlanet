@@ -8,7 +8,7 @@ Installation on Linux
 1. Operating System needs
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PyPlanet requires Python 3.6 and later. We also require to have some operating system libraries and build tools installed.
+PyPlanet requires Python 3.10. We also require to have some operating system libraries and build tools installed.
 We will guide you through the steps that are required to install those requirements in this subtopic.
 
 Debian / Ubuntu
@@ -51,8 +51,8 @@ The following steps are the same for all distributions.
 
 .. code-block:: bash
 
-  pyenv install 3.7.6
-  pyenv global 3.7.6
+  pyenv install 3.10.2
+  pyenv global 3.10.2
 
 
 .. attention::
@@ -83,7 +83,7 @@ use virtual environments, but we recommend to use it.
 
 .. code-block:: bash
 
-    pyenv virtualenv 3.7.6 my-env
+    pyenv virtualenv 3.10.2 my-env
     # Where 'my-env' is your environment name, you need adjust this if you have multiple installations.
 
 **Activate virtualenv**:

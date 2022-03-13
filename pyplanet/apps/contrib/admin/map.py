@@ -165,9 +165,7 @@ class MapAdmin:
 		)
 
 	async def write_map_list(self, player, data, **kwargs):
-		setting = settings.MAP_MATCHSETTINGS
-		if isinstance(setting, dict) and self.instance.process_name in setting:
-			setting = setting[self.instance.process_name]
+		setting = settings.PYPLANET_MATCHSETTINGS
 		if not isinstance(setting, str):
 			setting = None
 

@@ -18,7 +18,7 @@ class _Analytics:
 		self.instance = None
 
 	async def execute(self, *event):
-		if not settings.ANALYTICS or settings.DEBUG:
+		if not settings.ANALYTICS or settings.PYPLANET_DEBUG:
 			return
 
 		await self.client.post(self.URL, params=dict(api_key=self.KEY, event=dumps(event)))

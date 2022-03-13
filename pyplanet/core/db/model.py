@@ -1,6 +1,6 @@
 import datetime
 
-from peewee import Model as PeeweeModel, ReverseRelationDescriptor
+from peewee import Model as PeeweeModel, ForeignKeyField
 from peewee import DateTimeField
 from peewee_async import Manager
 
@@ -18,7 +18,7 @@ class ObjectManager(Manager):
 		model_cls = type(instance)
 		related_field = getattr(model_cls, related_name)
 
-		if isinstance(related_field, ReverseRelationDescriptor):
+		if not isinstance(related_field, ForeignKeyField):
 			return await self._get_backrefs(instance, related_name, single_backref)
 		else:
 			return await self._get_foreign_key_target(instance, related_name)
@@ -29,7 +29,7 @@ class ObjectManager(Manager):
 		model_cls = type(instance)
 		foreign_key_field = getattr(model_cls, field_name)
 		target_cls = foreign_key_field.rel_model
-		target_field = foreign_key_field.to_field
+		target_field = foreign_key_field.rel_field
 
 		return await self.get(target_cls, target_field == foreign_key_value)
 
@@ -64,7 +64,6 @@ class Model(PeeweeModel):
 	async def create(cls, **insert):
 		inst = cls(**insert)
 		await inst.save(force_insert=True)
-		inst._prepare_instance()
 		return inst
 
 	@classmethod
@@ -78,10 +77,10 @@ class Model(PeeweeModel):
 		return await self.objects.get_related(self, related_name, single_backref)
 
 	async def save(self, force_insert=False, only=None):
-		field_dict = dict(self._data)
+		field_dict = dict(self.__data__)
 		if self._meta.primary_key is not False:
 			pk_field = self._meta.primary_key
-			pk_value = self._get_pk_value()
+			pk_value = self._pk
 		else:
 			pk_field = pk_value = None
 		if only:
@@ -109,7 +108,7 @@ class Model(PeeweeModel):
 			pk_from_cursor = await self._insert(**field_dict)
 			if pk_from_cursor is not None:
 				pk_value = pk_from_cursor
-			self._set_pk_value(pk_value)
+			self._pk = pk_value
 			rows = 1
 		self._dirty.clear()
 		return rows

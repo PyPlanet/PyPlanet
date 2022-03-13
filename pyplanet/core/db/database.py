@@ -41,14 +41,7 @@ class Database:
 	@classmethod
 	def create_from_settings(cls, instance, conf):
 		try:
-			engine_path, _, cls_name = conf['ENGINE'].rpartition('.')
-			db_name = conf['NAME']
-			db_options = conf['OPTIONS'] if 'OPTIONS' in conf and conf['OPTIONS'] else dict()
-
-			# FIX for #331. Replace utf8 by utf8mb4 in the mysql driver encoding.
-			if conf['ENGINE'] == 'peewee_async.MySQLDatabase' and 'charset' in db_options and db_options['charset'] == 'utf8':
-				logging.info('Forcing to use \'utf8mb4\' instead of \'utf8\' for the MySQL charset option! (Fix #331).')
-				db_options['charset'] = 'utf8mb4'
+			engine_path, _, cls_name = conf.PYPLANET_DB_ENGINE.rpartition('.')
 
 			# We will try to load it so we have the validation inside this class.
 			engine = getattr(importlib.import_module(engine_path), cls_name)
@@ -57,7 +50,12 @@ class Database:
 		except Exception as e:
 			raise ImproperlyConfigured('Database configuration isn\'t complete or engine could\'t be found!')
 
-		return cls(engine, instance, db_name, **db_options)
+		return cls(engine, instance, conf.PYPLANET_DB_DATABASE, **dict(
+			host=conf.PYPLANET_DB_HOST,
+			port=int(conf.PYPLANET_DB_PORT) if conf.PYPLANET_DB_PORT else None,
+			user=conf.PYPLANET_DB_USER,
+			password=conf.PYPLANET_DB_PASSWORD,
+		))
 
 	@contextlib.contextmanager
 	def __fake_allow_sync(self):

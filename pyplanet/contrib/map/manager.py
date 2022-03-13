@@ -419,7 +419,7 @@ class MapManager(CoreContrib):
 	async def _override_timelimit(self, filename):
 		"""
 		Called to overwrite S_TimeLimit in MatchSettings file if the current map is extended
-		
+
 		:param filename: Give the filename of the matchsettings.
 		"""
 		if self._is_extended and self._original_ta:
@@ -445,9 +445,7 @@ class MapManager(CoreContrib):
 		:raise: pyplanet.contrib.map.exceptions.MapException
 		:raise: pyplanet.core.storage.exceptions.StorageException
 		"""
-		setting = settings.MAP_MATCHSETTINGS
-		if isinstance(setting, dict) and self._instance.process_name in setting:
-			setting = setting[self._instance.process_name]
+		setting = settings.PYPLANET_MATCHSETTINGS
 		if not isinstance(setting, str):
 			setting = None
 

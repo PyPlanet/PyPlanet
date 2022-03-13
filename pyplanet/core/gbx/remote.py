@@ -72,13 +72,14 @@ class GbxRemote:
 
 		:param instance: Instance of the app.
 		:param conf: Settings for pool.
-		:type conf: dict
+		:type conf: pyplanet.conf.LazySettings
 		:return: Instance of XML-RPC GbxClient.
 		:rtype: pyplanet.core.gbx.client.GbxClient
 		"""
 		return cls(
 			instance=instance,
-			host=conf['HOST'], port=conf['PORT'], user=conf['USER'], password=conf['PASSWORD']
+			host=conf.PYPLANET_SERVER_HOST, port=conf.PYPLANET_SERVER_PORT, user=conf.PYPLANET_SERVER_USER,
+			password=conf.PYPLANET_SERVER_PASSWORD
 		)
 
 	def get_next_handler(self):
@@ -105,7 +106,6 @@ class GbxRemote:
 				self.reader, self.writer = await asyncio.open_connection(
 					host=self.host,
 					port=self.port,
-					loop=self.event_loop,
 				)
 				break
 			except Exception as exc:
@@ -147,7 +147,7 @@ class GbxRemote:
 		if system_info['IsDedicated'] == False and system_info['IsServer'] == False:
 			logger.debug('Dedicated seems to be a gameclient! Adjust `PORT` in /settings/base.py')
 			exit(50)
-		
+
 		# Check for scripted mode.
 		mode = await self.execute('GetGameMode')
 		settings = await self.execute('GetModeScriptSettings')

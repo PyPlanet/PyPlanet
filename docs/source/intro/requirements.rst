@@ -2,14 +2,14 @@
 Requirements
 ------------
 
-PyPlanet runs on Python 3.6 and later. Most linux distributions contain default packages or will come with Python
-preinstalled. If you don't have Python 3.6 you can still continue the installation, we will help you through the installation
-of Python 3.6 in our installation guides!
+PyPlanet runs on Python 3.10. Most linux distributions contain default packages or will come with Python
+preinstalled. If you don't have Python 3.10 you can still continue the installation, we will help you through the installation
+of Python 3.10 in our installation guides!
 
 **Summary of requirements:**
 
-* Python 3.6+ and pip 9.
-* MySQL Server or PostgreSQL Server.
+* Python 3.10+ and pip 9.
+* MySQL Server.
 * Maniaplanet Dedicated (Maniaplanet 4 is minimum)
 
 

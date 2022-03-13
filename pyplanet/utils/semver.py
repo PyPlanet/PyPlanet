@@ -7,8 +7,8 @@ We copy to make sure this simple library is and maintain in our core.
 Changed by Tom Valk: Added function to detect if the release is a pre-release.
 """
 
-import collections
 import re
+from collections import namedtuple
 
 
 __version__ = '2.7.7'
@@ -63,7 +63,7 @@ def parse(version):
 	return version_parts
 
 
-class VersionInfo(collections.namedtuple(
+class VersionInfo(namedtuple(
 	'VersionInfo', 'major minor patch prerelease build')):
 	"""
 	:param int major: version when you make incompatible API changes.

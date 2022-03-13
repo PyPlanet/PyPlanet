@@ -1,4 +1,4 @@
-import collections
+import typing
 
 from xmlrpc.client import Fault
 
@@ -60,7 +60,7 @@ class ChatQuery(Query):
 		:rtype: pyplanet.contrib.chat.query.ChatQuery
 		"""
 		# Unpack list in unpacked list if given.
-		if len(players) == 1 and isinstance(players[0], collections.Iterable):
+		if len(players) == 1 and isinstance(players[0], typing.Iterable):
 			players = players[0]
 
 		# Replace logins.
@@ -70,7 +70,7 @@ class ChatQuery(Query):
 		elif isinstance(players, str):
 			self._logins = set()
 			self._logins.add(players)
-		elif isinstance(players, collections.Iterable) and isinstance(players, collections.Sized):
+		elif isinstance(players, typing.Iterable) and isinstance(players, typing.Sized):
 			self._logins = set()
 			self.add_to(players)
 		return self
@@ -84,7 +84,7 @@ class ChatQuery(Query):
 		:rtype: pyplanet.contrib.chat.query.ChatQuery
 		"""
 		# Unpack list in unpacked list if given.
-		if len(players) == 1 and isinstance(players[0], collections.Iterable):
+		if len(players) == 1 and isinstance(players[0], typing.Iterable):
 			players = players[0]
 
 		# Check if we already have login lists.

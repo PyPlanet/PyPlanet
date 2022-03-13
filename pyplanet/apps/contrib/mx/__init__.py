@@ -10,7 +10,6 @@ from pyplanet.contrib.command import Command
 from pyplanet.contrib.setting import Setting
 from collections import namedtuple
 
-from pyplanet.utils import gbxparser
 
 logger = logging.getLogger(__name__)
 

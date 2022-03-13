@@ -34,4 +34,4 @@ class Score(Model):
 	"""
 
 	class Meta:
-		db_table = 'stats_scores'
+		table_name = db_table = 'stats_scores'

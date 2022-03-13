@@ -23,7 +23,7 @@ class CheckRegistry:
 
 		try:
 			from pyplanet.conf import settings
-			_ = settings.DEBUG
+			_ = settings.PYPLANET_DEBUG
 		except:
 			errors.append(
 				Error(

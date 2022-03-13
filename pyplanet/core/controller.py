@@ -8,14 +8,12 @@ Please import this from the ``pyplanet.core`` package instead!
 
 class _Controller:
 	def __init__(self, *args, **kwargs):
-		self.name = None
 		self.__instance = None
 
-	def prepare(self, name):
+	def prepare(self):
 		from pyplanet.core.instance import Instance
 
-		self.name = name
-		self.__instance = Instance(name)
+		self.__instance = Instance()
 		return self
 
 	@property

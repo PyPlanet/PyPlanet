@@ -27,13 +27,13 @@ class Raven:  # pragma: no cover
 
 	@classmethod
 	def get_client(cls):
-		if not cls.CLIENT:
-			cls.CLIENT = Client(
-				dsn='https://bcbafd2d81234d53b32c66077ae0a008:98dcc46acc484eeb95ebf9f0c30e6dd4@sentry.s3.toffe.me/2',
-				environment='development' if settings.DEBUG else 'production',
-				release=version,
-				include_paths=['pyplanet']
-			)
+		# if not cls.CLIENT:
+		# 	cls.CLIENT = Client(
+		# 		dsn='https://bcbafd2d81234d53b32c66077ae0a008:98dcc46acc484eeb95ebf9f0c30e6dd4@sentry.s3.toffe.me/2',
+		# 		environment='development' if settings.PYPLANET_DEBUG else 'production',
+		# 		release=version,
+		# 		include_paths=['pyplanet']
+		# 	)
 		return cls.CLIENT
 
 
@@ -83,7 +83,7 @@ def handle_exception(exception=None, module_name=None, func_name=None, extra_dat
 		return
 
 	from pyplanet.core import Controller
-	if settings.DEBUG or settings.LOGGING_REPORTING == 0:
+	if settings.PYPLANET_DEBUG or settings.LOGGING_REPORTING == 0:
 		if exception:
 			logging.exception(exception)
 		return
@@ -137,24 +137,14 @@ def handle_exception(exception=None, module_name=None, func_name=None, extra_dat
 
 class RequireDebugFalse(logging.Filter):
 	def filter(self, record):
-		return not settings.DEBUG
+		return not settings.PYPLANET_DEBUG
 
 
 class RequireDebugTrue(logging.Filter):
 	def filter(self, record):
-		return settings.DEBUG
+		return settings.PYPLANET_DEBUG
 
 
 class RequireException(logging.Filter):
 	def filter(self, record):
 		return bool(record.exc_info)
-
-
-class QueueHandler(BaseQueueHandler):  # pragma: no cover
-	def prepare(self, record):
-		# Override due to bug
-		self.format(record)
-		record.msg = record.msg or record.message
-		record.args = None
-		record.exc_info = None
-		return record

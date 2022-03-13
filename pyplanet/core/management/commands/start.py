@@ -12,7 +12,6 @@ except:
 
 from pyplanet.conf import settings
 from pyplanet.core.management import BaseCommand
-from pyplanet.god.pool import EnvironmentPool
 from pyplanet.utils.log import initiate_logger
 
 
@@ -52,9 +51,6 @@ class Command(BaseCommand):  # pragma: no cover
 			if os.path.exists(options['env']) and os.path.isfile(options['env']):
 				os.environ['PYPLANET_ENV_PATH'] = options['env']
 
-		# Reload settings with error messages.
-		settings._setup()
-
 		# Initiate the logger.
 		threading.current_thread().setName('Main')
 		initiate_logger()
@@ -62,23 +58,33 @@ class Command(BaseCommand):  # pragma: no cover
 
 		# Initiate the settings by accessing one.
 		logger.debug('Initiated configuration and environment... (debug on, means no error reporting and verbose output')
-		if not settings.DEBUG:
+		if not settings.PYPLANET_DEBUG:
 			logger.info('Initiated configuration and environment...')
 		logger.info('-------------------------------[  PyPlanet v{}  ]-------------------------------'.format(self.get_version()))
 
-		# Start god process (the current started process).
-		self.pool = EnvironmentPool(settings.POOLS, max_restarts=options['max_restarts'], options=options)
-		self.pool.populate()
+		# Start PyPlanet.
+		from pyplanet.core.instance import Controller
 
-		# Starting all processes.
-		self.pool.start()
+		# Tokio Asyncio (EXPERIMENTAL).
+		if 'tokio' in options and options['tokio'] is True:
+			import asyncio
+			import tokio
+			policy = tokio.TokioLoopPolicy()
+			asyncio.set_event_loop_policy(policy)
+			asyncio.set_event_loop(tokio.new_event_loop())
+			logging.warning('Using experimental Tokio Asyncio Loop!')
 
-		# Start the watchdog.
+		# Try to activate UVLoop
 		try:
-			self.pool.watchdog()
-		except KeyboardInterrupt:
-			self.pool.shutdown()
-			exit(0)
+			import uvloop
+			uvloop.install()
+			logging.info('Activated uvloop support.')
+		except:
+			pass
+
+		# Initiate instance.
+		instance = Controller.prepare().instance
+		instance.start()
 
 	def write_pid(self, pid_file):
 		self.pid_file = pid_file
