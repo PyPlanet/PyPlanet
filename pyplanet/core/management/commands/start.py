@@ -74,6 +74,14 @@ class Command(BaseCommand):  # pragma: no cover
 			asyncio.set_event_loop(tokio.new_event_loop())
 			logging.warning('Using experimental Tokio Asyncio Loop!')
 
+		# Try to activate UVLoop
+		try:
+			import uvloop
+			uvloop.install()
+			logging.info('Activated uvloop support.')
+		except:
+			pass
+
 		# Initiate instance.
 		instance = Controller.prepare().instance
 		instance.start()
