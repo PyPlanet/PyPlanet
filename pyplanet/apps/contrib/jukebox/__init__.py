@@ -40,6 +40,13 @@ class Jukebox(AppConfig):
 	async def on_start(self):
 		# Register permissions + commands.
 		await self.instance.permission_manager.register('clear', 'Clear the jukebox', app=self, min_level=1)
+
+		if 'rankings' in self.instance.apps.apps:
+			await self.instance.command_manager.register(
+				Command(command='norank', namespace='list', target=self.instance.apps.apps['rankings'].chat_norank,
+						description='Displays all maps where you have no ranking local record.'),
+			)
+
 		await self.instance.command_manager.register(
 			Command(command='clearjukebox', aliases=['cjb'], target=self.clear_jukebox, perms='jukebox:clear', admin=True,
 					description='Clears the current maps from the jukebox.'),
