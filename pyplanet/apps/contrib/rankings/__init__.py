@@ -1,8 +1,9 @@
 import logging
 import math
 
+from pyplanet.apps.contrib.rankings.models.ranked_map import RankedMap
 from pyplanet.apps.contrib.rankings.models import Rank
-from pyplanet.apps.contrib.rankings.views import TopRanksView, NoRanksView
+from pyplanet.apps.contrib.rankings.views import TopRanksView, MapListView
 from pyplanet.apps.config import AppConfig
 
 from peewee import RawQuery
@@ -77,11 +78,7 @@ class Rankings(AppConfig):
 		minimum_records_required_setting = await self.setting_records_required.get_value()
 		minimum_records_required = minimum_records_required_setting if minimum_records_required_setting >= 3 else 3
 
-		# Determine the maximum record rank that is included in the locals.
-		# The rank calculation requires a non-zero value, so if none is provided it'll default to 1000.
-		maximum_record_rank = await self.instance.apps.apps['local_records'].setting_record_limit.get_value()
-		if maximum_record_rank == 0:
-			maximum_record_rank = 1000
+		maximum_record_rank = await self.get_maximum_record_rank()
 
 		query = RawQuery(Rank, """
 -- Reset the current ranks to insert new ones later one.
@@ -170,40 +167,58 @@ WHERE ranked_records_count >= @minimum_ranked_records
 			next_ranked.player.nickname, next_player_rank_index, next_player_rank_average, next_player_rank_difference), player)
 
 	async def chat_norank(self, player, *args, **kwargs):
-		maximum_record_rank = await self.instance.apps.apps['local_records'].setting_record_limit.get_value()
-		if maximum_record_rank == 0:
-			maximum_record_rank = 1000
-
-		query = '''SELECT
-	map.*
-FROM
-(
-	SELECT
-		id,
-		map_id,
-		player_id,
-		score,
-		@player_rank := IF(@current_rank = map_id, @player_rank + 1, 1) AS player_rank,
-		@current_rank := map_id
-	FROM localrecord r,
-		(SELECT @player_rank := 0) pr,
-		(SELECT @current_rank := 0) cr
-	ORDER BY map_id, score ASC
-) AS ranked_records
-
-INNER JOIN map
-ON map.id = map_id
-
-WHERE player_rank <= {}
-AND player_id = {}'''.format(maximum_record_rank, player.id)
-
-		select_query = RawQuery(Map, query)
-		ranked_maps = [map for map in await Map.execute(select_query)]
+		ranked_maps = await self.get_player_map_ranks(player)
 		non_ranked_maps = [map for map in self.instance.map_manager.maps if
 							map.id not in [ranked_map.id for ranked_map in ranked_maps]]
 
-		view = NoRanksView(self, player, non_ranked_maps)
+		view = MapListView(self, player, maps=non_ranked_maps, title='Your non-ranked maps on this server', show_rank=False)
 		await view.display(player)
+
+	async def chat_bestrank(self, player, *args, **kwargs):
+		ranked_maps = await self.get_player_map_ranks(player, 'ORDER BY player_rank ASC')
+		view = MapListView(self, player, maps=ranked_maps, title='Your best ranked maps on this server', show_rank=True)
+		await view.display(player)
+
+	async def chat_worstrank(self, player, *args, **kwargs):
+		ranked_maps = await self.get_player_map_ranks(player, 'ORDER BY player_rank DESC')
+		view = MapListView(self, player, maps=ranked_maps, title='Your worst ranked maps on this server', show_rank=True)
+		await view.display(player)
+
+	async def get_player_map_ranks(self, player, sort_query = ''):
+		maximum_record_rank = await self.get_maximum_record_rank()
+
+		query = '''SELECT
+					map.id,
+					map.name,
+					map.uid,
+					map.author_login,
+					ranked_records.player_rank
+				FROM
+				(
+					SELECT
+						id,
+						map_id,
+						player_id,
+						score,
+						@player_rank := IF(@current_rank = map_id, @player_rank + 1, 1) AS player_rank,
+						@current_rank := map_id
+					FROM localrecord r,
+						(SELECT @player_rank := 0) pr,
+						(SELECT @current_rank := 0) cr
+					ORDER BY map_id, score ASC
+				) AS ranked_records
+
+				INNER JOIN map
+				ON map.id = map_id
+
+				WHERE player_rank <= {}
+				AND player_id = {} {}'''.format(maximum_record_rank, player.id, sort_query)
+
+		select_query = RawQuery(RankedMap, query)
+		ranked_maps = [map for map in await RankedMap.execute(select_query) if
+					   map.id in [server_map.id for server_map in self.instance.map_manager.maps]]
+
+		return ranked_maps
 
 	async def get_player_rank(self, player):
 		player_ranks = await Rank.execute(Rank.select().where(Rank.player == player.get_id()))
@@ -217,3 +232,12 @@ AND player_id = {}'''.format(maximum_record_rank, player.id)
 		total_ranked_players = await Rank.objects.count(Rank.select(Rank))
 
 		return {'rank': player_rank_index, 'average': player_rank_average, 'total_ranked_players': total_ranked_players}
+
+	async def get_maximum_record_rank(self):
+		# Determine the maximum record rank that is included in the locals.
+		# The rank calculation requires a non-zero value, so if none is provided it'll default to 1000.
+		maximum_record_rank = await self.instance.apps.apps['local_records'].setting_record_limit.get_value()
+		if maximum_record_rank == 0:
+			maximum_record_rank = 1000
+
+		return maximum_record_rank

@@ -1,5 +1,6 @@
 from playhouse.shortcuts import model_to_dict
 
+from pyplanet.apps.contrib.rankings import RankedMap
 from pyplanet.apps.core.maniaplanet.models import Map
 from pyplanet.views.generics import ManualListView
 
@@ -74,13 +75,12 @@ class TopRanksView(ManualListView):
 		]
 
 
-class NoRanksView(ManualListView):
-	model = Map
-	title = 'Non-ranked maps on this server'
+class MapListView(ManualListView):
+	model = RankedMap
 	icon_style = 'Icons128x128_1'
 	icon_substyle = 'Browse'
 
-	def __init__(self, app, player, non_ranked_maps):
+	def __init__(self, app, player, maps, title, show_rank):
 		"""
 		Init no-rank list view.
 
@@ -94,17 +94,19 @@ class NoRanksView(ManualListView):
 		self.app = app
 		self.player = player
 		self.manager = app.context.ui
-		self.non_ranked_maps = non_ranked_maps
+		self.maps = maps
+		self.title = title
+		self.show_rank = show_rank
 
 	async def get_fields(self):
-		return [
+		columns = [
 			{
 				'name': 'Name',
 				'index': 'name',
 				'sorting': True,
 				'searching': True,
 				'search_strip_styles': True,
-				'width': 90,
+				'width': 100,
 				'type': 'label',
 				'action': self.action_jukebox if ('jukebox' in self.app.instance.apps.apps) else None
 			},
@@ -114,15 +116,27 @@ class NoRanksView(ManualListView):
 				'sorting': True,
 				'searching': True,
 				'search_strip_styles': True,
-				'width': 45,
+				'width': 60,
 			},
 		]
+
+		if self.show_rank:
+			columns.append({
+				'name': 'Rank',
+				'index': 'player_rank',
+				'sorting': False,
+				'searching': False,
+				'search_strip_styles': False,
+				'width': 15,
+			})
+
+		return columns
 
 	async def get_data(self):
 		data = list()
 
-		for non_ranked_map in self.non_ranked_maps:
-			map_dict = model_to_dict(non_ranked_map)
+		for list_map in self.maps:
+			map_dict = model_to_dict(list_map)
 			data.append(map_dict)
 
 		return data

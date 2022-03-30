@@ -45,6 +45,10 @@ class Jukebox(AppConfig):
 			await self.instance.command_manager.register(
 				Command(command='norank', namespace='list', target=self.instance.apps.apps['rankings'].chat_norank,
 						description='Displays all maps where you have no ranking local record.'),
+				Command(command='bestrank', namespace='list', target=self.instance.apps.apps['rankings'].chat_bestrank,
+						description='Displays all maps where you have ranking local record, ordered by best rank.'),
+				Command(command='worstrank', namespace='list', target=self.instance.apps.apps['rankings'].chat_worstrank,
+						description='Displays all maps where you have ranking local record, ordered by worst rank.'),
 			)
 
 		await self.instance.command_manager.register(
