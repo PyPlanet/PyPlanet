@@ -60,6 +60,7 @@ docs/_build/
 # virtualenv
 env/
 env*/
+venv/
 
 ### Editors / IDE
 # IntelliJ project files
