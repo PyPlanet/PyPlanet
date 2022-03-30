@@ -1,6 +1,21 @@
 Changelog
 =========
 
+0.9.15
+------
+
+Core
+~~~~
+
+* Bugfix: Allow dedicated server to not return ladder information.
+
+
+Apps
+~~~~
+
+* Bugfix: Adjust info widget to not show ladder information if there is none.
+
+
 0.9.14
 ------
 
