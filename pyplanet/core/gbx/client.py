@@ -246,8 +246,9 @@ class GbxClient(GbxRemote):
 		self.game.server_next_max_specs = res[9]['NextValue']
 		self.game.server_is_private = res[10]
 
-		self.game.ladder_min = res[11]['LadderServerLimitMin']
-		self.game.ladder_max = res[11]['LadderServerLimitMax']
+		if not isinstance(res[11], bool):
+			self.game.ladder_min = res[11]['LadderServerLimitMin']
+			self.game.ladder_max = res[11]['LadderServerLimitMax']
 
 		# Detailed server player infos.
 		server_player_info = await self('GetDetailedPlayerInfo', self.game.server_player_login)

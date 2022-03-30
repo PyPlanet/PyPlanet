@@ -78,13 +78,16 @@ class ServerInfoWidget(WidgetView):
 	async def get_context_data(self):
 		context = await super().get_context_data()
 
-		ladder_min = int(self.app.instance.game.ladder_min)
-		ladder_max = int(self.app.instance.game.ladder_max)
-
-		if ladder_min > 1000:
-			ladder_min = int(ladder_min / 1000)
-		if ladder_max > 1000:
-			ladder_max = int(ladder_max / 1000)
+		ladder_min = None
+		if self.app.instance.game.ladder_min:
+			ladder_min = int(self.app.instance.game.ladder_min)
+			if ladder_min > 1000:
+				ladder_min = int(ladder_min / 1000)
+		ladder_max = None
+		if self.app.instance.game.ladder_max:
+			ladder_max = int(self.app.instance.game.ladder_max)
+			if ladder_max > 1000:
+				ladder_max = int(ladder_max / 1000)
 
 		context.update({
 			'version': version,
