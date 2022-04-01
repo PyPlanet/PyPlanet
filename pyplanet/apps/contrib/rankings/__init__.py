@@ -80,7 +80,7 @@ class Rankings(AppConfig):
 
 		query = RawQuery(Rank, """
 -- Reset the current ranks to insert new ones later one.
-TRUNCATE TABLE stats_ranks;
+TRUNCATE TABLE rankings_rank;
 -- Limit on maximum ranked records.
 SET @ranked_record_limit = {};
 -- Minimum amount of ranked records required to acquire a rank.
@@ -90,7 +90,7 @@ SET @active_map_count = {};
 -- Set the rank/current rank variables to ensure correct first calculation
 SET @player_rank = 0;
 SET @current_rank = 0;
-INSERT INTO stats_ranks (player_id, average, calculated_at)
+INSERT INTO rankings_rank (player_id, average, calculated_at)
 SELECT
 	player_id, average, calculated_at
 FROM (
