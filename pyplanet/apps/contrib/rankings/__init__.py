@@ -43,6 +43,9 @@ class Rankings(AppConfig):
 		)
 
 	async def on_start(self):
+		if self.instance.db.engine.__class__.__name__.lower().find('postgresql') != -1:
+			raise NotImplementedError("Rankings app only works on PyPlanet instances running on MySQL.")
+
 		# Listen to signals.
 		self.context.signals.listen(mp_signals.map.map_end, self.map_end)
 		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
