@@ -7,7 +7,7 @@ from pyplanet.core.db import Model
 class Rank(Model):
 	player = ForeignKeyField(Player, index=True)
 	"""
-	Player that has driven this time.
+	Player that has the rank.
 	"""
 
 	average = IntegerField()
@@ -19,8 +19,8 @@ class Rank(Model):
 		default=datetime.datetime.now,
 	)
 	"""
-	When is the time driven?
+	When was the rank calculated?
 	"""
 
 	class Meta:
-		db_table = 'stats_ranks'
+		db_table = 'rankings_rank'

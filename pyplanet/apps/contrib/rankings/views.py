@@ -136,8 +136,7 @@ class MapListView(ManualListView):
 		data = list()
 
 		for list_map in self.maps:
-			map_dict = model_to_dict(list_map)
-			data.append(map_dict)
+			data.append(model_to_dict(list_map))
 
 		return data
 

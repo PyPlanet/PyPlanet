@@ -1,14 +1,12 @@
 import logging
 import math
+from peewee import RawQuery
 
 from pyplanet.apps.contrib.rankings.models.ranked_map import RankedMap
 from pyplanet.apps.contrib.rankings.models import Rank
 from pyplanet.apps.contrib.rankings.views import TopRanksView, MapListView
 from pyplanet.apps.config import AppConfig
-
-from peewee import RawQuery
-
-from pyplanet.apps.core.maniaplanet.models import Player, Map
+from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 from pyplanet.contrib.command import Command
 from pyplanet.contrib.setting import Setting
@@ -64,13 +62,13 @@ class Rankings(AppConfig):
 		await self.calculate_server_ranks()
 
 		# Display the server rank for all players on the server after calculation, if enabled.
-		chat_announce = await self.setting_chat_announce.get_value()
-		if chat_announce:
+		if await self.setting_chat_announce.get_value():
 			for player in self.instance.player_manager.online:
 				await self.chat_rank(player)
 
 	async def player_connect(self, player, is_spectator, source, signal):
-		await self.chat_rank(player)
+		if await self.setting_chat_announce.get_value():
+			await self.chat_rank(player)
 
 	async def calculate_server_ranks(self):
 		maps_on_server = [map_on_server.id for map_on_server in self.instance.map_manager.maps]
