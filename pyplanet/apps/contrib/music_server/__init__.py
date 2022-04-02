@@ -7,6 +7,7 @@ from pyplanet.conf import settings
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 from pyplanet.contrib.command import Command
+from pyplanet.contrib.setting import Setting
 from .view import MusicListView
 from .view import PlaylistView
 
@@ -27,10 +28,19 @@ class MusicServer(AppConfig):
 		self.playlist = []
 		self.playlist_view = None
 
+		self.setting_override_map_music = Setting(
+			'override_map_music', 'Override map music', Setting.CAT_BEHAVIOUR, type=bool,
+			description='Whether to override the map music.',
+			default=True
+		)
+
 	async def on_start(self):
 		self.songs = await self.get_songs()
 		self.list_view = MusicListView(self)
 		self.playlist_view = PlaylistView(self)
+
+		await self.context.setting.register(self.setting_override_map_music)
+
 		await self.instance.command_manager.register(
 			Command(command='play', target=self.play_song, admin=True)
 				.add_param(name='songname', type=str, required=True),
@@ -39,6 +49,7 @@ class MusicServer(AppConfig):
 			Command(command='playlist', target=self.show_playlist, admin=False),
 			Command(command='clearplaylist', target=self.clear_playlist, admin=True),
 		)
+
 		self.current_song_index = -1
 
 	async def song_list(self, player, *args, **kwargs):
@@ -98,7 +109,8 @@ class MusicServer(AppConfig):
 				new_song = self.songs[self.current_song_index + 1]
 				self.current_song_index += 1
 		try:
-			await self.instance.gbx('SetForcedMusic', True, new_song[0])
+			override_map_music = await self.setting_override_map_music.get_value()
+			await self.instance.gbx('SetForcedMusic', override_map_music, new_song[0])
 			self.current_song = new_song
 		except Exception as e:
 			await self.instance.chat(str(e))
