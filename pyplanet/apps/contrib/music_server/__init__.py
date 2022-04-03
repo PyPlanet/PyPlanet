@@ -155,12 +155,12 @@ class MusicServer(AppConfig):
 				for key, value in tags.items():
 					if fs.find(key.upper()) > 0:
 						end_of_key = fs.find(key.upper()) + len(key) + 1
-						end_of_value = fs.find('\\', fs.find(key.upper()))
+						end_of_value = fs.find('\\x', fs.find(key.upper()))
 						value = fs[end_of_key:end_of_value]
 						if value.find('(') > 0 or value.find('[') > 0:
-							tags[key] = re.sub(r'[^a-zA-Z\d\s\)\]]$', '', value)
+							tags[key] = re.sub(r'[^a-zA-Z\d\s\)\]]$', '', value).replace('\\', '')
 						else:
-							tags[key] = re.sub(r'[^a-zA-Z\d\s]*$', '', value)
+							tags[key] = re.sub(r'[^a-zA-Z\d\s]*$', '', value).replace('\\', '')
 			await response.release()
 			return tags
 
