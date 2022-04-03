@@ -1,6 +1,21 @@
 Changelog
 =========
 
+0.9.17
+------
+
+Core
+~~~~
+
+* Bugfix: Allow installation on Python 3.7.
+
+
+Apps
+~~~~
+
+* Bugfix: Regression: Make sure the info widget shows ladder information in Maniaplanet again.
+
+
 0.9.16
 ------
 
