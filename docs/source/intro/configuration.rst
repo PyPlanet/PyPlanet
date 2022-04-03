@@ -437,7 +437,7 @@ You can add URL's of the music to the SONGS list.
     SONGS = {
       'default': [
         'http://urltoogg'
-      }
+      ]
     }
 
 .. code-block:: yaml
