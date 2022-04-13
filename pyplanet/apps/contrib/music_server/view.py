@@ -3,7 +3,7 @@ from pyplanet.views.generics.list import ManualListView
 
 class MusicListView(ManualListView):
 	title = 'Songs'
-	icon_style = 'Icons128*128_1'
+	icon_style = 'Icons128x128_1'
 	icon_substyle = 'Statistics'
 
 	def __init__(self, app):
@@ -57,6 +57,8 @@ class MusicListView(ManualListView):
 
 class PlaylistView(ManualListView):
 	title = 'Playlist'
+	icon_style = 'Icons128x128_1'
+	icon_substyle = 'Statistics'
 
 	def __init__(self, app):
 		super().__init__(self)
