@@ -525,6 +525,9 @@ The order doesn't make a difference when starting/loading PyPlanet.
 
       # New since 0.8.0:
       'pyplanet.apps.contrib.funcmd',
+
+      # New since 0.10.0:
+      'pyplanet.apps.contrib.rankings',
     ],
   }
 
@@ -560,6 +563,9 @@ The order doesn't make a difference when starting/loading PyPlanet.
       # New since 0.8.0:
       - 'pyplanet.apps.contrib.funcmd
 
+      # New since 0.10.0:
+      - 'pyplanet.apps.contrib.rankings'
+
 .. code-block:: json
   :caption: apps.json
 
@@ -587,7 +593,9 @@ The order doesn't make a difference when starting/loading PyPlanet.
         "pyplanet.apps.contrib.ads",
         "pyplanet.apps.contrib.music_server",
 
-        "pyplanet.apps.contrib.funcmd"
+        "pyplanet.apps.contrib.funcmd",
+
+        "pyplanet.apps.contrib.rankings"
       ]
     }
   }

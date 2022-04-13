@@ -1,6 +1,16 @@
 Changelog
 =========
 
+0.10.0
+------
+
+Apps
+~~~~
+
+* NEW APP: Trackmania Rankings. Add it now to your apps setting: pyplanet.apps.contrib.rankings
+* Add setting for music app to override the map music.
+
+
 0.9.17
 ------
 
