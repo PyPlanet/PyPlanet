@@ -59,13 +59,20 @@ class Players(AppConfig):
 			return
 
 		if player.flow.is_spectator:
-			message = '$ff0{} $fff{}$z$s$ff0 joined the server as spectator! {}'
+			message = '$ff0{} $fff{}$z$s$ff0 joined as spectator{}'
 		else:
-			message = '$ff0{} $fff{}$z$s$ff0 joined the server! {}'
+			message = '$ff0{} $fff{}$z$s$ff0 joined{}'
+
+		additional_information = ' from $fff{}$ff0!'.format(player.flow.zone.country) if player.flow.zone else '! '
+		if 'rankings' in self.instance.apps.apps:
+			player_rank = await self.instance.apps.apps['rankings'].get_player_rank(player)
+			additional_information += ' $ff0[Rank: $fff{}$ff0/$fff{} $ff0(average: $fff{}$ff0)]'.format(
+				player_rank['rank'], player_rank['total_ranked_players'], player_rank['average']
+			)
+
 		await self.instance.chat(
 			message.format(
-				player.get_level_string(), player.nickname,
-				'Nation: $fff{}'.format(player.flow.zone.country) if player.flow.zone else ''
+				player.get_level_string(), player.nickname, additional_information
 			)
 		)
 
