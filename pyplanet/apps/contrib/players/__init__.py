@@ -66,9 +66,10 @@ class Players(AppConfig):
 		additional_information = ' from $fff{}$ff0!'.format(player.flow.zone.country) if player.flow.zone else '! '
 		if 'rankings' in self.instance.apps.apps:
 			player_rank = await self.instance.apps.apps['rankings'].get_player_rank(player)
-			additional_information += ' $ff0[Rank: $fff{}$ff0/$fff{} $ff0(average: $fff{}$ff0)]'.format(
-				player_rank['rank'], player_rank['total_ranked_players'], player_rank['average']
-			)
+			if player_rank is not None:
+				additional_information += ' $ff0[Rank: $fff{}$ff0/$fff{} $ff0(average: $fff{}$ff0)]'.format(
+					player_rank['rank'], player_rank['total_ranked_players'], player_rank['average']
+				)
 
 		await self.instance.chat(
 			message.format(
