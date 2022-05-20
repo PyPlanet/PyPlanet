@@ -81,10 +81,12 @@ class MapManager(CoreContrib):
 		# Try to retrieve the MX-id from the filename.
 		mx_id = self._extract_mx_id(info['FileName'])
 
+		author_nickname = await self.get_map_author_nickname(info)
+
 		# Get or create.
 		map_info = await Map.get_or_create_from_info(
-			uid=info['UId'], name=info['Name'], author_login=info['Author'], file=info['FileName'],
-			environment=info['Environnement'], map_type=info['MapType'], map_style=info['MapStyle'],
+			uid=info['UId'], name=info['Name'], author_login=info['Author'], author_nickname=author_nickname,
+			file=info['FileName'], environment=info['Environnement'], map_type=info['MapType'], map_style=info['MapStyle'],
 			num_laps=info['NbLaps'], num_checkpoints=info['NbCheckpoints'], time_author=info['AuthorTime'],
 			time_bronze=info['BronzeTime'], time_silver=info['SilverTime'], time_gold=info['GoldTime'],
 			price=info['CopperPrice'], mx_id=mx_id,
@@ -155,10 +157,12 @@ class MapManager(CoreContrib):
 					name = name[:150]
 					logging.getLogger(__name__).warning('Map name is very long, truncating to 150 chars.')
 
+				author_nickname = await self.get_map_author_nickname(details)
+
 				rows.append(dict(
 					uid=details['UId'], file=details['FileName'], name=name, author_login=details['Author'],
-					environment=details['Environnement'], time_gold=details['GoldTime'], price=details['CopperPrice'],
-					map_type=details['MapType'], map_style=details['MapStyle'], mx_id=mx_id
+					author_nickname=author_nickname, environment=details['Environnement'], time_gold=details['GoldTime'],
+					price=details['CopperPrice'], map_type=details['MapType'], map_style=details['MapStyle'], mx_id=mx_id
 				))
 
 			if len(rows) > 0:
@@ -196,16 +200,37 @@ class MapManager(CoreContrib):
 						# Detect any MX-id from the filename.
 						mx_id = self._extract_mx_id(details['FileName'])
 
+						author_nickname = await self.get_map_author_nickname(details)
+
 						# Map not yet in self._maps. Add it.
 						map_instance = await Map.get_or_create_from_info(
 							details['UId'], details['FileName'], details['Name'], details['Author'],
-							environment=details['Environnement'], time_gold=details['GoldTime'],
+							author_nickname=author_nickname, environment=details['Environnement'], time_gold=details['GoldTime'],
 							price=details['CopperPrice'], map_type=details['MapType'], map_style=details['MapStyle'],
 							mx_id=mx_id,
 						)
 						self._maps.add(map_instance)
 						updated.append(map_instance)
 		return updated
+
+	async def get_map_author_nickname(self, map_details):
+		"""
+		Get the map author nickname by map details.
+		If the map details contains an empty nickname, a GetMapInfo call to the server will be made.
+		This is because TM2020 does not yet return the author nickname via GetMapList, but does via GetMapInfo.
+
+		:param map_details: struct containing map details
+		:return: author nickname (None if not found)
+		"""
+		author_nickname = None
+		if 'AuthorNickname' in map_details:
+			author_nickname = map_details['AuthorNickname']
+
+			if author_nickname is None or author_nickname == '':
+				map_info = await self._instance.gbx('GetMapInfo', map_details['FileName'])
+				author_nickname = map_info['AuthorNickname']
+
+		return author_nickname
 
 	async def get_map(self, uid=None):
 		"""
@@ -419,7 +444,7 @@ class MapManager(CoreContrib):
 	async def _override_timelimit(self, filename):
 		"""
 		Called to overwrite S_TimeLimit in MatchSettings file if the current map is extended
-		
+
 		:param filename: Give the filename of the matchsettings.
 		"""
 		if self._is_extended and self._original_ta:
