@@ -17,6 +17,7 @@ class ToolbarView(TemplateView):
 		self.app = app
 		self.manager = self.app.context.ui
 
+	async def on_start(self):
 		self.commands = {
 			'bar_button_list': '/list',
 			'bar_button_mf': '/mf',
@@ -40,4 +41,5 @@ class ToolbarView(TemplateView):
 	async def handle_catch_all(self, player, action, values, **kwargs):
 		if action not in self.commands:
 			return
+
 		await self.app.instance.command_manager.execute(player, self.commands[action])
