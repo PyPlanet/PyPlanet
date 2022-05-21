@@ -463,7 +463,7 @@ class MapManager(CoreContrib):
 	async def _override_timelimit(self, filename):
 		"""
 		Called to overwrite S_TimeLimit in MatchSettings file if the current map is extended
-
+		
 		:param filename: Give the filename of the matchsettings.
 		"""
 		if self._is_extended and self._original_ta:
