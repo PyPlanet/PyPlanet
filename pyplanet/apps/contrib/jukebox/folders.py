@@ -60,8 +60,8 @@ class FolderManager:
 		raw_list = await Folders.objects.execute(
 			Folders.select(Folders, Player)
 				.join(Player)
-				.where((Player.login == player.login) | (Folders.public == True))
-				.order_by(Folders.public.desc())
+				.where(((Player.login == player.login) & ((Folders.visibility == 'private') | (player.level >= player.LEVEL_ADMIN))) | (Folders.visibility == 'public'))
+				.order_by(Folders.visibility.desc())
 		)
 
 		# Convert to the wanted objects.
@@ -73,7 +73,7 @@ class FolderManager:
 			folder_list.append(
 				{
 					'id': folder_id, 'name': folder.name, 'owner_login': folder.player.login,
-					'owner': folder.player.nickname, 'type': 'public' if folder.public else 'private'
+					'owner': folder.player.nickname, 'type': folder.visibility
 				}
 			)
 
@@ -90,7 +90,7 @@ class FolderManager:
 		return await Folders.objects.execute(
 			Folders.select(Folders, Player)
 				.join(Player)
-				.where((Player.login == player.login) & (Folders.public == False))
+				.where((Player.login == player.login) & (Folders.visibility == 'private'))
 		)
 
 	async def get_writable_folders(self, player):
@@ -105,13 +105,13 @@ class FolderManager:
 			return await Folders.objects.execute(
 				Folders.select(Folders, Player)
 					.join(Player)
-					.where((Player.login == player.login) | (Folders.public == True))
+					.where((Player.login == player.login) | (Folders.visibility == 'public' or Folders.visibility == 'admins_only'))
 			)
 
 		return await Folders.objects.execute(
 			Folders.select(Folders, Player)
 				.join(Player)
-				.where((Player.login == player.login))
+				.where((Player.login == player.login) & (Folders.visibility == 'private'))
 		)
 
 	async def create_folder(self, **kwargs):
