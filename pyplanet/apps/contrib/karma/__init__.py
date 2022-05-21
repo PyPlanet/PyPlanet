@@ -86,9 +86,11 @@ class Karma(AppConfig):
 			)
 
 			# Group by map.
+			# Make sure all maps have an entry in the dictionary.
+			for list_map_id in maps:
+				map_karmas[list_map_id] = list()
+
 			for row in rows:
-				if row.map_id not in map_karmas:
-					map_karmas[row.map_id] = list()
 				map_karmas[row.map_id].append(row)
 
 			# Map karma stats.
