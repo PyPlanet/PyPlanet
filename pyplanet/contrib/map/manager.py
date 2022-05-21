@@ -145,6 +145,25 @@ class MapManager(CoreContrib):
 			db_uids = [m.uid for m in maps]
 			diff = [x for x in raw_list if x['UId'] not in db_uids]
 
+			# Update existing maps with new information.
+			for existing_map in maps:
+				details = [m for m in raw_list if m['UId'] == existing_map.uid][0]
+
+				mx_id = self._extract_mx_id(details['FileName'])
+				author_nickname = await self.get_map_author_nickname(details)
+
+				if existing_map.mx_id != mx_id or existing_map.author_nickname != author_nickname:
+					map_instance = await Map.get_or_create_from_info(
+						details['UId'], details['FileName'], details['Name'], details['Author'],
+						author_nickname=author_nickname, environment=details['Environnement'],
+						time_gold=details['GoldTime'],
+						price=details['CopperPrice'], map_type=details['MapType'], map_style=details['MapStyle'],
+						mx_id=mx_id,
+					)
+
+					maps = [m for m in maps if m.uid != details['UId']]
+					maps.append(map_instance)
+
 			# Insert all missing maps into the DB.
 			rows = list()
 			for details in diff:

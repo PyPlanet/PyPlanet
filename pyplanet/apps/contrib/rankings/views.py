@@ -116,6 +116,10 @@ class MapListView(ManualListView):
 				'sorting': True,
 				'searching': True,
 				'search_strip_styles': True,
+				'renderer': lambda row, field:
+				row['author_nickname']
+				if 'author_nickname' in row and row['author_nickname'] and len(row['author_nickname'])
+				else row['author_login'],
 				'width': 60,
 			},
 		]
