@@ -1,5 +1,6 @@
 import logging
 import os
+from argparse import Namespace
 
 from pyplanet.views.generics import ManualListView
 from pyplanet.utils import gbxparser
@@ -82,25 +83,7 @@ class BrowserView(ManualListView):
 
 	async def add_map(self, filename, player):
 		map_path = os.path.join(self.current_dir, filename)
-		logging.debug('Adding map ' + map_path)
 
-		try:
-			# Try to parse the map.
-			async with self.app.instance.storage.open_map(map_path) as map_fh:
-				parser = gbxparser.GbxParser(buffer=map_fh)
-				map_info = await parser.parse()
-
-			# Check if already on server.
-			if self.app.instance.map_manager.playlist_has_map(map_info['uid']):
-				raise Exception('Map already in playlist! Update? Remove it first!')
-
-			# Add if not.
-			if await self.app.instance.map_manager.add_map(map_path):
-				message = '$ff0Admin $fff{}$z$s$ff0 has added the map $fff{}$z$s$ff0 by $fff{}$z$s$ff0.'.format(
-					player.nickname, map_info['name'], map_info['author_nickname'])
-				await self.app.instance.chat(message)
-			else:
-				raise Exception('Unknown error while adding the map!')
-		except Exception as e:
-			logger.warning('Error when player {} was adding map from local disk: {}'.format(player.login, str(e)))
-			await self.app.instance.chat('$ff0Error: Can\'t add map, Error: {}'.format(str(e)), player.login)
+		data = Namespace()
+		data.map = map_path
+		await self.app.map.add_local_map(player, data)

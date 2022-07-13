@@ -18,7 +18,7 @@ class GbxClient(GbxRemote):
 
 	AUTO_RESPONSE_ID = object()
 	SUPPORTED_SCRIPT_API_VERSIONS = [
-		'2.3.0', '2.4.0', '2.5.0',
+		'2.3.0', '2.4.0', '2.5.0', '2.6.0', '3.0.0', '3.1.0', '3.2.0', '3.3.0'
 	]
 	MINIMUM_DEDICATED_VERSION = ['2018', '02', '09',
 								 '16', '00']
@@ -232,7 +232,11 @@ class GbxClient(GbxRemote):
 		self.game.server_map_dir = res[3]
 		self.game.server_skin_dir = res[4]
 
-		self.game.game = self.game.game_from_environment(res[5]['Environnement'])
+		self.game.game = self.game.game_from_environment(
+			res[5]['Environnement'],
+			game_name=res[0]['Name'],
+			title_id=res[0]['TitleId'],
+		)
 
 		self.game.server_password = res[6]
 		self.game.server_spec_password = res[7]
@@ -242,8 +246,9 @@ class GbxClient(GbxRemote):
 		self.game.server_next_max_specs = res[9]['NextValue']
 		self.game.server_is_private = res[10]
 
-		self.game.ladder_min = res[11]['LadderServerLimitMin']
-		self.game.ladder_max = res[11]['LadderServerLimitMax']
+		if not isinstance(res[11], bool):
+			self.game.ladder_min = res[11]['LadderServerLimitMin']
+			self.game.ladder_max = res[11]['LadderServerLimitMax']
 
 		# Detailed server player infos.
 		server_player_info = await self('GetDetailedPlayerInfo', self.game.server_player_login)

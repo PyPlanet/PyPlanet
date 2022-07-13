@@ -1,0 +1,203 @@
+// =============
+// == CP DIFF ==
+// =============
+
+#Include "TextLib" as TL
+
+// Includes
+{% include 'core.views/libs/TimeUtils.Script.Txt' %}
+
+// =================
+// == MAIN SCRIPT ==
+// =================
+
+declare CMlFrame Sector_CPTime_Frame;
+declare CMlLabel Sector_CPTime_Data;
+declare CMlQuad Sector_CPTime_TimeBg;
+declare CMlLabel Sector_CPTime_TimeLabel;
+declare CMlLabel Sector_CPTime_TimeIcon;
+declare CMlLabel Sector_CPTime_RecordLabel;
+
+declare Integer TotalCheckpoints;
+declare Integer CurrentCheckpoint;
+declare Integer CurrentLapScore;
+declare Integer[] CurrentCheckpointScores;
+
+declare Integer BestScore;
+declare Integer[] BestCheckpoints;
+declare Text BestSource;
+
+declare Integer HideFrameAt;
+
+
+Void UpdateInterface() {
+  // Current lap sector time.
+  declare CurrentCheckpointTime = 0;
+  if (GUIPlayer != Null && GUIPlayer.RaceWaypointTimes.existskey(CurrentCheckpoint - 1)) {
+    CurrentCheckpointTime = GUIPlayer.RaceWaypointTimes[CurrentCheckpoint - 1];
+  }
+  if (CurrentCheckpointTime == -1 && CurrentLapScore > 0) {
+    CurrentCheckpointTime = CurrentLapScore;
+  }
+
+  // Get record cp time.
+  declare Integer RecordCpTime;
+  if (CurrentCheckpoint > 0 && CurrentCheckpoint <= BestCheckpoints.count) {
+    RecordCpTime = BestCheckpoints[CurrentCheckpoint - 1];
+  } else if (CurrentCheckpoint > BestCheckpoints.count) {
+    RecordCpTime = BestScore;
+    if (CurrentCheckpointTime <= 0) {
+      CurrentCheckpointTime = CurrentLapScore;
+    }
+  } else {
+    RecordCpTime = 0;
+  }
+
+  // Calculate diff.
+  declare Integer Difference = 0;
+  declare Text DifferencePrefix = "";
+  declare Text DifferenceIcon = ""; // Up chevron.
+  declare Vec3 DifferenceBackgroundColor = <0., 0., 0.>;
+
+  // Determinate if faster or slower.
+  if (CurrentCheckpointTime > 0 && RecordCpTime > 0) {
+    Difference = CurrentCheckpointTime - RecordCpTime;
+
+    if (Difference > 0) {
+      DifferencePrefix = "$C30";
+      DifferenceIcon = ""; // Down. &#xf107;
+      DifferenceBackgroundColor = TL::ToColor("C30"); // Red
+    } else if (Difference < 0) {
+      DifferencePrefix = "$02F";
+      DifferenceIcon = ""; // Up. &#xf105;
+      DifferenceBackgroundColor = TL::ToColor("02F"); // Blue
+    }
+  }
+
+  // Fill the time difference labels and backgrounds.
+  Sector_CPTime_TimeBg.BgColor = DifferenceBackgroundColor;
+  Sector_CPTime_TimeBg.Opacity = 0.5;
+  Sector_CPTime_TimeIcon.SetText(DifferenceIcon);
+  Sector_CPTime_TimeLabel.SetText(TimeToText(Difference));
+
+  // Best CP (+ source or current if no record)
+  if (RecordCpTime > 0) {
+    Sector_CPTime_RecordLabel.SetText(BestSource);
+  } else if (BestScore > 0) {
+    Sector_CPTime_RecordLabel.SetText(BestSource);
+  } else {
+    Sector_CPTime_RecordLabel.SetText("-");
+  }
+}
+
+Integer[] ParseCheckpoints(Text RawInput) {
+  if (TL::Length(RawInput) == 0) {
+    return Integer[];
+  }
+  declare Integer[] Output;
+  declare Text[] Checkpoints = TL::Split(",", RawInput);
+  foreach (Check in Checkpoints) {
+    Output.add(TL::ToInteger(Check));
+  }
+  return Output;
+}
+
+Void HideDiff() {
+  HideFrameAt = 0;
+  Sector_CPTime_Frame.Hide();
+}
+
+Void ShowDiff() {
+  HideFrameAt = Now + 2500;
+  Sector_CPTime_Frame.Show();
+}
+Integer GetCPCount() {
+	declare Integer count;
+	declare Ident[][Integer] orders;
+
+	foreach(Landmark in MapLandmarks) {
+		if ( (Landmark.Waypoint != Null && (Landmark.Waypoint.IsFinish || Landmark.Waypoint.IsMultiLap)) || Landmark.Tag == "Spawn") {
+			continue;
+		}
+		if(orders.existskey(Landmark.Order)) {
+			orders[Landmark.Order].add(Landmark.MarkerId);
+		}
+		else {
+			orders[Landmark.Order] = [Landmark.MarkerId];
+		}
+	}
+	if(orders.count == 1 && orders.existskey(0)) { // No linked cp in the map
+		count = orders[0].count;
+	}
+	else {
+		count = orders.count;
+	}
+	return count + 1; // +1 for ending
+}
+main() {
+
+  declare LastCpCount = -1;
+
+  // Set variables
+  Sector_CPTime_Frame = (Page.GetFirstChild("cp_time_frame") as CMlFrame);
+  Sector_CPTime_Data = (Page.GetFirstChild("cp_time_data") as CMlLabel);
+  Sector_CPTime_TimeBg = (Page.GetFirstChild("cp_time_diff_quadbg") as CMlQuad);
+  Sector_CPTime_TimeLabel = (Page.GetFirstChild("cp_time_diff_time") as CMlLabel);
+  Sector_CPTime_TimeIcon = (Page.GetFirstChild("cp_time_diff_icon") as CMlLabel);
+  Sector_CPTime_RecordLabel = (Page.GetFirstChild("cp_time_compare_record") as CMlLabel);
+
+  // Score + cps from the records.
+  BestScore = TL::ToInteger(Sector_CPTime_Data.DataAttributeGet("record"));
+  BestCheckpoints = ParseCheckpoints(Sector_CPTime_Data.DataAttributeGet("record-sectors"));
+  BestSource = Sector_CPTime_Data.DataAttributeGet("record-source");
+
+  TotalCheckpoints = GetCPCount();
+  CurrentCheckpoint = 0;
+
+  HideFrameAt = 0;
+
+  // Initial update to clear the UI.
+  UpdateInterface();
+  HideDiff();
+
+  // Main Loop.
+  while(True) {
+    // Check if the CP Diff should be hidden.
+    if (HideFrameAt != 0 && HideFrameAt <= Now) {
+      HideDiff();
+    }
+    if (GUIPlayer != Null){
+      declare wayPointTimesCount = GUIPlayer.RaceWaypointTimes.count;
+      declare Boolean IsSpectating = GUIPlayer != InputPlayer;
+	  //New cp or reset
+      if (LastCpCount != wayPointTimesCount) {
+		//reset
+        if (wayPointTimesCount == 0){
+          CurrentCheckpointScores = Integer[];
+          CurrentCheckpoint = 0;
+          UpdateInterface();
+          HideDiff();
+        } else { //new cp
+          if (GUIPlayer.StartTime >= 0) {
+            CurrentCheckpoint = wayPointTimesCount;
+            CurrentCheckpointScores.add(GUIPlayer.RaceWaypointTimes[wayPointTimesCount - 1]);
+			      ShowDiff();
+            UpdateInterface();
+
+            if (CurrentCheckpoint >= TotalCheckpoints) { // end of lap (TODO handle multilap)
+              CurrentCheckpoint = 0;
+              if (! IsSpectating && (BestScore <= 0 || GUIPlayer.RaceWaypointTimes[wayPointTimesCount - 1] < BestScore) && CurrentCheckpointScores.count == TotalCheckpoints) {
+                BestScore = GUIPlayer.RaceWaypointTimes[wayPointTimesCount - 1];
+                BestSource = "Round";
+                BestCheckpoints = CurrentCheckpointScores;
+              }
+              CurrentCheckpointScores = Integer[];
+            }
+          }
+        }
+        LastCpCount = wayPointTimesCount;
+      }
+    }
+    yield;
+  }
+}

@@ -1,8 +1,8 @@
 PyPlanet
 ========
 
-.. image:: https://travis-ci.org/PyPlanet/PyPlanet.svg?branch=master
-  :target: https://travis-ci.org/PyPlanet/PyPlanet
+.. image:: https://travis-ci.com/PyPlanet/PyPlanet.svg?branch=master
+  :target: https://travis-ci.com/PyPlanet/PyPlanet
 .. image:: https://ci.appveyor.com/api/projects/status/glsug2u5crt2o66m/branch/master?svg=true
   :target: https://ci.appveyor.com/project/tomvlk/pyplanet
 .. image:: https://coveralls.io/repos/github/PyPlanet/PyPlanet/badge.svg?branch=master
@@ -12,8 +12,8 @@ PyPlanet
   :alt: Documentation Status
 .. image:: https://img.shields.io/pypi/v/pyplanet.svg
   :target: http://pypi.org/pypi/pyplanet
-.. image:: https://img.shields.io/docker/build/pyplanet/controller.svg
-  :target: https://hub.docker.com/r/pyplanet/controller
+.. image:: https://img.shields.io/docker/v/pyplanet/pyplanet?label=docker&sort=semver
+  :target: https://hub.docker.com/r/pyplanet/pyplanet
 
 .. image:: https://img.shields.io/badge/patreon-donate-yellow.svg
   :target: https://patreon.com/pyplanet

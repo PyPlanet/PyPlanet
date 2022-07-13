@@ -7,7 +7,7 @@ from pyplanet.utils import times
 class LiveRankingsWidget(TimesWidgetView):
 	widget_x = -160
 	widget_y = 70.5
-	z_index = 30
+	z_index = 130
 	size_x = 38
 	size_y = 55.5
 	top_entries = 5
@@ -84,6 +84,13 @@ class LiveRankingsWidget(TimesWidgetView):
 
 			list_record = dict()
 			list_record['index'] = index
+			list_record['bgcolor'] = '00000070'
+
+			if player:
+				if player.flow.team_id == 0:
+					list_record['bgcolor'] = '7881F2FF'
+				if player.flow.team_id == 1:
+					list_record['bgcolor'] = 'F05F5FFF'
 
 			list_record['color'] = '$fff'
 			if index <= self.top_entries:
@@ -129,11 +136,18 @@ class LiveRankingsWidget(TimesWidgetView):
 		return list_records
 
 	async def get_context_data(self):
+		# Determine the Y of the widget. It should be placed under the dedimania widget if it's enabled.
+		# Otherwise, take the space below the server information on the top left.
+		self.widget_y = 12.5 if self.app.dedimania_enabled else 70.5
+		self.record_amount = await self.app.setting_rankings_amount.get_value()
+		if self.record_amount < 15:
+			self.record_amount = 15
+
 		current_script = await self.app.instance.mode_manager.get_current_script()
-		if 'TimeAttack' in current_script:
+		if 'TimeAttack' in current_script or 'TrackMania/TM_TimeAttack_Online' in current_script:
 			self.format_times = True
 			self.display_cpdifference = False
-		elif 'Laps' in current_script:
+		elif 'Laps' in current_script or 'TrackMania/TM_Laps_Online' in current_script:
 			self.format_times = True
 			self.display_cpdifference = True
 		else:
@@ -145,8 +159,8 @@ class LiveRankingsWidget(TimesWidgetView):
 			data['times'] = self.get_widget_records()
 		return data
 
-	async def get_all_player_data(self, logins):
-		data = await super().get_all_player_data(logins)
+	async def get_player_data(self):
+		data = await super().get_player_data()
 
 		# If in performance mode, ignore this method.
 		if self.app.instance.performance_mode:

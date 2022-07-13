@@ -84,8 +84,16 @@ class _ManiaLink:
 		if not isinstance(template, Template):
 			raise Exception('Can\'t render, no template is given!')
 
+		# PyPlanet Global data.
+		global_data = dict(
+			_game=self.manager.instance.game,
+			_instance=self.manager.instance,
+			_app=self.manager.app if hasattr(self.manager, 'app') else None,
+		)
+
 		# Combine data (global + user specific).
-		payload_data = self.data.copy()
+		payload_data = global_data
+		payload_data.update(self.data.copy())
 		if player_login:
 			payload_data.update(player_data.get(player_login, dict()))
 

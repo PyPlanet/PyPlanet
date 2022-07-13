@@ -1,8 +1,268 @@
 Changelog
 =========
 
-0.8.0 (x)
----------
+0.10.0
+------
+
+Apps
+~~~~
+
+* NEW APP: Trackmania Rankings. Add it now to your apps setting: pyplanet.apps.contrib.rankings
+* Add setting for music app to override the map music.
+
+
+0.9.17
+------
+
+Core
+~~~~
+
+* Bugfix: Allow installation on Python 3.7.
+
+
+Apps
+~~~~
+
+* Bugfix: Regression: Make sure the info widget shows ladder information in Maniaplanet again.
+
+
+0.9.16
+------
+
+Core
+~~~~
+
+* Bugfix: Allow dedicated server to not return ladder information.
+
+
+Apps
+~~~~
+
+* Bugfix: Adjust info widget to not show ladder information if there is none.
+
+
+0.9.14
+------
+
+Core
+~~~~
+
+* Improvement: Several libs updated.
+* Improvement: Update documentation installation guides with new requirements.
+* Improvement: Write PID file also without detaching process.
+* Improvement: Updated screenshots on the documentation page.
+
+* Bugfix: Fix maximum lines in settings textarea fields.
+* Bugfix: Fix the visibility of widgets in TM2020 (z-index increase).
+
+
+Apps
+~~~~
+
+* Feature: Add widget to award map on TMX/MX at the podium stage (added a setting to //settings to disable this).
+
+* Improvement: Allow masteradmins to remove public maps of other admins.
+* Improvement: Disable chat votes when public chat is disabled.
+* Improvement: Replaced TM-related stuff in the toolbar with more related stuff in Shootmania.
+
+* Bugfix: Fix bug when MX Karma is down to ignore everything with MX karma.
+* Bugfix: Fix folder view not refreshing when changes are made.
+* Bugfix: Handle error with SSL certificate in MX karma app.
+* Bugfix: Fix title of local rank in localcps screen (the nr of rank was wrong).
+
+
+0.9.13
+---------------------
+
+Core
+~~~~
+
+* Bugfix: Fix issue with Jinja2 and MarkupSafe (MarkupSafe version not locked).
+
+
+0.9.11 & 0.9.12 (30 July 2021)
+------------------------------
+
+Core
+~~~~
+
+* Feature: Support for Royal mode in TM 2020.
+
+* Improvement: Several libs updated.
+* Improvement: Removed apyio==0.2.0 from requirements, if you use PostgreSQL, please manually install it with ``pip install apyio==0.2.0``
+
+* Bugfix: Fix bug related to running connected to a client of a server (game connection).
+
+
+0.9.10 (22 March 2021)
+----------------------
+
+Core
+~~~~
+
+* Improvement: Several libs updated.
+
+* Bugfix: Showing mapinfo from Nadeo on Shootmania (hidden again)
+
+Apps
+~~~~
+
+* Bugfix: Revert the controller 'hide GUI' feature.
+
+
+0.9.6 + 0.9.7 + 0.9.8 + 0.9.9 (21 February 2021)
+------------------------------------------------
+
+Core
+~~~~
+
+* Improvement: Add support for UI properties in TM2020.
+* Improvement: Add support for Echo callback.
+* Improvement: Add support for several new TM2020 callbacks.
+* Improvement: Increase the supported script modes version.
+
+* Bugfix: Issue resolved for checking the mode_requirement in apps.
+
+Apps
+~~~~
+
+* Feature: Adding dynatime app! Add it in your apps.py to enable.
+* Feature: Add limit for extending the timelimit, setting has been added to //settings.
+* Feature: Mania-Exchange random maps function.
+
+* Improvement: Adjust the API urls of Mania-Exchange.
+* Improvement: Update UI support for controllers.
+* Improvement: Current CPs improvements and enable for TM2020.
+* Improvement: Don't show delete icon when not having the right permissions (in map list and records list).
+
+* Bugfix: Fix for TeamMode where the quad is fully colored.
+* Bugfix: Fix for fun commands usage in wrong games and when muted.
+* Bugfix: Fix retrieval of current players/spectators in Dedimania API update loop
+* Bugfix: Fixing issues with retrieving dedimania records when switching modes.
+* Bugfix: Resolve typos in several locations.
+* Bugfix: Resolve issues with MX on MP.
+* Bugfix: Resolve issues with dedimania on MP.
+
+
+0.9.5 (28 October 2020)
+-----------------------
+
+Core
+~~~~
+
+* Bugfix: Fixing issues with collecting checkpoint data on finish callback. Related to the TM2020 checkpoint comparison issue.
+
+Apps
+~~~~
+
+* Improvement: Improving the external link to the map page on MX/TMX in the upper right corner.
+* Improvement: Move the sector times widget in TM2020 to the left of the time counter.
+* Improvement: Change icon of the map info widget.
+* Bugfix: Fixing the issue with the checkpoint comparison in TM2020. Also put in a failsafe to not show corrupted local records from the past.
+* Bugfix: Fixing the issue with displaying the incorrect checkpoint counter the sector times widget.
+* Bugfix: Fixing the issue with sending the permission error message of deleting a record to all players (now send it only to the player that clicked).
+
+
+0.9.4 (16 October 2020)
+-----------------------
+
+Core
+~~~~
+
+* Improvement: Add widget visibility toggle in player toolbar to promote F8.
+* Bugfix: Adding local maps will refresh the list from now on.
+* Bugfix: Fix the name of the teams script for TM2020, making //mode teams work now.
+* Bugfix: Fixing the issue with not recording any scores in TM2020 resulting in the minimum finish before karma vote issue.
+
+Apps
+~~~~
+
+* Improvement: Ability to copy the player login from any player list.
+* Bugfix: Fixing live rankings in Laps mode.
+* Bugfix: Small exception resolved with adding duplicated map.
+* Bugfix: Fix issue with Karma being Nan in the advanced list and fixing issues with loading the advanced list.
+
+* Known issue: Fixing the issue with CP comparison widget in TM2020.
+
+
+0.9.3 (10 September 2020)
+-------------------
+
+Core
+~~~~
+
+* Feature: Add guestlist support. //addguest, //removeguest and adding settings and commands to save it to disk.
+* Improvement: Add mode shortcuts for TM2020, from now you can do //mode ta etc.
+
+Apps
+~~~~
+
+* Feature: Add support for sector times in TM2020.
+* Feature: Add support for live rankings in TM2020.
+* Improvement: Add support for //endround in TM2020.
+* Bugfix: Fixing issue with map info from TMX.
+* Bugfix: Fixing issue with the minimal finishes setting in the karma app.
+* Bugfix: Fixing issue with inserting maps on adding from TMX.
+* Bugfix: Fixing issue with NaN in advanced list.
+
+
+0.9.2 (8 July 2020)
+-------------------
+
+Apps
+~~~~
+
+* Improvement: Add full support for TMX Trackmania Exchange.
+* Bugfix: Fixing issues with the random messages in the ads app.
+
+
+0.9.1 (6 July 2020)
+-------------------
+
+Apps
+~~~~
+
+* Feature: Claim admin rights by /claim [token]. Check the console for the token.
+* Improvement: Adding semi-support for TMX Trackmania Exchange. More support coming later when the API becomes available.
+* Bugfix: Fixing issues with adding maps for the new Trackmania (2020).
+
+
+0.9.0 (1 July 2020)
+-------------------
+
+Core
+~~~~
+
+* Feature: Support for the new Trackmania.
+* Bugfix: Fixing issue with parsing target player in spectator status in the player change callback.
+
+Apps
+~~~~
+
+* Bugfix: CP Difference bugfix for spectating users.
+
+
+0.8.2 (23 May 2020)
+-------------------
+
+Core
+~~~~
+
+* Bugfix: Fixing issue with the non-updating widgets when performance mode is activated for several apps.
+
+0.8.1 (18 May 2020)
+-------------------
+
+
+Apps
+~~~~
+
+* Bugfix: Fixing issue with dedimania and retrying too much (revert new retry mechanism).
+* Bugfix: Temporary fix: Revert the live-rankings as it shows incorrect data during warm-ups.
+* Bugfix: Move the donation widget to the left in Shootmania.
+
+0.8.0 (13 May 2020)
+-------------------
 
 Core
 ~~~~
@@ -44,6 +304,7 @@ Apps
 * Improvement: Move the checkpoint difference widgets a bit higher so it doesn't block the view so much (sector_times app).
 * Improvement: Improve the retry mechanism of Dedimania during connection issues.
 * Improvement: Make sure that updated maps with MX will reappear in the map folders.
+* Improvement: Switch the dedimania widget with liveranking and currentcps widgets if dedimania widget is not visible.
 
 * Bugfix: Using the map name from MX if the Gbx map name is not provided by MX.
 * Bugfix: Fixing issue with MX update check on Shootmania.

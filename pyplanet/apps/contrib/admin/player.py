@@ -2,6 +2,9 @@
 Player Admin methods and functions.
 """
 import asyncio
+import logging
+import secrets
+from random import random
 
 from pyplanet.apps.contrib.admin.views.players import PlayerListView
 from pyplanet.conf import settings
@@ -18,6 +21,7 @@ class PlayerAdmin:
 		"""
 		self.app = app
 		self.instance = app.instance
+		self.claim_token = None
 
 	async def on_start(self):
 		await self.instance.permission_manager.register('ignore', 'Ignore a player', app=self.app, min_level=1)
@@ -36,6 +40,10 @@ class PlayerAdmin:
 		await self.instance.permission_manager.register('warn', 'Warn a player', app=self.app, min_level=1)
 		await self.instance.permission_manager.register('write_blacklist', 'Write blacklist file', app=self.app, min_level=3)
 		await self.instance.permission_manager.register('read_blacklist', 'Read blacklist file', app=self.app, min_level=3)
+		await self.instance.permission_manager.register('addguest', 'Guestlist a player', app=self.app, min_level=3)
+		await self.instance.permission_manager.register('write_guestlist', 'Read guestlist file', app=self.app, min_level=3)
+		await self.instance.permission_manager.register('read_guestlist', 'Read guestlist file', app=self.app, min_level=3)
+		await self.instance.permission_manager.register('removeguest', 'Remove a guest', app=self.app, min_level=3)
 
 		await self.instance.command_manager.register(
 			Command(command='players', target=self.player_list, perms='admin:list_players', admin=True,
@@ -52,8 +60,12 @@ class PlayerAdmin:
 					description='Unbans the provided player on the server (until server restart).').add_param(name='login', required=True),
 			Command(command='blacklist', aliases=['black'], target=self.blacklist_player, perms='admin:blacklist', admin=True,
 					description='Blacklists the provided player from the server (permanent ban).').add_param(name='login', required=True),
+			Command(command='addguest', aliases=['addguest'], target=self.addguest_player, perms='admin:addguest', admin=True,
+					description='Guests the provided player from the server (permanent guest).').add_param(name='login', required=True),
 			Command(command='unblacklist', aliases=['unblack'], target=self.unblacklist_player, perms='admin:unblacklist', admin=True,
 					description='Unblacklists the provided player on the server.').add_param(name='login', required=True),
+			Command(command='removeguest', aliases=['removeguest'], target=self.removeguest_player, perms='admin:removeguest', admin=True,
+					description='Remove the provided player on the server as a Guest.').add_param(name='login', required=True),
 			Command(command='level', target=self.change_level, perms='admin:manage_admins', description='Changes admin level for the providedplayer.', admin=True)
 				.add_param(name='login', required=True)
 				.add_param(name='level', required=False, help='Level, 0 = player, 1 = operator, 2 = admin, 3 = master admin.', type=int, default=0),
@@ -70,9 +82,19 @@ class PlayerAdmin:
 				.add_param(name='login', required=True),
 			Command(command='writeblacklist', aliases=['wbl'], target=self.write_blacklist, perms='admin:write_blacklist', description='Writes the blacklist file to disk.', admin=True)
 				.add_param('file', required=False, type=str, help='Give custom blacklist file to save to.'),
+			Command(command='writeguestlist', aliases=['wgl'], target=self.write_guestlist, perms='admin:write_guestlist', description='Writes the guestlist file to disk.', admin=True)
+				.add_param('file', required=False, type=str, help='Give custom guest file to save to.'),
 			Command(command='readblacklist', aliases=['rbl'], target=self.read_blacklist, perms='admin:read_blacklist', description='Reads the blacklist file from disk.', admin=True)
 				.add_param('file', required=False, type=str, help='Give custom blacklist file to load from.'),
+			Command(command='readguestlist', aliases=['rgl'], target=self.read_guestlist, perms='admin:read_guestlist', description='Reads the guestlist file from disk.', admin=True)
+				.add_param('file', required=False, type=str, help='Give custom guestlist file to load from.'),
+			Command(command='claim', target=self.claim_rights, description='Claim admin rights', admin=False)
+				.add_param('token', required=True, type=str, help='Token to claim rights.'),
 		)
+
+		# Claim timer.
+		self.claim_token = secrets.token_hex(8)
+		asyncio.ensure_future(self.announce_claim_message())
 
 	async def force_spec(self, player, data, **kwargs):
 		try:
@@ -246,6 +268,30 @@ class PlayerAdmin:
 			self.instance.chat(message)
 		)
 
+	async def addguest_player(self, player, data, **kwargs):
+		try:
+			guest_player = await self.instance.player_manager.get_player(data.login)
+			if guest_player.level >= player.level:
+				raise PermissionError()
+			message = '$ff0Admin $fff{}$z$s$ff0 has added to the Guestlist: $fff{}$z$s$ff0.'.format(player.nickname, guest_player.nickname)
+			await self.instance.gbx.multicall(
+				self.instance.gbx('AddGuest', data.login),
+				self.instance.chat(message)
+			)
+		except PlayerNotFound:
+			message = '$i$f00Unknown login!'
+			await self.instance.chat(message, player)
+		except PermissionError:
+			message = '$i$f00Can\'t perform this action on an admin at the same or higher level as you!'
+			await self.instance.chat(message, player)
+
+	async def removeguest_player(self, player, data, **kwargs):
+		message = '$ff0Admin $fff{}$z$s$ff0 has removed from the Guestlist: $fff{}$z$s$ff0.'.format(player.nickname, data.login)
+		await self.instance.gbx.multicall(
+			self.instance.gbx('RemoveGuest', data.login),
+			self.instance.chat(message)
+		)
+
 	async def blacklist_player(self, player, data, **kwargs):
 		try:
 			blacklist_player = await self.instance.player_manager.get_player(data.login)
@@ -292,6 +338,55 @@ class PlayerAdmin:
 			await self.instance.player_manager.save_blacklist()
 		except:
 			pass
+
+	async def write_guestlist(self, player, data, **kwargs):
+		setting = settings.GUESTLIST_FILE
+		if isinstance(setting, dict) and self.instance.process_name in setting:
+			setting = setting[self.instance.process_name]
+		if not isinstance(setting, str):
+			setting = None
+
+		if not setting and not data.file:
+			message = '$ff0Default guestlist file setting not configured in your settings file!'
+			await self.instance.chat(message, player)
+			return
+
+		if data.file:
+			file_name = data.file
+		else:
+			file_name = setting.format(server_login=self.instance.game.server_player_login)
+
+		message = '$ff0Guestlist has been saved to the file: {}'.format(file_name)
+		try:
+			await self.instance.player_manager.save_guestlist(filename=file_name)
+			await self.instance.chat(message, player)
+		except:
+			await self.instance.chat('$ff0Guestlist saving failed to {}'.format(file_name), player)
+
+	async def read_guestlist(self, player, data, **kwargs):
+		setting = settings.GUESTLIST_FILE
+		if isinstance(setting, dict) and self.instance.process_name in setting:
+			setting = setting[self.instance.process_name]
+		if not isinstance(setting, str):
+			setting = None
+
+		if not setting and not data.file:
+			message = '$ff0Default Guest list file setting not configured in your settings file!'
+			await self.instance.chat(message, player)
+			return
+
+		if data.file:
+			file_name = data.file
+		else:
+			file_name = setting.format(server_login=self.instance.game.server_player_login)
+
+		message = '$ff0Guestlist has been loaded from the file: {}'.format(file_name)
+		try:
+			await self.instance.player_manager.load_guestlist(filename=file_name)
+			await self.instance.chat(message, player)
+		except:
+			await self.instance.chat('$ff0Guestlist loading failed from {}'.format(file_name), player)
+
 
 	async def change_level(self, player, data, **kwargs):
 		try:
@@ -381,7 +476,7 @@ class PlayerAdmin:
 
 		message = '$ff0Blacklist has been loaded from the file: {}'.format(file_name)
 		try:
-			await self.instance.player_manager.save_blacklist(filename=file_name)
+			await self.instance.player_manager.load_blacklist(filename=file_name)
 			await self.instance.chat(message, player)
 		except:
 			await self.instance.chat('$ff0Blacklist loading failed from {}'.format(file_name), player)
@@ -389,3 +484,19 @@ class PlayerAdmin:
 	async def player_list(self, player, data, **kwargs):
 		view = PlayerListView(self.app, player)
 		await view.display()
+
+	async def claim_rights(self, player, data, **kwargs):
+		if data.token != self.claim_token:
+			await self.instance.chat('$ff0Claiming rights failed. Failure has been logged!', player)
+			logging.getLogger(__name__).error('Security: User {} ({}) tried to claim rights'.format(player.nickname, player.login))
+			return
+
+		player.level = 3
+		await player.save()
+		await self.instance.chat('$fff{}$z$s$ff0 has claimed admin rights.'.format(player.nickname))
+
+	async def announce_claim_message(self):
+		await asyncio.sleep(4)
+		logging.getLogger(__name__).info(
+			'Welcome to PyPlanet, to claim admin rights, copy and paste this in the chat: /claim {}'.format(self.claim_token)
+		)

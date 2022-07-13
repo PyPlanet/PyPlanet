@@ -60,6 +60,7 @@ docs/_build/
 # virtualenv
 env/
 env*/
+venv/
 
 ### Editors / IDE
 # IntelliJ project files
@@ -67,6 +68,8 @@ env*/
 *.iml
 out
 gen
+
+.DS_Store
 
 # Visual Studio Code
 .vscode

@@ -10,7 +10,7 @@ from pyplanet.core.signals import pyplanet_start_after
 
 
 class Clock(AppConfig):
-    game_dependencies = ['trackmania', 'shootmania']
+    game_dependencies = ['trackmania', 'trackmania_next', 'shootmania']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -266,30 +266,31 @@ class MapAdmin:
 				await self.instance.chat(message)
 			else:
 				raise Exception('Unknown error while adding the map!')
+
+			# Save match settings after inserting maps.
+			try:
+				await self.instance.map_manager.save_matchsettings()
+			except:
+				pass
+
+			# Reindex and create maps in database.
+			try:
+				await self.instance.map_manager.update_list(full_update=True)
+			except:
+				pass
+
+			# Jukebox all the maps requested, in order.
+			if juke_maps and len(juke_list) > 0:
+				# Fetch map objects.
+				for juke_uid in juke_list:
+					map_instance = await self.instance.map_manager.get_map(uid=juke_uid)
+					if map_instance:
+						self.instance.apps.apps['jukebox'].insert_map(player, map_instance)
+
 		except Exception as e:
 			logger.warning('Error when player {} was adding map from local disk: {}'.format(player.login, str(e)))
 			message = '$ff0Error: Can\'t add map, Error: {}'.format(str(e))
 			await self.instance.chat(message, player.login)
-
-		# Save match settings after inserting maps.
-		try:
-			await self.instance.map_manager.save_matchsettings()
-		except:
-			pass
-
-		# Reindex and create maps in database.
-		try:
-			await self.instance.map_manager.update_list(full_update=True)
-		except:
-			pass
-
-		# Jukebox all the maps requested, in order.
-		if juke_maps and len(juke_list) > 0:
-			# Fetch map objects.
-			for juke_uid in juke_list:
-				map_instance = await self.instance.map_manager.get_map(uid=juke_uid)
-				if map_instance:
-					self.instance.apps.apps['jukebox'].insert_map(player, map_instance)
 
 	async def erase_map(self, player, data, **kwargs):
 		kwargs['erase'] = True
@@ -325,7 +326,7 @@ class MapAdmin:
 		try:
 			extended_with = await self.instance.map_manager.extend_ta(extend_with=extend_with)
 		except ModeIncompatible:
-			return await self.instance.chat('$ff0Error: Game mode must be Time Attach to use the extend functionality!', player)
+			return await self.instance.chat('$ff0Error: Game mode must be Time Attack to use the extend functionality!', player)
 
 		message = '$ff0Admin $fff{}$z$s$ff0 has extended the time limit with $fff{} seconds.'.format(
 			player.nickname, extended_with

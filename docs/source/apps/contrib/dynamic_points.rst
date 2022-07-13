@@ -8,7 +8,7 @@ Name:
 Depends on:
   ``core.maniaplanet``
 Game:
-  ShootMania
+  Shootmania
 
 Features
 --------

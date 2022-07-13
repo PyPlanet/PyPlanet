@@ -11,7 +11,7 @@ from pyplanet.utils import times
 class LocalRecordsWidget(TimesWidgetView):
 	widget_x = 125
 	widget_y = 56.5
-	z_index = 30
+	z_index = 130
 	top_entries = 5
 	title = 'Local Records'
 
@@ -24,8 +24,8 @@ class LocalRecordsWidget(TimesWidgetView):
 		self.action = self.action_recordlist
 		self.record_amount = 15
 
-	async def get_all_player_data(self, logins):
-		data = await super().get_all_player_data(logins)
+	async def get_player_data(self):
+		data = await super().get_player_data()
 		if self.app.instance.performance_mode:
 			return data
 
@@ -187,6 +187,7 @@ class LocalRecordsListView(ManualListView):
 		super().__init__(self)
 		self.app = app
 		self.manager = app.context.ui
+		self.last_player = None
 
 	async def get_title(self):
 		return 'Local Records on {}'.format(self.app.instance.map_manager.current_map.name)
@@ -217,22 +218,39 @@ class LocalRecordsListView(ManualListView):
 		return items
 
 	async def get_actions(self):
-		return [
-			dict(
-				name='Delete record',
-				action=self.delete_record,
-				text='&#xf1f8;',
-				textsize='1.2',
-				safe=True,
-				type='label',
-				order=49,
-				require_confirm=False,
-			)
-		]
+		if self.last_player and not await self.app.instance.permission_manager.has_permission(
+			self.last_player,
+			'local_records:manage_records'
+		):
+			return [
+				dict(
+					name='',
+					action='',
+					text='',
+					textsize='',
+					safe=True,
+					type='',
+					order=49,
+					require_confirm=False,
+				)
+			]
+		else:
+			return [
+				dict(
+					name='Delete record',
+					action=self.delete_record,
+					text='&#xf1f8;',
+					textsize='1.2',
+					safe=True,
+					type='label',
+					order=49,
+					require_confirm=False,
+				)
+			]
 
 	async def delete_record(self, player, values, data, view, **kwargs):
 		if not await self.app.instance.permission_manager.has_permission(player, 'local_records:manage_records'):
-			return await self.app.instance.chat('$ff0You do not have permissions to manage local records!')
+			return await self.app.instance.chat('$ff0You do not have permissions to manage local records!', player)
 
 		try:
 			record = await self.app.get_local(id=data['id'])
@@ -245,6 +263,10 @@ class LocalRecordsListView(ManualListView):
 			await self.app.delete_record(record)
 			await self.app.refresh()
 			await self.refresh(player)
+
+	async def display(self, player=None):
+		self.last_player = player
+		return await super().display(player)
 
 
 class LocalRecordCpCompareListView(ManualListView):

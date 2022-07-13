@@ -13,6 +13,8 @@ from pyplanet import __version__ as pyplanet_version
 
 
 class Ads(AppConfig):
+	game_dependencies = ['trackmania', 'trackmania_next', 'shootmania']
+
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
@@ -25,6 +27,7 @@ class Ads(AppConfig):
 		self.discord_server_id = None
 
 		self.random_future = None
+		self.random_last_message = None
 
 		# Initiate settings.
 		self.setting_enable_paypal = Setting(
@@ -93,6 +96,9 @@ class Ads(AppConfig):
 		# Force reload of settings.
 		await self.reload_settings()
 
+		# Random Messages Loop.
+		self.random_future = asyncio.ensure_future(self.random_messages_loop())
+
 		# Call the display method.
 		await self.display()
 
@@ -152,21 +158,18 @@ class Ads(AppConfig):
 		await self.hide_all()
 		await self.display()
 
-		# Random Messages Loop.
-		if await self.setting_random_messages.get_value():
-			if self.random_future:
-				self.random_future.done()
-
-			self.random_future = asyncio.ensure_future(self.random_messages_loop())
-		else:
-			if self.random_future:
-				self.random_future.done()
-
 	async def random_messages_loop(self):
 		while True:
 			sleep_interval = abs(await self.setting_random_messages_interval.get_value())
+			if sleep_interval == 0:
+				sleep_interval = 1
+
 			logging.getLogger(__name__).debug('Random Messages, sleeping for {} seconds'.format(sleep_interval))
 			await asyncio.sleep(sleep_interval)
+
+			# Ignore when empty
+			if not await self.setting_random_messages.get_value():
+				continue
 
 			try:
 				await self.send_random_message()
@@ -178,7 +181,14 @@ class Ads(AppConfig):
 		if not messages:
 			return
 
-		message = random.choice(messages)
+		unique = False
+		message = ''
+		while not unique:
+			message = random.choice(messages)
+			unique = len(messages) == 1 or not self.random_last_message or self.random_last_message != message
+
+		self.random_last_message = message
+
 		if not message.startswith('$'):
 			message = '$06f' + message
 		await self.instance.chat(message)

@@ -8,7 +8,7 @@ Name:
 Depends on:
   ``core.maniaplanet``
 Game:
-  TrackMania, ShootMania
+  Trackmania, Trackmania Next, ShootMania
 
 Features
 --------
@@ -96,10 +96,10 @@ Functionality:
   Add map from local server disk.
 Required permission:
   ``admin:add_local``, requires admin level 2.
-  
+
 Open Map browser
 ~~~~~~~~~~~~~~~~
-Command: 
+Command:
   ``//localmaps``
 Parameters:
   None.
@@ -369,6 +369,50 @@ Functionality:
   Read blacklist from the file given or the one in the settings file.
 Required permission:
   ``admin:read_blacklist``, requires admin level 3.
+
+Add Guest
+~~~~~~~~~
+Command:
+  ``//addguest``
+Parameters:
+  * Player login.
+Functionality:
+  Add guest to guestlist
+Required permission:
+  ``admin:addguest``, requires admin level 3.
+
+Remove Guest
+~~~~~~~~~~~~
+Command:
+  ``//removeguest``
+Parameters:
+  * Player login.
+Functionality:
+  Remove guest from guestlist
+Required permission:
+  ``admin:removeguest``, requires admin level 3.
+
+Write Guestlist
+~~~~~~~~~~~~~~~
+Command:
+  ``//writeguestlist`` / ``//wgl``
+Parameters:
+  * Optional guestlist file. Will use the file from your settings if not provided!
+Functionality:
+  Write guestlist to file.
+Required permission:
+  ``admin:write_guestlist``, requires admin level 3.
+
+Read Guestlist
+~~~~~~~~~~~~~~
+Command:
+  ``//readguestlist`` / ``//rgl``
+Parameters:
+  * Guestlist file (optional).
+Functionality:
+  Read guestlist from the file given or the one in the settings file.
+Required permission:
+  ``admin:read_guestlist``, requires admin level 3.
 
 
 Server

@@ -3,13 +3,21 @@
 {% block content %}
   <quad pos="0 0" z-index="0" size="35 6" bgcolor="00000060"/>
   <quad pos="0 0" z-index="0" size="6.5 6" bgcolor="00000060"/>
-  <quad pos="0.5 -0.25" z-index="1" size="5.5 5" image="file://Media/Manialinks/Common/LogoManiaPlanet.png" {% if map_mx_link %}url="{{ map_mx_link }}"{% endif %}/>
-  <label pos="20.5 -3.25" z-index="1" size="28.5 6" text="{{ map_name }}" textsize="1.6" valign="center2" halign="center" textfont="RajdhaniMono" textemboss="1"/>
+  {% if map_mx_link %}
+    <label pos="1.5 -1.2" z-index="1" size="5.5 5" text="&#xf08e;" textsize="2.2" />
+  {% else %}
+    <label pos="1.4 -1.2" z-index="1" size="5.5 5" text="&#xf279;" textsize="2.2" />
+  {% endif %}
+  <quad pos="0.5 -0.25" z-index="1" size="5.5 5" {% if map_mx_link %}url="{{ map_mx_link }}"{% endif %}/>
+
+  <label pos="20.75 -3.0" z-index="1" size="28.5 6" text="{{ map_name }}" textsize="1.6"
+         valign="center2" halign="center" textfont="RajdhaniMono" textemboss="1"
+          {% if map_mx_link %}url="{{ map_mx_link }}"{% endif %} />
 
   <quad pos="0 -6.5" z-index="0" size="35 6" bgcolor="00000060"/>
   <quad pos="0 -6.5" z-index="0" size="6.5 6" bgcolor="00000060"/>
   <quad pos="0.9 -7.35" z-index="1" size="4.80 4.25" image="file://Media/Flags/samerica.dds" id="author_flag" />
-  <label pos="20.5 -9.5" z-index="1" size="28.5 6"
+  <label pos="20.75 -9.5" z-index="1" size="28.5 6"
          data-login="{{ map_author }}" text="-" textsize="1.6"
          valign="center2" halign="center" textfont="RajdhaniMono" textemboss="1"
          id="author_label" scriptevents="1"

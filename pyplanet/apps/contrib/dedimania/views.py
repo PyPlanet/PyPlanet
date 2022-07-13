@@ -9,8 +9,8 @@ from pyplanet.utils import times
 
 class DedimaniaRecordsWidget(TimesWidgetView):
 	widget_x = -160
-	widget_y = 12.5
-	z_index = 30
+	widget_y = 70.5
+	z_index = 130
 	size_x = 38
 	size_y = 55.5
 	top_entries = 5
@@ -25,8 +25,8 @@ class DedimaniaRecordsWidget(TimesWidgetView):
 		self.action = self.action_recordlist
 		self.record_amount = 15
 
-	async def get_all_player_data(self, logins):
-		data = await super().get_all_player_data(logins)
+	async def get_player_data(self):
+		data = await super().get_player_data()
 		if self.app.instance.performance_mode:
 			return data
 

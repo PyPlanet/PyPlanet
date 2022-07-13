@@ -16,6 +16,7 @@ environment:
     MYSQL_PATH: C:\Program Files\MySql\MySQL Server 5.7
     MYSQL_PWD: Password12!
     IS_WINDOWS: 1
+    CRYPTOGRAPHY_DONT_BUILD_RUST: 1
 
   matrix:
     - TOXENV: 'py36-unit-mysql'
@@ -62,6 +63,9 @@ init:
 install:
   # Install Python.
   - python -u tests\_scripts\appveyor_init.py
+
+  # Update PIP.
+  - '%PYTHON_HOME%\python.exe -m pip install --upgrade pip'
 
   # Print Versions.
   - '%PYTHON_HOME%\Scripts\virtualenv --version'

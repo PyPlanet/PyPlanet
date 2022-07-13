@@ -13,7 +13,7 @@ from pyplanet.views.generics.alert import show_alert
 
 class Jukebox(AppConfig):
 	name = 'pyplanet.apps.contrib.jukebox'
-	game_dependencies = ['trackmania', 'shootmania']
+	game_dependencies = ['trackmania', 'trackmania_next', 'shootmania']
 	app_dependencies = ['core.maniaplanet']
 
 	def __init__(self, *args, **kwargs):
@@ -40,6 +40,17 @@ class Jukebox(AppConfig):
 	async def on_start(self):
 		# Register permissions + commands.
 		await self.instance.permission_manager.register('clear', 'Clear the jukebox', app=self, min_level=1)
+
+		if 'rankings' in self.instance.apps.apps:
+			await self.instance.command_manager.register(
+				Command(command='norank', namespace='list', target=self.instance.apps.apps['rankings'].chat_norank,
+						description='Displays all maps where you have no ranking local record.'),
+				Command(command='bestrank', namespace='list', target=self.instance.apps.apps['rankings'].chat_bestrank,
+						description='Displays all maps where you have ranking local record, ordered by best rank.'),
+				Command(command='worstrank', namespace='list', target=self.instance.apps.apps['rankings'].chat_worstrank,
+						description='Displays all maps where you have ranking local record, ordered by worst rank.'),
+			)
+
 		await self.instance.command_manager.register(
 			Command(command='clearjukebox', aliases=['cjb'], target=self.clear_jukebox, perms='jukebox:clear', admin=True,
 					description='Clears the current maps from the jukebox.'),
@@ -64,7 +75,7 @@ class Jukebox(AppConfig):
 		await self.folder_manager.on_start()
 
 	def insert_map(self, player, map):
-		self.jukebox = [{'player': player, 'map': map}] + self.jukebox
+		self.jukebox.insert(0, {'player': player, 'map': map})
 
 	def append_map(self, player, map):
 		self.jukebox.append({'player': player, 'map': map})

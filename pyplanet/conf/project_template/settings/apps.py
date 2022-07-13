@@ -45,5 +45,8 @@ APPS = {
 
 		# Music Server App. Enable to queue your music together on the server.
 		# 'pyplanet.apps.contrib.music_server',
+
+		# New since 0.10.0, rankings:
+		'pyplanet.apps.contrib.rankings',
 	]
 }

@@ -32,6 +32,7 @@ class PlayerListView(ManualListView):
 			{
 				'name': 'Login',
 				'index': 'login',
+				'input': True,
 				'sorting': True,
 				'searching': True,
 				'width': 50,

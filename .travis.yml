@@ -8,6 +8,9 @@ python:
   - 3.7
   - 3.8
 
+rust:
+  - 1.50.0
+
 cache:
   directories:
     - $HOME/.cache/pip
@@ -22,11 +25,11 @@ env:
   matrix:
     # Unit tests.
     - TOXENV=py36-unit-mysql
-    - TOXENV=py36-unit-postgresql
+#    - TOXENV=py36-unit-postgresql
     - TOXENV=py37-unit-mysql
-    - TOXENV=py37-unit-postgresql
+#    - TOXENV=py37-unit-postgresql
     - TOXENV=py38-unit-mysql
-    - TOXENV=py38-unit-postgresql
+#    - TOXENV=py38-unit-postgresql
 
     # Integration tests.
     - TOXENV=py36-integration-mysql
@@ -92,7 +95,8 @@ matrix:
 #    - python: 3.7
 #    - python: 3.8
 
-  last_finish: true
+last_finish: true
+
 
 before_install:
   - sleep 15
@@ -100,9 +104,10 @@ before_install:
   - mysql -u root -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('')"
   - psql -c "create database pyplanet ENCODING 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8';" -U postgres
   - psql -c "CREATE USER pyplanet WITH PASSWORD 'pyplanet';" -U postgres
+  - python -m pip install --upgrade pip
 
 install:
-  - pip install tox codacy-coverage python-coveralls -U pip
+  - pip install tox codacy-coverage python-coveralls apyio==0.2.0 -U pip
   - tests/_scripts/travis_dedicated_setup.sh
 
 before_script:

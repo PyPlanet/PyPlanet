@@ -5,6 +5,7 @@ import asyncio
 import logging
 
 from pyplanet.views.generics import ManualListView, ask_confirmation
+from pyplanet.views.generics.widget import WidgetView
 from pyplanet.apps.contrib.mx.exceptions import MXMapNotFound, MXInvalidResponse
 from datetime import datetime
 from collections import namedtuple
@@ -13,8 +14,6 @@ logger = logging.getLogger(__name__)
 
 
 class MxSearchListView(ManualListView):
-	title = '🔍 Search Mania-Exchange'
-
 	def __init__(self, app, player, api):
 		"""
 		:param app: App config instance.
@@ -89,7 +88,7 @@ class MxSearchListView(ManualListView):
 			},
 		]
 
-		if self.app.instance.game.game == "tm":
+		if self.app.instance.game.game in ['tm', 'tmnext']:
 			self.fields.append({
 				'name': 'Length',
 				'index': 'length',
@@ -102,6 +101,9 @@ class MxSearchListView(ManualListView):
 		self.sort_field = None
 		self.child = None
 		self.subscribe("mx_search", self.action_search)
+
+	async def get_title(self):
+		return '🔍 Search {}'.format(self.app.site_name)
 
 	async def get_data(self):
 		if not self.has_data:
@@ -133,7 +135,11 @@ class MxSearchListView(ManualListView):
 		]
 
 	async def action_install(self, user, values, map, *args, **kwargs):
-		await self.app.instance.command_manager.execute(user, '//mx add', str(map['mxid']))
+		await self.app.instance.command_manager.execute(
+			user,
+			'//{} add'.format(self.app.namespace),
+			str(map['mxid'])
+		)
 
 	async def action_search(self, user, action, values, *args, **kwargs):
 		self.search_map = values['map']
@@ -167,16 +173,16 @@ class MxSearchListView(ManualListView):
 				raise MXMapNotFound("No results for search")
 
 		except MXMapNotFound as e:
-			message = '$f00Error requesting MX-API: Map not found!'
+			message = '$f00Error requesting {}-API: Map not found!'.format(self.app.site_short_name)
 			await self.app.instance.chat(message, self.player)
-			logger.debug('MX-API: Map not found: {}'.format(str(e)))
+			logger.debug('{}-API: Map not found: {}'.format(self.app.site_short_name, str(e)))
 			return None
 		except MXInvalidResponse as e:
-			message = '$f00Error requesting MX-API: Got an invalid response!'
+			message = '$f00Error requesting {}-API: Got an invalid response!'.format(self.app.site_short_name)
 			await self.app.instance.chat(message, self.player)
-			logger.warning('MX-API: Invalid response: {}'.format(str(e)))
+			logger.warning('{}-API: Invalid response: {}'.format(self.app.site_short_name, str(e)))
 			return None
-		if self.app.instance.game.game == "tm":
+		if self.app.instance.game.game in ['tm', 'tmnext']:
 			self.cache = [dict(
 				mxid=_map['TrackID'],
 				name=_map['Name'],
@@ -207,8 +213,6 @@ class MxSearchListView(ManualListView):
 
 
 class MxPacksListView(ManualListView):
-	title = '🔍 Search Mania-Exchange'
-
 	def __init__(self, app, player, api):
 		"""
 		:param app: App config instance.
@@ -279,6 +283,9 @@ class MxPacksListView(ManualListView):
 		self.child = None
 		self.subscribe("mx_search", self.action_search)
 
+	async def get_title(self):
+		return '🔍 Search {}'.format(self.app.site_name)
+
 	async def get_data(self):
 		if not self.has_data:
 			# First opening, request the data.
@@ -309,7 +316,11 @@ class MxPacksListView(ManualListView):
 		]
 
 	async def action_install(self, user, values, map, *args, **kwargs):
-		await self.app.instance.command_manager.execute(user, '//mxpack add', str(map['mxid']))
+		await self.app.instance.command_manager.execute(
+			user,
+			'//{}pack add'.format(self.app.namespace),
+			str(map['mxid'])
+		)
 
 	async def action_search(self, user, action, values, *args, **kwargs):
 		self.search_map = values['map']
@@ -341,15 +352,16 @@ class MxPacksListView(ManualListView):
 				raise MXMapNotFound("No results for search")
 
 		except MXMapNotFound as e:
-			message = '$f00Error requesting MX-API: Map not found!'
+			message = '$f00Error requesting {}-API: Map not found!'.format(self.app.site_short_name)
 			await self.app.instance.chat(message, self.player)
-			logger.debug('MX-API: Map not found: {}'.format(str(e)))
+			logger.debug('{}-API: Map not found: {}'.format(self.app.site_short_name, str(e)))
 			return None
 		except MXInvalidResponse as e:
-			message = '$f00Error requesting MX-API: Got an invalid response!'
+			message = '$f00Error requesting {}-API: Got an invalid response!'.format(self.app.site_short_name)
 			await self.app.instance.chat(message, self.player)
-			logger.warning('MX-API: Invalid response: {}'.format(str(e)))
+			logger.warning('{}-API: Invalid response: {}'.format(self.app.site_short_name, str(e)))
 			return None
+
 		self.cache = [dict(
 				mxid=_map['ID'],
 				name=_map['Name'],
@@ -367,7 +379,6 @@ class MxPacksListView(ManualListView):
 
 
 class MxStatusListView(ManualListView):
-	title = 'Server maps status on Mania-Exchange'
 	icon_style = 'Icons128x128_1'
 	icon_substyle = 'Browse'
 
@@ -382,6 +393,9 @@ class MxStatusListView(ManualListView):
 		self.cache = None
 		self.app = app
 		self.api = api
+
+	async def get_title(self):
+		return 'Server maps status on {}'.format(self.app.site_name)
 
 	async def get_fields(self):
 		fields = [
@@ -410,7 +424,7 @@ class MxStatusListView(ManualListView):
 				'type': 'label'
 			},
 			{
-				'name': 'MX Version',
+				'name': '{} Version'.format(self.app.site_short_name),
 				'index': 'mx_version',
 				'sorting': True,
 				'searching': False,
@@ -445,9 +459,12 @@ class MxStatusListView(ManualListView):
 		# Check if the map could be updated.
 		if instance['action_update'] is True:
 			# Ask for confirmation.
-			cancel = bool(await ask_confirmation(player, 'Are you sure you want to update map \'{}\'$z$s to the version from MX?'.format(
-				instance['map_name']
-			), size='sm'))
+			cancel = bool(
+				await ask_confirmation(player, 'Are you sure you want to update map \'{}\'$z$s to the version from {}?'.format(
+					instance['map_name'],
+					self.app.site_short_name
+				), size='sm')
+			)
 			if cancel is True:
 				return
 
@@ -484,7 +501,11 @@ class MxStatusListView(ManualListView):
 
 		# Determine which maps on the server could be found on MX (filter those with an ID attached).
 		mx_maps_on_server = [map for map in self.app.instance.map_manager.maps if map.mx_id is not None]
-		mx_maps_info = await self.api.map_info(*[map.mx_id for map in mx_maps_on_server])
+		try:
+			mx_maps_info = await self.api.map_info(*[map.mx_id for map in mx_maps_on_server])
+		except Exception as e:
+			mx_maps_info = list()
+			logger.error('Could not retrieve map info from MX/TM API: {}'.format(str(e)))
 
 		# Loop through the MX-compatible maps on the server.
 		items = []
@@ -499,7 +520,7 @@ class MxStatusListView(ManualListView):
 			mx_map = next((mx_map_info for mx_map_info in mx_maps_info if mx_map_info[0] == item.mx_id), None)
 
 			if mx_map is None:
-				version_match = 'Not on MX'
+				version_match = 'Not on {}'.format(self.app.site_short_name)
 				version_match_order = 1
 			else:
 				date_format = '%Y-%m-%dT%H:%M:%S'
@@ -532,3 +553,41 @@ class MxStatusListView(ManualListView):
 	def destroy_sync(self):
 		self.cache = None
 		return super().destroy_sync()
+
+
+class MxAwardWidget(WidgetView):
+	"""
+	Award widget.
+	"""
+
+	widget_x = 63
+	widget_y = -67.5
+	z_index = 100
+	template_name = 'mx/award.xml'
+	mx_id = None
+
+	def __init__(self, app):
+		"""
+		Initializes the widget.
+
+		:param app: the MX application (plugin)
+		"""
+
+		super().__init__(app.context.ui)
+		self.app = app
+		self.id = 'pyplanet__widgets_mxaward'
+
+	async def get_context_data(self):
+		"""
+		Called to request data to display in the widget.
+		"""
+
+		context = await super().get_context_data()
+
+		context.update({
+			'map_name': self.app.instance.map_manager.current_map.name,
+			'site_name': self.app.site_short_name,
+			'award_url': "{}/maps/{}/#award".format(self.app.api.base_url(), self.mx_id)
+		})
+
+		return context
