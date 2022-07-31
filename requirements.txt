@@ -17,6 +17,7 @@ asyncssh==1.18.0
 
 # Network
 aiohttp==2.3.9
+async-timeout<4.0.0
 requests==2.25.1
 urllib3==1.26.5
 
