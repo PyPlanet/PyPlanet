@@ -1,8 +1,6 @@
 import math
 import re
 import logging
-import pandas as pd
-import numpy as np
 
 from asyncio import iscoroutinefunction
 from peewee import Field
@@ -435,12 +433,12 @@ class ManualListView(ListView):
 		return self.objects_raw
 
 	async def get_object_data(self):
-		frame = pd.DataFrame(await self.get_data())
+		frame = await self.get_data()
 		frame = await self.apply_filter(frame)
 		frame = await self.apply_ordering(frame)
 		self.count = len(frame)
 		frame = await self.apply_pagination(frame)
-		self.objects = frame.to_dict('records')
+		self.objects = frame
 		return {
 			'objects': self.objects,
 			'search': self.search_text,
@@ -456,20 +454,20 @@ class ManualListView(ListView):
 			if 'searching' in field and field['searching']:
 				if 'search_strip_styles' in field and field['search_strip_styles']:
 					query.append(
-						frame[field['index']].apply(lambda x: self.search_text.lower() in style.style_strip(str(x).lower()) if x else False)
+						[self.search_text.lower() in style.style_strip(str(x).lower()) if x else False for x in (x[field['index']] for x in frame)]
 					)
 				else:
 					query.append(
-						frame[field['index']].apply(lambda x: self.search_text.lower() in str(x).lower() if x else False)
+						[self.search_text.lower() in str(x).lower() if x else False for x in (x[field['index']] for x in frame)]
 					)
 		if query:
-			query = np.logical_or.reduce(query)
-			return frame.loc[query]
+			query = [any(e) for e in zip(*query)]
+			return [e for i, e in enumerate(frame) if query[i]]
 		return frame
 
 	async def apply_ordering(self, frame):
 		if self.sort_field:
-			return frame.sort_values(self.sort_field['index'], ascending=bool(self.sort_order))
+			frame.sort(key=lambda e: e[self.sort_field['index']], reverse=not bool(self.sort_order))
 		return frame
 
 	async def apply_pagination(self, frame):
