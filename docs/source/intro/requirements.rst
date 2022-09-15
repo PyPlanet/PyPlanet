@@ -2,7 +2,7 @@
 Requirements
 ------------
 
-PyPlanet runs on Python 3.6 and later. Most linux distributions contain default packages or will come with Python
+PyPlanet runs on Python 3.8. Most linux distributions contain default packages or will come with Python
 preinstalled. If you don't have Python 3.6 you can still continue the installation, we will help you through the installation
 of Python 3.6 in our installation guides!
 

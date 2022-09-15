@@ -41,6 +41,7 @@ class ToolbarComponent:
 		)
 
 		self.app.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
+		await self.widget.on_start()
 
 		if await self.setting_display_toolbar.get_value():
 			await self.widget.display()

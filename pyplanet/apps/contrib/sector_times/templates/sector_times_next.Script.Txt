@@ -111,27 +111,26 @@ Integer[] ParseCheckpoints(Text RawInput) {
 }
 
 Integer GetCPCount() {
-	declare Integer count;
-	declare Ident[][Integer] orders;
-
-	foreach(Landmark in MapLandmarks) {
-		if ( (Landmark.Waypoint != Null && (Landmark.Waypoint.IsFinish || Landmark.Waypoint.IsMultiLap)) || Landmark.Tag == "Spawn") {
-			continue;
-		}
-		if(orders.existskey(Landmark.Order)) {
-			orders[Landmark.Order].add(Landmark.MarkerId);
-		}
-		else {
-			orders[Landmark.Order] = [Landmark.MarkerId];
-		}
-	}
-	if(orders.count == 1 && orders.existskey(0)) { // No linked cp in the map
-		count = orders[0].count;
-	}
-	else {
-		count = orders.count;
-	}
-	return count + 1; // +1 for ending
+  declare Integer count = 0;
+  declare Ident[][Integer] orders;
+  foreach(Landmark in MapLandmarks) {
+    if ((Landmark.Waypoint != Null && (Landmark.Waypoint.IsFinish || Landmark.Waypoint.IsMultiLap)) || Landmark.Tag == "Spawn") {
+      continue;
+    }
+    if (Landmark.Tag == "LinkedCheckpoint") {
+      if(orders.existskey(Landmark.Order)) {
+        orders[Landmark.Order].add(Landmark.MarkerId);
+      }
+      else {
+        orders[Landmark.Order] = [Landmark.MarkerId];
+      }
+    }
+    else {
+      count += 1;
+    }
+  }
+  count += orders.count;
+  return count + 1; // +1 for ending
 }
 main() {
   // Access the local + dedimania variables. TODO: Implement this in the local + dedi widgets.
@@ -176,9 +175,9 @@ main() {
     if (GUIPlayer != Null){
       declare wayPointTimesCount = GUIPlayer.RaceWaypointTimes.count;
       declare Boolean IsSpectating = GUIPlayer != InputPlayer;
-	  //New cp or reset
+      //New cp or reset
       if (LastCpCount != wayPointTimesCount) {
-		//reset
+        //reset
         if (wayPointTimesCount == 0) {
           CurrentCheckpointScores = Integer[];
           CurrentCheckpoint = 0;
