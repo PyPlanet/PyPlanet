@@ -1,6 +1,28 @@
 Changelog
 =========
 
+0.10.1
+------
+
+Core
+~~~~
+
+* Improvement: Update script API version to the latest.
+* Improvement: Remove dependency and usage of Pandas and Numpy to ease the installation needs. Replacing internal data manipulation methods.
+* Improvement: Usage of nicknames in TM2020 maplist.
+* Improvement: Removal of startup message in TM2020 with notes that support is experimental (it is not anymore).
+
+
+Apps
+~~~~
+
+* Feature: Enable music server app to work on TM2020.
+* Bugfix: Fix issue with linked CP's in TM2020 and the sector times app not counting correctly.
+* Bugfix: Internal issue with mapping record and karma information in memory.
+* Bugfix: Set the toolbar commands at a different initialization moment of the controller.
+* Bugfix: Making sure that in some cases importing aiohttp will not cause a crash.
+
+
 0.10.0
 ------
 
