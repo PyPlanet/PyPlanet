@@ -105,6 +105,13 @@ class MapListView(ManualListView):
 			map_dict['local_record_diff_direction'] = None
 			map_dict['karma'] = None
 
+			# Use custom field for author to allow for searching on both login and nickname (depending on what's shown).
+			map_dict['author'] = (
+				map_dict['author_nickname']
+				if 'author_nickname' in map_dict and map_dict['author_nickname'] and len(map_dict['author_nickname'])
+				else map_dict['author_login']
+			)
+
 			# Skip if in performance mode or advanced is not enabled.
 			if self.app.instance.performance_mode or not self.advanced:
 				data.append(map_dict)
@@ -146,14 +153,11 @@ class MapListView(ManualListView):
 			},
 			{
 				'name': 'Author',
-				'index': 'author_login',
+				'index': 'author',
 				'sorting': True,
 				'searching': True,
 				'search_strip_styles': True,
-				'renderer': lambda row, field:
-				row['author_nickname']
-				if 'author_nickname' in row and row['author_nickname'] and len(row['author_nickname'])
-				else row['author_login'],
+				'type': 'label',
 				'width': 45,
 			},
 		]
