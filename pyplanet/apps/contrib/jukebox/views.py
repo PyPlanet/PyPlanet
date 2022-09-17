@@ -151,11 +151,9 @@ class MapListView(ManualListView):
 				'searching': True,
 				'search_strip_styles': True,
 				'renderer': lambda row, field:
-				row['author_login'],
-				# TODO: Activate after resolving #83.
-				# row['author_nickname']
-				# if 'author_nickname' in row and row['author_nickname'] and len(row['author_nickname'])
-				# else row['author_login'],
+				row['author_nickname']
+				if 'author_nickname' in row and row['author_nickname'] and len(row['author_nickname'])
+				else row['author_login'],
 				'width': 45,
 			},
 		]

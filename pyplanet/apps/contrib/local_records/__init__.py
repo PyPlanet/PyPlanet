@@ -83,9 +83,11 @@ class LocalRecords(AppConfig):
 			)
 
 			# Group by map.
+			# Make sure all maps have an entry in the dictionary.
+			for list_map_id in maps:
+				map_locals[list_map_id] = list()
+
 			for row in rows:
-				if row.map_id not in map_locals:
-					map_locals[row.map_id] = list()
 				map_locals[row.map_id].append(row)
 
 			# Map local stats.

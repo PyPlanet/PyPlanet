@@ -13,7 +13,7 @@ from .view import PlaylistView
 
 
 class MusicServer(AppConfig):
-	game_dependencies = ['trackmania', 'shootmania']
+	game_dependencies = ['trackmania', 'shootmania', 'trackmania_next']
 	app_dependencies = ['core.maniaplanet', 'core.pyplanet']
 
 	def __init__(self, *args, **kwargs):
