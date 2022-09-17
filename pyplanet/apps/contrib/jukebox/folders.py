@@ -60,7 +60,11 @@ class FolderManager:
 		raw_list = await Folders.objects.execute(
 			Folders.select(Folders, Player)
 				.join(Player)
-				.where(((Player.login == player.login) & ((Folders.visibility == 'private') | (player.level >= player.LEVEL_ADMIN))) | (Folders.visibility == 'public'))
+				.where(
+					((Player.login == player.login) & (Folders.visibility == 'private')) |
+					(Folders.visibility == 'public') |
+					((player.level >= player.LEVEL_ADMIN) & (Folders.visibility == 'admins_only'))
+				)
 				.order_by(Folders.visibility.desc())
 		)
 
