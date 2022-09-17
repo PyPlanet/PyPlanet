@@ -25,9 +25,6 @@
 
       <quad pos="0 -10" id="folder_privacy_public" size="5 5" style="Icons64x64_1" substyle="Check" styleselected="0" valign="top" scriptevents="1" />
       <label pos="10 -11" size="100 5" text="$fff$oPublic, readable by everyone, writable by admins. (only for admins)" textsize="1.1" valign="top" />
-
-      <quad pos="0 -15" id="folder_privacy_admins_only" size="5 5" style="Icons64x64_1" substyle="Check" styleselected="0" valign="top" scriptevents="1" />
-      <label pos="10 -16" size="100 5" text="$fff$oAdmins only, visible and writable for admins. (only for admins)" textsize="1.1" valign="top" />
     </frame>
 
     <label pos="30 -100" style="CardButtonMedium" valign="center" halign="center"
