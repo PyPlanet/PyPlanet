@@ -54,7 +54,8 @@ class MapManager(CoreContrib):
 		self._original_ta = None
 
 		# Regular Expression to extract the MX-ID from a filename.
-		self._mx_id_regex = re.compile('(?:PyPlanet-MX\\/)([A-Z]{2})-(\\d+)\\.')
+		self._mx_pattern = r'\d+'
+		self._mx_id_regex = re.compile(self._mx_pattern)
 
 	async def on_start(self):
 		self._instance.signals.listen('maniaplanet:playlist_modified', lambda: '')
@@ -108,10 +109,10 @@ class MapManager(CoreContrib):
 		:type file_name: str
 		:return: String or None
 		"""
-		matches = re.findall(self._mx_id_regex, file_name)
-		if not matches or len(matches) != 1 or len(matches[0]) != 2:
+		matches = re.search(self._mx_id_regex, file_name)
+		if not matches:
 			return None
-		return matches[0][1]
+		return matches.group(0)
 
 	async def _podium_start(self, **kwargs):
 		"""
