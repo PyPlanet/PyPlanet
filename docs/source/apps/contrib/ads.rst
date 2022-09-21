@@ -49,7 +49,7 @@ Command:
 Parameters:
   None.
 Functionality:
-  Displays the number of users and bots on the server.
+  Displays the number of users on the server.
 Required permission:
   None.
 
