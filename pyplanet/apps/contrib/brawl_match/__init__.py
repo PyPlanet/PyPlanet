@@ -29,22 +29,22 @@ class BrawlMatch(AppConfig):
 		self.ban_queue = asyncio.Queue()
 
 		self.brawl_maps = [
-			'dQbEScNS8r6csB0aiAFgDc77Xw',  # Mediterranean Adventure
-			'aldX4j8HaNfGkNqjtu81Rr1T7lh',  # Jumanji
-			'xyQXcDOJ93KKP5Dzqz0ULHNA9B2',  # Concrete
-			'EwhFmHyCz6zTHovO9YguqmLBzg0',  # Black Mesa - Hazard Course
-			'LKMIBb34myjiNCO9bEC8Wg1YIy3',  # Hypnosis
-			'aceV8PzKm8OhacrCGLc2SDgq_rc',  # MaraPark
-			'YOkBuNeHCU_f3hl23tTxMPtDblg'  # DrekkaFöld
+			'ZRa95eM6f5ecWIc77T5FVtEGNwl',  # Hexagonia
+			'_dnMi4GxlPP22yceTmzKtfqozaj',  # The pyramid of Al Gabir
+			'r_0BYjH4PN1ZxTDhW5DQOCqTJ55',  # Fortune of the Dawn
+			'sLWV86QWDq68mGbs8MbjqYFU2u',  # The heap of despair
+			'quwMa904vSvGhojzNsr3N_Nksn0',  # Minerva-B
+			'BU8I1z2oV_dvidnEgHXAdS_9Fu1',  # Layali Alsama
+			'NEgJXCQL8IVckSkD6hjDfUBHI5c'  # Anoyo Konoyo
 		]
 		self.timeouts = {
-			'dQbEScNS8r6csB0aiAFgDc77Xw': 69,  # Mediterranean Adventure
-			'aldX4j8HaNfGkNqjtu81Rr1T7lh': 59,  # Jumanji
-			'xyQXcDOJ93KKP5Dzqz0ULHNA9B2': 92,  # Concrete
-			'EwhFmHyCz6zTHovO9YguqmLBzg0': 46,  # Black Mesa - Hazard Course
-			'LKMIBb34myjiNCO9bEC8Wg1YIy3': 73,  # Hypnosis
-			'aceV8PzKm8OhacrCGLc2SDgq_rc': 66,  # MaraPark
-			'YOkBuNeHCU_f3hl23tTxMPtDblg': 54  # DrekkaFöld
+			'ZRa95eM6f5ecWIc77T5FVtEGNwl': 69,  # Hexagonia
+			'_dnMi4GxlPP22yceTmzKtfqozaj': 59,  # The pyramid of Al Gabir
+			'r_0BYjH4PN1ZxTDhW5DQOCqTJ55': 92,  # Fortune of the Dawn
+			'sLWV86QWDq68mGbs8MbjqYFU2u': 46,  # The heap of despair
+			'quwMa904vSvGhojzNsr3N_Nksn0': 73,  # Minerva-B
+			'BU8I1z2oV_dvidnEgHXAdS_9Fu1': 66,  # Layali Alsama
+			'NEgJXCQL8IVckSkD6hjDfUBHI5c': 54  # Anoyo Konoyo
 		}
 
 		self.match_maps = collections.deque(self.brawl_maps)
