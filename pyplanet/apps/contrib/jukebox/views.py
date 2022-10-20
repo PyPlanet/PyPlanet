@@ -108,7 +108,7 @@ class MapListView(ManualListView):
 			# Use custom field for author to allow for searching on both login and nickname (depending on what's shown).
 			map_dict['author'] = (
 				map_dict['author_nickname']
-				if 'author_nickname' in map_dict and map_dict['author_nickname'] and len(map_dict['author_nickname'])
+				if 'author_nickname' in map_dict and map_dict['author_nickname']
 				else map_dict['author_login']
 			)
 
