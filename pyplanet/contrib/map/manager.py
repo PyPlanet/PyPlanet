@@ -54,7 +54,7 @@ class MapManager(CoreContrib):
 		self._original_ta = None
 
 		# Regular Expression to extract the MX-ID from a filename.
-		self._mx_id_regex = re.compile('(?:PyPlanet-MX\\/)([A-Z]{2})-(\\d+)\\.')
+		self._mx_id_regex = re.compile('(?:PyPlanet-MX\\/)([A-Z]{2,6})-(\\d+)\\.')
 
 	async def on_start(self):
 		self._instance.signals.listen('maniaplanet:playlist_modified', lambda: '')
@@ -145,9 +145,12 @@ class MapManager(CoreContrib):
 			db_uids = [m.uid for m in maps]
 			diff = [x for x in raw_list if x['UId'] not in db_uids]
 
-			# Update existing maps with author nicknames.
-			for existing_map in [m for m in maps if m.author_nickname is None or len(m.author_nickname) == 0]:
+			# Update existing maps with author nicknames and (T)MX-IDs.
+			for existing_map in [m for m in maps if m.author_nickname is None or len(m.author_nickname) == 0 or (m.mx_id is None and "MX" in m.file)]:
 				details = [m for m in raw_list if m['UId'] == existing_map.uid][0]
+
+				# Detect any (T)MX-id from the filename.
+				mx_id = self._extract_mx_id(details['FileName'])
 
 				author_nickname = await self.get_map_author_nickname(details)
 
@@ -155,7 +158,8 @@ class MapManager(CoreContrib):
 					details['UId'], details['FileName'], details['Name'], details['Author'],
 					author_nickname=author_nickname, environment=details['Environnement'],
 					time_gold=details['GoldTime'],
-					price=details['CopperPrice'], map_type=details['MapType'], map_style=details['MapStyle']
+					price=details['CopperPrice'], map_type=details['MapType'], map_style=details['MapStyle'],
+					mx_id=mx_id,
 				)
 
 				maps = [m for m in maps if m.uid != details['UId']]

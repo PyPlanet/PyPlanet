@@ -404,7 +404,7 @@ class MxStatusListView(ManualListView):
 				'index': 'index',
 				'sorting': True,
 				'searching': True,
-				'width': 15,
+				'width': 18,
 				'type': 'label'
 			},
 			{
@@ -412,15 +412,7 @@ class MxStatusListView(ManualListView):
 				'index': 'map_name',
 				'sorting': True,
 				'searching': True,
-				'width': 91.5,
-				'type': 'label'
-			},
-			{
-				'name': 'On Server',
-				'index': 'updated_on_server',
-				'sorting': True,
-				'searching': False,
-				'width': 33,
+				'width': 114.5,
 				'type': 'label'
 			},
 			{
@@ -428,7 +420,7 @@ class MxStatusListView(ManualListView):
 				'index': 'mx_version',
 				'sorting': True,
 				'searching': False,
-				'width': 33,
+				'width': 40,
 				'type': 'label'
 			},
 			{
@@ -517,7 +509,7 @@ class MxStatusListView(ManualListView):
 			action_update = False
 
 			# Get MX information for the map (gets None if it couldn't be found).
-			mx_map = next((mx_map_info for mx_map_info in mx_maps_info if mx_map_info[0] == item.mx_id), None)
+			mx_map = next((mx_map_info for mx_map_info in mx_maps_info if str(mx_map_info[0]) == str(item.mx_id)), None)
 
 			if mx_map is None:
 				version_match = 'Not on {}'.format(self.app.site_short_name)
@@ -538,8 +530,8 @@ class MxStatusListView(ManualListView):
 					action_update = True
 
 			action_update_content = '🔁 Update' if action_update else '          -'
-			items.append({'map_id': item.id, 'index': item.mx_id, 'map_name': item.name, 'version_match': version_match, 'version_match_order': version_match_order,
-				'updated_on_server': item.updated_at, 'mx_version': mx_version_date, 'action_update': action_update, 'action_update_content': action_update_content})
+			items.append({'map_id': item.id, 'index': int(item.mx_id), 'map_name': item.name, 'version_match': version_match, 'version_match_order': version_match_order,
+				'mx_version': mx_version_date, 'action_update': action_update, 'action_update_content': action_update_content})
 
 		# Initially sort the maps based on the 'version_match_order': New version -> Not on MX -> Up-to-date.
 		items.sort(key=lambda x: x['version_match_order'])

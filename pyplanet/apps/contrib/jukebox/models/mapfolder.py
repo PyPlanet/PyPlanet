@@ -20,15 +20,21 @@ class MapFolder(TimedModel):
 	Folder name
 	"""
 
-	public = BooleanField()
+	visibility = CharField(
+		max_length=50,
+		null=False,
+		default='private'
+	)
 	"""
-	Is folder public (only for admins)?
+	Visibility of the folder (public, private, admin_only).
 	"""
 
 	@property
 	def icon(self):
-		if self.public:
+		if self.visibility == 'public':
 			return '\uf0c0'
+		elif self.visibility == 'admins_only':
+			return '\uf0c1'
 		return '\uf023'
 
 
