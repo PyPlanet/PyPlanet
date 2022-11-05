@@ -530,7 +530,7 @@ class MxStatusListView(ManualListView):
 					action_update = True
 
 			action_update_content = '🔁 Update' if action_update else '          -'
-			items.append({'map_id': item.id, 'index': item.mx_id, 'map_name': item.name, 'version_match': version_match, 'version_match_order': version_match_order,
+			items.append({'map_id': item.id, 'index': int(item.mx_id), 'map_name': item.name, 'version_match': version_match, 'version_match_order': version_match_order,
 				'mx_version': mx_version_date, 'action_update': action_update, 'action_update_content': action_update_content})
 
 		# Initially sort the maps based on the 'version_match_order': New version -> Not on MX -> Up-to-date.
