@@ -71,20 +71,24 @@ class PyPlanetConfig(AppConfig):
 		# Display logo.
 		await self.controller_view.display()
 
+		# Permissions.
+		await self.instance.permission_manager.register('upgrade', 'Upgrade the PyPlanet instance', app=self, min_level=3)
+		await self.instance.permission_manager.register('help', 'Open the commands list for admins', app=self, min_level=1)
+
 		# Listeners.
 		self.context.signals.listen('maniaplanet:player_connect', self.on_connect)
 		await self.instance.command_manager.register(
 			Command('version', self.chat_version,
 					description='Displays the current server and PyPlanet versions and the active PyPlanet plugins.'),
-			Command('upgrade', self.chat_upgrade, admin=True, description='Upgrade PyPlanet installation (Experimental)')
+			Command('upgrade', self.chat_upgrade, perms='core.pyplanet:upgrade', admin=True, description='Upgrade PyPlanet installation (Experimental)')
 				.add_param('to_version', type=str, default=None, required=False, help='Upgrade to specific version'),
 
 			Command('help', target=self.chat_help, description='Shows a chat-based list with all available commands.')
 				.add_param('command', nargs='*', required=False),
-			Command('help', target=self.chat_help, admin=True, description='Shows a chat-based list with all available admin commands.')
+			Command('help', target=self.chat_help, perms='core.pyplanet:help', admin=True, description='Shows a chat-based list with all available admin commands.')
 				.add_param('command', nargs='*', required=False),
 			Command('helpall', target=self.chat_helpall, description='Shows all available commands in a list window.'),
-			Command('helpall', target=self.chat_helpall, admin=True, description='Shows all available admin commands in a list window.')
+			Command('helpall', target=self.chat_helpall, perms='core.pyplanet:help', admin=True, description='Shows all available admin commands in a list window.')
 		)
 
 	async def on_connect(self, player, **kwargs):
