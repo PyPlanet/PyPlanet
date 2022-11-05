@@ -150,7 +150,10 @@ class MapManager(CoreContrib):
 				details = [m for m in raw_list if m['UId'] == existing_map.uid][0]
 
 				# Detect any (T)MX-id from the filename.
-				mx_id = self._extract_mx_id(details['FileName'])
+				try:
+					mx_id = int(self._extract_mx_id(details['FileName']))
+				except:
+					mx_id = None
 
 				author_nickname = await self.get_map_author_nickname(details)
 
