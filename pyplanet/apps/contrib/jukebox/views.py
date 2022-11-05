@@ -360,8 +360,8 @@ class FolderMapListView(MapListView):
 
 	async def remove_from_folder(self, player, values, map_dictionary, view, **kwargs):
 		# Check permission on folder.
-		if (self.folder_instance.public and player.level < player.LEVEL_ADMIN)\
-			or (not self.folder_instance.public and self.folder_instance.player_id != player.id):
+		if (self.folder_instance.visibility != 'private' and player.level < player.LEVEL_ADMIN)\
+			or (self.folder_instance.visibility == 'private' and self.folder_instance.player_id != player.id):
 			await show_alert(player, 'You are not allowed to remove the map from the folder!', size='sm')
 			return
 
@@ -387,6 +387,7 @@ class FolderMapListView(MapListView):
 		buttons = await super().get_buttons()
 
 		if (self.folder_code['type'] == 'public' and self.player.level >= self.player.LEVEL_ADMIN) \
+			or (self.folder_code['type'] == 'admins_only' and self.player.level >= self.player.LEVEL_ADMIN) \
 			or (self.folder_code['type'] == 'public' and self.folder_code['owner_login'] == self.player.login) \
 			or (self.folder_code['type'] == 'private' and self.folder_code['owner_login'] == self.player.login):
 			buttons.append({
@@ -488,8 +489,18 @@ class FolderListView(ManualListView):
 			icon = '\uf0c0'
 		elif row['type'] == 'private':
 			icon = '\uf023'
+		elif row['type'] == 'admins_only':
+			icon = '\uf0c1'
 
 		return '{} {}'.format(icon, row[field['index']])
+
+	@staticmethod
+	def render_type(row, field):
+		type_name = row['type'].capitalize()
+		if type_name == 'Admins_only':
+			type_name = 'Admins only'
+
+		return type_name
 
 	async def get_fields(self):
 		return [
@@ -509,8 +520,7 @@ class FolderListView(ManualListView):
 				'sorting': True,
 				'searching': False,
 				'width': 30,
-				'renderer': lambda row, field:
-					row[field['index']].capitalize(),
+				'renderer': self.render_type,
 				'type': 'label'
 			},
 			{
@@ -666,7 +676,7 @@ class CreateFolderView(TemplateView):
 		folder_name = values['folder_name']
 		folder_privacy = values['folder_privacy']
 
-		if folder_privacy == 'public' and player.level < player.LEVEL_ADMIN:
+		if folder_privacy != 'private' and player.level < player.LEVEL_ADMIN:
 			folder_privacy = 'private'
 
 		# Check if the user has already created 5 private folders
@@ -683,7 +693,7 @@ class CreateFolderView(TemplateView):
 			return await show_alert(player, 'The name you gave is not valid. Please provide a name with at least 3 characters.', 'sm')
 
 		# Create folder.
-		await self.folder_manager.create_folder(name=folder_name, player=player, public=folder_privacy == 'public')
+		await self.folder_manager.create_folder(name=folder_name, player=player, visibility=folder_privacy)
 
 		# Return response.
 		self.response_future.set_result(None)
@@ -756,9 +766,9 @@ class AddToFolderView(TemplateView):
 			return  # Ignore exceptions here, could be that the folder has been deleted recently.
 
 		# Check permission on folder.
-		if folder.public and player.level < player.LEVEL_ADMIN:
+		if folder.visibility != 'private' and player.level < player.LEVEL_ADMIN:
 			return
-		if not folder.public and folder.player_id != player.id:
+		if folder.visibility == 'private' and folder.player_id != player.id:
 			return
 
 		# Add map to folder.
