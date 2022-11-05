@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.10.2
+------
+
+Core
+~~~~
+
+* Bugfix: Fixing issue with slowdown on start when having a lot of maps.
+
+
 0.10.1
 ------
 
