@@ -40,14 +40,16 @@ class MusicServer(AppConfig):
 		self.playlist_view = PlaylistView(self)
 
 		await self.context.setting.register(self.setting_override_map_music)
+		await self.instance.permission_manager.register('play', 'Plays a song from the playlist', app=self, min_level=1)
+		await self.instance.permission_manager.register('clear', 'Clear the playlist', app=self, min_level=1)
 
 		await self.instance.command_manager.register(
-			Command(command='play', target=self.play_song, admin=True)
+			Command(command='play', target=self.play_song, perms='music_server:play', admin=True)
 				.add_param(name='songname', type=str, required=True),
 			Command(command='song', target=self.get_current_song, admin=False),
 			Command(command='songlist', aliases='musiclist', target=self.song_list, admin=False),
 			Command(command='playlist', target=self.show_playlist, admin=False),
-			Command(command='clearplaylist', target=self.clear_playlist, admin=True),
+			Command(command='clearplaylist', target=self.clear_playlist, perms='music_server:clear', admin=True),
 		)
 
 		self.current_song_index = -1

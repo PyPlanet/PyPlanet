@@ -36,8 +36,9 @@ class ToolbarAdmin:
 		self.app.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
 
 		# Register commands.
+		await self.instance.permission_manager.register('toolbar', 'Toggle the admin toolbar', app=self.app, min_level=1)
 		await self.instance.command_manager.register(
-			Command(command='toolbar', target=self.toggle_toolbar, admin=True, description='Toggles the admin toolbar.')
+			Command(command='toolbar', perms='admin:toolbar', target=self.toggle_toolbar, admin=True, description='Toggles the admin toolbar.')
 		)
 
 		# Display to all current online admins.
