@@ -9,6 +9,7 @@ from pyplanet.apps.contrib.mx.view import MxSearchListView, MxPacksListView, MxS
 from pyplanet.contrib.command import Command
 from pyplanet.contrib.setting import Setting
 from collections import namedtuple
+from datetime import datetime
 
 from pyplanet.utils import gbxparser
 
@@ -136,6 +137,23 @@ class MX(AppConfig):  # pragma: no cover
 				map_username=map_info['Username'],
 			)
 		]
+
+		# Determine MX status to display.
+		date_format = '%Y-%m-%dT%H:%M:%S'
+		if '.' in map_info['UpdatedAt']:
+			date_format = '%Y-%m-%dT%H:%M:%S.%f'
+		mx_version_date = datetime.strptime(map_info['UpdatedAt'], date_format).strftime("%Y-%m-%d %H:%M:%S")
+		mx_map_uid = map_info['TrackUID'] if 'TrackUID' in map_info else map_info['MapUID']
+
+		messages.append(
+			'$ff0Map status: $fff{map_status}$ff0 ({site_code} version: $fff{site_version}$ff0)'.format(
+				server_version=self.instance.map_manager.current_map.updated_at,
+				site_code=self.site_short_name,
+				site_version=mx_version_date,
+				map_status=('$0a0up-to-date' if mx_map_uid == self.instance.map_manager.current_map.uid else '$00foutdated')
+			)
+		)
+
 		if 'ReplayCount' in map_info:  # If TM with ReplayCount
 			messages.append(
 				'$ff0Number of replays: $fff{num_replays}$ff0, Number of awards: $fff{num_awards}$ff0, {site_code}-ID: $l[{link}]$fff{id}$l $n(click to open {site_code})'.format(
