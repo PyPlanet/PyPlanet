@@ -146,7 +146,7 @@ class MX(AppConfig):  # pragma: no cover
 		mx_map_uid = map_info['TrackUID'] if 'TrackUID' in map_info else map_info['MapUID']
 
 		messages.append(
-			'$ff0Map status: $fff{map_status}$ff0 (server: $fff{server_version}$ff0, {site_code}: $fff{site_version}$ff0)'.format(
+			'$ff0Map status: $fff{map_status}$ff0 ({site_code} version: $fff{site_version}$ff0)'.format(
 				server_version=self.instance.map_manager.current_map.updated_at,
 				site_code=self.site_short_name,
 				site_version=mx_version_date,
