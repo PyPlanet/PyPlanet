@@ -462,6 +462,13 @@ class FolderMapListView(MapListView):
 		if any(f['index'] == "karma" for f in self.fields) and 'karma' in self.app.instance.apps.apps:
 			dict_item['karma'] = (await self.app.instance.apps.apps['karma'].get_map_karma(map))['map_karma']
 
+		# Use custom field for author to allow for searching on both login and nickname (depending on what's shown).
+		dict_item['author'] = (
+			dict_item['author_nickname']
+			if 'author_nickname' in dict_item and dict_item['author_nickname']
+			else dict_item['author_login']
+		)
+
 		return dict_item
 
 
