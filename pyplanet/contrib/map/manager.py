@@ -54,7 +54,7 @@ class MapManager(CoreContrib):
 		self._original_ta = None
 
 		# Regular Expression to extract the MX-ID from a filename.
-		self._mx_id_regex = re.compile('(?:PyPlanet-MX\\/)([A-Z]{2})-(\\d+)\\.')
+		self._mx_id_regex = re.compile('(?:PyPlanet-MX\\/)([A-Z]{2,6})-(\\d+)\\.')
 
 	async def on_start(self):
 		self._instance.signals.listen('maniaplanet:playlist_modified', lambda: '')
