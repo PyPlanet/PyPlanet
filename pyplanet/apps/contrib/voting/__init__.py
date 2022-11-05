@@ -81,6 +81,12 @@ class Voting(AppConfig):
 			default=True
 		)
 
+		self.setting_enabled_previous = Setting(
+			'enabled_previous', 'Previous vote enabled', Setting.CAT_BEHAVIOUR, type=bool,
+			description='Whether or not the previous vote is enabled.',
+			default=True
+		)
+
 		self.setting_enabled_time_extend = Setting(
 			'enabled_time_extend', 'Time Extend vote enabled', Setting.CAT_BEHAVIOUR, type=bool,
 			description='Whether or not the time extend vote is enabled (only works in TimeAttack mode).',
@@ -111,8 +117,8 @@ class Voting(AppConfig):
 		await self.context.setting.register(
 			self.setting_voting_enabled, self.setting_voting_ratio, self.setting_voting_timeout,
 			self.setting_remind_interval, self.setting_enabled_replay, self.setting_enabled_restart,
-			self.setting_enabled_skip, self.setting_callvoting_disable, self.setting_callvoting_timeout,
-			self.setting_enabled_time_extend, self.setting_extend_max_amount
+			self.setting_enabled_skip, self.setting_enabled_previous, self.setting_callvoting_disable,
+			self.setting_callvoting_timeout, self.setting_enabled_time_extend, self.setting_extend_max_amount
 		)
 
 		await self.instance.permission_manager.register('cancel', 'Cancel the current vote', app=self, min_level=1)
@@ -133,6 +139,8 @@ class Voting(AppConfig):
 					description='Starts a chat-based vote to restart the current map.'),
 			Command(command='skip', target=self.vote_skip,
 					description='Starts a chat-based vote to skip the current map.'),
+			Command(command='previous', aliases=['prev'], target=self.vote_previous,
+					description='Starts a chat-based vote to go back to the previous map.'),
 			Command(command='extend', target=self.vote_extend,
 					description='Starts a chat-based vote to extend the playing time on the current map.'),
 		)
@@ -555,6 +563,87 @@ class Voting(AppConfig):
 
 		# Hide the voting widget and reset the current vote
 		await self.reset_vote()
+
+		await self.instance.gbx('NextMap')
+
+		if not forced:
+			await self.instance.chat(message)
+
+	async def vote_previous(self, player, data, **kwargs):
+		"""
+		Chat command: /previous
+		Called when a player requests to start a previous vote.
+
+		:param player: player requesting the vote
+		"""
+
+		if 'admin' in self.instance.apps.apps and self.instance.apps.apps['admin'].server.chat_redirection:
+			return
+
+		if self.current_vote is not None:
+			message = '$i$f00You cannot start a vote while one is already in progress.'
+			await self.instance.chat(message, player)
+			return
+
+		if await self.setting_voting_enabled.get_value() is False:
+			message = '$i$f00Chat-based voting has been disabled via the server settings!'
+			await self.instance.chat(message, player)
+			return
+
+		if await self.setting_enabled_previous.get_value() is False:
+			message = '$i$f00Voting for the previous map has been disabled via the server settings!'
+			await self.instance.chat(message, player)
+			return
+
+		if self.podium_stage:
+			message = '$i$f00You cannot start a vote during the podium!'
+			await self.instance.chat(message, player)
+			return
+
+		if player.flow.is_spectator:
+			message = '$i$f00Only players are allowed to vote.'
+			await self.instance.chat(message, player)
+			return
+
+		if not self.instance.map_manager.previous_map:
+			message = '$i$f00Previous map is currently not known.'
+			await self.instance.chat(message, player)
+			return
+
+		if self.instance.map_manager.previous_map == self.instance.map_manager.current_map:
+			message = '$i$f00Previous map is the same as the current map.'
+			await self.instance.chat(message, player)
+			return
+
+		await self.create_vote('go to the previous map', player, self.vote_previous_passed)
+
+		message = '$fff{}$z$s$0cf wants to $fff{}$0cf, $fff{}$0cf more {} needed (use $fffF5$0cf to vote){}.'.format(
+			player.nickname, self.current_vote.action, self.current_vote.votes_required,
+			('votes' if self.current_vote.votes_required > 1 else 'vote'),
+			(' ($fff{}$0cf seconds left)'.format(int(round((
+																   self.current_vote.time_limit - datetime.datetime.now()).total_seconds()))) if self.current_vote.time_limit is not None else '')
+		)
+		await self.instance.chat(message)
+
+		await self.current_vote.add_vote(player)
+
+	async def vote_previous_passed(self, vote, forced):
+		"""
+		Called when a previous vote gets passed.
+
+		:param vote: vote that passed
+		:param forced: whether the vote was forced passed by an admin
+		"""
+
+		message = '$0cfVote to $fff{}$0cf has passed.'.format(vote.action)
+
+		# Hide the voting widget and reset the current vote
+		await self.reset_vote()
+
+		if 'jukebox' in self.instance.apps.apps:
+			self.instance.apps.apps['jukebox'].insert_map(vote.requester, self.instance.map_manager.previous_map)
+		else:
+			await self.instance.map_manager.set_next_map(self.instance.map_manager.previous_map)
 
 		await self.instance.gbx('NextMap')
 
