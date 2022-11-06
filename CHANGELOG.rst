@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.10.3
+------
+
+Core
+~~~~
+
+* Bugfix: Fixing migration for jukebox app that might fail on PostgreSQL servers.
+
+
 0.10.2
 ------
 
