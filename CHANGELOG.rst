@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.10.4
+------
+
+Core
+~~~~
+
+* Bugfix: Mixing the removal of the bugfix of the slowdown in 0.10.2...
+
+
 0.10.3
 ------
 
