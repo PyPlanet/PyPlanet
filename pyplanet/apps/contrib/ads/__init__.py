@@ -203,8 +203,8 @@ class Ads(AppConfig):
 			users = await self.get_discord_users()
 			if users:
 				join_url_link = '$l[' + self.discord_join_url + ']Join our Discord$l! '
-				message = '$ff0$i{}There are currently {} users and {} bots online.' \
-					.format(join_url_link, users[0], users[1])
+				message = '$ff0$i{}There are currently {} users online.' \
+					.format(join_url_link, users)
 				await self.instance.chat(message, player)
 
 	async def get_discord_users(self):
@@ -214,15 +214,7 @@ class Ads(AppConfig):
 			try:
 				async with session.get(url) as response:
 					data = await response.json()
-					non_bot_users = []
-					bots = []
-					for i in data['members']:
-						if 'bot' in i:
-							bots.append(i)
-						else:
-							non_bot_users.append(i)
-					online_users = len(non_bot_users)
-					return [int(online_users), int(len(bots))]
+					return int(data['presence_count'])
 			except Exception as e:
 				logging.error('Error with retrieving Discord user list')
 				logging.error(e)
