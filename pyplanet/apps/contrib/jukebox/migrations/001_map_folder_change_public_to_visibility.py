@@ -6,7 +6,7 @@ from ..models.mapfolder import MapFolder
 
 def upgrade(migrator: SchemaMigrator):
 	try:
-		query = RawQuery(MapFolder, """SELECT * FROM mapfolder WHERE public = 1""")
+		query = RawQuery(MapFolder, """SELECT * FROM mapfolder WHERE public = True""")
 		public_folders = query.execute()
 
 		migrate(
