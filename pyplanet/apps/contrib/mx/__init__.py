@@ -2,14 +2,17 @@ import logging
 import os
 
 from pyplanet.apps.config import AppConfig
+from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 from pyplanet.apps.contrib.mx.api import MXApi
 from pyplanet.apps.contrib.mx.exceptions import MXMapNotFound, MXInvalidResponse
-from pyplanet.apps.contrib.mx.view import MxSearchListView, MxPacksListView, MxStatusListView
+from pyplanet.apps.contrib.mx.view import MxSearchListView, MxPacksListView, MxStatusListView, MxAwardWidget
 from pyplanet.contrib.command import Command
 from pyplanet.contrib.setting import Setting
 from collections import namedtuple
-from pyplanet.utils import times
+from datetime import datetime
+
 from pyplanet.utils import gbxparser
+from pyplanet.utils import times
 
 logger = logging.getLogger(__name__)
 
@@ -26,10 +29,15 @@ class MX(AppConfig):  # pragma: no cover
 		self.namespace = 'mx'
 		self.site_name = 'ManiaExchange'
 		self.site_short_name = 'MX'
+		self.award_widget = None
 
 		self.setting_mx_key = Setting(
 			'mx_key', 'ManiaExchange/TrackmaniaExchange Key', Setting.CAT_KEYS, type=str, default=None,
 			description='Is only required when you want to download from a private group/section!'
+		)
+		self.setting_display_award_widget = Setting(
+			'display_award_widget', 'Display the award widget on podium', Setting.CAT_BEHAVIOUR, type=bool,
+			description='Whether to display the widget linking to the MX award page on podium.', default=True
 		)
 
 	async def on_init(self):
@@ -43,8 +51,10 @@ class MX(AppConfig):  # pragma: no cover
 		await self.instance.permission_manager.register(
 			'add_remote', 'Add map from remote source (such as MX)', app=self, min_level=2)
 		await self.context.setting.register(
-			self.setting_mx_key
+			self.setting_mx_key, self.setting_display_award_widget
 		)
+
+		self.award_widget = MxAwardWidget(self)
 
 		if self.instance.game.game == 'tmnext':
 			self.namespace = 'tmx'
@@ -59,7 +69,8 @@ class MX(AppConfig):  # pragma: no cover
 					description='Add map from ManiaExchange to the maplist.').add_param(
 				'maps', nargs='*', type=str, required=True, help='MX ID(s) of maps to add.'),
 			# new mx command random (Adding) Random Maps from MX
-			Command(command='random', namespace=self.namespace, target=self.random_mx_map, perms='mx:add_remote', admin=True, description='Get Random Maps on ManiaExchange/TrackmaniaExchange.').add_param('', nargs='*', type=str, required=False, help='Random maps Adding.'),
+			Command(command='random', namespace=self.namespace, target=self.random_mx_map, perms='mx:add_remote',
+					admin=True, description='Get Random Maps on ManiaExchange/TrackmaniaExchange.'),
 			# new mx namespace
 			Command(command='search', aliases=['list'], namespace=self.namespace, target=self.search_mx_map, perms='mx:add_remote',
 					admin=True, description='Search for maps on ManiaExchange/TrackmaniaExchange.'),
@@ -76,7 +87,29 @@ class MX(AppConfig):  # pragma: no cover
 					admin=True, description='Add mappack from ManiaExchange/TrackmaniaExchange to the maplist.')
 				.add_param('pack', nargs='*', type=str, required=True, help='MX/TMX ID(s) of mappacks to add.'),
 		)
-		
+
+		# Register callbacks.
+		# Use podium end for regular map changes, the map start is required in case the map get restarted during the podium.
+		self.context.signals.listen(mp_signals.flow.podium_start, self.podium_start)
+		self.context.signals.listen(mp_signals.flow.podium_end, self.podium_end)
+		self.context.signals.listen(mp_signals.map.map_start, self.map_start)
+
+	async def podium_start(self, **kwargs):
+		if await self.setting_display_award_widget.get_value() is True:
+			mx_info = await self.api.map_info(self.instance.map_manager.current_map.uid)
+			if mx_info and len(mx_info) >= 1:
+				self.award_widget.mx_id = mx_info[0][0]
+
+				# Only display the award widget to the playing players.
+				play_logins = [p.login for p in self.instance.player_manager.online if not p.flow.is_spectator]
+				await self.award_widget.display(player_logins=play_logins)
+
+	async def podium_end(self, **kwargs):
+		await self.award_widget.hide()
+
+	async def map_start(self, map, restarted, **kwargs):
+		await self.award_widget.hide()
+
 	async def random_mx_map(self, player, data, **kwargs):
 		map_random_id = await self.api.mx_random()
 		await self.instance.command_manager.execute(
@@ -84,9 +117,13 @@ class MX(AppConfig):  # pragma: no cover
 			'//{} add maps'.format(self.namespace),
 			str(map_random_id)
 		)
-	
+
 	async def mx_info(self, player, data, **kwargs):
-		map_info = await self.api.map_info(self.instance.map_manager.current_map.uid)
+		try:
+			map_info = await self.api.map_info(self.instance.map_manager.current_map.uid)
+		except Exception as e:
+			map_info = list()
+			logger.error('Could not retrieve map info from MX/TM API: {}'.format(str(e)))
 		if len(map_info) != 1:
 			message = '$f00Map could not be found on MX!'
 			await self.instance.chat(message, player)
@@ -101,6 +138,23 @@ class MX(AppConfig):  # pragma: no cover
 				map_username=map_info['Username'],
 			)
 		]
+
+		# Determine MX status to display.
+		date_format = '%Y-%m-%dT%H:%M:%S'
+		if '.' in map_info['UpdatedAt']:
+			date_format = '%Y-%m-%dT%H:%M:%S.%f'
+		mx_version_date = datetime.strptime(map_info['UpdatedAt'], date_format).strftime("%Y-%m-%d %H:%M:%S")
+		mx_map_uid = map_info['TrackUID'] if 'TrackUID' in map_info else map_info['MapUID']
+
+		messages.append(
+			'$ff0Map status: $fff{map_status}$ff0 ({site_code} version: $fff{site_version}$ff0)'.format(
+				server_version=self.instance.map_manager.current_map.updated_at,
+				site_code=self.site_short_name,
+				site_version=mx_version_date,
+				map_status=('$0a0up-to-date' if mx_map_uid == self.instance.map_manager.current_map.uid else '$00foutdated')
+			)
+		)
+
 		if 'ReplayCount' in map_info:  # If TM with ReplayCount
 			wr_replay = await self.api.map_offline_record(map_info['TrackID'])
 			offline_mx_record = wr_replay[0]
@@ -168,7 +222,7 @@ class MX(AppConfig):  # pragma: no cover
 
 		# Prepare and fetch information about the maps from MX.
 		mx_ids = data.maps
-		
+
 		try:
 			infos = await self.api.map_info(*mx_ids)
 			if len(infos) == 0:
@@ -254,3 +308,4 @@ class MX(AppConfig):  # pragma: no cover
 					self.instance.apps.apps['jukebox'].insert_map(player, map_instance)
 
 		return [await self.instance.map_manager.get_map(uid=added_uid) for added_uid in added_map_uids]
+
