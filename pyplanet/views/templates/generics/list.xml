@@ -1,5 +1,5 @@
 <frame pos="0 17" z-index="150">
-  {% if provide_search %}
+  {% if provide_search or (buttons is defined and (buttons | length > 0)) %}
     <quad pos="0 62.5" size="220 137" z-index="-50" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
   {% else %}
     <quad pos="0 62.5" size="220 127" z-index="-50" halign="center" valign="top" style="Bgs1InRace" substyle="BgCardList"/>
