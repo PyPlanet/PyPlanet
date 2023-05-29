@@ -467,7 +467,7 @@ class ManualListView(ListView):
 
 	async def apply_ordering(self, frame):
 		if self.sort_field:
-			frame.sort(key=lambda e: e[self.sort_field['index']], reverse=not bool(self.sort_order))
+			frame.sort(key=lambda e: e[self.sort_field['index']] or float('inf'), reverse=not bool(self.sort_order))
 		return frame
 
 	async def apply_pagination(self, frame):
