@@ -67,16 +67,16 @@ class Rankings(AppConfig):
 	async def check_database_compatibility(self):
 		# The queries used for calculating the rankings are only compatible with MySQL and MariaDB.
 		# Provide an error when running PostgreSQL.
-		if self.instance.db.server_info.server_type == "postgresql":
+		if self.instance.db.server_info.type == "postgresql":
 			raise NotImplementedError("Rankings app only works on PyPlanet instances running on MySQL.")
 
 		# Database engines starting from MySQL 8.0 / MariaDB 10.2 support the PARTITION BY query.
 		# The query without PARTITION BY is unsupported in newer versions.
-		if self.instance.db.server_info.server_type == "mysql" and \
-			version.parse(self.instance.db.server_info.server_version) >= version.parse("8.0"):
+		if self.instance.db.server_info.type == "mysql" and \
+			version.parse(self.instance.db.server_info.version) >= version.parse("8.0"):
 			self.supports_partition = True
-		elif self.instance.db.server_info.server_type == "mariadb" and \
-			version.parse(self.instance.db.server_info.server_version) >= version.parse("10.2"):
+		elif self.instance.db.server_info.type == "mariadb" and \
+			version.parse(self.instance.db.server_info.version) >= version.parse("10.2"):
 			self.supports_partition = True
 
 	async def map_end(self, map):
