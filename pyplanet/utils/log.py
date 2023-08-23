@@ -61,7 +61,7 @@ def initiate_logger():  # pragma: no cover
 		# Determinate handler and initiate it.
 		if settings.LOGGING_ROTATE_LOGS:
 			handler = logging.handlers.TimedRotatingFileHandler(
-				path, when='D', interval=1, backupCount=14, encoding='utf-8'
+				path, when='D', interval=1, backupCount=14, encoding='utf-8', delay=True
 			)
 		else:
 			handler = logging.FileHandler(
