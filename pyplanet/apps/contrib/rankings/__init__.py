@@ -1,9 +1,11 @@
 import logging
 import math
+from packaging import version
 from peewee import RawQuery
 
 from pyplanet.apps.contrib.rankings.models.ranked_map import RankedMap
 from pyplanet.apps.contrib.rankings.models import Rank
+from pyplanet.apps.contrib.rankings.queries import Queries
 from pyplanet.apps.contrib.rankings.views import TopRanksView, MapListView
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.core.maniaplanet.models import Player
@@ -20,6 +22,9 @@ class Rankings(AppConfig):
 
 	# Rankings depend on the local records.
 	app_dependencies = ['core.maniaplanet', 'core.trackmania', 'local_records']
+
+	# Whether the system supports using the partition query.
+	supports_partition = False
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -43,8 +48,7 @@ class Rankings(AppConfig):
 		)
 
 	async def on_start(self):
-		if self.instance.db.engine.__class__.__name__.lower().find('postgresql') != -1:
-			raise NotImplementedError("Rankings app only works on PyPlanet instances running on MySQL.")
+		await self.check_database_compatibility()
 
 		# Listen to signals.
 		self.context.signals.listen(mp_signals.map.map_end, self.map_end)
@@ -59,6 +63,21 @@ class Rankings(AppConfig):
 
 		# Register settings
 		await self.context.setting.register(self.setting_records_required, self.setting_chat_announce, self.setting_topranks_limit)
+
+	async def check_database_compatibility(self):
+		# The queries used for calculating the rankings are only compatible with MySQL and MariaDB.
+		# Provide an error when running PostgreSQL.
+		if self.instance.db.server_info.server_type == "postgresql":
+			raise NotImplementedError("Rankings app only works on PyPlanet instances running on MySQL.")
+
+		# Database engines starting from MySQL 8.0 / MariaDB 10.2 support the PARTITION BY query.
+		# The query without PARTITION BY is unsupported in newer versions.
+		if self.instance.db.server_info.server_type == "mysql" and \
+			version.parse(self.instance.db.server_info.server_version) >= version.parse("8.0"):
+			self.supports_partition = True
+		elif self.instance.db.server_info.server_type == "mariadb" and \
+			version.parse(self.instance.db.server_info.server_version) >= version.parse("10.2"):
+			self.supports_partition = True
 
 	async def map_end(self, map):
 		# Calculate server ranks.
@@ -81,47 +100,11 @@ class Rankings(AppConfig):
 
 		maximum_record_rank = await self.get_maximum_record_rank()
 
-		query = RawQuery(Rank, """
--- Reset the current ranks to insert new ones later one.
-TRUNCATE TABLE rankings_rank;
--- Limit on maximum ranked records.
-SET @ranked_record_limit = {};
--- Minimum amount of ranked records required to acquire a rank.
-SET @minimum_ranked_records = {};
--- Total amount of maps active on the server.
-SET @active_map_count = {};
--- Set the rank/current rank variables to ensure correct first calculation
-SET @player_rank = 0;
-SET @current_rank = 0;
-INSERT INTO rankings_rank (player_id, average, calculated_at)
-SELECT
-	player_id, average, calculated_at
-FROM (
-	SELECT
-		player_id,
-		-- Calculation: the sum of the record ranks is combined with the ranked record limit times the amount of unranked maps.
-		-- Divide this summed ranking by the amount of active maps on the server, and an average calculated rank will be returned.
-		ROUND((SUM(player_rank) + (@active_map_count - COUNT(player_rank)) * @ranked_record_limit) / @active_map_count * 10000, 0) AS average,
-		NOW() AS calculated_at,
-		COUNT(player_rank) AS ranked_records_count
-	FROM
-	(
-		SELECT
-			id,
-			map_id,
-			player_id,
-			score,
-			@player_rank := IF(@current_rank = map_id, @player_rank + 1, 1) AS player_rank,
-			@current_rank := map_id
-		FROM localrecord
-		WHERE map_id IN ({})
-		ORDER BY map_id, score ASC
-	) AS ranked_records
-	WHERE player_rank <= @ranked_record_limit
-	GROUP BY player_id
-) grouped_ranks
-WHERE ranked_records_count >= @minimum_ranked_records
-		""".format(maximum_record_rank, minimum_records_required, str(len(maps_on_server)), ", ".join(str(map_id) for map_id in maps_on_server)))
+		query_text = Queries.CALCULATE_WITH_PARTITION if self.supports_partition else Queries.CALCULATE_WITHOUT_PARTITION
+
+		query = RawQuery(Rank, query_text.format(
+			maximum_record_rank, minimum_records_required, str(len(maps_on_server)), ", ".join(str(map_id) for map_id in maps_on_server))
+		)
 
 		await Rank.execute(query)
 

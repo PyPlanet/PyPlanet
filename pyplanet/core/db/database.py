@@ -11,6 +11,7 @@ import peewee_async
 from pyplanet.core.exceptions import ImproperlyConfigured
 from .registry import Registry
 from .migrator import Migrator
+from .server_info import ServerInfo
 
 Proxy = peewee.Proxy()
 
@@ -31,6 +32,7 @@ class Database:
 		self.migrator = Migrator(self.instance, self)
 		self.registry = Registry(self.instance, self)
 		self.objects = peewee_async.Manager(self.engine, loop=self.instance.loop)
+		self.server_info = ServerInfo(self.engine, self)
 
 		# Don't allow any sync code.
 		if hasattr(self.engine, 'allow_sync'):
@@ -80,6 +82,10 @@ class Database:
 
 	async def connect(self):
 		self.engine.connect()
+
+		with self.allow_sync():
+			await self.server_info.determine()
+
 		logging.info('Database connection established!')
 
 	async def initiate(self):
