@@ -52,6 +52,7 @@ class ModeSettingMenuView(ManualListView):
 
 				settings[info['Name']] = dict(
 					default=info['Default'], type=real_type, name=info['Name'], description=info['Desc']
+						.replace("\x92", "").replace("<hidden>", "")
 				)
 
 		for name, value in mode_settings.items():
