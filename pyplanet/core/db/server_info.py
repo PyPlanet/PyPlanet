@@ -40,7 +40,7 @@ class ServerInfo:
 				return
 
 			if self.type == "mysql":
-				# Use the innodb_version (0) for a clean engine version, use the version (1) as version text.
+				# Use the innodb_version (1) for a clean engine version, use the version (0) as version text.
 				self.version = result[1]
 				self.version_text = result[0]
 
