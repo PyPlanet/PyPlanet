@@ -1,6 +1,7 @@
 import asyncio
 import datetime
 import logging
+import math
 
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
@@ -788,7 +789,7 @@ class Voting(AppConfig):
 		new_vote.action = action
 		new_vote.requester = player
 		new_vote.votes_current = []
-		needed_votes = round(players * ratio)
+		needed_votes = math.ceil(players * ratio)
 		if needed_votes > players:
 			needed_votes = players
 		new_vote.votes_required = needed_votes
