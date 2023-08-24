@@ -13,7 +13,7 @@
 ```
     $ git checkout -b release/2.9.x
     $ git tag 2.9.0
-    $ git push --all
+    $ git push
     $ git push --tags
 ```
 * [ ] OR: For bugfix releases, checkout the existing release branch and update:
@@ -21,7 +21,7 @@
     $ git checkout release/2.9.x
     $ git pull origin master
     $ git tag 2.9.2
-    $ git push --all
+    $ git push
     $ git push --tags
 ```
 * [ ] Create and upload source distributions e.g.:
