@@ -19,6 +19,7 @@
 * [ ] OR: For bugfix releases, checkout the existing release branch and update:
 ```
     $ git checkout release/2.9.x
+    $ git pull origin master
     $ git tag 2.9.2
     $ git push --all
     $ git push --tags
