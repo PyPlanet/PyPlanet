@@ -70,6 +70,7 @@ class Rankings(AppConfig):
 		if self.instance.db.server_info.type == "postgresql":
 			raise NotImplementedError("Rankings app only works on PyPlanet instances running on MySQL.")
 
+		logger.info('DB Information: {} ({})'.format(self.instance.db.server_info.type, self.instance.db.server_info.version))
 		# Database engines starting from MySQL 8.0 / MariaDB 10.2 support the PARTITION BY query.
 		# The query without PARTITION BY is unsupported in newer versions.
 		if self.instance.db.server_info.type == "mysql" and \

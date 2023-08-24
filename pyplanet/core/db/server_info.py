@@ -24,7 +24,7 @@ class ServerInfo:
 	async def determine(self):
 		if isinstance(self.db.engine, peewee.MySQLDatabase):
 			self.type = "mysql"
-			query = "SELECT @@version AS version, @@innodb_version AS innodb_version"
+			query = "SELECT @@version AS version"
 		elif isinstance(self.db.engine, peewee.PostgresqlDatabase):
 			self.type = "postgresql"
 			query = "SHOW SERVER_VERSION"
@@ -41,8 +41,8 @@ class ServerInfo:
 
 			if self.type == "mysql":
 				# Use the innodb_version (1) for a clean engine version, use the version (0) as version text.
-				self.version = result[1]
 				self.version_text = result[0]
+				self.version = self.version_text.split('-')[0]
 
 				if "mariadb" in self.version_text.lower():
 					self.type = "mariadb"
