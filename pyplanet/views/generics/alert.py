@@ -269,6 +269,7 @@ async def ask_confirmation(player, message, size='md', buttons=None):  # pragma:
 	:param buttons: Buttons, optional, default is yes and no.
 	:return: Number of button that is clicked.
 	"""
+	default_buttons_displayed = buttons is None
 	buttons = buttons or [{'name': 'Yes'}, {'name': 'No'}]
 	view = AlertView(message, size, buttons)
 	if isinstance(player, Player):
@@ -278,7 +279,10 @@ async def ask_confirmation(player, message, size='md', buttons=None):  # pragma:
 	try:
 		reaction = int(reaction)
 	except:
-		reaction = None
+		# If another action is clicked without completing the alert view, the action name (= string) is returned as reaction.
+		# To ensure no action is taken without confirmation, 1 (= No) should be returned if the casting causes an exception.
+		# If custom buttons are used, None will be returned.
+		reaction = 1 if default_buttons_displayed else None
 	del view
 	return reaction
 
