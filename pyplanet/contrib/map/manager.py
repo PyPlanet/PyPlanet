@@ -194,8 +194,12 @@ class MapManager(CoreContrib):
 					Map.select().where(Map.uid << [m['uid'] for m in rows])
 				))
 
+			# Order the maps to match the order on the server.
+			ordered_uids = [m['UId'] for m in raw_list]
+			ordered_maps = sorted(set(maps), key=lambda m: ordered_uids.index(m.uid) if m.uid in ordered_uids else -1)
+
 			async with self.lock:
-				self._maps = set(maps)
+				self._maps = ordered_maps
 
 			# Reload locals for all maps.
 			# TODO: Find better way to remove this and handle it on the folders way.
