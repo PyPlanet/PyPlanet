@@ -3,6 +3,9 @@ from pyplanet.core.instance import Controller
 
 
 async def handle_map_begin(source, signal, **kwargs):
+	# Refresh the server info in the GBX client.
+	await Controller.instance.gbx.refresh_info()
+
 	# Retrieve and update map, return it to our callback listeners.
 	map = await Controller.instance.map_manager.handle_map_change(source)
 	return dict(map=map)
@@ -36,7 +39,7 @@ map_begin = Callback(
 	target=handle_map_begin,
 )
 """
-:Signal: 
+:Signal:
 	Begin of map.
 :Code:
 	``maniaplanet:map_begin``
@@ -56,7 +59,7 @@ map_end = Callback(
 	target=handle_map_end,
 )
 """
-:Signal: 
+:Signal:
 	End of map.
 :Code:
 	``maniaplanet:map_end``
@@ -76,7 +79,7 @@ playlist_modified = Callback(
 	target=handle_playlist_modified
 )
 """
-:Signal: 
+:Signal:
 	Maplist changes.
 :Code:
 	``maniaplanet:playlist_modified``
@@ -100,7 +103,7 @@ map_start = Callback(
 	target=handle_map_start
 )
 """
-:Signal: 
+:Signal:
 	Begin of map. (Scripted!)
 :Code:
 	``maniaplanet:map_begin``
@@ -123,7 +126,7 @@ map_start__end = Callback(
 	target=handle_map_start
 )
 """
-:Signal: 
+:Signal:
 	Begin of map, end of event. (Scripted!)
 :Code:
 	``maniaplanet:map_start__end``

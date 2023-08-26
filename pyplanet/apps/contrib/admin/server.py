@@ -25,6 +25,7 @@ class ServerAdmin:
 		await self.instance.permission_manager.register('callvoting', 'Handle server callvoting', app=self.app, min_level=1)
 		await self.instance.permission_manager.register('password', 'Set the server passwords', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('servername', 'Set the server name', app=self.app, min_level=2)
+		await self.instance.permission_manager.register('maxplayers', 'Set the maximum players/spectators', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('mode', 'Set the server game mode', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('chat_toggle', 'Turn the public chat on or off', app=self.app, min_level=2)
 
@@ -37,6 +38,10 @@ class ServerAdmin:
 					admin=True, description='Sets the spectator password of the server.').add_param(name='password', required=False),
 			Command(command='servername', target=self.set_servername, perms='admin:servername', admin=True,
 					description='Changes the name of the server.').add_param(name='server_name', required=True, nargs='*'),
+			Command(command='setmaxplayers', target=self.set_max_players, perms='admin:maxplayers', admin=True,
+					description='Sets the maximum amount of players on the server.').add_param(name='amount', type=int, required=True),
+			Command(command='setmaxspectators', target=self.set_max_spectators, perms='admin:maxplayers', admin=True,
+					description='Sets the maximum amount of spectators on the server.').add_param(name='amount', type=int, required=True),
 			Command(command='mode', target=self.set_mode, perms='admin:mode', admin=True,
 					description='Changes the gamemode of the server.').add_param(name='mode', required=True, nargs='*'),
 			Command(command='modesettings', target=self.mode_settings, perms='admin:mode', admin=True,
@@ -85,7 +90,7 @@ class ServerAdmin:
 		mode = (' '.join(data.mode))
 		lower_mode = mode.lower()
 		if self.instance.game.game == 'tm':
-		
+
 			if lower_mode == 'ta' or lower_mode == 'timeattack':
 				mode = 'TimeAttack.Script.txt'
 			elif lower_mode == 'laps':
@@ -98,9 +103,9 @@ class ServerAdmin:
 				mode = 'Chase.Script.txt'
 			elif lower_mode == 'team':
 				mode = 'Team.Script.txt'
-			
+
 		if self.instance.game.game == 'tmnext':
-		
+
 			if lower_mode == 'ta' or lower_mode == 'timeattack':
 				mode = 'Trackmania/TM_TimeAttack_Online.Script.txt'
 			elif lower_mode == 'laps':
@@ -217,4 +222,20 @@ class ServerAdmin:
 
 		await self.app.context.signals.get_signal('maniaplanet:server_password').send(
 			dict(password=data.password, kind='player'), True
+		)
+
+	async def set_max_players(self, player, data, **kwargs):
+		amount = getattr(data, 'amount', None)
+		message = '$ff0You changed the maximum players to: $fff{}$ff0 $i(takes effect on next map)$i.'.format(amount)
+		await self.instance.gbx.multicall(
+			self.instance.gbx('SetMaxPlayers', amount),
+			self.instance.chat(message, player)
+		)
+
+	async def set_max_spectators(self, player, data, **kwargs):
+		amount = getattr(data, 'amount', None)
+		message = '$ff0You changed the maximum spectators to: $fff{}$ff0 $i(takes effect on next map)$i.'.format(amount)
+		await self.instance.gbx.multicall(
+			self.instance.gbx('SetMaxSpectators', amount),
+			self.instance.chat(message, player)
 		)
