@@ -4,6 +4,7 @@ Server Admin methods and functions.
 import asyncio
 
 from pyplanet.apps.core.maniaplanet.callbacks.player import player_chat
+from pyplanet.conf import settings
 from pyplanet.contrib.command import Command
 from xmlrpc.client import Fault
 
@@ -225,6 +226,9 @@ class ServerAdmin:
 		)
 
 	async def set_max_players(self, player, data, **kwargs):
+		if not settings.ALLOW_SLOTS_CHANGE:
+			return await self.instance.chat('$f00Changing maximum players is disabled by the hoster!', player)
+
 		amount = getattr(data, 'amount', None)
 		message = '$ff0You changed the maximum players to: $fff{}$ff0 $i(takes effect on next map)$i.'.format(amount)
 		await self.instance.gbx.multicall(
@@ -233,6 +237,9 @@ class ServerAdmin:
 		)
 
 	async def set_max_spectators(self, player, data, **kwargs):
+		if not settings.ALLOW_SLOTS_CHANGE:
+			return await self.instance.chat('$f00Changing maximum players is disabled by the hoster!', player)
+
 		amount = getattr(data, 'amount', None)
 		message = '$ff0You changed the maximum spectators to: $fff{}$ff0 $i(takes effect on next map)$i.'.format(amount)
 		await self.instance.gbx.multicall(
