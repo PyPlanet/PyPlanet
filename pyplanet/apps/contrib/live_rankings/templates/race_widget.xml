@@ -1,0 +1,20 @@
+{% extends 'core.views/generics/widget.xml' %}
+
+{% block content %}
+  {% if times != None %}
+    {% for time in times %}
+      <frame pos="0 -{{ (loop.index0 * 3.25) }}">
+        <quad pos="0 0" z-index="0" size="4 3" bgcolor="00000070"/>
+        <label pos="2 -1.5" z-index="1" size="4 3" text="{{ time.index }}" textsize="0.3" textfont="RajdhaniMono"  textemboss="1" halign="center" valign="center2"/>
+        <quad pos="4.25 0" z-index="0" size="20.5 3" bgcolor="00000070"/>
+        <label pos="4.5 -1.5" z-index="1" size="20 3" text="{{ time.nickname }}" textsize="0.2" textfont="RajdhaniMono"  textemboss="1" halign="left" valign="center2"/>
+        <quad pos="25 0" z-index="0" size="10 3" bgcolor="00000070"/>
+        <label pos="30 -1.5" z-index="1" size="10 3" text="{{ time.color }}{{ time.score }}" textsize="0.2" textfont="RajdhaniMono"  textemboss="1" halign="center" valign="center2"/>
+        {% if time.points_added != None and time.points_added != 0 %}
+          <quad pos="35.25 0" z-index="0" size="7 3" bgcolor="00000070"/>
+          <label pos="38.75 -1.5" size="7 3" z-index="1" textsize="0.2" halign="center" valign="center2" text="$0f3+{{ time.points_added }}" textfont="RajdhaniMono"  textemboss="1"/>
+        {% endif %}
+      </frame>
+    {% endfor %}
+  {% endif %}
+{% endblock %}

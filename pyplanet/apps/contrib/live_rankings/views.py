@@ -180,7 +180,7 @@ class RaceRankingsWidget(TimesWidgetView):
 	top_entries = 5
 	title = 'Race Rankings'
 
-	template_name = 'live_rankings/widget.xml'
+	template_name = 'live_rankings/race_widget.xml'
 
 	def __init__(self, app):
 		super().__init__(self)
@@ -191,28 +191,28 @@ class RaceRankingsWidget(TimesWidgetView):
 		self.record_amount = 15
 
 	def get_widget_records(self, player=None):
-		list_records = list()
+		list_finishes = list()
 
 		player_index = len(self.app.current_finishes) + 1
 		if player:
-			player_record = [x for x in self.app.current_finishes if x['login'] == player.login]
+			player_finish = [x for x in self.app.current_finishes if x['login'] == player.login]
 		else:
-			player_record = list()
+			player_finish = list()
 
-		if len(player_record) > 0:
+		if len(player_finish) > 0:
 			# Set player index if there is a record
-			player_index = (self.app.current_finishes.index(player_record[0]) + 1)
+			player_index = (self.app.current_finishes.index(player_finish[0]) + 1)
 
-		records = list(self.app.current_finishes[:self.top_entries])
+		finishes = list(self.app.current_finishes[:self.top_entries])
 		if self.app.instance.performance_mode:
 			# Performance mode is turned on, get the top of the whole widget.
-			records += self.app.current_finishes[self.top_entries:self.record_amount]
+			finishes += self.app.current_finishes[self.top_entries:self.record_amount]
 			custom_start_index = (self.top_entries + 1)
 		else:
 			if player_index > len(self.app.current_finishes) or player_index <= self.top_entries:
 				# No personal record, get the best results
 				# Or, player record is in top X, get following records (top entries + 1 onwards)
-				records += list(self.app.current_finishes[self.top_entries:self.record_amount])
+				finishes += list(self.app.current_finishes[self.top_entries:self.record_amount])
 				custom_start_index = (self.top_entries + 1)
 			else:
 				# Player record is not in top X, get records around player record
@@ -229,47 +229,41 @@ class RaceRankingsWidget(TimesWidgetView):
 				if start_point < self.top_entries:
 					start_point = self.top_entries
 
-				records += self.app.current_finishes[start_point:(start_point + records_to_fill)]
+				finishes += self.app.current_finishes[start_point:(start_point + records_to_fill)]
 				custom_start_index = (start_point + 1)
 
 		index = 1
-		for record in records:
-			list_record = dict()
-			list_record['index'] = index
-			list_record['bgcolor'] = '00000070'
+		for finish in finishes:
+			list_finish = dict()
+			list_finish['index'] = index
+			list_finish['bgcolor'] = '00000070'
 
 			if player:
 				if player.flow.team_id == 0:
-					list_record['bgcolor'] = '7881F2FF'
+					list_finish['bgcolor'] = '7881F2FF'
 				if player.flow.team_id == 1:
-					list_record['bgcolor'] = 'F05F5FFF'
+					list_finish['bgcolor'] = 'F05F5FFF'
 
 			if self.app.is_warming_up:
-				list_record['color'] = '$fa0'
+				list_finish['color'] = '$fa0'
 			else:
-				list_record['color'] = '$fff'
+				list_finish['color'] = '$fff'
 				if index <= self.top_entries:
-					list_record['color'] = '$ff0'
+					list_finish['color'] = '$ff0'
 				if index == player_index:
-					list_record['color'] = '$0f3'
+					list_finish['color'] = '$0f3'
 
-			list_record['nickname'] = record['nickname']
-			list_record['score'] = times.format_time(int(record['score']))
-			list_record['cp_difference'] = None
-
-			# Points added on finishing in Rounds, Team or Cup modes.
-			if 'points_added' in record:
-				list_record['points_added'] = record['points_added']
-			else:
-				list_record['points_added'] = 0
+			list_finish['nickname'] = finish['nickname']
+			list_finish['score'] = times.format_time(int(finish['score']))
+			list_finish['points_added'] = finish['points_added']
 
 			if index == self.top_entries:
 				index = custom_start_index
 			else:
 				index += 1
 
-			list_records.append(list_record)
-		return list_records
+			list_finishes.append(list_finish)
+		return list_finishes
 
 	async def get_context_data(self):
 		self.record_amount = await self.app.setting_rankings_amount.get_value()
