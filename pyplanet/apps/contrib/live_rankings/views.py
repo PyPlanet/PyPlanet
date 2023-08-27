@@ -200,7 +200,7 @@ class RaceRankingsWidget(TimesWidgetView):
 			player_finish = list()
 
 		if len(player_finish) > 0:
-			# Set player index if there is a record
+			# Set player index if the player has finished.
 			player_index = (self.app.current_finishes.index(player_finish[0]) + 1)
 
 		finishes = list(self.app.current_finishes[:self.top_entries])
@@ -210,22 +210,22 @@ class RaceRankingsWidget(TimesWidgetView):
 			custom_start_index = (self.top_entries + 1)
 		else:
 			if player_index > len(self.app.current_finishes) or player_index <= self.top_entries:
-				# No personal record, get the best results
-				# Or, player record is in top X, get following records (top entries + 1 onwards)
+				# Player not finished, get the best results.
+				# Or, player finished in the top X, get following finishes (top entries + 1 onwards).
 				finishes += list(self.app.current_finishes[self.top_entries:self.record_amount])
 				custom_start_index = (self.top_entries + 1)
 			else:
-				# Player record is not in top X, get records around player record
-				# Same amount above the record as below, except when not possible (favors above)
+				# Player finished not in top X, get finishes around player.
+				# Same amount above the player as below, except when not possible (favors above).
 				records_to_fill = (self.record_amount - self.top_entries)
 				start_point = ((player_index - math.ceil((records_to_fill - 1) / 2)) - 1)
 				end_point = ((player_index + math.floor((records_to_fill - 1) / 2)) - 1)
 
-				# If end of current slice is outside the list, add more records above
+				# If end of current slice is outside the list, add more finishes above
 				if end_point > len(self.app.current_finishes):
 					end_difference = (end_point - len(self.app.current_finishes))
 					start_point = (start_point - end_difference)
-				# If start of current slice is in the top entries, add more records below
+				# If start of current slice is in the top entries, add more finishes below
 				if start_point < self.top_entries:
 					start_point = self.top_entries
 
