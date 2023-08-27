@@ -209,37 +209,28 @@ class RaceRankingsWidget(TimesWidgetView):
 			records += self.app.current_finishes[self.top_entries:self.record_amount]
 			custom_start_index = (self.top_entries + 1)
 		else:
-			if player_index > len(self.app.current_finishes):
-				# No personal record, get the last records
-				records_start = (len(self.app.current_finishes) - self.record_amount + self.top_entries)
-				# If start of current slice is in the top entries, add more records below
-				if records_start < self.top_entries:
-					records_start = self.top_entries
-
-				records += list(self.app.current_finishes[records_start:])
-				custom_start_index = (records_start + 1)
+			if player_index > len(self.app.current_finishes) or player_index <= self.top_entries:
+				# No personal record, get the best results
+				# Or, player record is in top X, get following records (top entries + 1 onwards)
+				records += list(self.app.current_finishes[self.top_entries:self.record_amount])
+				custom_start_index = (self.top_entries + 1)
 			else:
-				if player_index <= self.top_entries:
-					# Player record is in top X, get following records (top entries + 1 onwards)
-					records += self.app.current_finishes[self.top_entries:self.record_amount]
-					custom_start_index = (self.top_entries + 1)
-				else:
-					# Player record is not in top X, get records around player record
-					# Same amount above the record as below, except when not possible (favors above)
-					records_to_fill = (self.record_amount - self.top_entries)
-					start_point = ((player_index - math.ceil((records_to_fill - 1) / 2)) - 1)
-					end_point = ((player_index + math.floor((records_to_fill - 1) / 2)) - 1)
+				# Player record is not in top X, get records around player record
+				# Same amount above the record as below, except when not possible (favors above)
+				records_to_fill = (self.record_amount - self.top_entries)
+				start_point = ((player_index - math.ceil((records_to_fill - 1) / 2)) - 1)
+				end_point = ((player_index + math.floor((records_to_fill - 1) / 2)) - 1)
 
-					# If end of current slice is outside the list, add more records above
-					if end_point > len(self.app.current_finishes):
-						end_difference = (end_point - len(self.app.current_finishes))
-						start_point = (start_point - end_difference)
-					# If start of current slice is in the top entries, add more records below
-					if start_point < self.top_entries:
-						start_point = self.top_entries
+				# If end of current slice is outside the list, add more records above
+				if end_point > len(self.app.current_finishes):
+					end_difference = (end_point - len(self.app.current_finishes))
+					start_point = (start_point - end_difference)
+				# If start of current slice is in the top entries, add more records below
+				if start_point < self.top_entries:
+					start_point = self.top_entries
 
-					records += self.app.current_finishes[start_point:(start_point + records_to_fill)]
-					custom_start_index = (start_point + 1)
+				records += self.app.current_finishes[start_point:(start_point + records_to_fill)]
+				custom_start_index = (start_point + 1)
 
 		index = 1
 		for record in records:
@@ -253,11 +244,14 @@ class RaceRankingsWidget(TimesWidgetView):
 				if player.flow.team_id == 1:
 					list_record['bgcolor'] = 'F05F5FFF'
 
-			list_record['color'] = '$fff'
-			if index <= self.top_entries:
-				list_record['color'] = '$ff0'
-			if index == player_index:
-				list_record['color'] = '$0f3'
+			if self.app.is_warming_up:
+				list_record['color'] = '$fa0'
+			else:
+				list_record['color'] = '$fff'
+				if index <= self.top_entries:
+					list_record['color'] = '$ff0'
+				if index == player_index:
+					list_record['color'] = '$0f3'
 
 			list_record['nickname'] = record['nickname']
 			list_record['score'] = times.format_time(int(record['score']))

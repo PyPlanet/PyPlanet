@@ -17,6 +17,7 @@ class LiveRankings(AppConfig):
 		self.current_rankings = []
 		self.points_repartition = []
 		self.current_finishes = []
+		self.is_warming_up = False
 		self.widget = None
 		self.dedimania_enabled = False
 
@@ -54,6 +55,7 @@ class LiveRankings(AppConfig):
 		self.context.signals.listen(tm_signals.give_up, self.player_giveup)
 		self.context.signals.listen(tm_signals.scores, self.scores)
 		self.context.signals.listen(tm_signals.warmup_start, self.warmup_start)
+		self.context.signals.listen(tm_signals.warmup_start_round, self.warmup_start)
 		self.context.signals.listen(tm_signals.warmup_end, self.warmup_end)
 		self.context.signals.listen(mp_signals.flow.podium_start, self.podium_start)
 
@@ -170,14 +172,16 @@ class LiveRankings(AppConfig):
 	async def player_connect(self, player, is_spectator, source, signal):
 		await self.widget.display(player=player)
 
-	async def warmup_start(self):
+	async def warmup_start(self, **kwargs):
+		self.is_warming_up = True
 		self.current_rankings = []
 		self.current_finishes = []
 		await self.get_points_repartition()
 		await self.widget.display()
 		await self.race_widget.hide()
 
-	async def warmup_end(self):
+	async def warmup_end(self, **kwargs):
+		self.is_warming_up = False
 		self.current_rankings = []
 		self.current_finishes = []
 		await self.get_points_repartition()
@@ -245,24 +249,27 @@ class LiveRankings(AppConfig):
 
 		if 'rounds' in current_script or 'team' in current_script or 'cup' in current_script or \
 			'trackmania/tm_rounds_online' in current_script or 'trackmania/tm_teams_online' in current_script or 'trackmania/tm_cup_online' in current_script:
-
 			new_finish = dict(login=player.login, nickname=player.nickname, score=race_time)
 			self.current_finishes.append(new_finish)
 
 			new_finish_rank = len(self.current_finishes) - 1
-			new_finish['points_added'] = self.points_repartition[new_finish_rank] \
-				if len(self.points_repartition) > new_finish_rank \
-				else self.points_repartition[(len(self.points_repartition) - 1)]
-
-			current_ranking = next((item for item in self.current_rankings if item['login'] == player.login), None)
-			if current_ranking is not None:
-				current_ranking['points_added'] = new_finish['points_added']
+			if not self.is_warming_up:
+				new_finish['points_added'] = self.points_repartition[new_finish_rank] \
+					if len(self.points_repartition) > new_finish_rank \
+					else self.points_repartition[(len(self.points_repartition) - 1)]
 			else:
-				new_finish['score'] = 0
-				self.current_rankings.append(new_finish)
+				new_finish['points_added'] = 0
 
-			self.current_rankings.sort(key=lambda x: (-x['score'], -x['points_added']))
-			await self.widget.display()
+			if not self.is_warming_up:
+				current_ranking = next((item for item in self.current_rankings if item['login'] == player.login), None)
+				if current_ranking is not None:
+					current_ranking['points_added'] = new_finish['points_added']
+				else:
+					new_ranking = dict(login=player.login, nickname=player.nickname, score=0, points_added=new_finish['points_added'])
+					self.current_rankings.append(new_ranking)
+
+				self.current_rankings.sort(key=lambda x: (-x['score'], -x['points_added']))
+				await self.widget.display()
 
 			if self.display_race_widget:
 				await self.race_widget.display()
