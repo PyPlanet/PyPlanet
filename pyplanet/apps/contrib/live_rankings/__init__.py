@@ -223,7 +223,7 @@ class LiveRankings(AppConfig):
 		self.current_rankings.sort(key=lambda x: (-x['cps'], x['score']))
 		await self.widget.display()
 
-	async def player_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
+	async def player_finish(self, player, race_time, lap_time, cps, flow, is_end_race, raw, **kwargs):
 		current_script = (await self.instance.mode_manager.get_current_script()).lower()
 		if 'laps' in current_script or 'trackmania/tm_laps_online' in current_script:
 			await self.player_waypoint(player, race_time, flow, raw)
@@ -249,6 +249,11 @@ class LiveRankings(AppConfig):
 
 		if 'rounds' in current_script or 'team' in current_script or 'cup' in current_script or \
 			'trackmania/tm_rounds_online' in current_script or 'trackmania/tm_teams_online' in current_script or 'trackmania/tm_cup_online' in current_script:
+			if not is_end_race:
+				# The finish event is also triggered when passing the finish in a multi-lap map, while not finishing the map.
+				# In that case, no results should be processed as the player hasn't actually finished.
+				return
+
 			new_finish = dict(login=player.login, nickname=player.nickname, score=race_time)
 			self.current_finishes.append(new_finish)
 
