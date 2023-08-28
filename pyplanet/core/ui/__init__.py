@@ -94,7 +94,9 @@ class _BaseUIManager:
 					raise Exception('Manialink has no body or template defined!')
 
 				# Add manialink tag to body.
-				body = '<manialink version="{}" id="{}">{}</manialink>'.format(manialink.version, manialink.id, body)
+				body = '<manialink version="{}" id="{}" name="{}">{}</manialink>'.format(
+					manialink.version, manialink.id, manialink.id, body
+				)
 
 				# Prepare query
 				queries.append(self.instance.gbx(
@@ -111,7 +113,9 @@ class _BaseUIManager:
 				raise Exception('Manialink has no body or template defined!')
 
 			# Add manialink tag to body.
-			body = '<manialink version="{}" id="{}">{}</manialink>'.format(manialink.version, manialink.id, body)
+			body = '<manialink version="{}" id="{}" name="{}">{}</manialink>'.format(
+				manialink.version, manialink.id, manialink.id, body
+			)
 
 			# Add normal queries.
 			if for_logins and len(for_logins) > 0:
