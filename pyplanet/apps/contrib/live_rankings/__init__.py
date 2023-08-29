@@ -256,22 +256,22 @@ class LiveRankings(AppConfig):
 
 			new_finish = dict(login=player.login, nickname=player.nickname, score=race_time)
 			self.current_finishes.append(new_finish)
+			self.current_finishes.sort(key=lambda x: (x['score']))
 
-			new_finish_rank = len(self.current_finishes) - 1
-			if not self.is_warming_up:
-				new_finish['points_added'] = self.points_repartition[new_finish_rank] \
-					if len(self.points_repartition) > new_finish_rank \
-					else self.points_repartition[(len(self.points_repartition) - 1)]
-			else:
-				new_finish['points_added'] = 0
-
-			if not self.is_warming_up:
-				current_ranking = next((item for item in self.current_rankings if item['login'] == player.login), None)
-				if current_ranking is not None:
-					current_ranking['points_added'] = new_finish['points_added']
+			for current_finish_index in range(len(self.current_finishes)):
+				current_finish = self.current_finishes[current_finish_index]
+				if len(self.points_repartition) > current_finish_index:
+					current_finish['points_added'] = self.points_repartition[current_finish_index]
 				else:
-					new_ranking = dict(login=player.login, nickname=player.nickname, score=0, points_added=new_finish['points_added'])
-					self.current_rankings.append(new_ranking)
+					current_finish['points_added'] = self.points_repartition[(len(self.points_repartition) - 1)]
+
+				if not self.is_warming_up:
+					current_ranking = next((item for item in self.current_rankings if item['login'] == player.login), None)
+					if current_ranking is not None:
+						current_ranking['points_added'] = new_finish['points_added']
+					else:
+						new_ranking = dict(login=player.login, nickname=player.nickname, score=0, points_added=new_finish['points_added'])
+						self.current_rankings.append(new_ranking)
 
 				self.current_rankings.sort(key=lambda x: (-x['score'], -x['points_added']))
 				await self.widget.display()

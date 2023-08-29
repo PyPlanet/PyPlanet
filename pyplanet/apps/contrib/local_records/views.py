@@ -81,7 +81,6 @@ class LocalRecordsWidget(TimesWidgetView):
 
 			index = 1
 			for record in records:
-				record_player = await record.get_related('player')
 				list_record = dict()
 				list_record['index'] = index
 				list_record['color'] = '$fff'
@@ -89,7 +88,7 @@ class LocalRecordsWidget(TimesWidgetView):
 					list_record['color'] = '$ff0'
 				if index == player_index:
 					list_record['color'] = '$0f3'
-				list_record['nickname'] = record_player.nickname
+				list_record['nickname'] = record.player.nickname
 				list_record['score'] = times.format_time(int(record.score))
 				if index == self.top_entries:
 					index = custom_start_index
@@ -123,13 +122,12 @@ class LocalRecordsWidget(TimesWidgetView):
 
 			index = 1
 			for record in records:
-				record_player = await record.get_related('player')
 				list_record = dict()
 				list_record['index'] = index
 				list_record['color'] = '$fff'
 				if index <= self.top_entries:
 					list_record['color'] = '$ff0'
-				list_record['nickname'] = record_player.nickname
+				list_record['nickname'] = record.player.nickname
 				list_record['score'] = times.format_time(int(record.score))
 				index += 1
 				list_records.append(list_record)
@@ -203,13 +201,12 @@ class LocalRecordsListView(ManualListView):
 		index = 1
 		items = []
 		for item in records:
-			record_player = item.player
 			record_time_difference = ''
 			if index > 1:
 				record_time_difference = '$f00 + ' + times.format_time((item.score - first_time))
 			items.append({
 				'id': item.get_id(),
-				'index': index, 'player_nickname': record_player.nickname,
+				'index': index, 'player_nickname': item.player.nickname,
 				'record_time': times.format_time(item.score),
 				'record_time_difference': record_time_difference
 			})
@@ -297,8 +294,8 @@ class LocalRecordCpCompareListView(ManualListView):
 		self.compare_rank = compare_rank
 
 	async def get_fields(self):
-		own_player = await self.own_record.get_related('player') if self.own_record else None
-		compare_player = await self.compare_record.get_related('player')
+		own_player = self.own_record.player if self.own_record else None
+		compare_player = self.compare_record.player
 
 		return [
 			{

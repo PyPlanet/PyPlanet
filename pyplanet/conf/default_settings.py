@@ -31,6 +31,9 @@ POOLS = [
 # Allow self-upgrading the installation. Disable on shared servers with one installation!
 SELF_UPGRADE = True
 
+# Allow changing the server slots (max players/spectators).
+ALLOW_SLOTS_CHANGE = True
+
 ##########################################
 ################## DB ####################
 ##########################################

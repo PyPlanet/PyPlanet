@@ -144,6 +144,21 @@ class MapListView(ManualListView):
 
 		return data
 
+	async def get_actions(self):
+		custom_actions = list()
+		if 'jukebox' in self.app.instance.apps.apps:
+			custom_actions.append(dict(
+				name='Add to folder',
+				action=self.app.instance.apps.apps['jukebox'].add_to_folder,
+				text='&#xf07b;',
+				textsize='1.2',
+				safe=True,
+				type='label',
+				order=-50,
+				require_confirm=False,
+			))
+
+		return custom_actions
+
 	async def action_jukebox(self, player, values, map_info, **kwargs):
 		await self.app.instance.apps.apps['jukebox'].add_to_jukebox(player, await self.app.instance.map_manager.get_map(map_info['uid']))
-
