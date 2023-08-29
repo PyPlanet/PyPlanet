@@ -127,7 +127,7 @@ class Ads(AppConfig):
 			if not url:
 				await self.instance.chat('$f00$iInvalid PayPal Donation URL, none given!')
 			else:
-				with aiohttp.ClientSession(headers={'User-Agent': 'PyPlanet/{}'.format(pyplanet_version)}) as session:
+				async with aiohttp.ClientSession(headers={'User-Agent': 'PyPlanet/{}'.format(pyplanet_version)}) as session:
 					try:
 						async with session.get(url) as _:
 							pass
@@ -210,7 +210,7 @@ class Ads(AppConfig):
 	async def get_discord_users(self):
 		url = "https://discordapp.com/api/guilds/" + self.discord_server_id + "/widget.json"
 
-		with aiohttp.ClientSession(headers={'User-Agent': 'PyPlanet/{}'.format(pyplanet_version)}) as session:
+		async with aiohttp.ClientSession(headers={'User-Agent': 'PyPlanet/{}'.format(pyplanet_version)}) as session:
 			try:
 				async with session.get(url) as response:
 					data = await response.json()
@@ -221,7 +221,7 @@ class Ads(AppConfig):
 				return False
 
 	async def is_discord_url_valid(self, url):
-		with aiohttp.ClientSession(headers={'User-Agent': 'PyPlanet/{}'.format(pyplanet_version)}) as session:
+		async with aiohttp.ClientSession(headers={'User-Agent': 'PyPlanet/{}'.format(pyplanet_version)}) as session:
 			try:
 				async with session.get(url) as _:
 					return True
