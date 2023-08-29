@@ -12,6 +12,7 @@ rednose
 coverage
 asynctest
 python-coveralls
+pylint
 
 # Release Utilities.
 twine
