@@ -1,3 +1,5 @@
+import random
+
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.funcmd.view import EmojiToolbarView
 from pyplanet.contrib.command import Command
@@ -8,6 +10,56 @@ from pyplanet.contrib.setting import Setting
 
 class FunCmd(AppConfig):
 	app_dependencies = ['core.maniaplanet']
+
+	muffins = [
+		'Muffin',
+		'Apple Cinnamon Muffin',
+		'Cornbread Muffin',
+		'Blueberry Cream Cheese Muffin',
+		'Sweet Potato Muffin',
+		'Chocolate Muffin',
+		'Coffee Cake Muffin',
+		'Snickerdoodle Mini Muffin',
+		'Oatmeal Muffin',
+		'Cinnamon Streusel Muffin',
+		'Apple Cider Muffin',
+		'Toffe-ee Muffin ;-)',
+		'Insert-Developer-Joke-Here Muffin',
+		'Orange Marmalade Muffin',
+		'Pumpkin Spice Muffin',
+		'Cranberry Oatmeal Muffin',
+		'Pineapple & Sour Cream Muffin',
+		'Lemon Yogurt Muffin',
+		'Zucchini Muffin',
+		'Slice of Apple Pie',
+		'Baklava',
+		'Bowl of Gelato',
+		'Picarones',
+		'Syrniki',
+		'Lamingtons',
+		'Cup of Skyr',
+		'Om Ali',
+		'Bread Pudding',
+		'Loukoumades',
+		'Slice of Spekkoek',
+		'Slice of Slagroomtaart',
+		'Appelflappen',
+		'Banana Muffin',
+		'No Muffin',
+		'Blueberry Muffin',
+		'Two Muffins',
+		'Muffin with Cream',
+		'Choc-Chip Muffin',
+		'Double Chocolate Muffin',
+		'Lemmon & Poppyseed Muffin',
+		'Apple Crunch Muffin',
+		'Raspberry Muffin',
+		'Pink Cupcake',
+		'Pumpkin Pie',
+		'Slice of Cheesecake',
+		'Cinnamon Doghnut',
+		'Carrot Cake',
+	]
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -32,6 +84,7 @@ class FunCmd(AppConfig):
 			Command(command='gg', target=self.command_gg, admin=False, description='Send Good Game to everyone'),
 			Command(command='n1', target=self.command_n1, admin=False, description='Send Nice One to everyone'),
 			Command(command='nt', target=self.command_nt, admin=False, description='Send Nice Try/Nice Time to everyone'),
+			Command(command='muffin', target=self.command_muffin, admin=False, description='Give muffin to another player').add_param(name='login', required=True),
 		)
 
 		if self.instance.game.game == 'sm':
@@ -61,6 +114,22 @@ class FunCmd(AppConfig):
 			self.instance.gbx('ForceSpectator', player.login, 3),
 			self.instance.chat('$fff {}$z$s$fff is now away from keyboard.'.format(player.nickname))
 		)
+
+	async def command_muffin(self, player, data, **kwargs):
+		if self.instance.game.game == 'tmnext':
+			dest_player = [p for p in self.instance.player_manager.online if p.nickname == data.login]
+		else:
+			dest_player = [p for p in self.instance.player_manager.online if p.login == data.login]
+
+		if not dest_player:
+			message = '$i$f00Unknown player!'
+			return await self.instance.chat(message, player)
+
+		message = '$z{}$z$m$f90 gave {} to {}'.format(
+			player.nickname, random.choice(self.muffins), dest_player[0].nickname
+		)
+
+		await self.instance.chat(message)
 
 	async def command_bootme(self, player, data, **kwargs):
 		if 'admin' in self.instance.apps.apps and self.instance.apps.apps['admin'].server.chat_redirection:

@@ -18,6 +18,17 @@ By default, also the Emoji Toolbar is enabled, you can disable this in //setting
 Commands
 --------
 
+Muffin
+~~~~~~
+Command:
+  ``/muffin [login]``
+Parameters:
+  * Login - Login or nickname of destination player.
+Functionality:
+  Gives a muffin virtually to another player.
+Required permission:
+  None.
+
 Boot Me
 ~~~~~~~
 Command:
