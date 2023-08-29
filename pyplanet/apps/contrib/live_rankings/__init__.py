@@ -254,18 +254,18 @@ class LiveRankings(AppConfig):
 				# In that case, no results should be processed as the player hasn't actually finished.
 				return
 
-			new_finish = dict(login=player.login, nickname=player.nickname, score=race_time)
+			new_finish = dict(login=player.login, nickname=player.nickname, score=race_time, points_added=0)
 			self.current_finishes.append(new_finish)
 			self.current_finishes.sort(key=lambda x: (x['score']))
 
-			for current_finish_index in range(len(self.current_finishes)):
-				current_finish = self.current_finishes[current_finish_index]
-				if len(self.points_repartition) > current_finish_index:
-					current_finish['points_added'] = self.points_repartition[current_finish_index]
-				else:
-					current_finish['points_added'] = self.points_repartition[(len(self.points_repartition) - 1)]
+			if not self.is_warming_up:
+				for current_finish_index in range(len(self.current_finishes)):
+					current_finish = self.current_finishes[current_finish_index]
+					if len(self.points_repartition) > current_finish_index:
+						current_finish['points_added'] = self.points_repartition[current_finish_index]
+					else:
+						current_finish['points_added'] = self.points_repartition[(len(self.points_repartition) - 1)]
 
-				if not self.is_warming_up:
 					current_ranking = next((item for item in self.current_rankings if item['login'] == player.login), None)
 					if current_ranking is not None:
 						current_ranking['points_added'] = new_finish['points_added']
