@@ -1,6 +1,6 @@
 # Contributing to PyPlanet core.
 
-All the changes you want to contribute must be from either a ticket or a different feature pull request. Make sure you contribute the pull and issues on our Github 
+All the changes you want to contribute must be from either a ticket or a different feature pull request. Make sure you contribute the pull and issues on our GitHub 
 repository at our Main Repo.
 All contributions are welcome.
 

@@ -206,7 +206,7 @@ class Instance:
 		await self.chat(
 			'\uf1e6 $o$FD4Py$369Planet$z$o$s$fff v{}, {}\uf013 $z$s $369|$FD4 '
 			'$l[http://pypla.net]Site$l $369|$FD4 '
-			'$l[https://github.com/PyPlanet]Github$l $369|$FD4 '
+			'$l[https://github.com/PyPlanet]GitHub$l $369|$FD4 '
 			'$l[http://pypla.net]Docs$l'.format(version, len(self.apps.apps)),
 			raw=True
 		)

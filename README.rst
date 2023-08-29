@@ -1,8 +1,8 @@
 PyPlanet
 ========
 
-.. image:: https://travis-ci.com/PyPlanet/PyPlanet.svg?branch=master
-  :target: https://travis-ci.com/PyPlanet/PyPlanet
+.. image:: https://github.com/PyPlanet/PyPlanet/actions/workflows/docker-publish-release.yml/badge.svg
+  :target: https://github.com/PyPlanet/PyPlanet/actions
 .. image:: https://coveralls.io/repos/github/PyPlanet/PyPlanet/badge.svg?branch=master
   :target: https://coveralls.io/github/PyPlanet/PyPlanet?branch=master
 .. image:: https://readthedocs.org/projects/pyplanet/badge/?version=stable
