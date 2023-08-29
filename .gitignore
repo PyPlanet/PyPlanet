@@ -65,6 +65,7 @@ venv/
 ### Editors / IDE
 # IntelliJ project files
 .idea
+.vs
 *.iml
 out
 gen

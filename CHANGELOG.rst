@@ -1,6 +1,30 @@
 Changelog
 =========
 
+0.10.5
+------
+
+Core
+~~~~
+
+* Improvement: Removed \x92 character and <hidden> values from mode settings descriptions (#1219).
+
+* Bugfix: Fixing crash on start when using PostgreSQL database backend (thanks to lel-amri) (#1126).
+* Bugfix: Fixing list template background with no search, but with buttons (thanks to skybaks) (#1232).
+* Bugfix: Fixing log rollover with TimedRotatingFileHandler for Windows (thanks to w1lla) (#1089).
+* Bugfix: Fixing sorting with None values in list generics (#1245).
+* Bugfix: Fixing default value for confirmation alert pop-up (#1244).
+
+Apps
+~~~~
+
+* Feature: Added option to vote to go to the previous map (#1223).
+
+* Improvement: Ceil amount of votes required for vote to pass (#1246).
+
+* Bugfix: Fixing retrieval of correct amount of Discord users for servers with over 100 users (thanks to froznsm) (#1208).
+* Bugfix: Fixing rankings calculations for newer MariaDB versions (thanks to reaby) (#1238).
+
 0.10.4
 ------
 
