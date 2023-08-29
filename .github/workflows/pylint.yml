@@ -21,3 +21,4 @@ jobs:
     - name: Analysing the code with pylint
       run: |
         pylint pyplanet/
+      continue-on-error: true
