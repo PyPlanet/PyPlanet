@@ -146,7 +146,7 @@ class MapListView(ManualListView):
 
 	async def get_actions(self):
 		custom_actions = list()
-		if 'rankings' in self.app.instance.apps.apps:
+		if 'jukebox' in self.app.instance.apps.apps:
 			custom_actions.append(dict(
 				name='Add to folder',
 				action=self.app.instance.apps.apps['jukebox'].add_to_folder,
