@@ -36,6 +36,9 @@ OWNERS = {
 # Allow self-upgrading the installation. Disable on shared servers with one installation (hosting environment)!
 SELF_UPGRADE = True
 
+# Allow changing the server slots (max players/spectators).
+ALLOW_SLOTS_CHANGE = True
+
 # Databases configuration holds an dictionary with information of the database backend.
 # Please refer to the documentation for all examples. http://pypla.net/
 DATABASES = {

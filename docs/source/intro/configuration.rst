@@ -421,6 +421,31 @@ You don't want this to be enabled on shared servers (hosting environments) as it
   **We advice to use the manual PIP method of upgrading over the in-game upgrading process!**
 
 
+Allow slots change (base)
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In 0.10.6, the commands ``//setmaxplayers`` and ``//setmaxspectators`` are added, giving admins the possibility to change the maximum amount of players and spectators on the server.
+To allow hosters to disable the action for their customers, ``ALLOW_SLOTS_CHANGE`` can be changed to ``False``.
+
+
+.. code-block:: python
+  :caption: base.py
+
+    ALLOW_SLOTS_CHANGE = True
+
+.. code-block:: yaml
+  :caption: base.yaml
+
+    ALLOW_SLOTS_CHANGE: true
+
+.. code-block:: json
+  :caption: base.json
+
+    {
+      "ALLOW_SLOTS_CHANGE": true
+    }
+
+
 Songs (base)
 ~~~~~~~~~~~~
 
