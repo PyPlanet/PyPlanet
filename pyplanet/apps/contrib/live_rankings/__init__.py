@@ -1,5 +1,5 @@
 from pyplanet.apps.config import AppConfig
-from pyplanet.apps.contrib.live_rankings.views import LiveRankingsWidget
+from pyplanet.apps.contrib.live_rankings.views import LiveRankingsWidget, RaceRankingsWidget
 
 from pyplanet.apps.core.trackmania import callbacks as tm_signals
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
@@ -17,8 +17,12 @@ class LiveRankings(AppConfig):
 		self.current_rankings = []
 		self.points_repartition = []
 		self.current_finishes = []
+		self.is_warming_up = False
 		self.widget = None
 		self.dedimania_enabled = False
+
+		self.race_widget = None
+		self.display_race_widget = False
 
 		self.setting_rankings_amount = Setting(
 			'rankings_amount', 'Amount of rankings to display', Setting.CAT_BEHAVIOUR, type=int,
@@ -30,11 +34,16 @@ class LiveRankings(AppConfig):
 			description='Show the Nadeo live rankings widgets besides the live rankings widget.', default=True,
 			change_target=self.nadeo_widget_change
 		)
+		self.setting_race_ranking = Setting(
+			'race_live_ranking', 'Show the race rankings widget', Setting.CAT_BEHAVIOUR, type=bool,
+			description='Show the race rankings widgets besides the live rankings widget.', default=True,
+			change_target=self.race_widget_change
+		)
 
 	async def on_start(self):
 		# Init settings.
 		await self.context.setting.register(
-			self.setting_rankings_amount, self.setting_nadeo_live_ranking
+			self.setting_rankings_amount, self.setting_nadeo_live_ranking, self.setting_race_ranking
 		)
 
 		# Register signals
@@ -46,8 +55,9 @@ class LiveRankings(AppConfig):
 		self.context.signals.listen(tm_signals.give_up, self.player_giveup)
 		self.context.signals.listen(tm_signals.scores, self.scores)
 		self.context.signals.listen(tm_signals.warmup_start, self.warmup_start)
+		self.context.signals.listen(tm_signals.warmup_start_round, self.warmup_start)
 		self.context.signals.listen(tm_signals.warmup_end, self.warmup_end)
-
+		self.context.signals.listen(mp_signals.flow.podium_start, self.podium_start)
 
 		# Make sure we move the multilap_info and disable the checkpoint_ranking and round_scores elements.
 		if self.instance.game.game in ['tm', 'sm']:
@@ -60,6 +70,10 @@ class LiveRankings(AppConfig):
 
 		self.widget = LiveRankingsWidget(self)
 		await self.widget.display()
+
+		# Create the race rankings widget, call setting change method to set the UI accordingly.
+		self.race_widget = RaceRankingsWidget(self)
+		await self.race_widget_change(self)
 
 		scores = None
 		try:
@@ -77,6 +91,21 @@ class LiveRankings(AppConfig):
 		if self.instance.game.game in ['tm', 'sm']:
 			self.instance.ui_manager.properties.set_visibility('round_scores', await self.setting_nadeo_live_ranking.get_value())
 			await self.instance.ui_manager.properties.send_properties()
+
+	async def race_widget_change(self, *args, **kwargs):
+		self.display_race_widget = await self.setting_race_ranking.get_value()
+		if not self.display_race_widget:
+			await self.race_widget.hide()
+
+		# Hide the game-provided race rankings widget when displaying this one.
+		# Otherwise, reset visibility to the Nadeo live ranking setting.
+		if self.instance.game.game in ['tm', 'sm']:
+			if self.display_race_widget is True:
+				self.instance.ui_manager.properties.set_visibility('round_scores', False)
+				await self.instance.ui_manager.properties.send_properties()
+			else:
+				self.instance.ui_manager.properties.set_visibility('round_scores', await self.setting_nadeo_live_ranking.get_value())
+				await self.instance.ui_manager.properties.send_properties()
 
 	def is_mode_supported(self, mode):
 		mode = mode.lower()
@@ -135,17 +164,24 @@ class LiveRankings(AppConfig):
 
 	async def round_start(self, count, time):
 		await self.get_points_repartition()
+		await self.race_widget.hide()
+
+	async def podium_start(self, **kwargs):
+		await self.race_widget.hide()
 
 	async def player_connect(self, player, is_spectator, source, signal):
 		await self.widget.display(player=player)
 
-	async def warmup_start(self):
+	async def warmup_start(self, **kwargs):
+		self.is_warming_up = True
 		self.current_rankings = []
 		self.current_finishes = []
 		await self.get_points_repartition()
 		await self.widget.display()
+		await self.race_widget.hide()
 
-	async def warmup_end(self):
+	async def warmup_end(self, **kwargs):
+		self.is_warming_up = False
 		self.current_rankings = []
 		self.current_finishes = []
 		await self.get_points_repartition()
@@ -187,7 +223,7 @@ class LiveRankings(AppConfig):
 		self.current_rankings.sort(key=lambda x: (-x['cps'], x['score']))
 		await self.widget.display()
 
-	async def player_finish(self, player, race_time, lap_time, cps, flow, raw, **kwargs):
+	async def player_finish(self, player, race_time, lap_time, cps, flow, is_end_race, raw, **kwargs):
 		current_script = (await self.instance.mode_manager.get_current_script()).lower()
 		if 'laps' in current_script or 'trackmania/tm_laps_online' in current_script:
 			await self.player_waypoint(player, race_time, flow, raw)
@@ -212,34 +248,42 @@ class LiveRankings(AppConfig):
 			return
 
 		if 'rounds' in current_script or 'team' in current_script or 'cup' in current_script or \
-		'trackmania/tm_rounds_online' in current_script or 'trackmania/tm_teams_online' in current_script or 'trackmania/tm_cup_online' in current_script:
+			'trackmania/tm_rounds_online' in current_script or 'trackmania/tm_teams_online' in current_script or 'trackmania/tm_cup_online' in current_script:
+			if not is_end_race:
+				# The finish event is also triggered when passing the finish in a multi-lap map, while not finishing the map.
+				# In that case, no results should be processed as the player hasn't actually finished.
+				return
 
-			new_finish = dict(login=player.login, nickname=player.nickname, score=race_time)
+			new_finish = dict(login=player.login, nickname=player.nickname, score=race_time, points_added=0)
 			self.current_finishes.append(new_finish)
 			self.current_finishes.sort(key=lambda x: (x['score']))
 
-			for current_finish_index in range(len(self.current_finishes)):
-				current_finish = self.current_finishes[current_finish_index]
-				if len(self.points_repartition) > current_finish_index:
-					current_finish['points_added'] = self.points_repartition[current_finish_index]
-				else:
-					current_finish['points_added'] = self.points_repartition[(len(self.points_repartition) - 1)]
+			if not self.is_warming_up:
+				for current_finish_index in range(len(self.current_finishes)):
+					current_finish = self.current_finishes[current_finish_index]
+					if len(self.points_repartition) > current_finish_index:
+						current_finish['points_added'] = self.points_repartition[current_finish_index]
+					else:
+						current_finish['points_added'] = self.points_repartition[(len(self.points_repartition) - 1)]
 
-				current_ranking = next((item for item in self.current_rankings if item['login'] == current_finish['login']), None)
-				if current_ranking is not None:
-					current_ranking['points_added'] = current_finish['points_added']
-				else:
-					current_finish['score'] = 0
-					self.current_rankings.append(current_finish)
+					current_ranking = next((item for item in self.current_rankings if item['login'] == player.login), None)
+					if current_ranking is not None:
+						current_ranking['points_added'] = new_finish['points_added']
+					else:
+						new_ranking = dict(login=player.login, nickname=player.nickname, score=0, points_added=new_finish['points_added'])
+						self.current_rankings.append(new_ranking)
 
-			self.current_rankings.sort(key=lambda x: (-x['score'], -x['points_added']))
-			await self.widget.display()
+				self.current_rankings.sort(key=lambda x: (-x['score'], -x['points_added']))
+				await self.widget.display()
+
+			if self.display_race_widget:
+				await self.race_widget.display()
 			return
 
 	async def get_points_repartition(self):
 		current_script = (await self.instance.mode_manager.get_current_script()).lower()
 		if 'rounds' in current_script or 'team' in current_script or 'cup' in current_script or \
-		'trackmania/tm_rounds_online' in current_script or 'trackmania/tm_teams_online' in current_script or 'trackmania/tm_cup_online' in current_script:
+			'trackmania/tm_rounds_online' in current_script or 'trackmania/tm_teams_online' in current_script or 'trackmania/tm_cup_online' in current_script:
 			points_repartition = await self.instance.gbx('Trackmania.GetPointsRepartition')
 			self.points_repartition = points_repartition['pointsrepartition']
 		else:

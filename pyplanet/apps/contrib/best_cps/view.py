@@ -4,7 +4,7 @@ from pyplanet.views.generics.widget import TimesWidgetView
 
 
 class BestCpTimesWidget(TimesWidgetView):
-	widget_x = -124.75
+	widget_x = -124.5
 	widget_y = 90
 	z_index = 130
 	size_x = 250

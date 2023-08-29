@@ -170,3 +170,119 @@ class LiveRankingsWidget(TimesWidgetView):
 			for player in self.app.instance.player_manager.online:
 				data[player.login] = dict(times=self.get_widget_records(player))
 			return data
+
+
+class RaceRankingsWidget(TimesWidgetView):
+	widget_x = -124.5
+	widget_y = 83.5
+	z_index = 130
+	size_x = 38
+	size_y = 55.5
+	top_entries = 5
+	title = 'Race Rankings'
+
+	template_name = 'live_rankings/race_widget.xml'
+
+	def __init__(self, app):
+		super().__init__(self)
+		self.app = app
+		self.manager = app.context.ui
+		self.id = 'pyplanet__widgets_racerankings'
+
+		self.record_amount = 15
+
+	def get_widget_records(self, player=None):
+		list_finishes = list()
+
+		player_index = len(self.app.current_finishes) + 1
+		if player:
+			player_finish = [x for x in self.app.current_finishes if x['login'] == player.login]
+		else:
+			player_finish = list()
+
+		if len(player_finish) > 0:
+			# Set player index if the player has finished.
+			player_index = (self.app.current_finishes.index(player_finish[0]) + 1)
+
+		finishes = list(self.app.current_finishes[:self.top_entries])
+		if self.app.instance.performance_mode:
+			# Performance mode is turned on, get the top of the whole widget.
+			finishes += self.app.current_finishes[self.top_entries:self.record_amount]
+			custom_start_index = (self.top_entries + 1)
+		else:
+			if player_index > len(self.app.current_finishes) or player_index <= self.top_entries:
+				# Player not finished, get the best results.
+				# Or, player finished in the top X, get following finishes (top entries + 1 onwards).
+				finishes += list(self.app.current_finishes[self.top_entries:self.record_amount])
+				custom_start_index = (self.top_entries + 1)
+			else:
+				# Player finished not in top X, get finishes around player.
+				# Same amount above the player as below, except when not possible (favors above).
+				records_to_fill = (self.record_amount - self.top_entries)
+				start_point = ((player_index - math.ceil((records_to_fill - 1) / 2)) - 1)
+				end_point = ((player_index + math.floor((records_to_fill - 1) / 2)) - 1)
+
+				# If end of current slice is outside the list, add more finishes above
+				if end_point > len(self.app.current_finishes):
+					end_difference = (end_point - len(self.app.current_finishes))
+					start_point = (start_point - end_difference)
+				# If start of current slice is in the top entries, add more finishes below
+				if start_point < self.top_entries:
+					start_point = self.top_entries
+
+				finishes += self.app.current_finishes[start_point:(start_point + records_to_fill)]
+				custom_start_index = (start_point + 1)
+
+		index = 1
+		for finish in finishes:
+			list_finish = dict()
+			list_finish['index'] = index
+			list_finish['bgcolor'] = '00000070'
+
+			if player:
+				if player.flow.team_id == 0:
+					list_finish['bgcolor'] = '7881F2FF'
+				if player.flow.team_id == 1:
+					list_finish['bgcolor'] = 'F05F5FFF'
+
+			if self.app.is_warming_up:
+				list_finish['color'] = '$fa0'
+			else:
+				list_finish['color'] = '$fff'
+				if index <= self.top_entries:
+					list_finish['color'] = '$ff0'
+				if index == player_index:
+					list_finish['color'] = '$0f3'
+
+			list_finish['nickname'] = finish['nickname']
+			list_finish['score'] = times.format_time(int(finish['score']))
+			list_finish['points_added'] = finish['points_added']
+
+			if index == self.top_entries:
+				index = custom_start_index
+			else:
+				index += 1
+
+			list_finishes.append(list_finish)
+		return list_finishes
+
+	async def get_context_data(self):
+		self.record_amount = await self.app.setting_rankings_amount.get_value()
+		if self.record_amount < 15:
+			self.record_amount = 15
+
+		data = await super().get_context_data()
+		if self.app.instance.performance_mode:
+			data['times'] = self.get_widget_records()
+		return data
+
+	async def get_player_data(self):
+		data = await super().get_player_data()
+
+		# If in performance mode, ignore this method.
+		if self.app.instance.performance_mode:
+			return dict()
+		else:
+			for player in self.app.instance.player_manager.online:
+				data[player.login] = dict(times=self.get_widget_records(player))
+			return data
