@@ -16,7 +16,7 @@ def upgrade(migrator: SchemaMigrator):
 
 	# Make sure that if we are in MySQL, to disable the group only by.
 	if isinstance(migrator.database, peewee_async.MySQLDatabase):
-		migrator.database.execute_sql("SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));")
+		migrator.database.execute_sql("SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));")
 
 	while results is None or len(results) > 0:
 		results = (Karma.select()
