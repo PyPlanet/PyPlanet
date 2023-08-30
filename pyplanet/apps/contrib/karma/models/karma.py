@@ -1,5 +1,5 @@
 """
-Maniaplanet Core Models. This models are used in several apps and should be considered as very stable.
+Maniaplanet Core Models. These models are used in several apps and should be considered as very stable.
 """
 from peewee import *
 from pyplanet.core.db import TimedModel
@@ -30,3 +30,8 @@ class Karma(TimedModel):
 	"""
 	Karma vote (-1, -0.5, 0, 0.5 or 1)
 	"""
+
+	class Meta:
+		indexes = (
+			(('player', 'map'), True),
+		)

@@ -1,5 +1,5 @@
 """
-Maniaplanet Core Models. This models are used in several apps and should be considered as very stable.
+Maniaplanet Core Models. These models are used in several apps and should be considered as very stable.
 """
 from peewee import *
 from pyplanet.core.db import TimedModel

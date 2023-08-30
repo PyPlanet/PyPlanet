@@ -21,6 +21,7 @@ class Karma(AppConfig):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
+		self.lock = asyncio.Lock()
 
 		self.current_votes = []
 		self.current_karma = 0.0
@@ -137,7 +138,12 @@ class Karma(AppConfig):
 		await self.widget.display(player=player)
 
 	async def player_chat(self, player, text, cmd):
-		if not cmd:
+		# Ignore if command is given.
+		if cmd:
+			return
+
+		# Acquire the lock for the voting array.
+		async with self.lock:
 			if text == '+++' or text == '++' or text == '+' or text == '+-' or text == '-+' or text == '-' or text == '--' or text == '---':
 				expanded_voting = await self.setting_expanded_voting.get_value()
 				if expanded_voting is False:
