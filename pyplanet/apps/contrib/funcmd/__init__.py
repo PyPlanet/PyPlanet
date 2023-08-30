@@ -118,20 +118,30 @@ class FunCmd(AppConfig):
 		)
 
 	async def command_muffin(self, player, data, **kwargs):
+		# Try to match the player.
 		if self.instance.game.game == 'tmnext':
 			nickname_input = style_strip(data.login).lower()
 			dest_player = [p for p in self.instance.player_manager.online if style_strip(p.nickname.lower()) == nickname_input]
 		else:
 			dest_player = [p for p in self.instance.player_manager.online if p.login == data.login]
 
-		if not dest_player:
-			message = '$i$f00Unknown player!'
-			return await self.instance.chat(message, player)
+		# Try to get the nickname of the destination player, otherwise just show the input login.
+		if dest_player:
+			dest_nickname = dest_player[0].nickname
+		else:
+			dest_nickname = data.login
 
-		message = '$z$s{}$z$s$m$f90 gave {} to $z$s{}'.format(
-			player.nickname, random.choice(self.muffins), dest_player[0].nickname
+		# Prepare the message.
+		muffin = random.choice(self.muffins)
+		a_word = 'a'
+		if muffin[0:1].lower() in ['a', 'e', 'u', 'i', 'o']:
+			a_word = 'an'
+
+		message = '$z$s{}$z$s$m$f90 gave {} {} to $z$s{}'.format(
+			player.nickname, a_word, muffin, dest_nickname
 		)
 
+		# Send the message.
 		await self.instance.chat(message)
 
 	async def command_bootme(self, player, data, **kwargs):
