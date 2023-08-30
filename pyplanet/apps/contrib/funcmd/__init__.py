@@ -2,10 +2,12 @@ import random
 
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.funcmd.view import EmojiToolbarView
-from pyplanet.contrib.command import Command
-
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
+
+from pyplanet.contrib.command import Command
 from pyplanet.contrib.setting import Setting
+
+from pyplanet.utils.style import style_strip
 
 
 class FunCmd(AppConfig):
@@ -117,7 +119,8 @@ class FunCmd(AppConfig):
 
 	async def command_muffin(self, player, data, **kwargs):
 		if self.instance.game.game == 'tmnext':
-			dest_player = [p for p in self.instance.player_manager.online if p.nickname == data.login]
+			nickname_input = style_strip(data.login).lower()
+			dest_player = [p for p in self.instance.player_manager.online if style_strip(p.nickname.lower()) == nickname_input]
 		else:
 			dest_player = [p for p in self.instance.player_manager.online if p.login == data.login]
 
