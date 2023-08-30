@@ -29,5 +29,5 @@ RUN cp ../base.py $PROJECT_ROOT/server/settings/base.py
 
 VOLUME $PROJECT_ROOT/server/
 
-ENTRYPOINT [ "./manage.py" ]
+ENTRYPOINT [ "python3", "manage.py" ]
 CMD [ "start", "--pool=default", "--settings=settings" ]
