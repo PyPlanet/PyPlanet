@@ -91,6 +91,9 @@ class LiveRankings(AppConfig):
 		if self.instance.game.game in ['tm', 'sm']:
 			self.instance.ui_manager.properties.set_visibility('round_scores', await self.setting_nadeo_live_ranking.get_value())
 			await self.instance.ui_manager.properties.send_properties()
+		else:
+			self.instance.ui_manager.properties.set_visibility('Rounds_SmallScoresTable', await self.setting_nadeo_live_ranking.get_value())
+			await self.instance.ui_manager.properties.send_properties()
 
 	async def race_widget_change(self, *args, **kwargs):
 		self.display_race_widget = await self.setting_race_ranking.get_value()
@@ -105,6 +108,13 @@ class LiveRankings(AppConfig):
 				await self.instance.ui_manager.properties.send_properties()
 			else:
 				self.instance.ui_manager.properties.set_visibility('round_scores', await self.setting_nadeo_live_ranking.get_value())
+				await self.instance.ui_manager.properties.send_properties()
+		else:
+			if self.display_race_widget is True:
+				self.instance.ui_manager.properties.set_visibility('Rounds_SmallScoresTable', False)
+				await self.instance.ui_manager.properties.send_properties()
+			else:
+				self.instance.ui_manager.properties.set_visibility('Rounds_SmallScoresTable', await self.setting_nadeo_live_ranking.get_value())
 				await self.instance.ui_manager.properties.send_properties()
 
 	def is_mode_supported(self, mode):
@@ -254,8 +264,18 @@ class LiveRankings(AppConfig):
 				# In that case, no results should be processed as the player hasn't actually finished.
 				return
 
-			new_finish = dict(login=player.login, nickname=player.nickname, score=race_time, points_added=0)
-			self.current_finishes.append(new_finish)
+			append_finish = True
+			if self.is_warming_up:
+				# During the warm-up, players can finish multiple times - only display the best time.
+				current_finishes = [x for x in self.current_finishes if x['login'] == player.login]
+				if len(current_finishes) > 0:
+					if race_time < current_finishes[0]['score']:
+						current_finishes[0]['score'] = race_time
+					append_finish = False
+
+			if append_finish:
+				new_finish = dict(login=player.login, nickname=player.nickname, score=race_time, points_added=0)
+				self.current_finishes.append(new_finish)
 			self.current_finishes.sort(key=lambda x: (x['score']))
 
 			if not self.is_warming_up:
