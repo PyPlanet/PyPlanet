@@ -267,6 +267,9 @@ class RaceRankingsWidget(TimesWidgetView):
 		return list_finishes
 
 	async def get_context_data(self):
+		self.widget_x = -124.5 if self.app.dedimania_enabled else -160
+		self.widget_y = 83.5 if self.app.dedimania_enabled else 12.5
+
 		self.record_amount = await self.app.setting_rankings_amount.get_value()
 		if self.record_amount < 15:
 			self.record_amount = 15

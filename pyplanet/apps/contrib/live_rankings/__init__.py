@@ -91,6 +91,9 @@ class LiveRankings(AppConfig):
 		if self.instance.game.game in ['tm', 'sm']:
 			self.instance.ui_manager.properties.set_visibility('round_scores', await self.setting_nadeo_live_ranking.get_value())
 			await self.instance.ui_manager.properties.send_properties()
+		else:
+			self.instance.ui_manager.properties.set_visibility('Rounds_SmallScoresTable', await self.setting_nadeo_live_ranking.get_value())
+			await self.instance.ui_manager.properties.send_properties()
 
 	async def race_widget_change(self, *args, **kwargs):
 		self.display_race_widget = await self.setting_race_ranking.get_value()
@@ -105,6 +108,13 @@ class LiveRankings(AppConfig):
 				await self.instance.ui_manager.properties.send_properties()
 			else:
 				self.instance.ui_manager.properties.set_visibility('round_scores', await self.setting_nadeo_live_ranking.get_value())
+				await self.instance.ui_manager.properties.send_properties()
+		else:
+			if self.display_race_widget is True:
+				self.instance.ui_manager.properties.set_visibility('Rounds_SmallScoresTable', False)
+				await self.instance.ui_manager.properties.send_properties()
+			else:
+				self.instance.ui_manager.properties.set_visibility('Rounds_SmallScoresTable', await self.setting_nadeo_live_ranking.get_value())
 				await self.instance.ui_manager.properties.send_properties()
 
 	def is_mode_supported(self, mode):
@@ -254,24 +264,33 @@ class LiveRankings(AppConfig):
 				# In that case, no results should be processed as the player hasn't actually finished.
 				return
 
+			append_finish = True
+			if self.is_warming_up:
+				# During the warm-up, players can finish multiple times - only display the best time.
+				current_finishes = [x for x in self.current_finishes if x['login'] == player.login]
+				if len(current_finishes) > 0:
+					if race_time < current_finishes[0]['score']:
+						current_finishes[0]['score'] = race_time
+					append_finish = False
+
 			new_finish = dict(login=player.login, nickname=player.nickname, score=race_time, points_added=0)
-			self.current_finishes.append(new_finish)
-			self.current_finishes.sort(key=lambda x: (x['score']))
+			if append_finish:
+				self.current_finishes.append(new_finish)
+			else:
+				self.current_finishes.sort(key=lambda x: (x['score']))
 
 			if not self.is_warming_up:
-				for current_finish_index in range(len(self.current_finishes)):
-					current_finish = self.current_finishes[current_finish_index]
-					if len(self.points_repartition) > current_finish_index:
-						current_finish['points_added'] = self.points_repartition[current_finish_index]
-					else:
-						current_finish['points_added'] = self.points_repartition[(len(self.points_repartition) - 1)]
+				new_finish_rank = len(self.current_finishes) - 1
+				new_finish['points_added'] = self.points_repartition[new_finish_rank] \
+					if len(self.points_repartition) > new_finish_rank \
+					else self.points_repartition[(len(self.points_repartition) - 1)]
 
-					current_ranking = next((item for item in self.current_rankings if item['login'] == player.login), None)
-					if current_ranking is not None:
-						current_ranking['points_added'] = new_finish['points_added']
-					else:
-						new_ranking = dict(login=player.login, nickname=player.nickname, score=0, points_added=new_finish['points_added'])
-						self.current_rankings.append(new_ranking)
+				current_ranking = next((item for item in self.current_rankings if item['login'] == player.login), None)
+				if current_ranking is not None:
+					current_ranking['points_added'] = new_finish['points_added']
+				else:
+					new_ranking = dict(login=player.login, nickname=player.nickname, score=0, points_added=new_finish['points_added'])
+					self.current_rankings.append(new_ranking)
 
 				self.current_rankings.sort(key=lambda x: (-x['score'], -x['points_added']))
 				await self.widget.display()
