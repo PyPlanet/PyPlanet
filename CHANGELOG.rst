@@ -7,6 +7,14 @@ Changelog
 Core
 ~~~~
 
+* Bugfix: Fixing issue with package aiohttp and incorrect required timeout package.
+
+0.11.0-rc1
+----------
+
+Core
+~~~~
+
 * Improvement: Upgraded python packages to use :code:`aiohttp==3.8.5`, :code:`async-timeout<5.0.0`, :code:`requests==2.27.1`, and :code:`cryptography==40.0.2`.
 * Improvement: Update order of in-memory map list in map manager after shuffling the list (#687).
 * Improvement: Added :code:`name` attribute to ManiaLink tag, ensuring recognizability when debugging ManiaScript (thanks to w1lla) (#1213).
