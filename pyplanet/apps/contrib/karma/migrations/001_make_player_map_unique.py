@@ -1,4 +1,6 @@
 import logging
+
+import peewee_async
 from peewee import *
 from playhouse.migrate import migrate, SchemaMigrator
 
@@ -11,6 +13,11 @@ def upgrade(migrator: SchemaMigrator):
 	# Fix the duplicates in the current setup.
 	total_processed = 0
 	results = None
+
+	# Make sure that if we are in MySQL, to disable the group only by.
+	if isinstance(migrator.database, peewee_async.MySQLDatabase):
+		migrator.database.execute_sql("SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));")
+
 	while results is None or len(results) > 0:
 		results = (Karma.select()
 				   .order_by(Karma.created_at.desc())
