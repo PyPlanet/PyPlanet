@@ -17,8 +17,11 @@ WORKDIR $PROJECT_ROOT
 COPY docs/docker/root/base.py $PROJECT_ROOT/base.py
 RUN chown -R maniaplanet:maniaplanet $PROJECT_ROOT
 
+# Copy current project files.
+COPY . /pyplanet
+
 # Install PyPlanet.
-RUN pip install pyplanet --upgrade
+RUN pip install -e /pyplanet
 
 USER maniaplanet
 

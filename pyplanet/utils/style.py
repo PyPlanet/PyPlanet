@@ -1,14 +1,12 @@
 import re
-import struct
 
-import binascii
 
-STRIP_ALL = dict(letters='wnoitsgz<>', part=r'\$[lh]\[.+\]|\$[lh]|\$[0-9a-f]{3}')
+STRIP_ALL = dict(letters='wnoitsgz<>', part=r'(?<!\$)\$[lh]\[.+\]|(?<!\$)\$[lh]|(?<!\$)\$[0-9a-f]{1,3}|(?<!\$)\$[f-y]{1}')
 """
 Strip all custom maniaplanet styles + formatting.
 """
 
-STRIP_COLORS = dict(letters='g', part=r'\$[0-9a-f]{3}')
+STRIP_COLORS = dict(letters='g', part=r'(?<!\$)\$[0-9a-f]{1,3}')
 """
 Strip colors from your input (including $g, color reset).
 """
@@ -28,7 +26,7 @@ STRIP_CAPITALS = dict(letters='t')
 Strip capital style ($t).
 """
 
-STRIP_LINKS = dict(part=r'\$[lh]\[.+\]|\$[lh]')
+STRIP_LINKS = dict(part=r'(?<!\$)\$[lh]\[.+\]|(?<!\$)\$[lh]')
 """
 Strip links ($h and $l).
 """
@@ -39,7 +37,7 @@ def style_strip(text, *strip_methods, strip_styling_blocks=True, keep_reset=Fals
 	Strip styles from the Maniaplanet universe.
 
 	Examples:
-	
+
 	.. code-block:: python
 
 		print("--- Strip: colours ---")
@@ -97,13 +95,18 @@ def style_strip(text, *strip_methods, strip_styling_blocks=True, keep_reset=Fals
 		letters += '<>'
 
 	if not regex:
-		regex = r'(\$[{letters}]{parts})+'.format(
+		regex = r'((?<!\$)\$[{letters}]{parts})+'.format(
 			letters=letters,
 			parts='|{}'.format('|'.join(parts)) if len(parts) > 0 else ''
 		)
 
-	# Strip and return.
-	return re.sub(regex, '', text, flags=re.IGNORECASE)
+	# Apply stripping strategy
+	text = re.sub(regex, '', text, flags=re.IGNORECASE)
+
+	# Replace double dollar by single dollars.
+	text = text.replace('$$', '$')
+
+	return text
 
 
 def percentage_color(percentage):  # pragma: no cover
