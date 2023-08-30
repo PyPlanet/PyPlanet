@@ -4,7 +4,7 @@ from pyplanet.utils import style
 def test_style_stripping():
 	# Colors
 	raw = '$i$fffMax$06fSmurf$f00.$fffes$$l$09f.$fffm$08f$a5x$n$w$o'
-	expect = '$iMaxSmurf.es$l.m$a5x$n$w$o'
+	expect = '$iMaxSmurf.es$l.mx$n$w$o'
 	assert style.style_strip(raw, style.STRIP_COLORS) == expect
 
 	raw = '$l[some link]$i$FFFMax$06fSmurf$f00.$fffesl$09f.$fffm$08fx$l'
@@ -39,7 +39,7 @@ def test_style_stripping():
 
 	# All
 	raw = '$h$i$fffMax$06fSmurf$f00.$fffesl$09f.$fffm$08f$a5x$h'
-	expect = 'MaxSmurf.esl.m$a5x'
+	expect = 'MaxSmurf.esl.mx'
 	assert style.style_strip(raw) == expect
 
 	raw = '$l[some link]$i$fffMax$06fSmur$$f$f00.$fffesl$09f.$fffm$08fx$l'
@@ -75,5 +75,10 @@ def test_bug_1249():
 
 	raw = 'Te$mst'
 	expect = 'Test'
+	assert style.style_strip(raw) == expect
+
+	raw = 'test mes$9sage'
+	expect = 'test message'
+	assert style.style_strip(raw, style.STRIP_COLORS) == expect
 	assert style.style_strip(raw) == expect
 

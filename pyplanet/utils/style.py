@@ -1,12 +1,12 @@
 import re
 
 
-STRIP_ALL = dict(letters='wnoitsgz<>', part=r'(?<!\$)\$[lh]\[.+\]|(?<!\$)\$[lh]|(?<!\$)\$[0-9a-f]{3}|(?<!\$)\$[f-y]{1}')
+STRIP_ALL = dict(letters='wnoitsgz<>', part=r'(?<!\$)\$[lh]\[.+\]|(?<!\$)\$[lh]|(?<!\$)\$[0-9a-f]{1,3}|(?<!\$)\$[f-y]{1}')
 """
 Strip all custom maniaplanet styles + formatting.
 """
 
-STRIP_COLORS = dict(letters='g', part=r'(?<!\$)\$[0-9a-f]{3}')
+STRIP_COLORS = dict(letters='g', part=r'(?<!\$)\$[0-9a-f]{1,3}')
 """
 Strip colors from your input (including $g, color reset).
 """
