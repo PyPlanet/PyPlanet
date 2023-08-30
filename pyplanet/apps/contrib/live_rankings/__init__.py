@@ -289,8 +289,8 @@ class LiveRankings(AppConfig):
 				if current_ranking is not None:
 					current_ranking['points_added'] = new_finish['points_added']
 				else:
-					new_finish['score'] = 0
-					self.current_rankings.append(new_finish)
+					new_ranking = dict(login=player.login, nickname=player.nickname, score=0, points_added=new_finish['points_added'])
+					self.current_rankings.append(new_ranking)
 
 				self.current_rankings.sort(key=lambda x: (-x['score'], -x['points_added']))
 				await self.widget.display()
