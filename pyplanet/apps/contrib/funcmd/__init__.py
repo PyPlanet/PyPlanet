@@ -128,7 +128,7 @@ class FunCmd(AppConfig):
 			message = '$i$f00Unknown player!'
 			return await self.instance.chat(message, player)
 
-		message = '$z$s{}$z$s$m$f90 gave {} to {}'.format(
+		message = '$z$s{}$z$s$m$f90 gave {} to $z$s{}'.format(
 			player.nickname, random.choice(self.muffins), dest_player[0].nickname
 		)
 
