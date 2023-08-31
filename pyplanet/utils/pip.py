@@ -135,8 +135,8 @@ class Pip:
 
 	def list(self):
 		"""
-
-		:return:
+		Retrieves the list of currently installed packages.
+		:return: Currently installed packages (or empty list if unable to retrieve data).
 		"""
 		if not self.is_supported:
 			raise Exception('Pip environment is not supported!')
@@ -151,7 +151,7 @@ class Pip:
 
 		if p.returncode != 0:
 			logger.error("Unable to retrieve list of installed packages from pip. Error: {}".format(stderr.decode()))
-			return
+			return []
 
 		return json.loads(stdout.decode())
 

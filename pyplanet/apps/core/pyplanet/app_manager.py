@@ -51,7 +51,7 @@ class AppManagerComponent:
 		Loads the installed packages from pip and the available app packages from the online index.
 		Will filter the installed packages based on the app packages, to determine which packages to display.
 		"""
-		if self.last_retrieval is not None and (self.last_retrieval + timedelta(minutes=15)) < datetime.now():
+		if self.last_retrieval is not None and (self.last_retrieval + timedelta(minutes=15)) > datetime.now():
 			# Only allow refresh of the packages list every 15 minutes.
 			logger.debug("Last package retrieval occured at {}, using cached date (min. 15 minutes)".format(self.last_retrieval))
 			return
