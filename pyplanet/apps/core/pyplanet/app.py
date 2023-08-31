@@ -3,6 +3,7 @@ import logging
 import platform
 
 from pyplanet.apps.config import AppConfig
+from pyplanet.apps.core.pyplanet.app_manager import AppManagerComponent
 from pyplanet.apps.core.pyplanet.dev import DevComponent
 from pyplanet.apps.core.pyplanet.setting import SettingComponent
 from pyplanet.apps.core.pyplanet.toolbar import ToolbarComponent
@@ -29,6 +30,7 @@ class PyPlanetConfig(AppConfig):
 		self.setting = SettingComponent(self)
 		self.dev = DevComponent(self)
 		self.toolbar = ToolbarComponent(self)
+		self.app_manager = AppManagerComponent(self)
 
 		# Initiate app (global) view.
 		self.controller_view = ControllerView(manager=self.context.ui)
@@ -41,12 +43,14 @@ class PyPlanetConfig(AppConfig):
 		await self.setting.on_init()
 		await self.dev.on_init()
 		await self.toolbar.on_init()
+		await self.app_manager.on_init()
 
 	async def on_start(self):
 		# Call components.
 		await self.setting.on_start()
 		await self.dev.on_start()
 		await self.toolbar.on_start()
+		await self.app_manager.on_start()
 
 		# Change some ui elements positions and visibility.
 		if self.instance.game.game in ['tm', 'sm']:

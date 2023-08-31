@@ -1,12 +1,15 @@
 """
 The PIP module contains utilities to upgrade packages in the installation of PyPlanet from the application itself.
 """
+import json
 import logging
 import os
 import site
 import subprocess
 import sys
 import tempfile
+
+logger = logging.getLogger(__name__)
 
 
 class Pip:
@@ -36,7 +39,7 @@ class Pip:
 			p = subprocess.Popen(command + ['--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			_, _ = p.communicate()
 			if p.returncode == 0:
-				logging.getLogger(__name__).info("Using \"{}\" as command to invoke pip".format(" ".join(command)))
+				logger.info("Using \"{}\" as command to invoke pip".format(" ".join(command)))
 				return command
 
 		return None
@@ -71,8 +74,8 @@ class Pip:
 					key, value = line.split("=", 2)
 					data[key] = value
 		except Exception as e:
-			logging.getLogger(__name__).error("Failed to check if PIP is supported. Failed to investigate PIP installation.")
-			logging.getLogger(__name__).exception(e)
+			logger.error("Failed to check if PIP is supported. Failed to investigate PIP installation.")
+			logger.exception(e)
 			return
 
 		install_dir_str = data.get("PIP_INSTALL_DIR", None)
@@ -89,7 +92,7 @@ class Pip:
 			self.is_supported = self.writable or self.can_use_user_flag
 			self.user_flag = not self.writable and self.can_use_user_flag
 
-			logging.getLogger(__name__).info(
+			logger.info(
 				"pip installs to {} (writable -> {}), --user flag needed -> {}, virtual env -> {}".format(
 					self.install_dir,
 					"yes" if self.writable else "no",
@@ -97,9 +100,9 @@ class Pip:
 					"yes" if self.virtual_env else "no"
 				)
 			)
-			logging.getLogger(__name__).info("==> pip ok -> {}".format("yes" if self.is_supported else "NO!"))
+			logger.info("==> pip ok -> {}".format("yes" if self.is_supported else "NO!"))
 		else:
-			logging.getLogger(__name__).error(
+			logger.error(
 				"Could not detect desired output from pip_test_pkg install, got this instead: {!r}".format(data)
 			)
 
@@ -129,3 +132,26 @@ class Pip:
 		stdout, stderr = p.communicate()
 
 		return p.returncode, stdout, stderr
+
+	def list(self):
+		"""
+
+		:return:
+		"""
+		if not self.is_supported:
+			raise Exception('Pip environment is not supported!')
+
+		command = self.command + ['list', '--format', 'json']
+		p = subprocess.Popen(
+			command,
+			stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+			cwd=self.pyplanet_dir,
+		)
+		stdout, stderr = p.communicate()
+
+		if p.returncode != 0:
+			logger.error("Unable to retrieve list of installed packages from pip. Error: {}".format(stderr.decode()))
+			return
+
+		return json.loads(stdout.decode())
+
