@@ -1,16 +1,8 @@
 Changelog
 =========
 
-0.11.0-rc2
-----------
-
-Core
-~~~~
-
-* Bugfix: Fixing issue with package aiohttp and incorrect required timeout package.
-
-0.11.0-rc1
-----------
+0.11.0
+------
 
 Core
 ~~~~
@@ -20,6 +12,7 @@ Core
 * Improvement: Added :code:`name` attribute to ManiaLink tag, ensuring recognizability when debugging ManiaScript (thanks to w1lla) (#1213).
 
 * Bugfix: Fixing style stripper to be more realistic with in-game renderer (thanks to skybaks) (#1249).
+* Bugfix: Fixing issue with package aiohttp and incorrect required timeout package.
 
 Apps
 ~~~~
