@@ -19,7 +19,7 @@ asyncssh==1.18.0
 aiohttp==3.8.5
 async-timeout<5.0,>=4.0.0a3
 requests==2.27.1
-urllib3==1.26.5
+urllib3==1.26.17
 
 # Utils
 cached-property==1.5.2
