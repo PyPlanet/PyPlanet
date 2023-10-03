@@ -1,6 +1,20 @@
 Changelog
 =========
 
+0.11.1
+------
+
+Core
+~~~~
+
+* Bugfix: Adding new information for the valid parameter in the round_start callback.
+
+Apps
+~~~~
+
+* Bugfix: Fixing compatibility live-rankings with new API callback for round_start in TM2020.
+
+
 0.11.0
 ------
 
