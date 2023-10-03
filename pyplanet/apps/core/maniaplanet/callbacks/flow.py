@@ -17,7 +17,7 @@ server_start = Callback(
 	target=handle_generic,
 )
 """
-:Signal: 
+:Signal:
 	Server Start signal
 :Code:
 	``maniaplanet:server_start``
@@ -38,7 +38,7 @@ server_start__end = Callback(
 	target=handle_generic,
 )
 """
-:Signal: 
+:Signal:
 	Server Start signal (end of event).
 :Code:
 	``maniaplanet:server_start__end``
@@ -59,7 +59,7 @@ server_end = Callback(
 	target=handle_generic,
 )
 """
-:Signal: 
+:Signal:
 	Server End signal
 :Code:
 	``maniaplanet:server_end``
@@ -80,7 +80,7 @@ server_end__end = Callback(
 	target=handle_generic,
 )
 """
-:Signal: 
+:Signal:
 	Server End signal (end event)
 :Code:
 	``maniaplanet:server_end__end``
@@ -101,7 +101,7 @@ match_start = Callback(
 	target=handle_generic,
 )
 """
-:Signal: 
+:Signal:
 	Match Start.
 :Code:
 	``maniaplanet:match_start``
@@ -122,7 +122,7 @@ match_start__end = Callback(
 	target=handle_generic,
 )
 """
-:Signal: 
+:Signal:
 	Match Start. (End event)
 :Code:
 	``maniaplanet:match_start__end``
@@ -143,7 +143,7 @@ match_end = Callback(
 	target=handle_generic,
 )
 """
-:Signal: 
+:Signal:
 	Match End.
 :Code:
 	``maniaplanet:match_end``
@@ -164,7 +164,7 @@ match_end__end = Callback(
 	target=handle_generic,
 )
 """
-:Signal: 
+:Signal:
 	Match End. (End event)
 :Code:
 	``maniaplanet:match_end__end``
@@ -185,7 +185,7 @@ round_start = Callback(
 	target=handle_generic,
 )
 """
-:Signal: 
+:Signal:
 	Round Start.
 :Code:
 	``maniaplanet:round_start``
@@ -196,6 +196,7 @@ round_start = Callback(
 
 :param count: Each time this section is played, this number is incremented by one.
 :param time: Server time when callback has been sent.
+:param valid: Number of valid rounds, only on newer TM2020 dedicated servers.
 """
 
 
@@ -206,7 +207,7 @@ round_start__end = Callback(
 	target=handle_generic,
 )
 """
-:Signal: 
+:Signal:
 	Round Start. (End event)
 :Code:
 	``maniaplanet:round_start__end``
@@ -227,7 +228,7 @@ round_end = Callback(
 	target=handle_generic,
 )
 """
-:Signal: 
+:Signal:
 	Round Start.
 :Code:
 	``maniaplanet:round_end``
@@ -248,7 +249,7 @@ round_end__end = Callback(
 	target=handle_generic,
 )
 """
-:Signal: 
+:Signal:
 	Round Start. (End event)
 :Code:
 	``maniaplanet:round_end__end``
@@ -269,7 +270,7 @@ turn_start = Callback(
 	target=handle_generic,
 )
 """
-:Signal: 
+:Signal:
 	Turn Start.
 :Code:
 	``maniaplanet:turn_start``
@@ -290,7 +291,7 @@ turn_start__end = Callback(
 	target=handle_generic,
 )
 """
-:Signal: 
+:Signal:
 	Turn Start. (End event).
 :Code:
 	``maniaplanet:turn_start__end``
@@ -311,7 +312,7 @@ turn_end = Callback(
 	target=handle_generic,
 )
 """
-:Signal: 
+:Signal:
 	Turn End.
 :Code:
 	``maniaplanet:turn_end``
@@ -332,7 +333,7 @@ turn_end__end = Callback(
 	target=handle_generic,
 )
 """
-:Signal: 
+:Signal:
 	Turn End. (End event)
 :Code:
 	``maniaplanet:turn_end__end``
@@ -353,7 +354,7 @@ play_loop_start = Callback(
 	target=handle_generic,
 )
 """
-:Signal: 
+:Signal:
 	Play Loop Start.
 :Code:
 	``maniaplanet:play_loop_start``
@@ -374,7 +375,7 @@ play_loop_end = Callback(
 	target=handle_generic,
 )
 """
-:Signal: 
+:Signal:
 	Play Loop End.
 :Code:
 	``maniaplanet:play_loop_end``
@@ -395,7 +396,7 @@ loading_map_start = Callback(
 	target=handle_generic
 )
 """
-:Signal: 
+:Signal:
 	Loading Map start.
 :Code:
 	``maniaplanet:loading_map_start``
@@ -415,7 +416,7 @@ loading_map_end = Callback(
 	target=handle_map_loading
 )
 """
-:Signal: 
+:Signal:
 	Loading Map end.
 :Code:
 	``maniaplanet:loading_map_end``
@@ -436,7 +437,7 @@ unloading_map_start = Callback(
 	target=handle_map_loading
 )
 """
-:Signal: 
+:Signal:
 	Unloading of the Map starts.
 :Code:
 	``maniaplanet:unloading_map_start``
@@ -457,7 +458,7 @@ unloading_map_end = Callback(
 	target=handle_generic
 )
 """
-:Signal: 
+:Signal:
 	Unloading of the Map ends.
 :Code:
 	``maniaplanet:unloading_map_end``
@@ -478,7 +479,7 @@ podium_start = Callback(
 	target=handle_generic
 )
 """
-:Signal: 
+:Signal:
 	Podium start.
 :Code:
 	``maniaplanet:podium_start``
@@ -498,7 +499,7 @@ podium_end = Callback(
 	target=handle_generic
 )
 """
-:Signal: 
+:Signal:
 	Podium end.
 :Code:
 	``maniaplanet:podium_end``
@@ -532,7 +533,7 @@ status_changed = Callback(
 	target=handle_generic,
 )
 """
-:Signal: 
+:Signal:
 	Server Status Changed.
 :Code:
 	``maniaplanet:status_changed``
