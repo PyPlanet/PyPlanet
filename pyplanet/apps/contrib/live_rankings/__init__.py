@@ -172,7 +172,7 @@ class LiveRankings(AppConfig):
 		await self.get_points_repartition()
 		await self.widget.display()
 
-	async def round_start(self, count, time):
+	async def round_start(self, count, time, valid=None):
 		await self.get_points_repartition()
 		await self.race_widget.hide()
 

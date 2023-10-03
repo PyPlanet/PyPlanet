@@ -132,7 +132,8 @@ def handle_exception(exception=None, module_name=None, func_name=None, extra_dat
 
 	# Send to sentry.
 	exc_info = sys.exc_info()
-	Raven.get_client().captureException(exc_info=exc_info)
+	# Disable raven for now.
+	# Raven.get_client().captureException(exc_info=exc_info)
 
 
 class RequireDebugFalse(logging.Filter):
