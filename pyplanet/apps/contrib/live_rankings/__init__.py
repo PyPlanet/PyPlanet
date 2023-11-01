@@ -1,3 +1,5 @@
+import asyncio
+
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.live_rankings.views import LiveRankingsWidget, RaceRankingsWidget
 
@@ -14,6 +16,7 @@ class LiveRankings(AppConfig):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
+		self.finish_lock = asyncio.Lock()
 		self.current_rankings = []
 		self.points_repartition = []
 		self.current_finishes = []
@@ -276,27 +279,29 @@ class LiveRankings(AppConfig):
 			new_finish = dict(login=player.login, nickname=player.nickname, score=race_time, points_added=0)
 			if append_finish:
 				self.current_finishes.append(new_finish)
-			else:
-				self.current_finishes.sort(key=lambda x: (x['score']))
+			self.current_finishes.sort(key=lambda x: (x['score']))
 
-			if not self.is_warming_up:
-				new_finish_rank = len(self.current_finishes) - 1
-				new_finish['points_added'] = self.points_repartition[new_finish_rank] \
-					if len(self.points_repartition) > new_finish_rank \
-					else self.points_repartition[(len(self.points_repartition) - 1)]
+			async with self.finish_lock:
+				if not self.is_warming_up:
+					# Always iterate through all current finishes on adding a new finish.
+					# Because of latency, the finish event might not fire in the correct order based on the scores.
+					for finish_rank, current_finish in enumerate(self.current_finishes):
+						current_finish['points_added'] = self.points_repartition[finish_rank] \
+							if len(self.points_repartition) > finish_rank \
+							else self.points_repartition[(len(self.points_repartition) - 1)]
 
-				current_ranking = next((item for item in self.current_rankings if item['login'] == player.login), None)
-				if current_ranking is not None:
-					current_ranking['points_added'] = new_finish['points_added']
-				else:
-					new_ranking = dict(login=player.login, nickname=player.nickname, score=0, points_added=new_finish['points_added'])
-					self.current_rankings.append(new_ranking)
+						current_ranking = next((item for item in self.current_rankings if item['login'] == current_finish['login']), None)
+						if current_ranking is not None:
+							current_ranking['points_added'] = current_finish['points_added']
+						else:
+							new_ranking = dict(login=current_finish['login'], nickname=current_finish['nickname'], score=0, points_added=current_finish['points_added'])
+							self.current_rankings.append(new_ranking)
 
-				self.current_rankings.sort(key=lambda x: (-x['score'], -x['points_added']))
-				await self.widget.display()
+					self.current_rankings.sort(key=lambda x: (-x['score'], -x['points_added']))
+					await self.widget.display()
 
-			if self.display_race_widget:
-				await self.race_widget.display()
+				if self.display_race_widget:
+					await self.race_widget.display()
 			return
 
 	async def get_points_repartition(self):
