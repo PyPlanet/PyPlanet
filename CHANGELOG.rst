@@ -1,6 +1,16 @@
 Changelog
 =========
 
+0.11.2
+------
+
+Apps
+~~~~
+
+* Bugfix: Live rankings ordering in rounds was not always correct.
+* Bugfix: F9 wasn't working on the live rankings widget.
+
+
 0.11.1
 ------
 
