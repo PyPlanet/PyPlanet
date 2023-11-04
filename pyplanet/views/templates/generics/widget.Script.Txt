@@ -136,5 +136,14 @@ while(True) {
     override_enable = True;
   }
 
+  foreach (Event in PendingEvents) {
+    if (Event.Type == CMlScriptEvent::Type::MouseClick && Event.Control.HasClass("toggleSpec")) {
+      if (InputPlayer.RequestsSpectate) {
+        declare frame <=> Event.Control.Parent;
+        SetSpectateTarget(frame.DataAttributeGet("login"));
+      }
+    }
+  }
+
   yield;
 }
