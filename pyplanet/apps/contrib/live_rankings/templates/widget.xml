@@ -21,7 +21,3 @@
     {% endfor %}
   {% endif %}
 {% endblock %}
-
-{% block maniascript %}
-  <script><!-- {% include 'live_rankings/widget.Script.txt' %} --></script>
-{% endblock %}
