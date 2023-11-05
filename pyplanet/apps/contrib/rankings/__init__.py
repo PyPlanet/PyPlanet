@@ -112,6 +112,10 @@ class Rankings(AppConfig):
 	async def chat_topranks(self, player, *args, **kwargs):
 		top_ranks_limit = await self.setting_topranks_limit.get_value()
 		top_ranks = await Rank.execute(Rank.select(Rank, Player).join(Player).order_by(Rank.average.asc()).limit(top_ranks_limit))
+		if len(top_ranks) == 0:
+			await self.instance.chat('$f00$iThere is no Server Rank yet Available!', player)
+			return
+		
 		view = TopRanksView(self, player, top_ranks)
 		await view.display(player)
 
@@ -226,3 +230,4 @@ class Rankings(AppConfig):
 			maximum_record_rank = 1000
 
 		return maximum_record_rank
+
