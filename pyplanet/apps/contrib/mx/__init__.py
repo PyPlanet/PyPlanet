@@ -12,6 +12,7 @@ from collections import namedtuple
 from datetime import datetime
 
 from pyplanet.utils import gbxparser
+from pyplanet.utils import times
 
 logger = logging.getLogger(__name__)
 
@@ -155,13 +156,17 @@ class MX(AppConfig):  # pragma: no cover
 		)
 
 		if 'ReplayCount' in map_info:  # If TM with ReplayCount
+			wr_replay = await self.api.map_offline_record(map_info['TrackID'])
+			offline_mx_record = wr_replay[0]
 			messages.append(
-				'$ff0Number of replays: $fff{num_replays}$ff0, Number of awards: $fff{num_awards}$ff0, {site_code}-ID: $l[{link}]$fff{id}$l $n(click to open {site_code})'.format(
+				'$ff0Number of replays: $fff{num_replays}$ff0, Number of awards: $fff{num_awards}$ff0, {site_code}-ID: $l[{link}]$fff{id}$l $n(click to open {site_code}), $o$ff0Offline MX Record: $fff{Replay_Time} $ff0by: $fff{User_name}'.format(
 					num_replays=map_info['ReplayCount'],
 					num_awards=map_info['AwardCount'],
 					site_code=self.site_short_name,
 					link='{}/s/tr/{}'.format(self.api.base_url(), map_info['TrackID']),
 					id=map_info['TrackID'],
+					Replay_Time=times.format_time(int(offline_mx_record['ReplayTime'])),
+					User_name=offline_mx_record['Username']
 				)
 			)
 		else:
@@ -303,3 +308,4 @@ class MX(AppConfig):  # pragma: no cover
 					self.instance.apps.apps['jukebox'].insert_map(player, map_instance)
 
 		return [await self.instance.map_manager.get_map(uid=added_uid) for added_uid in added_map_uids]
+
