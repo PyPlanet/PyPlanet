@@ -243,7 +243,7 @@ class CallActionView(TemplateView):
 		if len(self.method['inputs']) > 0:
 			for idx, input in enumerate(self.method['inputs']):
 				if len(input_values) <= idx:
-					await self.parent.app.instance.chat('$ff0Warning: Not enough inputs given for the call!')
+					await self.parent.app.instance.chat('$ff0Warning: Not enough inputs given for the call!', player)
 					continue
 
 				args.append(self.convert_type(input_values[idx], input))
