@@ -45,6 +45,9 @@ class LiveRankings(AppConfig):
 
 	async def on_start(self):
 		# Init settings.
+		if self.instance.game.game == 'tmnext':
+			self.setting_nadeo_live_ranking.default = False
+
 		await self.context.setting.register(
 			self.setting_rankings_amount, self.setting_nadeo_live_ranking, self.setting_race_ranking
 		)
@@ -65,9 +68,14 @@ class LiveRankings(AppConfig):
 		# Make sure we move the multilap_info and disable the checkpoint_ranking and round_scores elements.
 		if self.instance.game.game in ['tm', 'sm']:
 			self.instance.ui_manager.properties.set_visibility('checkpoint_ranking', False)
-			self.instance.ui_manager.properties.set_visibility('round_scores', await self.setting_nadeo_live_ranking.get_value())
+			self.instance.ui_manager.properties.set_visibility('round_scores',
+															   await self.setting_nadeo_live_ranking.get_value())
 			self.instance.ui_manager.properties.set_attribute('round_scores', 'pos', '-126.5 80. 150.')
 			self.instance.ui_manager.properties.set_attribute('multilap_info', 'pos', '107., 88., 5.')
+		else:
+			self.instance.ui_manager.properties.set_visibility('Rounds_SmallScoresTable',
+															   await self.setting_nadeo_live_ranking.get_value())
+			await self.instance.ui_manager.properties.send_properties()
 
 		self.dedimania_enabled = ('dedimania' in self.instance.apps.apps and 'dedimania' not in self.instance.apps.unloaded_apps)
 
@@ -92,10 +100,12 @@ class LiveRankings(AppConfig):
 
 	async def nadeo_widget_change(self, *args, **kwargs):
 		if self.instance.game.game in ['tm', 'sm']:
-			self.instance.ui_manager.properties.set_visibility('round_scores', await self.setting_nadeo_live_ranking.get_value())
+			self.instance.ui_manager.properties.set_visibility('round_scores',
+															   await self.setting_nadeo_live_ranking.get_value())
 			await self.instance.ui_manager.properties.send_properties()
 		else:
-			self.instance.ui_manager.properties.set_visibility('Rounds_SmallScoresTable', await self.setting_nadeo_live_ranking.get_value())
+			self.instance.ui_manager.properties.set_visibility('Rounds_SmallScoresTable',
+															   await self.setting_nadeo_live_ranking.get_value())
 			await self.instance.ui_manager.properties.send_properties()
 
 	async def race_widget_change(self, *args, **kwargs):
@@ -117,7 +127,10 @@ class LiveRankings(AppConfig):
 				self.instance.ui_manager.properties.set_visibility('Rounds_SmallScoresTable', False)
 				await self.instance.ui_manager.properties.send_properties()
 			else:
-				self.instance.ui_manager.properties.set_visibility('Rounds_SmallScoresTable', await self.setting_nadeo_live_ranking.get_value())
+				self.instance.ui_manager.properties.set_visibility(
+					'Rounds_SmallScoresTable',
+					(await self.setting_nadeo_live_ranking.get_value()) or (await self.setting_race_ranking.get_value())
+				)
 				await self.instance.ui_manager.properties.send_properties()
 
 	def is_mode_supported(self, mode):
