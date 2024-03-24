@@ -24,10 +24,10 @@
            scriptevents="1" action="{{ id }}__bar_button_restart" />
   {% endif %}
   <label pos="16.25 -2.9" z-index="1" size="6.5 5.9" text="&#xe95a;" halign="center" valign="center2"
-         id="admin_toolbar_bar_button_endround" textsize="2.0"
+         id="admin_toolbar_bar_button_replay" textsize="2.0"
            scriptevents="1" action="{{ id }}__bar_button_replay" />
   <label pos="16.25 -2.55" z-index="2" size="4.5 3.5" text="$000&#xf021;" halign="center" valign="center2"
-         id="admin_toolbar_bar_endround_fg" textsize="1.0"/>
+         id="admin_toolbar_bar_replay_fg" textsize="1.0"/>
   <label pos="22.75 -2.9" z-index="1" size="6.5 5.9" text="&#xe959;" halign="center" valign="center2"
          id="admin_toolbar_bar_button_skip" textsize="2.0"
          scriptevents="1" action="{{ id }}__bar_button_skip" />
