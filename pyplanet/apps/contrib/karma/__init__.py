@@ -42,6 +42,12 @@ class Karma(AppConfig):
 			default=0
 		)
 
+		self.setting_announce_karma = Setting(
+			'announce_karma', 'Announce karma', Setting.CAT_BEHAVIOUR, type=bool,
+			description='Announce the current map karma at the start of each round.',
+			default=True
+		)
+
 		self.mx_karma = MXKarma(self)
 
 	async def on_start(self):
@@ -55,14 +61,19 @@ class Karma(AppConfig):
 		self.context.signals.listen(mp_signals.player.player_chat, self.player_chat)
 		self.context.signals.listen(mp_signals.player.player_connect, self.player_connect)
 
-		await self.context.setting.register(self.setting_finishes_before_voting, self.setting_expanded_voting)
+		await self.context.setting.register(
+			self.setting_finishes_before_voting,
+			self.setting_expanded_voting,
+			self.setting_announce_karma
+		)
 
 		# Load initial data.
 		await self.get_votes_list(self.instance.map_manager.current_map)
 		await self.calculate_karma()
 		await self.mx_karma.on_start()
 
-		await self.chat_current_karma()
+		if await self.setting_announce_karma.get_value():
+			await self.chat_current_karma()
 
 		self.widget = KarmaWidget(self)
 		await self.widget.display()
@@ -129,7 +140,8 @@ class Karma(AppConfig):
 		await self.get_votes_list(map)
 		await self.calculate_karma()
 		await self.mx_karma.map_begin(map)
-		await self.chat_current_karma()
+		if await self.setting_announce_karma.get_value():
+			await self.chat_current_karma()
 
 		await self.widget.display()
 
