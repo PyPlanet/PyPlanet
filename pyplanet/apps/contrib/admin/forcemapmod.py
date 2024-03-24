@@ -1,8 +1,11 @@
-from pyplanet.contrib.command import Command
+import logging
+
 from pyplanet.contrib.setting import Setting
 
+logger = logging.getLogger(__name__)
 
-class ForceMod:
+
+class ForceMapMod:
 	def __init__(self, app):
 		"""
 		:param app: App instance.
@@ -26,6 +29,7 @@ class ForceMod:
 	async def on_start(self):
 		await self.app.context.setting.register(self.force_mod_urls)
 		await self.app.context.setting.register(self.force_mod_override)
+
 		await self.update_mod()
 
 	async def on_modchange(self, *args, **kwargs):
@@ -34,15 +38,20 @@ class ForceMod:
 	async def update_mod(self):
 		mods = await self.force_mod_urls.get_value(True)
 		override = await self.force_mod_override.get_value(True)
-		if len(mods) > 0:
-			force = []
-			for mod in mods:
-				value = mod.split("|")
-				if len(value) == 2:
-					force.append({"Env": value[0], "Url": value[1]})
-			try:
-				await self.instance.gbx.execute("SetForcedMods", override, force)
-			except Exception as err:
-				print(err)
-		else:
-			await self.instance.gbx.execute("SetForcedMods", False, list())
+
+		if not len(mods):
+			await self.instance.gbx.execute('SetForcedMods', False, list())
+			return
+
+		force = []
+		for mod in mods:
+			value = mod.split('|')
+			if len(value) == 2:
+				force.append({'Env': value[0], 'Url': value[1]})
+			else:
+				logger.warning('Some force-mods are not in the correct format: Env|Url, skipping! Change in //settings')
+		try:
+			await self.instance.gbx.execute('SetForcedMods', override, force)
+			logger.debug('Forcing map mods is now set!')
+		except Exception as err:
+			logger.error('Setting Map Force Mods failed from the MP-server: ' + str(err))
