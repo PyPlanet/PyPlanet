@@ -233,7 +233,16 @@ class MapListView(ManualListView):
 		return await super().display(player or self.player)
 
 	async def get_actions(self):
-		return self.custom_actions
+		if not self.player:
+			return self.custom_actions
+
+		player_actions = list()
+		for action in self.custom_actions:
+			if 'min_level' in action and self.player.level < action['min_level']:
+				continue
+			player_actions.append(action)
+
+		return player_actions
 
 	async def get_buttons(self):
 		buttons = [
@@ -284,7 +293,7 @@ class MapListView(ManualListView):
 		await self.refresh(player=self.player)
 
 	@classmethod
-	def add_action(cls, target, name, text, text_size='1.2', require_confirm=False, order=0):
+	def add_action(cls, target, name, text, text_size='1.2', require_confirm=False, order=0, min_level=0):
 		cls.custom_actions.append(dict(
 			name=name,
 			action=target,
@@ -294,6 +303,7 @@ class MapListView(ManualListView):
 			type='label',
 			order=order,
 			require_confirm=require_confirm,
+			min_level=min_level,
 		))
 
 		cls.custom_actions = sorted(cls.custom_actions, key=lambda k: k['order'])
