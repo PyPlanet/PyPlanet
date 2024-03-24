@@ -216,7 +216,7 @@ class MX(AppConfig):  # pragma: no cover
 		self.api.key = await self.setting_mx_key.get_value()
 
 		# Prepare and fetch information about the maps from MX.
-		mx_ids = data.maps
+		mx_ids = list(filter(len, data.maps))
 
 		try:
 			infos = await self.api.map_info(*mx_ids)
