@@ -1,14 +1,18 @@
 import asyncio
+import logging
 from xmlrpc.client import Fault
 
 from pyplanet.apps.config import AppConfig
 from pyplanet.apps.contrib.jukebox.views import MapListView, JukeboxListView, FolderListView, AddToFolderView
 from pyplanet.apps.contrib.jukebox.folders import FolderManager
+from pyplanet.apps.core.maniaplanet.models import Map
 from pyplanet.contrib.command import Command
 
 from pyplanet.apps.core.maniaplanet import callbacks as mp_signals
 from pyplanet.contrib.setting import Setting
 from pyplanet.views.generics.alert import show_alert
+
+logger = logging.getLogger(__name__)
 
 
 class Jukebox(AppConfig):
@@ -38,8 +42,16 @@ class Jukebox(AppConfig):
 		)
 
 	async def on_start(self):
+		"""
+		This method is called when the software starts.
+		It performs several tasks such as registering permissions and commands, registering settings,
+		and adding actions to the map list.
+
+		:return: None
+		"""
 		# Register permissions + commands.
 		await self.instance.permission_manager.register('clear', 'Clear the jukebox', app=self, min_level=1)
+		await self.instance.permission_manager.register('move', 'Move entries in the jukebox', app=self, min_level=1)
 
 		if 'rankings' in self.instance.apps.apps:
 			await self.instance.command_manager.register(
@@ -74,8 +86,52 @@ class Jukebox(AppConfig):
 		# Fetch all folders.
 		await self.folder_manager.on_start()
 
-	def insert_map(self, player, map):
-		self.jukebox.insert(0, {'player': player, 'map': map})
+	def insert_map(self, player, map, index=0):
+		self.jukebox.insert(index, {'player': player, 'map': map})
+
+	async def move_map(self, player, map, move_action):
+		"""
+		Moves a map in the jukebox.
+
+		:param player: The player performing the move. Null if we don't want to check the permission.
+		:param map: The map to be moved.
+		:param move_action: The action for moving the map. Can be a relative action (+1 or -1) or the new location.
+		:return: The new position of the map in the jukebox. False if the player doesn't have the permission.
+		"""
+		# Verify that the player has the move permission.
+		if player is not None and not await self.instance.permission_manager.has_permission(player, 'jukebox:move'):
+			return False
+
+		# Get current index.
+		try:
+			current_index = self.jukebox.index(map)
+		except:
+			logger.warning('Map in jukebox couln\'t be found anymore, most likely it has been removed when user'
+						   'requested a move action from the displayed list')
+			return False
+
+		# If the move action is a string, it will be a relative action. Can be only +1 or -1.
+		if isinstance(move_action, str):
+			if move_action == '+1':
+				new_position = current_index - 1
+			else:
+				new_position = current_index + 1
+		else:
+			# Otherwise we assume the move_action is the new location.
+			new_position = move_action
+
+		if new_position < 0 or new_position > (len(self.jukebox) - 1):
+			# Out of bounds.
+			return False
+
+		if new_position == current_index:
+			# Ignore, no change.
+			return False
+
+		self.jukebox.pop(current_index)
+		self.jukebox.insert(new_position, map)
+
+		return new_position
 
 	def append_map(self, player, map):
 		self.jukebox.append({'player': player, 'map': map})
@@ -100,7 +156,7 @@ class Jukebox(AppConfig):
 			async with self.lock:
 				if data.option == 'list' or data.option == 'display':
 					if len(self.jukebox) > 0:
-						view = JukeboxListView(self)
+						view = JukeboxListView(self, player)
 						await view.display(player=player.login)
 					else:
 						message = '$i$f00There are currently no maps in the jukebox!'

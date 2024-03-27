@@ -21,9 +21,10 @@ class JukeboxListView(ManualListView):
 
 	data = []
 
-	def __init__(self, app):
+	def __init__(self, app, player):
 		super().__init__(self)
 		self.app = app
+		self.player = player
 		self.manager = app.context.ui
 
 	async def get_fields(self):
@@ -43,7 +44,7 @@ class JukeboxListView(ManualListView):
 				'searching': True,
 				'width': 100,
 				'type': 'label',
-				'action': self.action_drop
+				# 'action': self.action_drop
 			},
 			{
 				'name': 'Requested by',
@@ -54,9 +55,86 @@ class JukeboxListView(ManualListView):
 			},
 		]
 
-	async def action_drop(self, player, values, instance, **kwargs):
+	async def get_actions(self):
+		if self.player and self.player.level > 0:
+			return [
+				{
+					'name': 'Move to top',
+					'type': 'label',
+					'text': '&#xf102;',
+					'textsize': '1.2',
+					'action': self.action_move_top,
+					'safe': True,
+				},
+				{
+					'name': 'Move one position up',
+					'type': 'label',
+					'text': '&#xf106;',
+					'textsize': '1.2',
+					'action': self.action_move_higher,
+					'safe': True,
+				},
+				{
+					'name': 'Move one position down',
+					'type': 'label',
+					'text': '&#xf107;',
+					'textsize': '1.2',
+					'action': self.action_move_lower,
+					'safe': True,
+				},
+				{
+					'name': 'Move to bottom',
+					'type': 'label',
+					'text': '&#xf103;',
+					'textsize': '1.2',
+					'action': self.action_move_bottom,
+					'safe': True,
+				},
+				{
+					'name': 'Remove from jukebox',
+					'type': 'label',
+					'text': '&#xf1f8;',
+					'textsize': '1.2',
+					'action': self.action_drop,
+					'safe': True,
+				}
+			]
+		return [{
+			'name': 'Remove from jukebox',
+			'type': 'label',
+			'text': '&#xf1f8;',
+			'textsize': '1.2',
+			'action': self.action_drop,
+			'safe': True,
+		}]
+
+
+	def _get_map_from_list(self, instance):
+		return next((item for item in self.app.jukebox if item['map'].name == instance['map_name']), None)
+
+	async def action_drop(self, player, _, instance, **kwargs):
 		await self.app.drop_from_jukebox(player, instance)
 		await self.refresh(player=player)
+
+	async def action_move_top(self, player, _, instance, **kwargs):
+		map = self._get_map_from_list(instance)
+		if map and await self.app.move_map(player, map, 0) is not False:
+			await self.refresh(player=player)
+
+	async def action_move_bottom(self, player, _, instance, **kwargs):
+		map = self._get_map_from_list(instance)
+		if map and await self.app.move_map(player, map, len(self.app.jukebox)-1) is not False:
+			await self.refresh(player=player)
+
+	async def action_move_higher(self, player, _, instance, **kwargs):
+		map = self._get_map_from_list(instance)
+		if map and await self.app.move_map(player, map, '+1') is not False:
+			await self.refresh(player=player)
+
+	async def action_move_lower(self, player, _, instance, **kwargs):
+		map = self._get_map_from_list(instance)
+		if map and await self.app.move_map(player, map, '-1') is not False:
+			await self.refresh(player=player)
 
 	async def get_data(self):
 		index = 1
