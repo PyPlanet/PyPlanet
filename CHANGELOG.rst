@@ -1,6 +1,23 @@
 Changelog
 =========
 
+0.11.3
+------
+
+Apps
+~~~~
+
+* Feature: Integrate ForceMapMod into the Admin package. Check :code:`//settings` ;-). Thanks to Reaby.
+* Feature: Jukebox view has controls to move maps up and down in the queue (only for admins).
+
+* Improvement: Adding rounds support for specific custom scripts.
+
+* Bugfix: Fixing :code:`//call` issues related to the error message sending to all players instead of the specific user that used the command. Thanks Willa.
+* Bugfix: Fixing Nadeo's race rankings visibility when using custom race rankings from PyPlanet (settings conflicts).
+* Bugfix: Fixing issue with MX add command when using empty spaces inbetween multiple MX-id's. (also for TMX)
+
+
+
 0.11.2
 ------
 
