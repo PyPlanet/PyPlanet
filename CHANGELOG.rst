@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.11.4
+------
+
+Apps
+~~~~
+
+* Bugfix: Fixing issue with internal usage of the MX add function (when using len() on integers) causing issues in updating maps.
+
+
 0.11.3
 ------
 
