@@ -16,7 +16,7 @@ aiofiles==0.4.0
 asyncssh==1.18.0
 
 # Network
-aiohttp==3.8.5
+aiohttp==3.9.4
 async-timeout<5.0,>=4.0.0a3
 requests==2.27.1
 urllib3==1.26.5
