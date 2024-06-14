@@ -2,20 +2,20 @@
 
 {% block content %}
   <quad pos="0 0" z-index="0" size="35 6" bgcolor="00000060"/>
-  <quad pos="0 0" z-index="1" size="6 6" bgcolor="FF7B7B60"/>
-  <label pos="3 -3" z-index="2" size="6 6" textsize="2.0" textcolor="FFE8E8FF"
+  <quad pos="0 0" z-index="1" size="6.5 6" bgcolor="FF7B7B60"/>
+  <label pos="3.25 -3" z-index="2" size="6.5 6" textsize="2.0" textcolor="FFE8E8FF"
          text="{% if player_vote == -1 %}&#xf165;{% else %}&#xf088;{% endif %}"
          action="{{ id }}__vote_negative" scriptevents="1" focusareacolor1="9EFF9300" halign="center" valign="center2"/>
-  <quad pos="30 0" z-index="1" size="6 6" bgcolor="73FF5160"/>
-  <label pos="33 -3" z-index="2" size="6 6" textsize="2.0" textcolor="E6FFE5FF"
+  <quad pos="28.5 0" z-index="1" size="6.5 6" bgcolor="73FF5160"/>
+  <label pos="31.75 -3" z-index="2" size="6.5 6" textsize="2.0" textcolor="E6FFE5FF"
          text="{% if player_vote == 1 %}&#xf164;{% else %}&#xf087;{% endif %}"
          action="{{ id }}__vote_positive" scriptevents="1" halign="center" valign="center2"/>
-  <quad pos="6 0" z-index="2" size="{{ bar_width }} 6" bgcolor="00000080" /> <!-- max 24 -->
+  <quad pos="6.5 0" z-index="2" size="{{ bar_width }} 6" bgcolor="00000080" /> <!-- max 22 -->
 
   <quad pos="0 -6.5" z-index="0" size="11.5 6" bgcolor="00000060"/>
   <label pos="5.75 -9.5" z-index="1" size="11.5 6" text="{{ negative_votes }}"  textfont="RajdhaniMono" textsize="2.0"  halign="center" valign="center2" textcolor="FF7B7BBB"/>
   <quad pos="12  -6.5" z-index="0" size="11.5 6" bgcolor="00000099"/>
-  <label pos="17.8 -9.5" z-index="1" size="11.5 6" text="{{ karma_percentage }}%"  textfont="RajdhaniMono" textsize="2.0"  halign="center" valign="center2"/>
+  <label pos="17.75 -9.5" z-index="1" size="11.5 6" text="{{ karma_percentage }}%"  textfont="RajdhaniMono" textsize="2.0"  halign="center" valign="center2"/>
   <quad pos="24  -6.5" z-index="0" size="11.5 6" bgcolor="00000060"/>
-  <label pos="29.8 -9.5" z-index="1" size="11.5 6" text="{{ positive_votes }}"  textfont="RajdhaniMono" textsize="2.0"  halign="center" valign="center2" textcolor="73FF51BB"/>
+  <label pos="29.75 -9.5" z-index="1" size="11.5 6" text="{{ positive_votes }}"  textfont="RajdhaniMono" textsize="2.0"  halign="center" valign="center2" textcolor="73FF51BB"/>
 {% endblock %}

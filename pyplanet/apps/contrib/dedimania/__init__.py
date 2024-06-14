@@ -584,7 +584,10 @@ class Dedimania(AppConfig):
 		if records_amount > 0:
 			first_record = self.current_records[0]
 			message = '$0b3Current Dedimania Record: $fff\uf017 {}$z$s$0b3 by $fff{}$z$s$0b3 ($l[http://dedimania.net/tm2stats/?do=stat&UId={}&Show=RECORDS]$fff{}$0b3 records$l)'.format(
-				times.format_time(first_record.score), first_record.nickname, self.instance.map_manager.current_map.uid, records_amount
+				times.format_time(first_record.score),
+				(lambda x: x if not (x[-1] == '$' and x[-2:].count('$') == 1) else x[:-1])(first_record.nickname),
+				self.instance.map_manager.current_map.uid,
+				records_amount
 			)
 			calls = list()
 			calls.append(self.instance.chat(message))

@@ -4,11 +4,11 @@
   <quad pos="0 0" z-index="0" size="35 6" bgcolor="00000060"/>
   <quad pos="0 0" z-index="0" size="6.5 6" bgcolor="00000060"/>
   {% if map_mx_link %}
-    <label pos="1.5 -1.2" z-index="1" size="5.5 5" text="&#xf08e;" textsize="2.2" />
+    <label pos="1.4 -1.1" z-index="1" size="5.5 5" text="&#xf08e;" textsize="2.2" />
   {% else %}
-    <label pos="1.4 -1.2" z-index="1" size="5.5 5" text="&#xf279;" textsize="2.2" />
+    <label pos="1.25 -0.9" z-index="1" size="5.5 5" text="&#xf279;" textsize="2.2" />
   {% endif %}
-  <quad pos="0.5 -0.25" z-index="1" size="5.5 5" {% if map_mx_link %}url="{{ map_mx_link }}"{% endif %}/>
+  <quad pos="0.5 -0.5" z-index="1" size="5.5 5" {% if map_mx_link %}url="{{ map_mx_link }}"{% endif %}/>
 
   <label pos="20.75 -3.0" z-index="1" size="28.5 6" text="{{ map_name }}" textsize="1.6"
          valign="center2" halign="center" textfont="RajdhaniMono" textemboss="1"
@@ -23,10 +23,10 @@
          id="author_label" scriptevents="1"
          />
 
-  <quad pos="0 -13" z-index="0" size="40 6" bgcolor="00000060"/>
+  <quad pos="0 -13" z-index="0" size="35 6" bgcolor="00000060"/>
   <quad pos="0 -13" z-index="0" size="6.5 6" bgcolor="00000060"/>
-  <label pos="1.25 -13.75" z-index="1" size="5 5" text="&#xf017;"/>
-  <label pos="20.5 -16.25" z-index="1" size="28.5 6" text="{{ map_authortime }}" textsize="1.6" valign="center2" halign="center" textfont="RajdhaniMono" textemboss="1"/>
+  <label pos="1.25 -14" z-index="1" size="5 5" text="&#xf017;"/>
+  <label pos="20.75 -16.25" z-index="1" size="28.5 6" text="{{ map_authortime }}" textsize="1.6" valign="center2" halign="center" textfont="RajdhaniMono" textemboss="1"/>
 {% endblock %}
 
 {% block maniascript %}
