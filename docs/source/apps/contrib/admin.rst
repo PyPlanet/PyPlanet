@@ -348,6 +348,28 @@ Functionality:
 Required permission:
   ``admin:points_repartition``, requires admin level 2.
 
+Pause running round
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Command:
+  ``//pause``
+Parameters:
+  None
+Functionality:
+  Skips the running round and pauses the match until an admin resumes the match
+Required permission:
+  ``admin:pause``, requires admin level 2.
+
+End running pause
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Command:
+  ``//unpause`` / ``//endpause`` / ``//resume``
+Parameters:
+  None
+Functionality:
+  Ends the running pause and resumes the match
+Required permission:
+  ``admin:pause``, requires admin level 2.
+
 Write Blacklist
 ~~~~~~~~~~~~~~~
 Command:
