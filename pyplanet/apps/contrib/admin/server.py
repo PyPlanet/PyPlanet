@@ -120,7 +120,7 @@ class ServerAdmin:
 			elif lower_mode == 'ko' or lower_mode == 'knockout':
 				mode = 'Trackmania/TM_Knockout_Online.Script.txt'
 			elif lower_mode == 'champion':
-				mode = 'Trackmania/TM_Champion_Online.Script.txt'
+				mode = 'Trackmania/Deprecated/TM_Champion_Online.Script.txt'
 			elif lower_mode == 'royal':
 				mode = 'Trackmania/TM_RoyalTimeAttack_Online.Script.txt'
 			elif lower_mode == 'stunt':
