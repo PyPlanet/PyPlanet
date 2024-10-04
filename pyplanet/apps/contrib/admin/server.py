@@ -115,12 +115,18 @@ class ServerAdmin:
 				mode = 'Trackmania/TM_Rounds_Online.Script.txt'
 			elif lower_mode == 'cup':
 				mode = 'Trackmania/TM_Cup_Online.Script.txt'
-			elif lower_mode == 'team':
+			elif lower_mode == 'team' or lower_mode == 'teams':
 				mode = 'Trackmania/TM_Teams_Online.Script.txt'
-			elif lower_mode == 'knockout':
+			elif lower_mode == 'ko' or lower_mode == 'knockout':
 				mode = 'Trackmania/TM_Knockout_Online.Script.txt'
 			elif lower_mode == 'champion':
-				mode = 'Trackmania/TM_Champion_Online.Script.txt'
+				mode = 'Trackmania/Deprecated/TM_Champion_Online.Script.txt'
+			elif lower_mode == 'royal':
+				mode = 'Trackmania/TM_RoyalTimeAttack_Online.Script.txt'
+			elif lower_mode == 'stunt':
+				mode = 'Trackmania/TM_StuntMulti_Online.Script.txt'
+			elif lower_mode == 'platform':
+				mode = 'Trackmania/TM_Platform_Online.Script.txt'
 
 		try:
 			await self.instance.mode_manager.set_next_script(mode)

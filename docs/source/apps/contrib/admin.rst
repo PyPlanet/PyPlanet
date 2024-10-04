@@ -456,7 +456,7 @@ Set game mode
 Command:
   ``//mode``
 Parameters:
-  * Game mode 'ta', 'laps', 'rounds', 'cup' or any script name (e.g. 'Rounds.Script.txt')
+  * Game mode 'ta', 'timeattack', 'laps', 'rounds', 'cup', 'team', 'teams', 'ko', 'knockout', 'champion', 'royal', 'stunt', 'platform' or any script name (e.g. 'Rounds.Script.txt')
 Functionality:
   Changes the server game mode script.
 Required permission:
