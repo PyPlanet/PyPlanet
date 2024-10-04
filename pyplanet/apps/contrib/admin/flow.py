@@ -16,6 +16,7 @@ class FlowAdmin:
 	async def on_start(self):
 		await self.instance.permission_manager.register('end_round', 'Force ending a round (warmup, race or custom)', app=self.app, min_level=2)
 		await self.instance.permission_manager.register('points_repartition', 'Change the points repartition', app=self.app, min_level=2)
+		await self.instance.permission_manager.register('pause', 'Pause and unpause the running rounds', app=self.app, min_level=2)
 
 		# Trackmania specific:
 		if self.instance.game.game == 'tm' or self.instance.game.game == 'tmnext':
@@ -26,6 +27,10 @@ class FlowAdmin:
 						description='Ends the current warm-up round of play.'),
 				Command(command='endwu', target=self.end_wu, perms='admin:end_round', admin=True,
 						description='Ends the complete warm-up on this map.'),
+				Command(command='pause', target=self.pause, perms='admin:pause', admin=True,
+						description='Pauses the running match.'),
+				Command(command='unpause', aliases=["endpause", "resume"], target=self.unpause, perms='admin:pause', admin=True,
+						description='Ends the pause and resumes the running match.'),
 				Command(command='pointsrepartition', aliases=['pointsrep'], target=self.set_point_repartition,
 						perms='admin:points_repartition', admin=True, description='Alters the points repartitioning.')
 					.add_param('repartition', nargs='*', type=str, required=True, help='Repartition, comma or space separated.'),
@@ -52,6 +57,20 @@ class FlowAdmin:
 			self.instance.gbx('Trackmania.WarmUp.ForceStop', encode_json=False, response_id=False),
 			self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has forced the WarmUp to an end.'.format(player.nickname))
 		)
+
+	async def pause(self, player, data, *args, **kwargs):
+		if (await self.instance.gbx.script('Maniaplanet.Pause.GetStatus'))['available']:
+			await self.instance.gbx.multicall(
+				self.instance.gbx('Maniaplanet.Pause.SetActive', 'True', encode_json=False),
+				self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has paused the match.'.format(player.nickname))
+			)
+
+	async def unpause(self, player, data, *args, **kwargs):
+		if (await self.instance.gbx.script('Maniaplanet.Pause.GetStatus'))['available']:
+			await self.instance.gbx.multicall(
+				self.instance.gbx('Maniaplanet.Pause.SetActive', 'False', encode_json=False),
+				self.instance.chat('$ff0Admin $fff{}$z$s$ff0 has resumed the match.'.format(player.nickname))
+			)
 
 	async def set_point_repartition(self, player, data, **kwargs):
 		partition = data.repartition
