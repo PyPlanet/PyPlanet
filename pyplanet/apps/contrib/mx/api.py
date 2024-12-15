@@ -22,7 +22,7 @@ class MXApi:
 		self.map_info_page_size = 1
 
 	def base_url(self, api=False):
-		if self.site == 'tm':
+		if self.site in ['tm', 'sm']:
 			if api:
 				return 'https://{site}.mania.exchange/api'.format(site=self.site)
 			return 'https://{site}.mania.exchange'.format(site=self.site)
@@ -30,10 +30,6 @@ class MXApi:
 			if api:
 				return 'https://trackmania.exchange/api'
 			return 'https://trackmania.exchange'
-		elif self.site == 'sm':	
-			if api:
-				return 'https://api.mania-exchange.com/sm'
-			return 'https://sm.mania-exchange.com'
 
 	async def create_session(self):
 		self.session = await aiohttp.ClientSession(
@@ -47,7 +43,7 @@ class MXApi:
 	async def close_session(self):
 		if self.session and hasattr(self.session, '__aexit__'):
 			await self.session.__aexit__()
-	
+
 	async def mx_random(self):
 		# Regular Expression to extract the MX-ID from a /tracksearch2/random/.
 		mx_pattern = r'\d+'
@@ -59,7 +55,7 @@ class MXApi:
 		if not matches:
 			return None
 		return str(matches.group(0))
-	
+
 	async def search(self, options, **kwargs):
 		if options is None:
 			options = {
@@ -139,9 +135,8 @@ class MXApi:
 
 		# Join the multiple result lists back into one list.
 		return [map for map_list in split_results for map in map_list]
-	
+
 	async def map_offline_record(self, trackid):
-		
 		url = '{base}/replays/get_replays/{id}/1'.format(base=self.base_url(True), id=trackid)
 		params = {'key': self.key} if self.key else {}
 		response = await self.session.get(url, params=params)
@@ -155,7 +150,7 @@ class MXApi:
 		for info in await response.json():
 			record.append((info))
 		return record
-	
+
 	async def map_offline_records(self, trackid):
 		url = '{base}/replays/get_replays/{id}/10'.format(base=self.base_url(True), id=trackid)
 		response = await self.session.get(url)
@@ -170,19 +165,12 @@ class MXApi:
 			print(info)
 			record.append((info))
 		return record
-	
+
 	async def map_info_page(self, *ids):
-		if self.site != 'sm':
-			url = '{base}/maps/get_map_info/multi/{ids}'.format(
+		url = '{base}/maps/get_map_info/multi/{ids}'.format(
 			base=self.base_url(True),
 			ids=','.join(str(i) for i in ids[0])
-			)
-			
-		else:
-			url = '{base}/maps/{ids}'.format(
-				base=self.base_url(True),
-				ids=','.join(str(i) for i in ids[0])
-			)
+		)
 
 		params = {'key': self.key} if self.key else {}
 		response = await self.session.get(url, params=params)

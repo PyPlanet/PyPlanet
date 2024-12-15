@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.11.6
+------
+
+Apps
+~~~~
+
+* Bugfix: Preparing for new MX API's, make sure that during the migration period the old API (that was in use for SM) is not being used by PyPlanet anymore.
+
+
 0.11.5 (0.11.4 skipped)
 -----------------------
 
