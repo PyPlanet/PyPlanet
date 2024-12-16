@@ -26,7 +26,7 @@ class KarmaWidget(WidgetView):
 
 		karma_percentage = round(self.app.current_karma_percentage * 100, 1) \
 			if len(self.app.current_votes) > 0 else 0
-		bar_width = round(((karma_percentage / 100) * 24), 2)
+		bar_width = round(((karma_percentage / 100) * 22), 2)
 
 		context.update({
 			'current_karma': self.app.current_karma,

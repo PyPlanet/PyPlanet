@@ -9,7 +9,10 @@ main() {
 
   declare CMlFrame Player_Toolbar_Frame <=> (Page.GetFirstChild("player_toolbar_bar_frame") as CMlFrame);
 
-  declare Boolean IsPlayerToolbarActive = False;
+  declare netwrite Boolean IsPlayerToolbarActive for UI;
+  declare netwrite Boolean IsEmojiToolbarActive for UI;
+  declare netwrite Boolean ForceHideEmojiToolbar for UI;
+  declare netwrite Boolean ForceHidePlayerToolbar for UI;
   declare Integer HidePlayerBarAt;
 
   Player_Toolbar_Frame.Hide();
@@ -32,8 +35,18 @@ main() {
   ];
 
   while(True) {
+    if (ForceHidePlayerToolbar) {
+      Player_Toolbar_Frame.Hide();
+      IsPlayerToolbarActive = False;
+      HidePlayerBarAt = 0;
+      ForceHidePlayerToolbar = False;
+    }
+
     foreach (Event in PendingEvents) {
       if (Event.Type == CMlScriptEvent::Type::MouseClick && Event.ControlId == "player_toolbar_bar_toggle") {
+        if ((IsEmojiToolbarActive)) {
+          ForceHideEmojiToolbar = True;
+        }
         if (IsPlayerToolbarActive) {
           Player_Toolbar_Frame.Hide();
           IsPlayerToolbarActive = False;

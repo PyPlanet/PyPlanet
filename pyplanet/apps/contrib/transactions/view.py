@@ -8,7 +8,7 @@ from pyplanet.views.generics.widget import WidgetView
 class DonationToolbarWidget(WidgetView):
 	template_name = 'transactions/donation_toolbar.xml'
 
-	widget_x = -109.5
+	widget_x = -110.5
 	widget_y = 61
 	z_index = 130
 	game = None
