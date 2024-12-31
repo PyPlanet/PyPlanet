@@ -111,10 +111,11 @@ class MX(AppConfig):  # pragma: no cover
 		await self.award_widget.hide()
 
 	async def random_mx_map(self, player, data, **kwargs):
-		map_random_id = await self.api.mx_random()
+		titlepack = self.instance.game.dedicated_title.split("@", 1)[0]
+		map_random_id = await self.api.mx_random(titlepack)
 		await self.instance.command_manager.execute(
 			player,
-			'//{} add maps'.format(self.namespaces[0]),
+			'//{} add'.format(self.namespaces[0]),
 			str(map_random_id)
 		)
 
@@ -161,7 +162,7 @@ class MX(AppConfig):  # pragma: no cover
 					num_replays=map_info['ReplayCount'],
 					num_awards=map_info['AwardCount'],
 					site_code=self.site_short_name,
-					link='{}/s/tr/{}'.format(self.api.base_url(), map_info['TrackID']),
+					link='{}/mapshow/{}'.format(self.api.base_url(), map_info['TrackID']),
 					id=map_info['TrackID'],
 				)
 			)
@@ -169,7 +170,7 @@ class MX(AppConfig):  # pragma: no cover
 			messages.append(
 				'$ff0{site_code}-ID: $l[{link}]$fff{id}$l (click to open {site_code})'.format(
 					site_code=self.site_short_name,
-					link='{}/s/tr/{}'.format(self.api.base_url(), map_info['MapID']),
+					link='{}/mapshow/{}'.format(self.api.base_url(), map_info['MapID']),
 					id=map_info['MapID']
 				)
 			)
