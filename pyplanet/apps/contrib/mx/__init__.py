@@ -25,7 +25,7 @@ class MX(AppConfig):  # pragma: no cover
 		super().__init__(*args, **kwargs)
 		self.api = MXApi()
 
-		self.namespace = 'mx'
+		self.namespaces = ['mx', 'tmx']
 		self.site_name = 'ManiaExchange'
 		self.site_short_name = 'MX'
 		self.award_widget = None
@@ -56,35 +56,36 @@ class MX(AppConfig):  # pragma: no cover
 		self.award_widget = MxAwardWidget(self)
 
 		if self.instance.game.game == 'tmnext':
-			self.namespace = 'tmx'
 			self.site_name = 'TrackmaniaExchange'
 			self.site_short_name = 'TMX'
 
+		mappack_namespaces = ['{}pack'.format(namespace) for namespace in self.namespaces]
+
 		await self.instance.command_manager.register(
-			Command(command='info', namespace=self.namespace, target=self.mx_info,
-					description='Display ManiaExchange/TrackmaniaExchange information for current map.'),
+			Command(command='info', namespace=self.namespaces, target=self.mx_info,
+					description='Display {} information for current map.'.format(self.site_name)),
 			# support backwards
-			Command(command='mx', namespace='add', target=self.add_mx_map, perms='mx:add_remote', admin=True,
+			Command(command='mx', aliases=['tmx'], namespace='add', target=self.add_mx_map, perms='mx:add_remote', admin=True,
 					description='Add map from ManiaExchange to the maplist.').add_param(
-				'maps', nargs='*', type=str, required=True, help='MX ID(s) of maps to add.'),
+				'maps', nargs='*', type=str, required=True, help='{} ID(s) of maps to add.'.format(self.site_short_name)),
 			# new mx command random (Adding) Random Maps from MX
-			Command(command='random', namespace=self.namespace, target=self.random_mx_map, perms='mx:add_remote',
-					admin=True, description='Get Random Maps on ManiaExchange/TrackmaniaExchange.'),
+			Command(command='random', namespace=self.namespaces, target=self.random_mx_map, perms='mx:add_remote',
+					admin=True, description='Get Random Maps on {}.'.format(self.site_name)),
 			# new mx namespace
-			Command(command='search', aliases=['list'], namespace=self.namespace, target=self.search_mx_map, perms='mx:add_remote',
-					admin=True, description='Search for maps on ManiaExchange/TrackmaniaExchange.'),
-			Command(command='add', namespace=self.namespace, target=self.add_mx_map, perms='mx:add_remote', admin=True,
-					description='Add map from ManiaExchange/TrackmaniaExchange to the maplist.').add_param(
-				'maps', nargs='*', type=str, required=True, help='MX/TMX ID(s) of maps to add.'),
-			Command(command='status', namespace=self.namespace, target=self.status_mx_maps, perms='mx:add_remote', admin=True,
-					description='View the map statuses compared to ManiaExchange/TrackmaniaExchange.'),
+			Command(command='search', aliases=['list'], namespace=self.namespaces, target=self.search_mx_map, perms='mx:add_remote',
+					admin=True, description='Search for maps on {}.'.format(self.site_name)),
+			Command(command='add', namespace=self.namespaces, target=self.add_mx_map, perms='mx:add_remote', admin=True,
+					description='Add map from {} to the maplist.'.format(self.site_name)).add_param(
+				'maps', nargs='*', type=str, required=True, help='{} ID(s) of maps to add.'.format(self.site_short_name)),
+			Command(command='status', namespace=self.namespaces, target=self.status_mx_maps, perms='mx:add_remote', admin=True,
+					description='View the map statuses compared to {}.'.format(self.site_name)),
 
 			# new mxpack namespace
-			Command(command='search', aliases=['list'], namespace='{}pack'.format(self.namespace), target=self.search_mx_pack,
-					perms='mx:add_remote', admin=True, description='Search for mappacks on ManiaExchange/TrackmaniaExchange.'),
-			Command(command='add', namespace='{}pack'.format(self.namespace), target=self.add_mx_pack, perms='mx:add_remote',
-					admin=True, description='Add mappack from ManiaExchange/TrackmaniaExchange to the maplist.')
-				.add_param('pack', nargs='*', type=str, required=True, help='MX/TMX ID(s) of mappacks to add.'),
+			Command(command='search', aliases=['list'], namespace=mappack_namespaces, target=self.search_mx_pack,
+					perms='mx:add_remote', admin=True, description='Search for mappacks on {}.'.format(self.site_name)),
+			Command(command='add', namespace=mappack_namespaces, target=self.add_mx_pack, perms='mx:add_remote',
+					admin=True, description='Add mappack from {} to the maplist.'.format(self.site_name))
+				.add_param('pack', nargs='*', type=str, required=True, help='{} ID(s) of mappacks to add.'.format(self.site_short_name)),
 		)
 
 		# Register callbacks.
@@ -113,7 +114,7 @@ class MX(AppConfig):  # pragma: no cover
 		map_random_id = await self.api.mx_random()
 		await self.instance.command_manager.execute(
 			player,
-			'//{} add maps'.format(self.namespace),
+			'//{} add maps'.format(self.namespaces[0]),
 			str(map_random_id)
 		)
 
