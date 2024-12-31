@@ -276,7 +276,8 @@ class MapListView(ManualListView):
 					'sorting': True,
 					'searching': False,
 					'width': 15,
-					'renderer': render_karma
+					'renderer': render_karma,
+					'action': self.action_whokarma
 				})
 
 			if 'local_records' in self.app.instance.apps.apps:
@@ -349,6 +350,10 @@ class MapListView(ManualListView):
 
 	async def action_jukebox(self, player, values, map_info, **kwargs):
 		await self.app.add_to_jukebox(player, await self.app.instance.map_manager.get_map(map_info['uid']))
+
+	async def action_whokarma(self, player, values, map_info, **kwargs):
+		if 'karma' in self.app.instance.apps.apps:
+			await self.app.instance.apps.apps['karma'].show_karma_list(player, await self.app.instance.map_manager.get_map(map_info['uid']))
 
 	async def action_folders(self, player, values, **kwargs):
 		await self.app.folder_manager.display_folder_list(player)
