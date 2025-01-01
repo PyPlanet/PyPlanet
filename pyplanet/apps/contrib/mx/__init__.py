@@ -98,7 +98,7 @@ class MX(AppConfig):  # pragma: no cover
 		if await self.setting_display_award_widget.get_value() is True:
 			mx_info = await self.api.map_info(self.instance.map_manager.current_map.uid)
 			if mx_info and len(mx_info) >= 1:
-				self.award_widget.mx_id = mx_info[0][0]
+				self.award_widget.mx_id = mx_info[0]['MapId']
 
 				# Only display the award widget to the playing players.
 				play_logins = [p.login for p in self.instance.player_manager.online if not p.flow.is_spectator]
@@ -136,7 +136,7 @@ class MX(AppConfig):  # pragma: no cover
 				site_name=self.site_name,
 				site_code=self.site_short_name,
 				map_name=map_info['Name'],
-				map_username=map_info['Username'],
+				map_username=map_info['Uploader']['Name'],
 			)
 		]
 
@@ -145,7 +145,7 @@ class MX(AppConfig):  # pragma: no cover
 		if '.' in map_info['UpdatedAt']:
 			date_format = '%Y-%m-%dT%H:%M:%S.%f'
 		mx_version_date = datetime.strptime(map_info['UpdatedAt'], date_format).strftime("%Y-%m-%d %H:%M:%S")
-		mx_map_uid = map_info['TrackUID'] if 'TrackUID' in map_info else map_info['MapUID']
+		mx_map_uid = map_info['MapUid']
 
 		messages.append(
 			'$ff0Map status: $fff{map_status}$ff0 ({site_code} version: $fff{site_version}$ff0)'.format(
@@ -162,16 +162,16 @@ class MX(AppConfig):  # pragma: no cover
 					num_replays=map_info['ReplayCount'],
 					num_awards=map_info['AwardCount'],
 					site_code=self.site_short_name,
-					link='{}/mapshow/{}'.format(self.api.base_url(), map_info['TrackID']),
-					id=map_info['TrackID'],
+					link='{}/mapshow/{}'.format(self.api.base_url(), map_info['MapId']),
+					id=map_info['MapId'],
 				)
 			)
 		else:
 			messages.append(
 				'$ff0{site_code}-ID: $l[{link}]$fff{id}$l (click to open {site_code})'.format(
 					site_code=self.site_short_name,
-					link='{}/mapshow/{}'.format(self.api.base_url(), map_info['MapID']),
-					id=map_info['MapID']
+					link='{}/mapshow/{}'.format(self.api.base_url(), map_info['MapId']),
+					id=map_info['MapId']
 				)
 			)
 

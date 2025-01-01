@@ -84,7 +84,7 @@ class MXApi:
 	async def search(self, titlepack, name=None, author=None, **kwargs):
 		fields = [
 			'MapId', 'MapUid', 'Name', 'GbxMapName', 'Uploader.Name',
-			'Environment', 'AwardCount', 'Length', 'Difficulty'
+			'Environment', 'AwardCount', 'Length', 'Difficulty', 'ServerSizeExceeded'
 		]
 		url = '{}/maps?count=100&titlepack={}{}{}&fields={}'.format(
 			self.base_url(api=True), titlepack,
@@ -154,26 +154,32 @@ class MXApi:
 		return [map for map_list in split_results for map in map_list]
 
 	async def map_info_page(self, *ids):
-		url = '{base}/maps/get_map_info/multi/{ids}'.format(
-			base=self.base_url(True),
-			ids=','.join(str(i) for i in ids[0])
-		)
+		fields = ['MapId', 'MapUid', 'Name', 'Uploader.Name', 'UpdatedAt', 'ReplayCount', 'AwardCount']
+		mx_ids = ','.join([str(mx_id) for mx_id in ids[0] if isinstance(mx_id, int)])
+		uids = ','.join([uid for uid in ids[0] if not isinstance(uid, int)])
+		if len(mx_ids) > 0:
+			mx_ids = '&id={}'.format(mx_ids)
+		if len(uids) > 0:
+			uids = '&uid={}'.format(uids)
 
+		url = '{}/maps?count={}{}{}&fields={}'.format(
+			self.base_url(api=True), self.map_info_page_size, mx_ids, uids, '%2C'.join(fields)
+		)
 		params = {'key': self.key} if self.key else {}
 		response = await self.session.get(url, params=params)
-		if response.status == 404:
+
+		maps = list()
+		json = await response.json()
+
+		if response.status == 404 or 'Results' not in json or len(json['Results']) == 0:
 			raise MXMapNotFound('Map has not been found!')
 		if response.status == 302:
 			raise MXInvalidResponse('Map author has declined info for the map. Status code: {}'.format(response.status))
 		if response.status < 200 or response.status > 399:
 			raise MXInvalidResponse('Got invalid response status from ManiaExchange: {}'.format(response.status))
-		maps = list()
-		for info in await response.json():
-			# Parse some differences between the api game endpoints.
-			mx_id = info['TrackID'] if 'TrackID' in info else info['MapID']
-			info['MapID'] = mx_id
-			info['MapUID'] = info['TrackUID'] if 'TrackUID' in info else info['MapUID']
-			maps.append((mx_id, info))
+
+		for info in json['Results']:
+			maps.append((info['MapId'], info))
 		return maps
 
 	async def get_pack_ids(self, pack_id, token):
