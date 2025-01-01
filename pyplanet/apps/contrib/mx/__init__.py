@@ -210,7 +210,7 @@ class MX(AppConfig):  # pragma: no cover
 			await self.add_mx_map(player, mock(maps=mx_ids))
 			await self.instance.chat('$ff0{}: Done Installing mappack!'.format(self.site_short_name), player)
 		except MXMapNotFound:
-			message = '$ff0Error: Can\'t add map pack from {}, due error.'.format(self.site_short_name)
+			message = '$f00Can\'t add map pack from {}.'.format(self.site_short_name)
 			await self.instance.chat(message, player)
 
 	async def add_mx_map(self, player, data, **kwargs):
@@ -225,11 +225,11 @@ class MX(AppConfig):  # pragma: no cover
 			if len(infos) == 0:
 				raise MXMapNotFound()
 		except MXMapNotFound:
-			message = '$f00Error: Can\'t add map from {}. Map not found on {}!'.format(self.site_short_name, self.site_name)
+			message = '$f00Can\'t add map from {}. Map not found!'.format(self.site_short_name, self.site_name)
 			await self.instance.chat(message, player)
 			return
 		except MXInvalidResponse as e:
-			message = '$f00Error: Got invalid response from {}: {}'.format(self.site_name, str(e))
+			message = '$f00Got invalid response from {}: $fff{}'.format(self.site_name, str(e))
 			await self.instance.chat(message, player.login)
 			return
 
@@ -237,7 +237,7 @@ class MX(AppConfig):  # pragma: no cover
 			if not await self.instance.storage.driver.exists(os.path.join('UserData', 'Maps', 'PyPlanet-MX')):
 				await self.instance.storage.driver.mkdir(os.path.join('UserData', 'Maps', 'PyPlanet-MX'))
 		except Exception as e:
-			message = '$f00Error: Can\'t check or create folder: {}'.format(str(e))
+			message = '$f00$iCan\'t check or create folder: $fff{}$f00.'.format(str(e))
 			await self.instance.chat(message, player.login)
 			return
 
@@ -273,7 +273,7 @@ class MX(AppConfig):  # pragma: no cover
 				if result:
 					added_map_uids.append(mx_info['MapUid'])
 
-					message = '$ff0Admin $fff{}$z$s$ff0 has added{} the map $fff{}$z$s$ff0 by $fff{}$z$s$ff0 from {}..'.format(
+					message = '$ff0Admin $fff{}$z$s$ff0 has added{} the map $fff{}$z$s$ff0 by $fff{}$z$s$ff0 from {}.'.format(
 						player.nickname, ' and juked' if juke_maps else '', mx_info['Name'], mx_info['Uploader']['Name'], self.site_short_name
 					)
 					await self.instance.chat(message)
@@ -281,7 +281,7 @@ class MX(AppConfig):  # pragma: no cover
 					raise Exception('Unknown error while adding the map!')
 			except Exception as e:
 				logger.warning('Error when player {} was adding map from {}: {}'.format(player.login, self.site_short_name, str(e)))
-				message = '$ff0Error: Can\'t add map {}, Error: {}'.format(mx_info['Name'], str(e))
+				message = '$f00$iCan\'t add map $fff{}$z$s$f00$i, error: $fff{}$f00'.format(mx_info['Name'], str(e))
 				await self.instance.chat(message, player.login)
 
 		# Save match settings after inserting maps.
