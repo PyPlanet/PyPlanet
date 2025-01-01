@@ -255,7 +255,7 @@ class MX(AppConfig):  # pragma: no cover
 
 			try:
 				# Test if map isn't yet in our current map list.
-				if self.instance.map_manager.playlist_has_map(mx_info['MapUID']):
+				if self.instance.map_manager.playlist_has_map(mx_info['MapUid']):
 					raise Exception('Map already in playlist! Update? remove it first!')
 
 				# Download file + save
@@ -271,10 +271,10 @@ class MX(AppConfig):  # pragma: no cover
 				result = await self.instance.map_manager.add_map(map_filename, save_matchsettings=False)
 
 				if result:
-					added_map_uids.append(mx_info['MapUID'])
+					added_map_uids.append(mx_info['MapUid'])
 
 					message = '$ff0Admin $fff{}$z$s$ff0 has added{} the map $fff{}$z$s$ff0 by $fff{}$z$s$ff0 from {}..'.format(
-						player.nickname, ' and juked' if juke_maps else '', mx_info['Name'], mx_info['Username'], self.site_short_name
+						player.nickname, ' and juked' if juke_maps else '', mx_info['Name'], mx_info['Uploader']['Name'], self.site_short_name
 					)
 					await self.instance.chat(message)
 				else:
