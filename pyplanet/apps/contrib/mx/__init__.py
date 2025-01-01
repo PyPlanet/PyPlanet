@@ -98,7 +98,7 @@ class MX(AppConfig):  # pragma: no cover
 		if await self.setting_display_award_widget.get_value() is True:
 			mx_info = await self.api.map_info(self.instance.map_manager.current_map.uid)
 			if mx_info and len(mx_info) >= 1:
-				self.award_widget.mx_id = mx_info[0]['MapId']
+				self.award_widget.mx_id = mx_info[0][0]
 
 				# Only display the award widget to the playing players.
 				play_logins = [p.login for p in self.instance.player_manager.online if not p.flow.is_spectator]
