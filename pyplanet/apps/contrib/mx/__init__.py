@@ -254,6 +254,9 @@ class MX(AppConfig):  # pragma: no cover
 				continue
 
 			try:
+				if mx_info['ServerSizeExceeded'] is True:
+					raise Exception('Map is too large to be played on a server.')
+
 				# Test if map isn't yet in our current map list.
 				if self.instance.map_manager.playlist_has_map(mx_info['MapUid']):
 					raise Exception('Map already in playlist! Update? remove it first!')

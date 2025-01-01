@@ -484,9 +484,13 @@ class MxStatusListView(ManualListView):
 					version_match = '$0a0Up-to-date'
 					version_match_order = 2
 				else:
-					version_match = '$00fNew version'
 					version_match_order = 0
-					action_update = True
+
+					if mx_map[1]['ServerSizeExceeded'] is True:
+						version_match = '$f00Update too large'
+					else:
+						version_match = '$00fNew version'
+						action_update = True
 
 			action_update_content = '🔁 Update' if action_update else '          -'
 			items.append({'map_id': item.id, 'index': int(item.mx_id), 'map_name': item.name, 'version_match': version_match, 'version_match_order': version_match_order,

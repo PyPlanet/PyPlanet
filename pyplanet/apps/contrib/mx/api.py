@@ -154,7 +154,7 @@ class MXApi:
 		return [map for map_list in split_results for map in map_list]
 
 	async def map_info_page(self, *ids):
-		fields = ['MapId', 'MapUid', 'Name', 'Uploader.Name', 'UpdatedAt', 'ReplayCount', 'AwardCount']
+		fields = ['MapId', 'MapUid', 'Name', 'Uploader.Name', 'UpdatedAt', 'ReplayCount', 'AwardCount', 'ServerSizeExceeded']
 		mx_ids = ','.join([str(mx_id) for mx_id in ids[0] if str(mx_id).isnumeric()])
 		uids = ','.join([uid for uid in ids[0] if not str(uid).isnumeric()])
 		if len(mx_ids) > 0:
