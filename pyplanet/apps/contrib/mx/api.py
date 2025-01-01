@@ -19,7 +19,7 @@ class MXApi:
 		self.session = None
 		self.site = None
 		self.key = None
-		self.map_info_page_size = 1
+		self.map_info_page_size = 10
 		self.difficulties = {
 			0: 'Beginner',
 			1: 'Intermediate',
@@ -155,8 +155,8 @@ class MXApi:
 
 	async def map_info_page(self, *ids):
 		fields = ['MapId', 'MapUid', 'Name', 'Uploader.Name', 'UpdatedAt', 'ReplayCount', 'AwardCount']
-		mx_ids = ','.join([str(mx_id) for mx_id in ids[0] if isinstance(mx_id, int)])
-		uids = ','.join([uid for uid in ids[0] if not isinstance(uid, int)])
+		mx_ids = ','.join([str(mx_id) for mx_id in ids[0] if str(mx_id).isnumeric()])
+		uids = ','.join([uid for uid in ids[0] if not str(uid).isnumeric()])
 		if len(mx_ids) > 0:
 			mx_ids = '&id={}'.format(mx_ids)
 		if len(uids) > 0:
@@ -165,6 +165,7 @@ class MXApi:
 		url = '{}/maps?count={}{}{}&fields={}'.format(
 			self.base_url(api=True), self.map_info_page_size, mx_ids, uids, '%2C'.join(fields)
 		)
+
 		params = {'key': self.key} if self.key else {}
 		response = await self.session.get(url, params=params)
 
