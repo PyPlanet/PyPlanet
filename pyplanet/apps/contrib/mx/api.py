@@ -203,12 +203,12 @@ class MXApi:
 		return maps
 
 	async def download(self, mx_id):
-		url = '{base}/maps/download/{id}'.format(
-			base=self.base_url(),
-			id=mx_id,
+		url = '{}/mapgbx/{}'.format(
+			self.base_url(api=True), mx_id
 		)
 		params = {'key': self.key} if self.key else {}
 		response = await self.session.get(url, params=params)
+
 		if response.status == 404:
 			raise MXMapNotFound('Map has not been found!')
 		if response.status == 302:
