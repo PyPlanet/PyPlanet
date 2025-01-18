@@ -90,7 +90,7 @@ class MxSearchListView(ManualListView):
 
 		if self.app.instance.game.game in ['tm', 'tmnext']:
 			self.fields.append({
-				'name': 'Length',
+				'name': 'Author time',
 				'index': 'length',
 				'sorting': True,
 				'searching': False,
@@ -135,11 +135,7 @@ class MxSearchListView(ManualListView):
 		]
 
 	async def action_install(self, user, values, map, *args, **kwargs):
-		await self.app.instance.command_manager.execute(
-			user,
-			'//{} add'.format(self.app.namespace),
-			str(map['mxid'])
-		)
+		await self.app.instance.command_manager.execute(user, '//mx add', str(map['mxid']))
 
 	async def action_search(self, user, action, values, *args, **kwargs):
 		self.search_map = values['map']
@@ -154,21 +150,8 @@ class MxSearchListView(ManualListView):
 
 	async def do_search(self, trackname=None, authorname=None, refresh=True, **terms):
 		try:
-			options = {
-				"api": "on",
-				"mode": 0,
-				"gv": 1,
-				"limit": 100,
-				"tpack": self.app.instance.game.dedicated_title.split("@", 1)[0]
-			}
-
-			if trackname is not None:
-				options['trackname'] = trackname
-
-			if authorname is not None:
-				options['anyauthor'] = authorname
-
-			infos = await self.api.search(options)
+			titlepack = self.app.instance.game.dedicated_title.split("@", 1)[0]
+			infos = await self.api.search(titlepack, trackname, authorname)
 			if len(infos) == 0:
 				raise MXMapNotFound("No results for search")
 
@@ -184,28 +167,24 @@ class MxSearchListView(ManualListView):
 			return None
 		if self.app.instance.game.game in ['tm', 'tmnext']:
 			self.cache = [dict(
-				mxid=_map['TrackID'],
+				mxid=_map['MapId'],
 				name=_map['Name'],
 				gbxname=_map['GbxMapName'] if _map['GbxMapName'] != '?' else _map['Name'],
-				author=_map['Username'],
-				envir=_map['EnvironmentName'],
+				author=_map['Uploader']['Name'],
+				envir=_map['Environment'],
 				awards='$fff🏆 {}'.format(_map['AwardCount']) if _map['AwardCount'] > 0 else "",
-				length=_map['LengthName'],
-				difficulty=_map['DifficultyName'],
-				maptype=_map['MapType'],
-				style=_map['StyleName']
+				length=_map['Length'],
+				difficulty=_map['Difficulty']
 			) for _map in infos]
 		else:
 			self.cache = [dict(
-				mxid=_map['TrackID'],
+				mxid=_map['MapId'],
 				name=_map['Name'],
 				gbxname=_map['GbxMapName'] if _map['GbxMapName'] != '?' else _map['Name'],
-				author=_map['Username'],
-				envir=_map['EnvironmentName'],
+				author=_map['Uploader']['Name'],
+				envir=_map['Environment'],
 				awards='$fff🏆 {}'.format(_map['AwardCount']) if _map['AwardCount'] > 0 else "",
-				difficulty=_map['DifficultyName'],
-				maptype=_map['MapType'],
-				style=_map['StyleName']
+				difficulty=_map['Difficulty']
 			) for _map in infos]
 
 		if refresh:
@@ -316,11 +295,7 @@ class MxPacksListView(ManualListView):
 		]
 
 	async def action_install(self, user, values, map, *args, **kwargs):
-		await self.app.instance.command_manager.execute(
-			user,
-			'//{}pack add'.format(self.app.namespace),
-			str(map['mxid'])
-		)
+		await self.app.instance.command_manager.execute(user, '//mxpack add', str(map['mxid']))
 
 	async def action_search(self, user, action, values, *args, **kwargs):
 		self.search_map = values['map']
@@ -335,19 +310,7 @@ class MxPacksListView(ManualListView):
 
 	async def do_search(self, name=None, username=None, refresh=True, **terms):
 		try:
-			options = {
-				"api": "on",
-				"mode": 0,
-				"limit": 100,
-			}
-
-			if name is not None:
-				options['name'] = name
-
-			if username is not None:
-				options['username'] = username
-
-			infos = await self.api.search_pack(options)
+			infos = await self.api.search_pack(name, username)
 			if len(infos) == 0:
 				raise MXMapNotFound("No results for search")
 
@@ -363,15 +326,11 @@ class MxPacksListView(ManualListView):
 			return None
 
 		self.cache = [dict(
-				mxid=_map['ID'],
+				mxid=_map['MappackId'],
 				name=_map['Name'],
-				author=_map['Username'],
-				mapcount=_map['TrackCount'],
-				typename=_map['TypeName'],
-				style=_map['StyleName'],
-				videourl="$l[{video}]Video$l".format(video=_map['VideoURL']) if len(_map['VideoURL']) > 0 else "",
-				unreleased='{}'.format(_map['Unreleased']),
-				request='{}'.format(_map['Request'])
+				author=_map['Owner']['Name'],
+				mapcount=_map['MapCount'],
+				videourl="$l[{video}]Video$l".format(video=_map['VideoUrl']) if len(_map['VideoUrl']) > 0 else ""
 			) for _map in infos]
 
 		if refresh:
@@ -519,15 +478,19 @@ class MxStatusListView(ManualListView):
 				if '.' in mx_map[1]['UpdatedAt']:
 					date_format = '%Y-%m-%dT%H:%M:%S.%f'
 				mx_version_date = datetime.strptime(mx_map[1]['UpdatedAt'], date_format).strftime("%Y-%m-%d %H:%M:%S")
-				mx_map_uid = mx_map[1]['TrackUID'] if 'TrackUID' in mx_map[1] else mx_map[1]['MapUID']
+				mx_map_uid = mx_map[1]['MapUid']
 
 				if mx_map_uid == item.uid:
 					version_match = '$0a0Up-to-date'
 					version_match_order = 2
 				else:
-					version_match = '$00fNew version'
 					version_match_order = 0
-					action_update = True
+
+					if mx_map[1]['ServerSizeExceeded'] is True:
+						version_match = '$f00Update too large'
+					else:
+						version_match = '$00fNew version'
+						action_update = True
 
 			action_update_content = '🔁 Update' if action_update else '          -'
 			items.append({'map_id': item.id, 'index': int(item.mx_id), 'map_name': item.name, 'version_match': version_match, 'version_match_order': version_match_order,
@@ -579,7 +542,7 @@ class MxAwardWidget(WidgetView):
 		context.update({
 			'map_name': self.app.instance.map_manager.current_map.name,
 			'site_name': self.app.site_short_name,
-			'award_url': "{}/maps/{}/#award".format(self.app.api.base_url(), self.mx_id)
+			'award_url': "{}/mapshow/{}".format(self.app.api.base_url(), self.mx_id)
 		})
 
 		return context

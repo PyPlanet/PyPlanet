@@ -38,7 +38,7 @@ class MapInfoWidget(WidgetView):
 					mx_info = await self.app.instance.apps.apps['mx'].api.map_info(map.uid)
 					if mx_info and len(mx_info) >= 1:
 						base_url = self.app.instance.apps.apps['mx'].api.base_url()
-						mx_link = '{}/s/tr/{}'.format(
+						mx_link = '{}/mapshow/{}'.format(
 							base_url, mx_info[0][0]
 						)
 					self.mx_link_cache[map.uid] = mx_link

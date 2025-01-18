@@ -25,7 +25,7 @@ class MX(AppConfig):  # pragma: no cover
 		super().__init__(*args, **kwargs)
 		self.api = MXApi()
 
-		self.namespace = 'mx'
+		self.namespaces = ['mx', 'tmx']
 		self.site_name = 'ManiaExchange'
 		self.site_short_name = 'MX'
 		self.award_widget = None
@@ -56,35 +56,36 @@ class MX(AppConfig):  # pragma: no cover
 		self.award_widget = MxAwardWidget(self)
 
 		if self.instance.game.game == 'tmnext':
-			self.namespace = 'tmx'
 			self.site_name = 'TrackmaniaExchange'
 			self.site_short_name = 'TMX'
 
+		mappack_namespaces = ['{}pack'.format(namespace) for namespace in self.namespaces]
+
 		await self.instance.command_manager.register(
-			Command(command='info', namespace=self.namespace, target=self.mx_info,
-					description='Display ManiaExchange/TrackmaniaExchange information for current map.'),
+			Command(command='info', namespace=self.namespaces, target=self.mx_info,
+					description='Display {} information for current map.'.format(self.site_name)),
 			# support backwards
-			Command(command='mx', namespace='add', target=self.add_mx_map, perms='mx:add_remote', admin=True,
+			Command(command='mx', aliases=['tmx'], namespace='add', target=self.add_mx_map, perms='mx:add_remote', admin=True,
 					description='Add map from ManiaExchange to the maplist.').add_param(
-				'maps', nargs='*', type=str, required=True, help='MX ID(s) of maps to add.'),
+				'maps', nargs='*', type=str, required=True, help='{} ID(s) of maps to add.'.format(self.site_short_name)),
 			# new mx command random (Adding) Random Maps from MX
-			Command(command='random', namespace=self.namespace, target=self.random_mx_map, perms='mx:add_remote',
-					admin=True, description='Get Random Maps on ManiaExchange/TrackmaniaExchange.'),
+			Command(command='random', namespace=self.namespaces, target=self.random_mx_map, perms='mx:add_remote',
+					admin=True, description='Get Random Maps on {}.'.format(self.site_name)),
 			# new mx namespace
-			Command(command='search', aliases=['list'], namespace=self.namespace, target=self.search_mx_map, perms='mx:add_remote',
-					admin=True, description='Search for maps on ManiaExchange/TrackmaniaExchange.'),
-			Command(command='add', namespace=self.namespace, target=self.add_mx_map, perms='mx:add_remote', admin=True,
-					description='Add map from ManiaExchange/TrackmaniaExchange to the maplist.').add_param(
-				'maps', nargs='*', type=str, required=True, help='MX/TMX ID(s) of maps to add.'),
-			Command(command='status', namespace=self.namespace, target=self.status_mx_maps, perms='mx:add_remote', admin=True,
-					description='View the map statuses compared to ManiaExchange/TrackmaniaExchange.'),
+			Command(command='search', aliases=['list'], namespace=self.namespaces, target=self.search_mx_map, perms='mx:add_remote',
+					admin=True, description='Search for maps on {}.'.format(self.site_name)),
+			Command(command='add', namespace=self.namespaces, target=self.add_mx_map, perms='mx:add_remote', admin=True,
+					description='Add map from {} to the maplist.'.format(self.site_name)).add_param(
+				'maps', nargs='*', type=str, required=True, help='{} ID(s) of maps to add.'.format(self.site_short_name)),
+			Command(command='status', namespace=self.namespaces, target=self.status_mx_maps, perms='mx:add_remote', admin=True,
+					description='View the map statuses compared to {}.'.format(self.site_name)),
 
 			# new mxpack namespace
-			Command(command='search', aliases=['list'], namespace='{}pack'.format(self.namespace), target=self.search_mx_pack,
-					perms='mx:add_remote', admin=True, description='Search for mappacks on ManiaExchange/TrackmaniaExchange.'),
-			Command(command='add', namespace='{}pack'.format(self.namespace), target=self.add_mx_pack, perms='mx:add_remote',
-					admin=True, description='Add mappack from ManiaExchange/TrackmaniaExchange to the maplist.')
-				.add_param('pack', nargs='*', type=str, required=True, help='MX/TMX ID(s) of mappacks to add.'),
+			Command(command='search', aliases=['list'], namespace=mappack_namespaces, target=self.search_mx_pack,
+					perms='mx:add_remote', admin=True, description='Search for mappacks on {}.'.format(self.site_name)),
+			Command(command='add', namespace=mappack_namespaces, target=self.add_mx_pack, perms='mx:add_remote',
+					admin=True, description='Add mappack from {} to the maplist.'.format(self.site_name))
+				.add_param('pack', nargs='*', type=str, required=True, help='{} ID(s) of mappacks to add.'.format(self.site_short_name)),
 		)
 
 		# Register callbacks.
@@ -110,10 +111,11 @@ class MX(AppConfig):  # pragma: no cover
 		await self.award_widget.hide()
 
 	async def random_mx_map(self, player, data, **kwargs):
-		map_random_id = await self.api.mx_random()
+		titlepack = self.instance.game.dedicated_title.split("@", 1)[0]
+		map_random_id = await self.api.mx_random(titlepack)
 		await self.instance.command_manager.execute(
 			player,
-			'//{} add maps'.format(self.namespace),
+			'//{} add'.format(self.namespaces[0]),
 			str(map_random_id)
 		)
 
@@ -134,7 +136,7 @@ class MX(AppConfig):  # pragma: no cover
 				site_name=self.site_name,
 				site_code=self.site_short_name,
 				map_name=map_info['Name'],
-				map_username=map_info['Username'],
+				map_username=map_info['Uploader']['Name'],
 			)
 		]
 
@@ -143,7 +145,7 @@ class MX(AppConfig):  # pragma: no cover
 		if '.' in map_info['UpdatedAt']:
 			date_format = '%Y-%m-%dT%H:%M:%S.%f'
 		mx_version_date = datetime.strptime(map_info['UpdatedAt'], date_format).strftime("%Y-%m-%d %H:%M:%S")
-		mx_map_uid = map_info['TrackUID'] if 'TrackUID' in map_info else map_info['MapUID']
+		mx_map_uid = map_info['MapUid']
 
 		messages.append(
 			'$ff0Map status: $fff{map_status}$ff0 ({site_code} version: $fff{site_version}$ff0)'.format(
@@ -160,16 +162,16 @@ class MX(AppConfig):  # pragma: no cover
 					num_replays=map_info['ReplayCount'],
 					num_awards=map_info['AwardCount'],
 					site_code=self.site_short_name,
-					link='{}/s/tr/{}'.format(self.api.base_url(), map_info['TrackID']),
-					id=map_info['TrackID'],
+					link='{}/mapshow/{}'.format(self.api.base_url(), map_info['MapId']),
+					id=map_info['MapId'],
 				)
 			)
 		else:
 			messages.append(
 				'$ff0{site_code}-ID: $l[{link}]$fff{id}$l (click to open {site_code})'.format(
 					site_code=self.site_short_name,
-					link='{}/s/tr/{}'.format(self.api.base_url(), map_info['MapID']),
-					id=map_info['MapID']
+					link='{}/mapshow/{}'.format(self.api.base_url(), map_info['MapId']),
+					id=map_info['MapId']
 				)
 			)
 
@@ -208,7 +210,7 @@ class MX(AppConfig):  # pragma: no cover
 			await self.add_mx_map(player, mock(maps=mx_ids))
 			await self.instance.chat('$ff0{}: Done Installing mappack!'.format(self.site_short_name), player)
 		except MXMapNotFound:
-			message = '$ff0Error: Can\'t add map pack from {}, due error.'.format(self.site_short_name)
+			message = '$f00Can\'t add map pack from {}.'.format(self.site_short_name)
 			await self.instance.chat(message, player)
 
 	async def add_mx_map(self, player, data, **kwargs):
@@ -223,11 +225,11 @@ class MX(AppConfig):  # pragma: no cover
 			if len(infos) == 0:
 				raise MXMapNotFound()
 		except MXMapNotFound:
-			message = '$f00Error: Can\'t add map from {}. Map not found on {}!'.format(self.site_short_name, self.site_name)
+			message = '$f00Can\'t add map from {}. Map not found!'.format(self.site_short_name, self.site_name)
 			await self.instance.chat(message, player)
 			return
 		except MXInvalidResponse as e:
-			message = '$f00Error: Got invalid response from {}: {}'.format(self.site_name, str(e))
+			message = '$f00Got invalid response from {}: $fff{}'.format(self.site_name, str(e))
 			await self.instance.chat(message, player.login)
 			return
 
@@ -235,7 +237,7 @@ class MX(AppConfig):  # pragma: no cover
 			if not await self.instance.storage.driver.exists(os.path.join('UserData', 'Maps', 'PyPlanet-MX')):
 				await self.instance.storage.driver.mkdir(os.path.join('UserData', 'Maps', 'PyPlanet-MX'))
 		except Exception as e:
-			message = '$f00Error: Can\'t check or create folder: {}'.format(str(e))
+			message = '$f00$iCan\'t check or create folder: $fff{}$f00.'.format(str(e))
 			await self.instance.chat(message, player.login)
 			return
 
@@ -252,8 +254,11 @@ class MX(AppConfig):  # pragma: no cover
 				continue
 
 			try:
+				if mx_info['ServerSizeExceeded'] is True:
+					raise Exception('Map is too large to be played on a server.')
+
 				# Test if map isn't yet in our current map list.
-				if self.instance.map_manager.playlist_has_map(mx_info['MapUID']):
+				if self.instance.map_manager.playlist_has_map(mx_info['MapUid']):
 					raise Exception('Map already in playlist! Update? remove it first!')
 
 				# Download file + save
@@ -269,17 +274,17 @@ class MX(AppConfig):  # pragma: no cover
 				result = await self.instance.map_manager.add_map(map_filename, save_matchsettings=False)
 
 				if result:
-					added_map_uids.append(mx_info['MapUID'])
+					added_map_uids.append(mx_info['MapUid'])
 
-					message = '$ff0Admin $fff{}$z$s$ff0 has added{} the map $fff{}$z$s$ff0 by $fff{}$z$s$ff0 from {}..'.format(
-						player.nickname, ' and juked' if juke_maps else '', mx_info['Name'], mx_info['Username'], self.site_short_name
+					message = '$ff0Admin $fff{}$z$s$ff0 has added{} the map $fff{}$z$s$ff0 by $fff{}$z$s$ff0 from {}.'.format(
+						player.nickname, ' and juked' if juke_maps else '', mx_info['Name'], mx_info['Uploader']['Name'], self.site_short_name
 					)
 					await self.instance.chat(message)
 				else:
 					raise Exception('Unknown error while adding the map!')
 			except Exception as e:
 				logger.warning('Error when player {} was adding map from {}: {}'.format(player.login, self.site_short_name, str(e)))
-				message = '$ff0Error: Can\'t add map {}, Error: {}'.format(mx_info['Name'], str(e))
+				message = '$f00$iCan\'t add map $fff{}$z$s$f00$i, error: $fff{}$f00'.format(mx_info['Name'], str(e))
 				await self.instance.chat(message, player.login)
 
 		# Save match settings after inserting maps.
