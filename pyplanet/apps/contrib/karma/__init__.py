@@ -46,8 +46,11 @@ class Karma(AppConfig):
 
 	async def on_start(self):
 		# Register commands.
-		await self.instance.command_manager.register(Command(command='whokarma', target=self.show_map_list,
-															 description='Displays who voted what on the current map.'))
+		await self.instance.command_manager.register(
+			Command(command='karma', target=self.chat_current_karma, description='Shows the karma of the current map.'),
+			Command(command='resetkarma', target=self.reset_karma_vote, description='Resets your karma vote on the current map.'),
+			Command(command='whokarma', target=self.show_karma_list, description='Displays who voted what on the current map.')
+		)
 
 		# Register signals.
 		self.context.signals.listen(mp_signals.map.map_begin, self.map_begin)
@@ -111,16 +114,7 @@ class Karma(AppConfig):
 			del map_karmas
 			del maps
 
-	async def show_map_list(self, player, map=None, **kwargs):
-		"""
-		Show map list to player for current map or map provided.. Provide player instance.
-
-		:param player: Player instance.
-		:param map: Map instance or current map.
-		:param kwargs: ...
-		:type player: pyplanet.apps.core.maniaplanet.models.Player
-		:return: View instance.
-		"""
+	async def show_karma_list(self, player, map=None, **kwargs):
 		view = KarmaListView(self, map or self.instance.map_manager.current_map)
 		await view.display(player=player.login)
 		return view
@@ -217,6 +211,30 @@ class Karma(AppConfig):
 				# Reload map referenced information
 				asyncio.ensure_future(self.load_map_votes(map=self.instance.map_manager.current_map))
 
+	async def reset_karma_vote(self, player, **kwargs):
+		player_votes = [x for x in self.current_votes if x.player_id == player.get_id()]
+		if len(player_votes) == 0:
+			message = '$i$f00You do not have a karma vote on this map!'
+			await self.instance.chat(message, player)
+			return
+
+		player_vote = player_votes[0]
+		await KarmaModel.execute(
+			KarmaModel.delete().where(KarmaModel.id == player_vote.get_id())
+		)
+
+		self.current_votes.remove(player_vote)
+		await self.calculate_karma()
+
+		message = '$ff0Successfully reset your karma vote!'
+		await asyncio.gather(
+			self.instance.chat(message, player),
+			self.widget.display()
+		)
+
+		# Reload map referenced information
+		asyncio.ensure_future(self.load_map_votes(map=self.instance.map_manager.current_map))
+
 	async def get_map_karma(self, map):
 		vote_list = await KarmaModel.objects.execute(KarmaModel.select().where(KarmaModel.map_id == map.get_id()))
 
@@ -258,13 +276,37 @@ class Karma(AppConfig):
 		if self.current_karma_positive > 0:
 			self.current_karma_percentage = (self.current_karma_positive / total_abs)
 
-	async def chat_current_karma(self):
+	async def chat_current_karma(self, player=None, **kwargs):
 		mx_karma = ''
 		if self.mx_karma.api.activated:
 			mx_karma = ', MX: $fff{}%$ff0 [$fff{}$ff0 votes]'.format(round(self.mx_karma.current_average, 1), self.mx_karma.current_count)
 
+		personal_vote = ''
+		if player is not None:
+			player_vote = [x for x in self.current_votes if x.player_id == player.get_id()]
+			personal_vote = ' [Your vote: $fff{}$ff0]'.format('none' if len(player_vote) == 0 else await self.convert_score_to_text(player_vote[0]))
+
 		num_current_votes = len(self.current_votes)
-		message = '$ff0Current map karma: $fff{}$ff0 ($fff{}%$ff0) [$fff{}$ff0 votes]{}'.format(
-			self.current_karma, round(self.current_karma_percentage * 100, 2), num_current_votes, mx_karma
+		message = '$ff0Current map karma: $fff{}$ff0 ($fff{}%$ff0) [$fff{}$ff0 votes]{}{}'.format(
+			self.current_karma, round(self.current_karma_percentage * 100, 2), num_current_votes, personal_vote, mx_karma
 		)
-		await self.instance.chat(message)
+
+		if player is not None:
+			await self.instance.chat(message, player)
+		else:
+			await self.instance.chat(message)
+
+	async def convert_score_to_text(self, vote):
+		expanded_voting = await self.setting_expanded_voting.get_value()
+		score = vote.expanded_score if vote.expanded_score is not None and expanded_voting is True else vote.score
+
+		if score == 1:
+			return '++'
+		if score == 0.5:
+			return '+'
+		if score == -0.5:
+			return '-'
+		if score == -1:
+			return '--'
+
+		return '+-'

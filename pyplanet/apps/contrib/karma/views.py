@@ -17,7 +17,7 @@ class KarmaWidget(WidgetView):
 		self.manager = app.context.ui
 		self.id = 'pyplanet__widgets_karma'
 
-		self.action = self.action_whokarma
+		self.subscribe('whokarma', self.action_whokarma)
 		self.subscribe('vote_positive', self.action_vote_positive)
 		self.subscribe('vote_negative', self.action_vote_negative)
 
@@ -57,8 +57,8 @@ class KarmaWidget(WidgetView):
 
 		return data
 
-	async def action_whokarma(self, player, **kwargs):
-		await self.app.show_map_list(player)
+	async def action_whokarma(self, player, action, values, **kwargs):
+		await self.app.show_karma_list(player)
 
 	async def action_vote_positive(self, player, action, values, **kwargs):
 		await self.app.player_chat(player, '++', False)
