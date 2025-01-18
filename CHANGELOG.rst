@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.11.7
+------
+
+Apps
+~~~~
+
+* Feature: Upgrade the MX API support, in order to support the updated MX api's.
+
+
 0.11.6
 ------
 
