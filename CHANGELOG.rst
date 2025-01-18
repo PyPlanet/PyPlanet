@@ -1,13 +1,29 @@
 Changelog
 =========
 
+0.11.8
+------
+
+Apps
+~~~~
+
+* Bugfix: Fixed :code:`//mxpack search` and :code:`//mx status` commands (#1350 / #1351).
+
+
 0.11.7
 ------
 
 Apps
 ~~~~
 
-* Feature: Upgrade the MX API support, in order to support the updated MX api's.
+* Feature: Upgrade the MX API support, in order to support the new MX APIs (#1340 / #1343).
+* Feature: Ability to remove own karma vote using :code:`//resetkarma` (#1342).
+
+* Improvement: Made :code:`//mx` and :code:`//tmx` aliasses of eachother (#1310).
+* Improvement: Avoid installing too large mapfiles from (T)MX, including when using :code:`//(t)mx status` (#1335).
+* Improvement: Added action to view whokarma from karma widget.
+* Improvement: Added action to view whokarma from advanced maplist.
+* Improvement: Show error message when using :code:`/topranks` when there are no ranks (thanks to w1lla).
 
 
 0.11.6
@@ -16,7 +32,11 @@ Apps
 Apps
 ~~~~
 
-* Bugfix: Preparing for new MX API's, make sure that during the migration period the old API (that was in use for SM) is not being used by PyPlanet anymore.
+* Feature: Added round :code:`//pause` and :code:`//unpause` commands (thanks to The-Jonsey).
+
+* Improvement: Added more aliasses for game modes when using :code:`//mode` (thanks to Zai).
+
+* Bugfix: Preparing for new MX API's, make sure that during the migration period the old API (that was in use for SM) is not being used by PyPlanet anymore (#1340).
 
 
 0.11.5 (0.11.4 skipped)
@@ -25,7 +45,7 @@ Apps
 Apps
 ~~~~
 
-* Bugfix: Fixing issue with internal usage of the MX add function (when using len() on integers) causing issues in updating maps.
+* Bugfix: Fixing issue with internal usage of the MX add function (when using len() on integers) causing issues in updating maps (#1324).
 
 
 0.11.3
@@ -34,14 +54,14 @@ Apps
 Apps
 ~~~~
 
-* Feature: Integrate ForceMapMod into the Admin package. Check :code:`//settings` ;-). Thanks to Reaby.
-* Feature: Jukebox view has controls to move maps up and down in the queue (only for admins).
+* Feature: Integrate ForceMapMod into the Admin package (thanks to Reaby) (#1011).
+* Feature: Jukebox view has controls to move maps up and down in the queue (only for admins) (#1311).
 
 * Improvement: Adding rounds support for specific custom scripts.
 
-* Bugfix: Fixing :code:`//call` issues related to the error message sending to all players instead of the specific user that used the command. Thanks Willa.
-* Bugfix: Fixing Nadeo's race rankings visibility when using custom race rankings from PyPlanet (settings conflicts).
-* Bugfix: Fixing issue with MX add command when using empty spaces inbetween multiple MX-id's. (also for TMX)
+* Bugfix: Fixing :code:`//call` issues related to the error message sending to all players instead of the specific user that used the command (thanks to w1lla) (#1304).
+* Bugfix: Fixing Nadeo's race rankings visibility when using custom race rankings from PyPlanet (settings conflicts) (#1282).
+* Bugfix: Fixing issue with MX add command when using empty spaces inbetween multiple MX-id's (also for TMX) (#1309).
 
 
 
@@ -51,8 +71,8 @@ Apps
 Apps
 ~~~~
 
-* Bugfix: Live rankings ordering in rounds was not always correct.
-* Bugfix: F9 wasn't working on the live rankings widget.
+* Bugfix: Live rankings ordering in rounds was not always correct (#1281).
+* Bugfix: F9 wasn't working on the live rankings widget (#1294).
 
 
 0.11.1
@@ -61,12 +81,12 @@ Apps
 Core
 ~~~~
 
-* Bugfix: Adding new information for the valid parameter in the round_start callback.
+* Bugfix: Adding new information for the valid parameter in the round_start callback (#1286).
 
 Apps
 ~~~~
 
-* Bugfix: Fixing compatibility live-rankings with new API callback for round_start in TM2020.
+* Bugfix: Fixing compatibility live-rankings with new API callback for round_start in TM2020 (#1286).
 
 
 0.11.0
