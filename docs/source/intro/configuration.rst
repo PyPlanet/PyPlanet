@@ -586,7 +586,7 @@ The order doesn't make a difference when starting/loading PyPlanet.
       - 'pyplanet.apps.contrib.music_server'
 
       # New since 0.8.0:
-      - 'pyplanet.apps.contrib.funcmd
+      - 'pyplanet.apps.contrib.funcmd'
 
       # New since 0.10.0:
       - 'pyplanet.apps.contrib.rankings'
