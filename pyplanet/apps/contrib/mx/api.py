@@ -105,7 +105,7 @@ class MXApi:
 		for info in json['Results']:
 			info['Difficulty'] = self.difficulties[info['Difficulty']] if info['Difficulty'] in self.difficulties else 'Unknown'
 			info['Environment'] = self.environments[info['Environment']] if info['Environment'] in self.environments else 'Unknown'
-			info['Length'] = times.format_time(int(info['Length'])) if 'Length' in info else None
+			info['Length'] = times.format_time(int(info['Length'])) if 'Length' in info and info['Length'] is not None else None
 			maps.append(info)
 		return maps
 
@@ -204,7 +204,7 @@ class MXApi:
 
 	async def download(self, mx_id):
 		url = '{}/mapgbx/{}'.format(
-			self.base_url(api=True), mx_id
+			self.base_url(api=False), mx_id
 		)
 		params = {'key': self.key} if self.key else {}
 		response = await self.session.get(url, params=params)
