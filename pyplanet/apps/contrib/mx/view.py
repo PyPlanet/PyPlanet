@@ -330,7 +330,7 @@ class MxPacksListView(ManualListView):
 				name=_map['Name'],
 				author=_map['Owner']['Name'],
 				mapcount=_map['MapCount'],
-				videourl="$l[{video}]Video$l".format(video=_map['VideoUrl']) if len(_map['VideoUrl']) > 0 else ""
+				videourl="$l[{video}]Video$l".format(video=_map['VideoUrl']) if _map['VideoUrl'] is not None and len(_map['VideoUrl']) > 0 else ""
 			) for _map in infos]
 
 		if refresh:
@@ -474,10 +474,11 @@ class MxStatusListView(ManualListView):
 				version_match = 'Not on {}'.format(self.app.site_short_name)
 				version_match_order = 1
 			else:
+				updated_at = mx_map[1]['UpdatedAt'][:22] # Limit UpdatedAt field at most to 22 characters, to ensure strptime works
 				date_format = '%Y-%m-%dT%H:%M:%S'
-				if '.' in mx_map[1]['UpdatedAt']:
+				if '.' in updated_at:
 					date_format = '%Y-%m-%dT%H:%M:%S.%f'
-				mx_version_date = datetime.strptime(mx_map[1]['UpdatedAt'], date_format).strftime("%Y-%m-%d %H:%M:%S")
+				mx_version_date = datetime.strptime(updated_at, date_format).strftime("%Y-%m-%d %H:%M:%S")
 				mx_map_uid = mx_map[1]['MapUid']
 
 				if mx_map_uid == item.uid:
