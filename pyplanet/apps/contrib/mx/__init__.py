@@ -249,11 +249,20 @@ class MX(AppConfig):  # pragma: no cover
 			juke_maps = False
 		added_map_uids = list()
 
-		for mx_id, mx_info in infos:
-			if 'Name' not in mx_info:
+		for mx_id in mx_ids:
+			# The API returns a list of tuples, where the first item is the (T)MX ID, and the second item is the map info.
+			mx_infos = [info for info in infos if str(info[0]) == str(mx_id)]
+			if len(mx_infos) != 1:
+				logger.warning('Unable to find map data for ID {} when adding from {}.'.format(mx_id, self.site_short_name))
+				message = '$f00$iCan\'t add map with ID $fff{}$z$s$f00$i from {}, map could not be found.'.format(mx_id, self.site_short_name)
+				await self.instance.chat(message, player.login)
 				continue
 
+			mx_info = mx_infos[0][1]
 			try:
+				if 'Name' not in mx_info:
+					continue
+
 				if mx_info['ServerSizeExceeded'] is True:
 					raise Exception('Map is too large to be played on a server.')
 
