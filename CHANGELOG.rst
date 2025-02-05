@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.11.9
+------
+
+Apps
+~~~~
+
+* Bugfix: Fixed the order of adding maps from MX when adding multiple maps (now remains in the order you provide with the :code:`//mx add` command) (#1353).
+
+
 0.11.8
 ------
 
