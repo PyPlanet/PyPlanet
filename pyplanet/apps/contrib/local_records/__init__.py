@@ -1,7 +1,7 @@
 import asyncio
 
 from pyplanet.apps.config import AppConfig
-from pyplanet.apps.contrib.local_records.views import LocalRecordsListView, LocalRecordsWidget
+from pyplanet.apps.contrib.local_records.views import LocalRecordsListView, LocalRecordsWidget, LocalRecordCpCompareListView
 from pyplanet.apps.core.maniaplanet.models import Player
 from pyplanet.contrib.command import Command
 from pyplanet.contrib.setting import Setting
@@ -351,7 +351,7 @@ class LocalRecords(AppConfig):
 			record_index = (self.current_records.index(record[0]) + 1) if len(record) else None
 			compare_index = (self.current_records.index(compare_record) + 1)
 
-		view = views.LocalRecordCpCompareListView(
+		view = LocalRecordCpCompareListView(
 			self, record[0] if len(record) else None, record_index, compare_record, compare_index
 		)
 		await view.display(player)
