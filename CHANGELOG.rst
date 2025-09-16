@@ -4,6 +4,12 @@ Changelog
 0.11.10
 -------
 
+Core
+~~~~
+
+* Improvement: Bump version of a specific dependency to support arm64 architecture.
+
+
 Apps
 ~~~~
 
