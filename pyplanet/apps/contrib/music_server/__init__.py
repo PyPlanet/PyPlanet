@@ -155,9 +155,9 @@ class MusicServer(AppConfig):
 					'genre': 'genre'
 				}
 				for key, value in tags.items():
-					if fs.find(key.upper()) > 0:
-						end_of_key = fs.find(key.upper()) + len(key) + 1
-						end_of_value = fs.find('\\x', fs.find(key.upper()))
+					if fs.find(key.casefold()) > 0:
+						end_of_key = fs.find(key.casefold()) + len(key) + 1
+						end_of_value = fs.find('\\x', fs.find(key.casefold()))
 						value = fs[end_of_key:end_of_value]
 						if value.find('(') > 0 or value.find('[') > 0:
 							tags[key] = re.sub(r'[^a-zA-Z\d\s\)\]]$', '', value).replace('\\', '')
