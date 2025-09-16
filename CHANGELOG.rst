@@ -1,6 +1,16 @@
 Changelog
 =========
 
+0.11.10
+-------
+
+Apps
+~~~~
+
+* Bugfix: Fixed remove unexisting views reference (Local Records) (#1355).
+* Bugfix: Fixed make ID3 tag search case insensitive (Music Server) (#1359).
+
+
 0.11.9
 ------
 
