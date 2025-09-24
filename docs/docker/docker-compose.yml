@@ -1,0 +1,22 @@
+# NOTE: THIS IS UNFINISHED WORK FOR NOW. (WIP)
+
+version: "3.4"
+services:
+  pyplanet:
+    build: .
+    env_file: .env
+    environment:
+      - PYPLANET_DB_HOST=db
+      - PYPLANET_DB_USER=pyplanet
+      - PYPLANET_DB_PASSWORD=pypl@net
+    links:
+      - db
+
+  db:
+    image: mariadb:10.5
+    environment:
+      - MYSQL_DATABASE=pyplanet
+      - MYSQL_USER=pyplanet
+      - MYSQL_PASSWORD=pypl@net
+    volumes:
+      - ./docker/mysql:/var/lib/mysql:delegated
