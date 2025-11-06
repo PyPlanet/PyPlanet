@@ -10,6 +10,8 @@ from pyplanet.contrib.command import Command
 from pyplanet.contrib.setting import Setting
 from .view import MusicListView
 from .view import PlaylistView
+from io import BytesIO
+from tinytag import TinyTag
 
 
 class MusicServer(AppConfig):
@@ -143,7 +145,8 @@ class MusicServer(AppConfig):
 	async def get_tags(self, session, url):
 		with async_timeout.timeout(10):
 			async with session.get(url) as response:
-				fs = str(await response.content.read(1024))
+				fs = await response.content.read()
+				ogg = TinyTag.get(file_obj=BytesIO(fs))
 				tags = {
 					'album': 'album',
 					'albumartist': 'albumartist',
@@ -155,14 +158,11 @@ class MusicServer(AppConfig):
 					'genre': 'genre'
 				}
 				for key, value in tags.items():
-					if fs.find(key.casefold()) > 0:
-						end_of_key = fs.find(key.casefold()) + len(key) + 1
-						end_of_value = fs.find('\\x', fs.find(key.casefold()))
-						value = fs[end_of_key:end_of_value]
-						if value.find('(') > 0 or value.find('[') > 0:
-							tags[key] = re.sub(r'[^a-zA-Z\d\s\)\]]$', '', value).replace('\\', '')
-						else:
-							tags[key] = re.sub(r'[^a-zA-Z\d\s]*$', '', value).replace('\\', '')
+					if getattr(ogg, value):
+						tags[key] = getattr(ogg, value)
+					else:
+						tags[key] = "Unknown"
+
 			await response.release()
 			return tags
 
