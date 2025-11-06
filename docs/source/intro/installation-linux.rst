@@ -51,8 +51,8 @@ The following steps are the same for all distributions.
 
 .. code-block:: bash
 
-  pyenv install 3.7.6
-  pyenv global 3.7.6
+  pyenv install 3.8.20
+  pyenv global 3.8.20
 
 
 .. attention::
@@ -83,7 +83,7 @@ use virtual environments, but we recommend to use it.
 
 .. code-block:: bash
 
-    pyenv virtualenv 3.7.6 my-env
+    pyenv virtualenv 3.8.20 my-env
     # Where 'my-env' is your environment name, you need adjust this if you have multiple installations.
 
 **Activate virtualenv**:
