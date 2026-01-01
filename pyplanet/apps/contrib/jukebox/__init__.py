@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from packaging import version
 from xmlrpc.client import Fault
 
 from pyplanet.apps.config import AppConfig
@@ -26,6 +27,7 @@ class Jukebox(AppConfig):
 		self.lock = asyncio.Lock()
 		self.jukebox = []
 		self.folder_manager = FolderManager(self)
+		self.supports_advanced_queries = False
 
 		# Settings.
 		self.setting_newest_days_range = Setting(
@@ -49,6 +51,8 @@ class Jukebox(AppConfig):
 
 		:return: None
 		"""
+		await self.check_database_compatibility()
+
 		# Register permissions + commands.
 		await self.instance.permission_manager.register('clear', 'Clear the jukebox', app=self, min_level=1)
 		await self.instance.permission_manager.register('move', 'Move entries in the jukebox', app=self, min_level=1)
@@ -85,6 +89,19 @@ class Jukebox(AppConfig):
 
 		# Fetch all folders.
 		await self.folder_manager.on_start()
+
+	async def check_database_compatibility(self):
+		"""
+		Checks the database compatibility for retrieving advanced list data using queries.
+
+		:return: None
+		"""
+		if self.instance.db.server_info.type == "mysql" and \
+			version.parse(self.instance.db.server_info.version) >= version.parse("8.0"):
+			self.supports_advanced_queries = True
+		elif self.instance.db.server_info.type == "mariadb" and \
+			version.parse(self.instance.db.server_info.version) >= version.parse("10.2"):
+			self.supports_advanced_queries = True
 
 	def insert_map(self, player, map, index=0):
 		self.jukebox.insert(index, {'player': player, 'map': map})

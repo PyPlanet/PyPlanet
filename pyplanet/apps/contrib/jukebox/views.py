@@ -1,9 +1,12 @@
 import asyncio
 import math
 
+from peewee import RawQuery
 from playhouse.shortcuts import model_to_dict
 
+from pyplanet.apps.contrib.jukebox.models.advanced_map import AdvancedMap
 from pyplanet.apps.contrib.jukebox.models import MapFolder, MapInFolder
+from pyplanet.apps.contrib.jukebox.queries import Queries
 from pyplanet.apps.core.maniaplanet.models import Map
 from pyplanet.views import TemplateView
 from pyplanet.views.generics.alert import show_alert, ask_confirmation, ask_input
@@ -184,9 +187,66 @@ class MapListView(ManualListView):
 			return self.cache
 
 		data = list()
-
 		local_app_installed = 'local_records' in self.app.instance.apps.apps
 		karma_app_installed = 'karma' in self.app.instance.apps.apps
+
+		if self.app.instance.performance_mode or not self.advanced or (not local_app_installed and not karma_app_installed):
+			for m in self.app.instance.map_manager.maps:
+				map_dict = model_to_dict(m)
+				map_dict['local_record_rank'] = None
+				map_dict['local_record_score'] = None
+				map_dict['local_record_diff'] = None
+				map_dict['local_record_diff_direction'] = None
+				map_dict['karma'] = None
+
+				# Use custom field for author to allow for searching on both login and nickname (depending on what's shown).
+				map_dict['author'] = (
+					map_dict['author_nickname']
+					if 'author_nickname' in map_dict and map_dict['author_nickname']
+					else map_dict['author_login']
+				)
+
+				data.append(map_dict)
+		else:
+			data = self.get_advanced_by_query(local_app_installed, karma_app_installed) \
+				if self.app.supports_advanced_queries \
+				else self.get_advanced_via_apps(local_app_installed, karma_app_installed)
+
+		self.cache = data
+		self.cache_advanced = self.advanced
+		return self.cache
+
+	async def get_advanced_by_query(self, local_app_installed, karma_app_installed):
+		data = list()
+		if not local_app_installed and not karma_app_installed:
+			# You should not be able to get here, as advanced lists are only useful when karma and records are enabled.
+			return data
+
+		expanded_voting = 0
+		if karma_app_installed:
+			expanded_voting_setting = await self.app.instance.apps.apps['karma'].setting_expanded_voting.get_value()
+			expanded_voting = 1 if expanded_voting_setting is True else 0
+
+		local_max_rank = 0
+		map_ids = ""
+		if local_app_installed:
+			local_max_rank = await self.app.instance.apps.apps['local_records'].setting_record_limit.get_value()
+			map_ids_on_server = [map_on_server.id for map_on_server in self.app.instance.map_manager.maps]
+			map_ids = ", ".join(str(map_id) for map_id in map_ids_on_server)
+
+		query = ""
+		if local_app_installed and karma_app_installed:
+			query = Queries.FULL.format(expanded_voting, local_max_rank, self.player.get_id(), map_ids)
+		elif local_app_installed:
+			query = Queries.WITHOUT_KARMA.format(local_max_rank, self.player.get_id(), map_ids)
+		elif karma_app_installed:
+			query = Queries.WITHOUT_RECS.format(expanded_voting, map_ids)
+
+		select_query = RawQuery(AdvancedMap, query)
+		return await AdvancedMap.execute(select_query)
+
+	async def get_advanced_via_apps(self, local_app_installed, karma_app_installed):
+		data = list()
 
 		for m in self.app.instance.map_manager.maps:
 			map_dict = model_to_dict(m)
@@ -202,11 +262,6 @@ class MapListView(ManualListView):
 				if 'author_nickname' in map_dict and map_dict['author_nickname']
 				else map_dict['author_login']
 			)
-
-			# Skip if in performance mode or advanced is not enabled.
-			if self.app.instance.performance_mode or not self.advanced:
-				data.append(map_dict)
-				continue
 
 			if local_app_installed:
 				# Get personal local record of the user.
@@ -226,9 +281,7 @@ class MapListView(ManualListView):
 
 			data.append(map_dict)
 
-		self.cache = data
-		self.cache_advanced = self.advanced
-		return self.cache
+		return data
 
 	async def get_fields(self):
 		fields = [
