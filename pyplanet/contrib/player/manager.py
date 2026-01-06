@@ -1,6 +1,7 @@
 import asyncio
 import datetime
 import logging
+import uuid, base64
 
 from peewee import DoesNotExist
 
@@ -13,6 +14,7 @@ from pyplanet.core.exceptions import ImproperlyConfigured
 from pyplanet.core.signals import pyplanet_performance_mode_begin, pyplanet_performance_mode_end
 from pyplanet.core.storage.exceptions import StorageException
 from pyplanet.utils.zone import parse_path
+
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +56,7 @@ class PlayerManager(CoreContrib):
 		self._total_count = 0
 		self._players_count = 0
 		self._spectators_count = 0
-
+	
 	@property
 	def performance_mode(self):
 		return self._performance_mode
@@ -177,7 +179,14 @@ class PlayerManager(CoreContrib):
 			player.flow.is_spectator = bool(info['IsSpectator'])
 			player.flow.is_player = not bool(info['IsSpectator'])
 			player.flow.zone = parse_path(info['Path'])
-
+			
+			if self._instance.game.game == 'tmnext':
+				player_addweb = player.login.ljust(24, "=")
+				player_replaceweb1 = player_addweb.replace("-", "+")
+				player_replaceweb2 = player_replaceweb1.replace("_", "/")
+				decodedbase64 = base64.b64decode(bytes(player_replaceweb2, 'ascii'))
+				player.flow.webserviceId = uuid.UUID(bytes=decodedbase64)
+			
 			self._total_count += 1
 			if player.flow.is_spectator:
 				self._spectators_count += 1
