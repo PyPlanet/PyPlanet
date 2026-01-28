@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.11.11
+-------
+
+* Improvement: Add support for new TM2020 vistas in parsing GBX-files.
+
 0.11.10
 -------
 
@@ -9,9 +14,9 @@ Core
 
 * **Breaking**: Updated PyYAML dependency requiring Python >= 3.8.
 
-  The PyYAML version has been bumped to a release that no longer supports Python 3.7.6.  
-  This change means environments using Python 3.7.6 or lower will fail to install or run.  
-  Please upgrade your Python runtime to **3.8.0 or higher** (tested with 3.8.20).  
+  The PyYAML version has been bumped to a release that no longer supports Python 3.7.6.
+  This change means environments using Python 3.7.6 or lower will fail to install or run.
+  Please upgrade your Python runtime to **3.8.0 or higher** (tested with 3.8.20).
   More info: https://github.com/PyPlanet/PyPlanet/issues/1364
 
 * Improvement: Bump version of a specific dependency to support arm64 architecture.
