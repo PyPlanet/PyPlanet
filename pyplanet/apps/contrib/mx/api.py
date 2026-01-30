@@ -50,7 +50,7 @@ class MXApi:
 		).__aenter__()
 
 		if self.site == 'tmnext':
-			self.environments = { 0: 'Custom', 1: 'Stadium'}
+			self.environments = { 0: 'Custom', 1: 'Stadium', 2: 'Red Island', 3: 'Green Coast', 4: 'Blue Bay', 5: 'White Shore'}
 		elif self.site == 'sm':
 			self.environments = {0: 'Custom', 1: 'Storm'}
 		elif self.site == 'tm':
@@ -217,3 +217,4 @@ class MXApi:
 		if response.status < 200 or response.status > 399:
 			raise MXInvalidResponse('Got invalid response status from ManiaExchange: {}'.format(response.status))
 		return response
+
