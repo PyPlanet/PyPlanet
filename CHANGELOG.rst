@@ -1,6 +1,22 @@
 Changelog
 =========
 
+0.11.12
+-------
+
+Core
+~~~~
+
+* Improvement: Replace manual Ogg tag extraction with ``tinytag`` library for improved reliability (Music Server) (re: #1361).
+
+Apps
+~~~~
+
+* Improvement: Add support for new Trackmania environments (Red Island, Green Coast, Blue Bay, White Shore) in MX API.
+* Improvement: Support searching for maps in 'Trackmania' titlepack on MX by automatically mapping it to 'TMStadium'.
+
+* Bugfix: Fix ManiaScript compilation errors in Ads app (Discord and PayPal logos) for Trackmania 2020.
+
 0.11.11
 -------
 
