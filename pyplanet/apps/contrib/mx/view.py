@@ -151,7 +151,10 @@ class MxSearchListView(ManualListView):
 	async def do_search(self, trackname=None, authorname=None, refresh=True, **terms):
 		try:
 			titlepack = self.app.instance.game.dedicated_title.split("@", 1)[0]
-			infos = await self.api.search(titlepack, trackname, authorname)
+			if titlepack == 'Trackmania':
+				infos = await self.api.search('TMStadium', trackname, authorname)
+			else:
+				infos = await self.api.search(titlepack, trackname, authorname)
 			if len(infos) == 0:
 				raise MXMapNotFound("No results for search")
 
@@ -547,3 +550,4 @@ class MxAwardWidget(WidgetView):
 		})
 
 		return context
+
