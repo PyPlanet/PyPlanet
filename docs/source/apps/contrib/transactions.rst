@@ -31,6 +31,28 @@ Functionality:
 Required permission:
   -
 
+Pay to extend
+~~~~~~
+Command:
+  ``/pay2extend``
+Parameters:
+  None
+Functionality:
+  Initiates a payment to extend the current track.
+Required permission:
+  -
+
+Pay to skip
+~~~~~~
+Command:
+  ``/pay2skip``
+Parameters:
+  None
+Functionality:
+  Initiates a payment to skip the current track.
+Required permission:
+  -
+
 Get amount of planets on server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Command:
