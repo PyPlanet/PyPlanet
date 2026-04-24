@@ -19,8 +19,10 @@ main() {
     "player_toolbar_bar_button_mf" => "View list of Map Folders",
     "player_toolbar_bar_button_jb" => "View the Juke Box List",
     "player_toolbar_bar_button_extend" => "Vote for extending the Time Limit",
+    "player_toolbar_bar_button_pay2extend" => "Pay for extending the Time Limit",
     "player_toolbar_bar_button_replay" => "Vote to replay the map",
-    "player_toolbar_bar_button_skip" => "Vote for a skip map",
+    "player_toolbar_bar_button_skip" => "Vote to skip a map",
+    "player_toolbar_bar_button_pay2skip" => "Pay to skip a map",
 
 	  "player_toolbar_bar_button_topdons" => "View list of top Donators",
 	  "player_toolbar_bar_button_topsums" => "View Server Rank List",
