@@ -1,0 +1,106 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.python }}-${{ matrix.test-type }}-${{ matrix.database }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+
+    strategy:
+      fail-fast: false
+      matrix:
+        database:
+          - mysql
+          - postgresql
+        test-type:
+          - unit
+          - integration
+        python:
+          - py37
+          - py38
+        include:
+          - python: py37
+            python-version: '3.7'
+          - python: py38
+            python-version: '3.8'
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: pyplanet
+        ports:
+          - 3306:3306 # TODO: Adapt test config to use remote rather than localhost
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: pyplanet
+          POSTGRES_PASSWORD: pyplanet
+          POSTGRES_DB: pyplanet
+        ports:
+          - 5432:5432 # TODO: Adapt test config to use remote rather than localhost
+        options: >-
+          --health-cmd="pg_isready -U pyplanet"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      TOXENV: ${{ matrix.python }}-${{ matrix.test-type }}-${{ matrix.database }}
+      MP_USER: ${{ secrets.MP_USER || '' }}
+      MP_PASS: ${{ secrets.MP_PASS || '' }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache pip packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ matrix.python }}-${{ matrix.test-type }}-${{ matrix.database }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+
+      - name: Install tox and coverage tooling
+        # TODO: Store in requirements-test.txt
+        run: pip install tox codacy-coverage python-coveralls apyio==0.2.0 -U pip
+
+      - name: Download dedicated server (integration tests only)
+        # TODO: Use a service (if possible)
+        run: tests/_scripts/travis_dedicated_setup.sh
+
+      - name: Generate test settings
+        run: tests/_scripts/travis_config.sh
+
+      - name: Start dedicated server (integration tests only)
+        run: tests/_scripts/travis_dedicated_start.sh
+
+      - name: Run tox
+        run: tox -e $TOXENV -- --with-coverage --cover-package=pyplanet --cover-xml --cover-xml-file=coverage.xml
+
+      - name: Dump dedicated server logs on failure
+        if: failure()
+        run: cat dedicated/Logs/* || true
