@@ -1,18 +1,12 @@
-import asynctest
-
-from pyplanet.core import Controller
 from pyplanet.views.generics import AlertView
 from pyplanet.views.generics.alert import PromptView
 
+from tests.base import TestCase
 
-class TestGenericViews(asynctest.TestCase):
 
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
-
-		self.instance = Controller.prepare(name='default').instance
-
+class TestGenericViews(TestCase):
 	async def setUp(self):
+		await super().setUp()
 		await self.instance.apps.discover()
 
 	async def test_alert(self):

@@ -1,18 +1,16 @@
-import asynctest
-
-from pyplanet.core.instance import Controller
+from tests.base import TestCase
 
 
-class TestGbx(asynctest.TestCase):
+class TestGbx(TestCase):
 	async def test_gbx_init(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		await instance.gbx.connect()
 		self.assertGreater(len(instance.gbx.gbx_methods), 0)
 		await instance.gbx.disconnect()
 		del instance
 
 	async def test_gbx_game_infos(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		await instance.gbx.connect()
 
 		assert instance.game.server_player_login is not None
@@ -39,7 +37,7 @@ class TestGbx(asynctest.TestCase):
 		del instance
 
 	async def test_gbx_query(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		await instance.gbx.connect()
 
 		# Direct way.
@@ -57,7 +55,7 @@ class TestGbx(asynctest.TestCase):
 		del instance
 
 	async def test_script_query(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		await instance.gbx.connect()
 
 		# Direct way.
@@ -75,7 +73,7 @@ class TestGbx(asynctest.TestCase):
 		del instance
 
 	async def test_multicall(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		await instance.gbx.connect()
 
 		version_info, ladder_info, pause_info = await instance.gbx.multicall(

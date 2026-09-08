@@ -1,9 +1,7 @@
-import asynctest
-
-from pyplanet.core import Controller
+from tests.base import TestCase
 
 
-class TestCommands(asynctest.TestCase):
+class TestCommands(TestCase):
 	async def target(self, *args, **kwargs):
 		self.target_called += 1
 
@@ -11,7 +9,7 @@ class TestCommands(asynctest.TestCase):
 		self.target_called += len(data.numbers)
 
 	async def test_registering(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		await instance.db.connect()
 		await instance.apps.discover()
 		await instance.db.initiate()
@@ -39,7 +37,7 @@ class TestCommands(asynctest.TestCase):
 		assert self.target_called == 2
 
 	async def test_params(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		await instance.db.connect()
 		await instance.apps.discover()
 		await instance.db.initiate()

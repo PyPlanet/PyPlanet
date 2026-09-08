@@ -1,12 +1,11 @@
-import asynctest
-
-from pyplanet.core import Controller
 from pyplanet.core.events import Signal, Callback
 
+from tests.base import TestCase
 
-class TestCallbacks(asynctest.TestCase):
+
+class TestCallbacks(TestCase):
 	async def test_registering(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 
 		test1 = Callback(
 			call='SampleCall',

@@ -1,13 +1,13 @@
-import asynctest
 
 from pyplanet.apps import AppConfig
-from pyplanet.core import Controller
 from pyplanet.core.events import Signal
 
+from tests.base import TestCase
 
-class TestSignals(asynctest.TestCase):
+
+class TestSignals(TestCase):
 	async def test_registering(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 
 		test1 = Signal(code='test1', namespace='tests')
 		instance.signals.register_signal(test1)
@@ -21,7 +21,7 @@ class TestSignals(asynctest.TestCase):
 		assert test2 == test2_comp
 
 	async def test_listening(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 
 		test1 = Signal(code='test1', namespace='tests', process_target=self.glue)
 		instance.signals.register_signal(test1)
@@ -45,7 +45,7 @@ class TestSignals(asynctest.TestCase):
 		assert self.got_raw == 4
 
 	async def test_unregister(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		test1 = Signal(code='test1', namespace='tests', process_target=self.glue)
 		instance.signals.register_signal(test1)
 
@@ -68,7 +68,7 @@ class TestSignals(asynctest.TestCase):
 		assert self.got_async == 2
 
 	async def test_app_manager(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		manager = instance.signals.create_app_manager(None)
 
 		test1 = Signal(code='test1', namespace='tests', process_target=self.glue)

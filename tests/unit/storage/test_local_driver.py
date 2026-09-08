@@ -1,16 +1,14 @@
 import os
-import asynctest
 
-from pyplanet.core import Controller
+from tests.base import TestCase
 
 
-class TestStorageManager(asynctest.TestCase):
+class TestStorageManager(TestCase):
 
 	def __init__(self, *args, **kwargs):
 		from pyplanet.conf import settings
 		self.tmp_dir = settings.TMP_PATH
 		self.tmp_file = os.path.join(self.tmp_dir, 'test-{}'.format(id(self)))
-		self.instance = Controller.prepare(name='default').instance
 		super().__init__(*args, **kwargs)
 
 	async def test_init(self):

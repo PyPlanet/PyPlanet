@@ -1,14 +1,14 @@
-import asynctest
 import datetime
 
 from pyplanet.contrib.setting import Setting
 from pyplanet.contrib.setting.exceptions import SerializationException
-from pyplanet.core import Controller
+
+from tests.base import TestCase
 
 
-class TestSettings(asynctest.TestCase):
+class TestSettings(TestCase):
 	async def test_registration(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		await instance.db.connect()
 		await instance.apps.discover()
 
@@ -20,7 +20,7 @@ class TestSettings(asynctest.TestCase):
 		assert test_1 in setting_list
 
 	async def test_saving(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		await instance.db.connect()
 		await instance.apps.discover()
 
@@ -38,7 +38,7 @@ class TestSettings(asynctest.TestCase):
 		assert real == expected
 
 	async def test_validating(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		await instance.db.connect()
 		await instance.apps.discover()
 
@@ -67,5 +67,5 @@ class TestSettings(asynctest.TestCase):
 			await test_1.set_value(list())
 		assert isinstance(context.exception, SerializationException)
 
-		value = test_1.get_value(refresh=True)
+		value = await test_1.get_value(refresh=True)
 		assert value is not True

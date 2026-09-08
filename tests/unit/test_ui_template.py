@@ -1,13 +1,13 @@
-import asynctest
 from jinja2 import Template
 
-from pyplanet.core import Controller
 from pyplanet.core.ui.template import load_template
 
+from tests.base import TestCase
 
-class TestTemplate(asynctest.TestCase):
+
+class TestTemplate(TestCase):
 	async def test_template_loading(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		await instance.db.connect()
 		await instance.apps.discover()
 		template = await load_template('core.views/generics/list.xml')
@@ -15,7 +15,7 @@ class TestTemplate(asynctest.TestCase):
 		assert isinstance(template.template, Template)
 
 	async def test_template_rendering(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		await instance.db.connect()
 		await instance.apps.discover()
 		template = await load_template('core.views/generics/list.xml')
