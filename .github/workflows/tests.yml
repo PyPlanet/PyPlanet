@@ -85,8 +85,7 @@ jobs:
         run: python -m pip install --upgrade pip
 
       - name: Install tox and coverage tooling
-        # TODO: Store in requirements-test.txt
-        run: pip install tox codacy-coverage python-coveralls apyio==0.2.0 -U pip
+        run: pip install -r requirements-test.txt
 
       - name: Download dedicated server (integration tests only)
         # TODO: Use a service (if possible)
