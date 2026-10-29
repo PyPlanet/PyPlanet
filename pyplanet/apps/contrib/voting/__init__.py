@@ -357,7 +357,7 @@ class Voting(AppConfig):
 			return
 
 		if await self.setting_enabled_replay.get_value() is False:
-			message = '$i$f00Replay voting has been disabled via the server settings! Try /extend for time-extension of TA-mode'
+			message = '$i$f00Replay voting has been disabled via the server settings! Try /extend or /pay2extend for time-extension of TA-mode'
 			await self.instance.chat(message, player)
 			return
 
@@ -387,7 +387,7 @@ class Voting(AppConfig):
 
 		if 'timeattack' in (await self.instance.mode_manager.get_current_script()).lower() \
 			and await self.setting_enabled_time_extend.get_value():
-			message = '$i$FD4Did you know that you could also vote for extending the time limit with /extend?'
+			message = '$i$FD4Did you know that you could also vote for extending the time limit with /extend or directly pay for it by /pay2extend?'
 			await self.instance.chat(message, player)
 
 		message = '$fff{}$z$s$0cf wants to $fff{}$0cf, $fff{}$0cf more {} needed (use $fffF5$0cf to vote){}.'.format(
@@ -451,7 +451,7 @@ class Voting(AppConfig):
 			return
 
 		if await self.setting_enabled_restart.get_value() is False:
-			message = '$i$f00Restart voting has been disabled via the server settings! Try /extend for time-extension of TA-mode'
+			message = '$i$f00Restart voting has been disabled via the server settings! Try /extend or /pay2extend for time-extension of TA-mode'
 			await self.instance.chat(message, player)
 			return
 
@@ -485,8 +485,6 @@ class Voting(AppConfig):
 		:param forced: whether the vote was forced passed by an admin
 		"""
 
-		message = '$0cfVote to $fff{}$0cf has passed.'.format(vote.action)
-
 		# Hide the voting widget and reset the current vote
 		await self.reset_vote()
 
@@ -502,6 +500,7 @@ class Voting(AppConfig):
 		await self.instance.gbx('RestartMap')
 
 		if not forced:
+			message = '$0cfVote to $fff{}$0cf has passed.'.format(vote.action)
 			await self.instance.chat(message)
 
 	async def vote_skip(self, player, data, **kwargs):
@@ -717,7 +716,6 @@ class Voting(AppConfig):
 		:param forced: whether the vote was forced passed by an admin
 		"""
 
-		message = '$0cfVote to $fff{}$0cf has passed.'.format(vote.action)
 		self.extend_current_count += 1
 		# Hide the voting widget and reset the current vote
 		await self.reset_vote()
@@ -725,6 +723,7 @@ class Voting(AppConfig):
 		try:
 			await self.instance.map_manager.extend_ta()
 			if not forced:
+				message = '$0cfVote to $fff{}$0cf has passed.'.format(vote.action)
 				await self.instance.chat(message)
 		except ModeIncompatible:
 			await self.instance.chat('$0cfVote to $fff{}$0cf has failed, current mode not Time Attack?')
