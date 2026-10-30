@@ -1,6 +1,9 @@
 import asyncio
 import math
+import os
+import lxml.etree as et
 
+from argparse import Namespace
 from playhouse.shortcuts import model_to_dict
 
 from pyplanet.apps.contrib.jukebox.models import MapFolder, MapInFolder
@@ -511,6 +514,12 @@ class FolderMapListView(MapListView):
 				'width': 38,
 				'action': self.action_add_current
 			})
+			
+			buttons.append({
+				'title': 'Export',
+				'width': 20,
+				'action': self.action_export
+			})
 
 			buttons.append({
 				'title': 'Rename folder',
@@ -537,7 +546,47 @@ class FolderMapListView(MapListView):
 			))
 
 		return sorted(super_actions, key=lambda k: k['order'])
+	
+	async def action_export(self, player, values, **kwargs):
+		new_ExportName = await ask_input(
+			player, 'Please enter the new name of matchsettingsfile', size='sm', default=self.folder_instance.name,
+		)
+		
+		items = []
+		for item in self.map_list:
+			items.append(await self.map_to_dict(item))
+			
+		new_ExportData = Namespace()
+		new_ExportData.file = new_ExportName
+		if 'admin' in self.app.instance.apps.apps:
+			await self.app.instance.apps.apps['admin'].map.write_map_list(player, new_ExportData)
+		else:
+			return
+			
+		try:
+			async with self.app.instance.storage.driver.open('UserData/Maps/MatchSettings/{}.txt'.format(new_ExportData.file), 'rb+') as ghost_file:
+				#print(await ghost_file.read())
+				data_xml = await ghost_file.read()
+				tree=et.fromstring(data_xml)
 
+				for bad in tree.xpath("//map"):
+					bad.getparent().remove(bad)     # here I grab the parent of the element to call the remove directly on it
+				items = []
+				for item in self.map_list:
+					items.append(await self.map_to_dict(item))
+					contentnav = tree.find(".//startindex")
+					contentdiv = contentnav.getparent()
+					data_new_xml = '<map><file>{}</file></map>\n'.format(item.file)
+					contentdiv.insert(contentdiv.index(contentnav)+1,
+					et.XML(data_new_xml))
+				GameDataDirectory = await self.app.instance.gbx('GameDataDirectory')
+				MatchSettings_file = '{}{}{}.txt'.format(GameDataDirectory,'/Maps/MatchSettings/',new_ExportData.file)
+				#print(MatchSettings_file)
+				with open(MatchSettings_file, 'wb') as f:
+					f.write(et.tostring(tree, pretty_print=False, xml_declaration=True, encoding='utf-8'))
+		except FileNotFoundError as e:
+			return e
+	
 	async def action_add_current(self, player, values, **kwargs):
 		if self.app.instance.map_manager.current_map.id in [m.id for m in self.map_list]:
 			await show_alert(player, 'The current map is already in this folder!', 'sm')
