@@ -1,0 +1,4 @@
+tox
+codacy-coverage
+python-coveralls
+apyio==0.2.0

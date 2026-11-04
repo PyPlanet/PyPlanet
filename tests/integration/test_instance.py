@@ -1,18 +1,18 @@
 import asynctest
 
-from pyplanet.core.instance import Controller
+from tests.base import TestCase
 
 
-class TestInstanceInit(asynctest.TestCase):
+class TestInstanceInit(TestCase):
 	async def test_gbx_init(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		await instance.gbx.connect()
 		self.assertGreater(len(instance.gbx.gbx_methods), 0)
 		await instance.gbx.disconnect()
 		del instance
 
 	async def test_startup(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		await instance._start()
 		self.assertGreater(len(instance.gbx.gbx_methods), 0)
 		await instance.gbx.disconnect()

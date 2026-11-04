@@ -1,0 +1,4 @@
+--strict
+--rm
+--platform=ubuntu-22.04=catthehacker/ubuntu:full-22.04
+--concurrent-jobs=1

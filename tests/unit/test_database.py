@@ -1,13 +1,14 @@
 import asynctest
 from playhouse.reflection import Introspector
 
-from pyplanet.core import Controller
 from pyplanet.core.db.models import migration
 
+from tests.base import TestCase
 
-class TestConnection(asynctest.TestCase):
+
+class TestConnection(TestCase):
 	async def test_connection(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		await instance.db.connect()
 		with instance.db.allow_sync():
 			introspector = Introspector.from_database(instance.db.engine)
@@ -15,10 +16,9 @@ class TestConnection(asynctest.TestCase):
 			assert db_name and len(db_name) > 0
 
 
-class TestModelDiscovery(asynctest.TestCase):
-
+class TestModelDiscovery(TestCase):
 	async def test_discovery(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		await instance.db.connect()
 		await instance.apps.discover()
 		await instance.db.initiate()
@@ -27,10 +27,9 @@ class TestModelDiscovery(asynctest.TestCase):
 		assert len(instance.db.registry.app_models.keys()) > 0
 
 
-class TestModelTableCreation(asynctest.TestCase):
-
+class TestModelTableCreation(TestCase):
 	async def test_creation(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		await instance.db.connect()
 		await instance.apps.discover()
 		await instance.db.initiate()
@@ -41,10 +40,9 @@ class TestModelTableCreation(asynctest.TestCase):
 			assert len(metadata.model_names) > 0
 
 
-class TestMigrations(asynctest.TestCase):
-
+class TestMigrations(TestCase):
 	async def test_db_migration(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		await instance.db.connect()
 		await instance.apps.discover()
 		await instance.db.initiate()

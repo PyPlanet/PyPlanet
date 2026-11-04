@@ -1,12 +1,11 @@
-import asynctest
 import datetime
 
-from pyplanet.core import Controller
+from tests.base import TestCase
 
 
-class TestPermissions(asynctest.TestCase):
+class TestPermissions(TestCase):
 	async def test_registration(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		await instance.db.connect()
 		await instance.apps.discover()
 
@@ -19,7 +18,7 @@ class TestPermissions(asynctest.TestCase):
 		assert bool(await instance.permission_manager.get_perm('tst1', 'test1'))
 
 	async def test_checking(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		await instance.db.connect()
 		await instance.apps.discover()
 		await instance.db.initiate()

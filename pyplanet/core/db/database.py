@@ -88,6 +88,9 @@ class Database:
 
 		logging.info('Database connection established!')
 
+	async def disconnect(self):
+		await self.engine.close_async()
+
 	async def initiate(self):
 		# Create the migration table.
 		from .models import migration

@@ -1,13 +1,12 @@
-import asynctest
-
 from pyplanet.contrib.chat.exceptions import ChatException
 from pyplanet.contrib.chat.query import ChatQuery
-from pyplanet.core import Controller
+
+from tests.base import TestCase
 
 
-class TestChat(asynctest.TestCase):
+class TestChat(TestCase):
 	async def test_simple(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		chat = instance.chat.prepare()
 		assert isinstance(chat, ChatQuery)
 
@@ -15,7 +14,7 @@ class TestChat(asynctest.TestCase):
 		assert len(chat.get_formatted_message()) > len('Test')  # Must include the prefix!!
 
 	async def test_to_logins(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		await instance.db.connect()
 		await instance.apps.discover()
 		await instance.db.initiate()
@@ -49,7 +48,7 @@ class TestChat(asynctest.TestCase):
 		assert 'sample-1' in chat._logins and 'sample-2' in chat._logins
 
 	async def test_query_conversion(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		# MOCK:
 		instance.gbx.gbx_methods = ['ChatSendServerMessageToLogin', 'ChatSendServerMessage']
 
@@ -66,7 +65,7 @@ class TestChat(asynctest.TestCase):
 		assert len(chat.gbx_query.args) == 1
 
 	async def test_short_syntax(self):
-		instance = Controller.prepare(name='default').instance
+		instance = self.instance
 		# MOCK:
 		instance.gbx.gbx_methods = ['ChatSendServerMessageToLogin', 'ChatSendServerMessage']
 
