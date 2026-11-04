@@ -111,7 +111,7 @@ install:
   - tests/_scripts/dedicated_setup.sh
 
 before_script:
-  - tests/_scripts/config.sh
+  - cp -rT tests/_scripts/ci/settings settings
   - tests/_scripts/dedicated_start.sh
 
 script:

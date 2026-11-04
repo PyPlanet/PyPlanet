@@ -38,7 +38,7 @@ jobs:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_DATABASE: pyplanet
         ports:
-          - 3306:3306 # TODO: Adapt test config to use remote rather than localhost
+          - 3306:3306
         options: >-
           --health-cmd="mysqladmin ping --silent"
           --health-interval=10s
@@ -52,7 +52,7 @@ jobs:
           POSTGRES_PASSWORD: pyplanet
           POSTGRES_DB: pyplanet
         ports:
-          - 5432:5432 # TODO: Adapt test config to use remote rather than localhost
+          - 5432:5432
         options: >-
           --health-cmd="pg_isready -U pyplanet"
           --health-interval=10s
@@ -91,16 +91,16 @@ jobs:
         if: matrix.test-type == 'integration'
         run: tests/_scripts/dedicated_setup.sh
 
-      - name: Generate test settings
-        run: tests/_scripts/config.sh
-
       - name: Start dedicated server
         if: matrix.test-type == 'integration'
         run: tests/_scripts/dedicated_start.sh
+
+      - name: Generate test settings
+        run: cp -rT tests/_scripts/ci/settings settings
 
       - name: Run tox
         run: tox -e $TOXENV -- --with-coverage --cover-package=pyplanet --cover-xml --cover-xml-file=coverage.xml
 
       - name: Dump dedicated server logs on failure
         if: failure()
-        run: cat dedicated/Logs/* || true
+        run: cat tests/_files/server/Logs/* || true
