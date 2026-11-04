@@ -87,15 +87,16 @@ jobs:
       - name: Install tox and coverage tooling
         run: pip install -r requirements-test.txt
 
-      - name: Download dedicated server (integration tests only)
-        # TODO: Use a service (if possible)
-        run: tests/_scripts/travis_dedicated_setup.sh
+      - name: Download dedicated server
+        if: matrix.test-type == 'integration'
+        run: tests/_scripts/dedicated_setup.sh
 
       - name: Generate test settings
-        run: tests/_scripts/travis_config.sh
+        run: tests/_scripts/config.sh
 
-      - name: Start dedicated server (integration tests only)
-        run: tests/_scripts/travis_dedicated_start.sh
+      - name: Start dedicated server
+        if: matrix.test-type == 'integration'
+        run: tests/_scripts/dedicated_start.sh
 
       - name: Run tox
         run: tox -e $TOXENV -- --with-coverage --cover-package=pyplanet --cover-xml --cover-xml-file=coverage.xml

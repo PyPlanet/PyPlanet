@@ -31,8 +31,8 @@ cp tests/_files/maps/canyon-mp4-1.gbx dedicated/UserData/Maps/canyon1.Map.Gbx
 cp tests/_files/maps/canyon-mp4-2.gbx dedicated/UserData/Maps/canyon2.Map.Gbx
 
 # Prepare configuration files.
-cp tests/_scripts/travis/dedicated/dedicated_cfg.txt dedicated/UserData/Config/dedicated_cfg.txt
-cp tests/_scripts/travis/dedicated/matchsettings_1.txt dedicated/UserData/Maps/MatchSettings/matchsettings_1.txt
+cp tests/_scripts/ci/dedicated/dedicated_cfg.txt dedicated/UserData/Config/dedicated_cfg.txt
+cp tests/_scripts/ci/dedicated/matchsettings_1.txt dedicated/UserData/Maps/MatchSettings/matchsettings_1.txt
 
 ##########
 cd $BEFORE_PWD
